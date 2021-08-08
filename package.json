@@ -1,0 +1,25 @@
+{
+  "name": "sneezingmod",
+  "dependencies": {
+    "blockly": "^6.20210701.0",
+    "jquery": "^3.6.0",
+    "jquery-ui-dist": "^1.12.1",
+    "raw-loader": "^4.0.2",
+    "vue": "^2.6.14",
+    "webextension-polyfill": "^0.8.0"
+  },
+  "devDependencies": {
+    "css-loader": "^5.2.7",
+    "file-loader": "^6.2.0",
+    "style-loader": "^3.1.0",
+    "url-loader": "^4.1.1",
+    "web-ext": "^6.2.0",
+    "webpack": "^5.40.0",
+    "webpack-cli": "^4.7.2"
+  },
+  "scripts": {
+    "test": "web-ext run -s ./dist",
+    "build": "webpack",
+    "build-extension": "web-ext build -s ./dist --overwrite-dest"
+  }
+}
