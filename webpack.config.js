@@ -1,7 +1,7 @@
-const path = require("path");
+const path = require('path');
 
 module.exports = {
-  mode: "production",
+  mode: 'production',
   module: {
     rules: [
       {
@@ -9,28 +9,29 @@ module.exports = {
         loader: 'file-loader',
         options: {
           outputPath: './images/',
-          name: '[name].[ext]?[hash]'
-        }
+          name: '[name].[ext]?[hash]',
+        },
       },
       {
         test: /\.css$/i,
-        use: ["style-loader", "css-loader"],
+        use: ['style-loader', 'css-loader'],
       },
       {
-        test: /\.xml$/i,
+        test: /\.(xml|html)$/i,
         use: 'raw-loader',
       },
-    ]
+    ],
   },
   entry: {
-    "background": "./src/background.js",
-    "js/injector": "./src/js/injector.js",
-    "js/loadInjector": "./src/js/loadInjector.js",
-    "js/runInjectors": "./src/js/runInjectors.js",
-    "css/style": "./src/css/style.css"
+    'background': './src/background.js',
+    'css/style': './src/gmWindow/style.css',
+    'js/injector': './src/inject/injector.js',
+    'js/loadInjector': './src/inject/loadInjector.js',
+    'js/runInjectors': './src/inject/runInjectors.js',
   },
   output: {
-    filename: "[name].js",
-    path: path.resolve(__dirname, "dist")
-  }
+    hashFunction: 'xxhash64',
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'dist'),
+  },
 };

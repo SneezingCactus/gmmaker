@@ -1,13 +1,13 @@
 {
   "name": "Game Mode Maker",
-  "description": "Build an Extension!",
-  "version": "1.0",
+  "description": "A bonk.io mod that lets you create your own game modes using blocks.",
+  "version": "0.1",
   "manifest_version": 2,
   "background": {
     "scripts": [ "background.js" ]
   },
   "permissions": [ "webRequest", "webRequestBlocking", "*://bonk.io/*" ],
-  "web_accessible_resources": [ "js/injector.js", "js/runInjectors.js", "images/*" ],
+  "web_accessible_resources": [ "js/injector.js", "js/runInjectors.js" ],
   "content_scripts": [
     {
        "js": ["js/loadInjector.js"],
@@ -16,9 +16,9 @@
     }
   ],
   "icons": {
-    "16": "/icons/get_started16.png",
-    "32": "/icons/get_started32.png",
-    "48": "/icons/get_started48.png",
-    "128": "/icons/get_started128.png"
+    "16": "icons/gmmaker16.png",
+    "32": "icons/gmmaker32.png",
+    "48": "icons/gmmaker48.png",
+    "128": "icons/gmmaker128.png"
   }
 }
