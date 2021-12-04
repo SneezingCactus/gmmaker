@@ -6,7 +6,7 @@ This mod uses the [Google Blockly](https://developers.google.com/blockly) librar
 
 ## Installing
 
-Download the latest gmmaker-(version).zip file from Releases, and then:
+Download the latest game\_mode\_maker-(version).zip file from Releases, and then:
 
 <details>
 <summary>In Firefox</summary>
