@@ -4,6 +4,8 @@ A [bonk.io](https://bonk.io/) mod that lets you create your own game modes using
 
 This mod uses the [Google Blockly](https://developers.google.com/blockly) library.
 
+[Join the Discord server](https://discord.gg/dnBM3N6H8a)
+
 ## Installing
 
 Download the latest game\_mode\_maker-(version).zip file from Releases, and then:
