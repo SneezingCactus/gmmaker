@@ -105,8 +105,10 @@ export default {
 
       if (gm.lobby.roundStarting && gm.physics.gameState.ftu == -1) {
         gm.lobby.roundStarting = false;
-        gm.blockly.resetVars();
         for (let i = 0; i != gm.physics.gameState.discs.length; i++) {
+          if (gm.physics.gameState.physics.bodies[0].cf[i]) {
+            gm.physics.gameState.physics.bodies[0].cf[i] = [];
+          }
           if (gm.physics.gameState.discs[i]) {
             if (!gm.inputs.allPlayerInputs[i]) {
               gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};

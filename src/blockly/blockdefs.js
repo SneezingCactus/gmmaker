@@ -327,7 +327,7 @@ module.exports = [{
 },
 {
   'type': 'on_each_phys_frame',
-  'message0': 'on each physics step %1 %2',
+  'message0': 'on physics step %1 %2',
   'args0': [
     {
       'type': 'input_dummy',
@@ -338,12 +338,12 @@ module.exports = [{
     },
   ],
   'colour': 20,
-  'tooltip': 'Executes every time the physics get calculated.',
+  'tooltip': 'Executes every time the physics get calculated (30 times a second).',
   'helpUrl': '',
 },
 {
   'type': 'on_each_render_frame',
-  'message0': 'on each drawing frame %1 %2',
+  'message0': 'on render %1 %2',
   'args0': [
     {
       'type': 'input_dummy',
@@ -354,7 +354,7 @@ module.exports = [{
     },
   ],
   'colour': 20,
-  'tooltip': 'Executes every time the game is rendered.',
+  'tooltip': 'Executes every time the game is rendered (varies depending on your FPS). Game modifying blocks such as "set player\'s x position" do not work here.',
   'helpUrl': '',
 },
 {
@@ -933,5 +933,72 @@ module.exports = [{
   'nextStatement': null,
   'colour': 230,
   'tooltip': 'Delete all arrows that belong to the player.',
+  'helpUrl': '',
+},
+{
+  'type': 'math_atan2',
+  'message0': 'atan2 of x: %1 y: %2',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'x',
+      'check': 'Number',
+    },
+    {
+      'type': 'input_value',
+      'name': 'y',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'output': 'Number',
+  'colour': 230,
+  'tooltip': 'Returns the atan2 of the specified coordinate, in degrees.',
+  'helpUrl': '',
+},
+{
+  'type': 'math_abs',
+  'message0': 'absolute of %1',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'value',
+      'check': 'Number',
+    },
+  ],
+  'output': 'Number',
+  'colour': 230,
+  'tooltip': 'Returns the absolute of the specified number.',
+  'helpUrl': '',
+},
+{
+  'type': 'math_distance',
+  'message0': 'distance between x: %1 y: %2 and x: %3 y: %4',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'a_x',
+      'check': 'Number',
+    },
+    {
+      'type': 'input_value',
+      'name': 'a_y',
+      'check': 'Number',
+    },
+    {
+      'type': 'input_value',
+      'name': 'b_x',
+      'check': 'Number',
+    },
+    {
+      'type': 'input_value',
+      'name': 'b_y',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'output': 'Number',
+  'colour': 230,
+  'tooltip': 'Returns the distance between two points.',
   'helpUrl': '',
 }];

@@ -11,6 +11,7 @@ export default {
         const result = this.render_OLD.apply(this, arguments);
         gm.graphics.rendererClass = this;
 
+        gm.graphics.rendering = true;
         if (gm.graphics.rendererClass) {
           for (let i = 0; i != gm.graphics.rendererClass.discGraphics.length; i++) {
             if (gm.graphics.rendererClass.discGraphics[i] && (!gm.graphics.additionalDiscGraphics[i] || gm.graphics.additionalDiscGraphics[i]._destroyed == true)) {
@@ -37,6 +38,7 @@ export default {
             }
           }
         }
+        gm.graphics.rendering = false;
 
         return result;
       };
@@ -67,6 +69,7 @@ export default {
     })();
   },
   rendererClass: null,
+  rendering: false,
   additionalDiscGraphics: [],
   additionalWorldGraphics: [],
   onRender: function() { },

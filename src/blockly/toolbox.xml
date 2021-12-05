@@ -136,6 +136,54 @@
         </shadow>
       </value>
     </block>
+    <block type="deg_to_rad">
+      <value name="degree_value">
+        <shadow type="math_number">
+          <field name="NUM">180</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="rad_to_deg">
+      <value name="radian_value">
+        <shadow type="math_number">
+          <field name="NUM">3.14</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="math_atan2">
+      <value name="x">
+        <shadow type="math_number">
+          <field name="NUM">10</field>
+        </shadow>
+      </value>
+      <value name="y">
+        <shadow type="math_number">
+          <field name="NUM">10</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="math_distance">
+      <value name="a_x">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="a_y">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="b_x">
+        <shadow type="math_number">
+          <field name="NUM">10</field>
+        </shadow>
+      </value>
+      <value name="b_y">
+        <shadow type="math_number">
+          <field name="NUM">10</field>
+        </shadow>
+      </value>
+    </block>
   </category>
   <category name="Lists" colour="#745ba5">
     <block type="lists_create_with">
@@ -313,20 +361,6 @@
       <value name="unit_value">
         <shadow type="math_number">
           <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="deg_to_rad">
-      <value name="degree_value">
-        <shadow type="math_number">
-          <field name="NUM">180</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="rad_to_deg">
-      <value name="radian_value">
-        <shadow type="math_number">
-          <field name="NUM">3.14</field>
         </shadow>
       </value>
     </block>

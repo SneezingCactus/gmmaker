@@ -208,6 +208,26 @@ export default function() {
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
+  Blockly.JavaScript['math_atan2'] = function(block) {
+    const value_x = Blockly.JavaScript.valueToCode(block, 'x', Blockly.JavaScript.ORDER_ATOMIC);
+    const value_y = Blockly.JavaScript.valueToCode(block, 'y', Blockly.JavaScript.ORDER_ATOMIC);
+
+    const code = `Math.atan2(${value_x}, ${value_y})*(180/Math.PI)`;
+
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
+  Blockly.JavaScript['math_distance'] = function(block) {
+    const point_a_x = Blockly.JavaScript.valueToCode(block, 'a_x', Blockly.JavaScript.ORDER_ATOMIC);
+    const point_a_y = Blockly.JavaScript.valueToCode(block, 'a_y', Blockly.JavaScript.ORDER_ATOMIC);
+    const point_b_x = Blockly.JavaScript.valueToCode(block, 'b_x', Blockly.JavaScript.ORDER_ATOMIC);
+    const point_b_y = Blockly.JavaScript.valueToCode(block, 'b_y', Blockly.JavaScript.ORDER_ATOMIC);
+
+    const code = `gm.blockly.funcs.getDistance(${point_a_x}, ${point_a_y}, ${point_b_x}, ${point_b_y})`;
+
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
   // blockly built-in
   // make variables use own db
   Blockly.JavaScript['math_change'] = function(block) {
@@ -216,8 +236,8 @@ export default function() {
         Blockly.JavaScript.ORDER_ADDITION) || '0';
     const varName = Blockly.JavaScript.nameDB_.getName(
         block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
-    return 'gm.blockly.funcs.setVar("' + varName + '", playerid, (typeof gm.blockly.funcs.getVar("' + varName + '", playerid) == \'number\' ?  gm.blockly.funcs.getVar("' + varName +
-                '", playerid) : 0) + ' + argument0 + ');\n';
+    return 'gm.blockly.funcs.setVar("' + varName + '", gst, playerid, (typeof gm.blockly.funcs.getVar("' + varName + '", gst, playerid) == \'number\' ?  gm.blockly.funcs.getVar("' + varName +
+                '", gst, playerid) : 0) + ' + argument0 + ');';
   };
 
   Blockly.JavaScript['variables_set'] = function(block) {
@@ -226,14 +246,14 @@ export default function() {
         Blockly.JavaScript.ORDER_ASSIGNMENT) || '0';
     const varName = Blockly.JavaScript.nameDB_.getName(
         block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
-    return 'gm.blockly.funcs.setVar("' + varName + '", playerid, ' + argument0 + ');\n';
+    return 'gm.blockly.funcs.setVar("' + varName + '", gst, playerid, ' + argument0 + ');';
   };
 
   Blockly.JavaScript['variables_get'] = function(block) {
     // Variable getter.
     const varName = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('VAR'),
         Blockly.VARIABLE_CATEGORY_NAME);
-    return ['gm.blockly.funcs.getVar("' + varName + '", playerid)', Blockly.JavaScript.ORDER_ATOMIC];
+    return ['gm.blockly.funcs.getVar("' + varName + '", gst, playerid)', Blockly.JavaScript.ORDER_ATOMIC];
   };
 
   // fix functions

@@ -45,3 +45,34 @@
     width: 85%;
     flex-grow: 1;
 }
+
+.modebuttoncontainer {
+    display: flex;
+    position: absolute;
+    right: 15px;
+    bottom: 55px;
+    width: 116px;
+}
+
+#newbonklobby_modebutton {
+    width: 75px;
+    right: 55px;
+}
+
+#newbonklobby_modebutton .gm_withbonkhost {
+    right: 15px;
+}
+
+#gmeditor_openbutton {
+    position: absolute;
+    right: 15px;
+    bottom: 55px;
+    height: 30px;
+    width: 30px;
+    margin-left: 5px;
+    background-image: url(https://media.discordapp.net/attachments/765067198535303180/916766375593259038/gmmakerlogo.png);
+    background-size: 95%;
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: center;
+}

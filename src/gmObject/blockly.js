@@ -24,8 +24,23 @@ export default {
     document.getElementById('gmeditor_savebutton').addEventListener('click', gm.blockly.GMESave);
     document.getElementById('gmeditor_closebutton').addEventListener('click', gm.blockly.hideGMEWindow);
 
-    document.getElementById('newbonklobby_modetext').addEventListener('click', gm.blockly.showGMEWindow);
-    document.getElementById('newbonklobby_modetext').style.cursor = 'pointer';
+
+    const GMOpenButton = document.createElement('div');
+    GMOpenButton.id = 'gmeditor_openbutton';
+    GMOpenButton.className = 'newbonklobby_settings_button brownButton brownButton_classic buttonShadow';
+    GMOpenButton.addEventListener('click', gm.blockly.showGMEWindow);
+
+    // ensure compatibility with bonk-host
+    if (window.createModeDropdown) {
+      window.createModeDropdown_OLD = window.createModeDropdown;
+      window.createModeDropdown = function() {
+        window.createModeDropdown_OLD();
+        GMOpenButton.className += ' gm_withbonkhost';
+        document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
+      };
+    } else {
+      document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
+    }
 
     // add block defs into blockly
     for (let i = 0; i != this.blockDefs.length; i++) {
@@ -129,10 +144,7 @@ all blocks are inside an event block, and try again.`);
   generateCode: function() {
     let code = Blockly.JavaScript.workspaceToCode(gm.blockly.workspace);
     if (code.startsWith('var ')) {
-      const varNameArray = code.match(/var (.+);/)[1].split(', ').map((v) => {
-        return '"' + v + '"';
-      });
-      code = code.replace(/var (.+);/, 'gm.blockly.funcs.initVars([' + varNameArray.join(', ') + ']);');
+      code = code.replace(/var (.+);/, '');
     }
     return code;
   },
@@ -146,6 +158,8 @@ all blocks are inside an event block, and try again.`);
       } else {
         graphics = gm.graphics.additionalWorldGraphics[discID];
       }
+
+      if (!graphics || graphics._destroyed) return;
 
       color = '0x' + color.slice(1);
 
@@ -162,6 +176,8 @@ all blocks are inside an event block, and try again.`);
         graphics = gm.graphics.additionalWorldGraphics[discID];
       }
 
+      if (!graphics || graphics._destroyed) return;
+
       color = '0x' + color.slice(1);
 
       graphics.beginFill(color);
@@ -177,6 +193,8 @@ all blocks are inside an event block, and try again.`);
         graphics = gm.graphics.additionalWorldGraphics[discID];
       }
 
+      if (!graphics || graphics._destroyed) return;
+
       color = '0x' + color.slice(1);
 
       graphics.lineStyle(width, color, 1);
@@ -191,6 +209,8 @@ all blocks are inside an event block, and try again.`);
       } else {
         graphics = gm.graphics.additionalWorldGraphics[discID];
       }
+
+      if (!graphics || graphics._destroyed) return;
 
       color = '0x' + color.slice(1);
 
@@ -210,8 +230,10 @@ all blocks are inside an event block, and try again.`);
     },
     clearGraphics: function(discID) {
       if (discID) {
-        gm.graphics.additionalDiscGraphics[discID].clear();
-        gm.graphics.additionalWorldGraphics[discID].clear();
+        if (gm.graphics.additionalDiscGraphics[discID] && !gm.graphics.additionalDiscGraphics[discID]._destroyed) {
+          gm.graphics.additionalDiscGraphics[discID].clear();
+          gm.graphics.additionalWorldGraphics[discID].clear();
+        }
       } else {
         for (let i = 0; i != gm.graphics.additionalDiscGraphics.length; i++) {
           if (gm.graphics.additionalDiscGraphics[i] && !gm.graphics.additionalDiscGraphics[i]._destroyed) {
@@ -222,12 +244,14 @@ all blocks are inside an event block, and try again.`);
       }
     },
     setPlayerProperty: function(gameState, discID, property, value) {
+      if (gm.graphics.rendering) return gameState;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] = value;
       }
       return gameState;
     },
     changePlayerProperty: function(gameState, discID, property, value) {
+      if (gm.graphics.rendering) return gameState;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] += value;
       }
@@ -242,6 +266,7 @@ all blocks are inside an event block, and try again.`);
     },
 
     setLastArrowProperty: function(gameState, discID, property, value) {
+      if (gm.graphics.rendering) return gameState;
       const projs = gameState.projectiles;
       for (let i = projs.length; i != -1; i -= 1) {
         if (projs[i] && projs[i].did == discID) {
@@ -252,6 +277,7 @@ all blocks are inside an event block, and try again.`);
       return gameState;
     },
     changeLastArrowProperty: function(gameState, discID, property, value) {
+      if (gm.graphics.rendering) return gameState;
       const projs = gameState.projectiles;
       for (let i = projs.length; i != -1; i -= 1) {
         if (projs[i] && projs[i].did == discID) {
@@ -271,41 +297,68 @@ all blocks are inside an event block, and try again.`);
       return 0;
     },
     deleteAllPlayerArrows: function(gameState, discID) {
-      for (let i = 0; i != gameState.projectiles.length; i++) {
-        if (gameState.projectiles[i].did == discID) {
+      if (gm.graphics.rendering) return gameState;
+      const projs = gameState.projectiles;
+      for (let i = 0; i != projs.length; i++) {
+        if (projs[i] && projs[i].did == discID) {
           gameState.projectiles[i] = null;
         }
       }
     },
     killPlayer: function(gameState, discID) {
+      if (gm.graphics.rendering) return;
       if (!gm.physics.killsThisStep.includes(discID)) {
         gm.physics.killsThisStep.push(discID);
       }
     },
-    initVars: function(vars) {
-      gm.blockly.vars = [{}];
-      vars.map((v) => {
-        gm.blockly.vars[0][v] = null;
-      });
-    },
-    setVar: function(varName, discID, value) {
-      if (typeof gm.blockly.vars[discID] == 'object') {
-        gm.blockly.vars[discID][varName] = value;
-      } else {
-        gm.blockly.vars[discID] = {};
-        gm.blockly.vars[discID][varName] = value;
+    setVar: function(varName, gameState, discID, value) {
+      if (!gameState.physics.bodies[0]) {
+        gameState.physics.bodies[0] = {
+          'type': 's',
+          'p': [0, 0],
+          'a': 0,
+          'av': 0,
+          'lv': [0, 0],
+          'ld': 0,
+          'ad': 0,
+          'fr': false,
+          'bu': false,
+          'fx': [],
+          'fric': 0,
+          'fricp': false,
+          'de': 0,
+          're': 0,
+          'f_c': 0,
+          'f_p': false,
+          'f_1': false,
+          'f_2': false,
+          'f_3': false,
+          'f_4': false,
+          'cf': {'x': 0, 'y': 0, 'w': false, 'ct': 0},
+        };
+      }
+      if (!gameState.physics.bodies[0].cf[discID]) {
+        gameState.physics.bodies[0].cf[discID] = {};
+      }
+      if (gameState.physics.bodies[0].cf[discID]) {
+        gameState.physics.bodies[0].cf[discID][varName] = value;
+      } else if (gameState.physics.bodies[0].cf[discID]) {
+        gameState.physics.bodies[0].cf[discID] = {};
+        gameState.physics.bodies[0].cf[discID][varName] = value;
       }
     },
-    getVar: function(varName, discID) {
-      if (gm.blockly.vars[discID] && gm.blockly.vars[discID][varName]) {
-        return gm.blockly.vars[discID][varName];
+    getVar: function(varName, gameState, discID) {
+      if (gameState.physics.bodies[0] && gameState.physics.bodies[0].cf[discID] && gameState.physics.bodies[0].cf[discID][varName]) {
+        return gameState.physics.bodies[0].cf[discID][varName];
       } else {
         return 0;
       }
     },
+    getDistance: function(pointA_X, pointA_Y, pointB_X, pointB_Y) {
+      return Math.sqrt(Math.pow(pointB_X - pointA_X, 2)+Math.pow(pointB_Y - pointA_Y, 2));
+    },
   },
   resetVars: function() {
-    gm.blockly.vars = [];
   },
   resetMode: function() {
     gm.physics.onFirstStep = function() {};
@@ -319,7 +372,6 @@ all blocks are inside an event block, and try again.`);
     gm.graphics.onRender = function() {};
   },
   resetAll: function() {
-    gm.blockly.resetVars();
     gm.blockly.resetMode();
     gm.blockly.funcs.clearGraphics();
   },
