@@ -1,2 +1,5 @@
 node_modules/
 web-ext-artifacts/
+dist/*
+!dist/manifest.json
+!dist/icons
