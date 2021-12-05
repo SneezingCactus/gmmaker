@@ -957,21 +957,6 @@ module.exports = [{
   'helpUrl': '',
 },
 {
-  'type': 'math_abs',
-  'message0': 'absolute of %1',
-  'args0': [
-    {
-      'type': 'input_value',
-      'name': 'value',
-      'check': 'Number',
-    },
-  ],
-  'output': 'Number',
-  'colour': 230,
-  'tooltip': 'Returns the absolute of the specified number.',
-  'helpUrl': '',
-},
-{
   'type': 'math_distance',
   'message0': 'distance between x: %1 y: %2 and x: %3 y: %4',
   'args0': [
