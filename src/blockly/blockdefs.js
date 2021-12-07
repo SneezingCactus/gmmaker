@@ -1,6 +1,6 @@
 module.exports = [{
   'type': 'create_arrow',
-  'message0': 'create arrow %1 x position %2 y position %3 x velocity %4 y velocity %5 angle %6',
+  'message0': 'create arrow %1 x position %2 y position %3 x velocity %4 y velocity %5 angle %6 steps until despawn %7',
   'args0': [
     {
       'type': 'input_dummy',
@@ -35,6 +35,12 @@ module.exports = [{
       'check': 'Number',
       'align': 'RIGHT',
     },
+    {
+      'type': 'input_value',
+      'name': 'arrow_time',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
   ],
   'inputsInline': false,
   'previousStatement': null,
@@ -45,46 +51,35 @@ module.exports = [{
 },
 {
   'type': 'player_die',
-  'message0': 'kill player',
-  'previousStatement': null,
-  'colour': 230,
-  'tooltip': 'Kill the player.',
-  'helpUrl': '',
-},
-{
-  'type': 'get_last_arrow_property',
-  'message0': 'get player\'s last arrow\'s %1',
+  'message0': 'kill %1 %2 %3',
   'args0': [
     {
       'type': 'field_dropdown',
-      'name': 'property',
+      'name': 'player',
       'options': [
         [
-          'x position',
-          'xpos',
+          'your player',
+          'self',
         ],
         [
-          'y position',
-          'ypos',
-        ],
-        [
-          'x velocity',
-          'xvel',
-        ],
-        [
-          'y velocity',
-          'yvel',
-        ],
-        [
-          'angle',
-          'ang',
+          'player with id',
+          'id',
         ],
       ],
     },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
   ],
-  'output': 'Number',
+  'inputsInline': true,
+  'previousStatement': null,
   'colour': 230,
-  'tooltip': 'Get a player\'s last arrow\'s property.',
+  'tooltip': 'Kill a player.',
   'helpUrl': '',
 },
 {
@@ -359,7 +354,7 @@ module.exports = [{
 },
 {
   'type': 'on_player_collide',
-  'message0': 'when the player collides with  %1 %2 %3',
+  'message0': 'when the player collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -378,6 +373,34 @@ module.exports = [{
           'collide_platform',
         ],
       ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'return_info',
+      'checked': false,
+    },
+    {
+      'type': 'field_variable',
+      'name': 'player_id',
+      'variable': 'hit player id',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'arrow_id',
+      'variable': 'hit arrow number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'normal_x',
+      'variable': 'hit normal x',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'normal_y',
+      'variable': 'hit normal y',
     },
     {
       'type': 'input_dummy',
@@ -409,8 +432,30 @@ module.exports = [{
 },
 {
   'type': 'set_player_prop',
-  'message0': 'set player\'s %1 to %2',
+  'message0': 'set %1 %2 %3 %4 to %5',
   'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
     {
       'type': 'field_dropdown',
       'name': 'player_prop',
@@ -443,102 +488,39 @@ module.exports = [{
       'check': 'Number',
     },
   ],
-  'inputsInline': false,
+  'inputsInline': true,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 230,
   'tooltip': 'Set a player\'s property to a specified value.',
-  'helpUrl': '',
-},
-{
-  'type': 'change_player_prop',
-  'message0': 'change player\'s %1 by %2',
-  'args0': [
-    {
-      'type': 'field_dropdown',
-      'name': 'player_prop',
-      'options': [
-        [
-          'x position',
-          'x',
-        ],
-        [
-          'y position',
-          'y',
-        ],
-        [
-          'x velocity',
-          'xv',
-        ],
-        [
-          'y velocity',
-          'yv',
-        ],
-        [
-          'angle',
-          'a',
-        ],
-      ],
-    },
-    {
-      'type': 'input_value',
-      'name': 'change_number',
-      'check': 'Number',
-    },
-  ],
-  'inputsInline': false,
-  'previousStatement': null,
-  'nextStatement': null,
-  'colour': 230,
-  'tooltip': 'Change a player\'s property by a specified value.',
-  'helpUrl': '',
-},
-{
-  'type': 'change_last_arrow_prop',
-  'message0': 'change player\'s last arrow\'s %1 by %2',
-  'args0': [
-    {
-      'type': 'field_dropdown',
-      'name': 'arrow_prop',
-      'options': [
-        [
-          'x position',
-          'x',
-        ],
-        [
-          'y position',
-          'y',
-        ],
-        [
-          'x velocity',
-          'xv',
-        ],
-        [
-          'y velocity',
-          'yv',
-        ],
-        [
-          'angle',
-          'a',
-        ],
-      ],
-    },
-    {
-      'type': 'input_value',
-      'name': 'change_number',
-      'check': 'Number',
-    },
-  ],
-  'previousStatement': null,
-  'nextStatement': null,
-  'colour': 230,
-  'tooltip': 'Change the player\'s last arrow\'s property by a specified value.',
   'helpUrl': '',
 },
 {
   'type': 'get_player_prop',
-  'message0': 'get player\'s %1',
+  'message0': 'get %1 %2 %3 %4',
   'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
     {
       'type': 'field_dropdown',
       'name': 'property',
@@ -563,54 +545,66 @@ module.exports = [{
           'angle',
           'a',
         ],
-      ],
-    },
-  ],
-  'output': 'Number',
-  'colour': 230,
-  'tooltip': 'Get a player\'s property.',
-  'helpUrl': '',
-},
-{
-  'type': 'get_last_arrow_prop',
-  'message0': 'get player\'s last arrow\'s %1',
-  'args0': [
-    {
-      'type': 'field_dropdown',
-      'name': 'property',
-      'options': [
         [
-          'x position',
-          'x',
-        ],
-        [
-          'y position',
-          'y',
-        ],
-        [
-          'x velocity',
-          'xv',
-        ],
-        [
-          'y velocity',
-          'yv',
-        ],
-        [
-          'angle',
-          'a',
+          'size',
+          'size',
         ],
       ],
     },
   ],
   'output': 'Number',
   'colour': 230,
-  'tooltip': 'Get a player\'s last arrow\'s property.',
+  'tooltip': 'Get a player\'s property. If the player doesn\'t exist, it will return 0.',
   'helpUrl': '',
 },
 {
   'type': 'set_last_arrow_prop',
-  'message0': 'set player\'s last arrow\'s %1 to %2',
+  'message0': 'set %1 %2 %3 %4 %5 %6 \'s %7 to %8',
   'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow',
+      'options': [
+        [
+          'last arrow',
+          'last',
+        ],
+        [
+          'arrow number',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'arrow_id',
+      'check': 'Number',
+    },
     {
       'type': 'field_dropdown',
       'name': 'arrow_prop',
@@ -635,6 +629,10 @@ module.exports = [{
           'angle',
           'a',
         ],
+        [
+          'amount of steps until despawn',
+          'fte',
+        ],
       ],
     },
     {
@@ -643,11 +641,11 @@ module.exports = [{
       'check': 'Number',
     },
   ],
-  'inputsInline': false,
+  'inputsInline': true,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 230,
-  'tooltip': 'Set a player\'s property to a specified value.',
+  'tooltip': 'Set a player\'s arrow\'s property to a specified value.',
   'helpUrl': '',
 },
 {
@@ -692,7 +690,7 @@ module.exports = [{
 },
 {
   'type': 'on_arrow_collide',
-  'message0': 'when player\'s arrow collides with  %1 %2 %3',
+  'message0': 'when player\'s arrow collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -711,6 +709,39 @@ module.exports = [{
           'collide_platform',
         ],
       ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'return_info',
+      'checked': false,
+    },
+    {
+      'type': 'field_variable',
+      'name': 'self_arrow_id',
+      'variable': 'own arrow number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'player_id',
+      'variable': 'hit player id',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'arrow_id',
+      'variable': 'hit arrow number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'normal_x',
+      'variable': 'hit normal x',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'normal_y',
+      'variable': 'hit normal y',
     },
     {
       'type': 'input_dummy',
@@ -735,7 +766,7 @@ module.exports = [{
     },
   ],
   'output': 'Number',
-  'colour': 230,
+  'colour': 160,
   'tooltip': 'Turn physics length units into pixels.',
   'helpUrl': '',
 },
@@ -750,8 +781,7 @@ module.exports = [{
     },
   ],
   'output': 'Number',
-  'colour': 230,
-  'tooltip': 'Turn pixels into physics length units.',
+  'tooltip': '[NO LONGER WORKS] Turn pixels into physics length units.',
   'helpUrl': '',
 },
 {
@@ -928,11 +958,35 @@ module.exports = [{
 },
 {
   'type': 'delete_arrows',
-  'message0': 'delete player\'s arrows',
+  'message0': 'delete %1 %2 %3 arrows',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+  ],
   'previousStatement': null,
   'nextStatement': null,
   'colour': 230,
-  'tooltip': 'Delete all arrows that belong to the player.',
+  'tooltip': 'Delete all arrows that belong to a player.',
   'helpUrl': '',
 },
 {
@@ -985,5 +1039,326 @@ module.exports = [{
   'output': 'Number',
   'colour': 230,
   'tooltip': 'Returns the distance between two points.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_player_color',
+  'message0': 'get %1 %2 %3 main colour',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your player\'s',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+  ],
+  'output': 'Colour',
+  'colour': 160,
+  'tooltip': 'Get a player\'s main (background) colour.',
+  'helpUrl': '',
+},
+{
+  'type': 'change_last_arrow_prop',
+  'message0': 'change %1 %2 %3 %4 %5 %6 \'s %7 by %8',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow',
+      'options': [
+        [
+          'last arrow',
+          'last',
+        ],
+        [
+          'arrow number',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'arrow_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow_prop',
+      'options': [
+        [
+          'x position',
+          'x',
+        ],
+        [
+          'y position',
+          'y',
+        ],
+        [
+          'x velocity',
+          'xv',
+        ],
+        [
+          'y velocity',
+          'yv',
+        ],
+        [
+          'angle',
+          'a',
+        ],
+        [
+          'steps until despawn',
+          'fte',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'change_number',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 230,
+  'tooltip': 'Change a player\'s arrow\'s property by a specified value.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_last_arrow_prop',
+  'message0': 'get %1 %2 %3 %4 %5 %6 \'s %7',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow',
+      'options': [
+        [
+          'last arrow',
+          'last',
+        ],
+        [
+          'arrow number',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'arrow_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'property',
+      'options': [
+        [
+          'x position',
+          'x',
+        ],
+        [
+          'y position',
+          'y',
+        ],
+        [
+          'x velocity',
+          'xv',
+        ],
+        [
+          'y velocity',
+          'yv',
+        ],
+        [
+          'angle',
+          'a',
+        ],
+        [
+          'steps until despawn',
+          'fte',
+        ],
+      ],
+    },
+  ],
+  'inputsInline': true,
+  'output': 'Number',
+  'colour': 230,
+  'tooltip': 'Get a player\'s arrow\'s property.',
+  'helpUrl': '',
+},
+{
+  'type': 'change_player_prop',
+  'message0': 'change %1 %2 %3 %4 by %5',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'player_prop',
+      'options': [
+        [
+          'x position',
+          'x',
+        ],
+        [
+          'y position',
+          'y',
+        ],
+        [
+          'x velocity',
+          'xv',
+        ],
+        [
+          'y velocity',
+          'yv',
+        ],
+        [
+          'angle',
+          'a',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'change_number',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 230,
+  'tooltip': 'Set a player\'s property to a specified value.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_arrow_amount',
+  'message0': 'get %1 %2 %3 arrow amount',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+  ],
+  'output': 'Number',
+  'colour': 230,
+  'tooltip': 'Get the amount of arrows a player has.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_map_size',
+  'message0': 'get map size',
+  'output': 'Number',
+  'colour': 230,
+  'tooltip': 'Gives you the map size. This is useful when you need a physics coordinate that is constant between map sizes.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_own_id',
+  'message0': 'get own player id',
+  'output': 'Number',
+  'colour': 230,
+  'tooltip': 'Get your player\'s id.',
   'helpUrl': '',
 }];

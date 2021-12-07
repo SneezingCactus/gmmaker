@@ -53,44 +53,78 @@ export default function() {
     return code;
   };
 
+  Blockly.JavaScript['get_player_color'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+    const code = `gm.blockly.funcs.getPlayerColor(gst, ${player == 'self' ? 'playerid' : player_id})`;
+
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
   Blockly.JavaScript['set_player_prop'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
     const player_prop = block.getFieldValue('player_prop');
     const set_number = Blockly.JavaScript.valueToCode(block, 'set_number', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `gst = gm.blockly.funcs.setPlayerProperty(gst, playerid, "${player_prop}", ${set_number});`;
+    const code = `gst = gm.blockly.funcs.setPlayerProperty(gst, ${player == 'self' ? 'playerid' : player_id}, "${player_prop}", ${set_number});`;
     return code;
   };
 
   Blockly.JavaScript['change_player_prop'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
     const player_prop = block.getFieldValue('player_prop');
     const change_number = Blockly.JavaScript.valueToCode(block, 'change_number', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `gst = gm.blockly.funcs.changePlayerProperty(gst, playerid, "${player_prop}", ${change_number});`;
+    const code = `gst = gm.blockly.funcs.changePlayerProperty(gst, ${player == 'self' ? 'playerid' : player_id}, "${player_prop}", ${change_number});`;
     return code;
   };
 
   Blockly.JavaScript['set_last_arrow_prop'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+    const arrow = block.getFieldValue('arrow');
+    const arrow_id = Blockly.JavaScript.valueToCode(block, 'arrow_id', Blockly.JavaScript.ORDER_ATOMIC);
     const arrow_prop = block.getFieldValue('arrow_prop');
     const set_number = Blockly.JavaScript.valueToCode(block, 'set_number', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `gst = gm.blockly.funcs.setLastArrowProperty(gst, playerid, "${arrow_prop}", ${set_number});`;
+    const code = `gst = gm.blockly.funcs.setArrowProperty(gst, ${player == 'self' ? 'playerid' : player_id}, ${arrow == 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${set_number});`;
     return code;
   };
 
   Blockly.JavaScript['change_last_arrow_prop'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+    const arrow = block.getFieldValue('arrow');
+    const arrow_id = Blockly.JavaScript.valueToCode(block, 'arrow_id', Blockly.JavaScript.ORDER_ATOMIC);
     const arrow_prop = block.getFieldValue('arrow_prop');
     const change_number = Blockly.JavaScript.valueToCode(block, 'change_number', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `gst = gm.blockly.funcs.changeLastArrowProperty(gst, playerid, "${arrow_prop}", ${change_number});`;
+    const code = `gst = gm.blockly.funcs.changeArrowProperty(gst, ${player == 'self' ? 'playerid' : player_id}, ${arrow == 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${change_number});`;
     return code;
   };
 
   Blockly.JavaScript['get_player_prop'] = function(block) {
-    const property = block.getFieldValue('property');
-    const code = `gm.blockly.funcs.getPlayerProperty(gst, playerid, "${property}")`;
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+    const player_prop = block.getFieldValue('property');
+    const code = player_prop == 'size' ? `gm.blockly.funcs.getPlayerSize(playerid)` : `gm.blockly.funcs.getPlayerProperty(gst, ${player == 'self' ? 'playerid' : player_id}, "${player_prop}")`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
   Blockly.JavaScript['get_last_arrow_prop'] = function(block) {
-    const property = block.getFieldValue('property');
-    const code = `gm.blockly.funcs.getLastArrowProperty(gst, playerid, "${property}")`;
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+    const arrow = block.getFieldValue('arrow');
+    const arrow_id = Blockly.JavaScript.valueToCode(block, 'arrow_id', Blockly.JavaScript.ORDER_ATOMIC);
+    const arrow_prop = block.getFieldValue('property');
+    const code = `gm.blockly.funcs.getArrowProperty(gst, ${player == 'self' ? 'playerid' : player_id}, ${arrow == 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}")`;
+
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
+  Blockly.JavaScript['get_arrow_amount'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+    const code = `gm.blockly.funcs.getArrowAmount(gst, ${player == 'self' ? 'playerid' : player_id})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -100,17 +134,35 @@ export default function() {
     const arrow_ypos = Blockly.JavaScript.valueToCode(block, 'arrow_ypos', Blockly.JavaScript.ORDER_ATOMIC);
     const arrow_xvel = Blockly.JavaScript.valueToCode(block, 'arrow_xvel', Blockly.JavaScript.ORDER_ATOMIC);
     const arrow_yvel = Blockly.JavaScript.valueToCode(block, 'arrow_yvel', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `if(gst.discs[playerid]){gst.projectiles.push({a: 0, av: 0, did: playerid, fte: 150, team: gst.discs[playerid].team, type: "arrow", x: ${arrow_xpos}, xv: ${arrow_xvel}, y: ${arrow_ypos}, yv: ${arrow_yvel}});}`;
+    const arrow_angle = Blockly.JavaScript.valueToCode(block, 'arrow_angle', Blockly.JavaScript.ORDER_ATOMIC);
+    const arrow_time = Blockly.JavaScript.valueToCode(block, 'arrow_time', Blockly.JavaScript.ORDER_ATOMIC);
+    const code = `if(gst.discs[playerid]){gst.projectiles.push({a: ${arrow_angle}, av: 0, did: playerid, fte: ${arrow_time ? arrow_time : 150}, team: gst.discs[playerid].team, type: "arrow", x: ${arrow_xpos}, xv: ${arrow_xvel}, y: ${arrow_ypos}, yv: ${arrow_yvel}});}`;
     return code;
   };
 
   Blockly.JavaScript['delete_arrows'] = function(block) {
-    const code = 'gm.blockly.funcs.deleteAllPlayerArrows(gst, playerid);';
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+
+    const code = `gm.blockly.funcs.deleteAllPlayerArrows(gst, ${player == 'self' ? 'playerid' : player_id});`;
     return code;
   };
 
+  Blockly.JavaScript['get_own_id'] = function(block) {
+    const code = 'playerid';
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
+  Blockly.JavaScript['get_map_size'] = function(block) {
+    const code = 'gm.physics.gameState.physics.ppm';
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
   Blockly.JavaScript['player_die'] = function(block) {
-    const code = 'gm.blockly.funcs.killPlayer(gst, playerid);';
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+
+    const code = `gm.blockly.funcs.killPlayer(gst, ${player == 'self' ? 'playerid' : player_id});`;
     return code;
   };
 
@@ -134,17 +186,26 @@ export default function() {
 
   Blockly.JavaScript['on_player_collide'] = function(block) {
     const collide_type = block.getFieldValue('collide_type');
+    const return_info = block.getFieldValue('return_info') == 'TRUE';
+    const hit_player_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('player_id'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_arrow_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('arrow_id'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_normal_x = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_x'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_normal_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_y'), Blockly.VARIABLE_CATEGORY_NAME);
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
     let code = '';
+    let setCode = '';
     switch (collide_type) {
       case 'collide_player':
-        code = `gm.physics.onPlayerPlayerCollision = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
+        code = `gm.physics.onPlayerPlayerCollision = function(playerid, colid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_arrow':
-        code = `gm.physics.onPlayerArrowCollision = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
+        code = `gm.physics.onPlayerArrowCollision = function(playerid, colid, colarrowid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        code = `gm.physics.onPlayerPlatformCollision = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        code = `gm.physics.onPlayerPlatformCollision = function(playerid, normal){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
     }
     return code;
@@ -159,18 +220,27 @@ export default function() {
 
   Blockly.JavaScript['on_arrow_collide'] = function(block) {
     const collide_type = block.getFieldValue('collide_type');
+    const return_info = block.getFieldValue('return_info') == 'TRUE';
+    const self_arrow_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('self_arrow_id'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_player_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('player_id'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_arrow_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('arrow_id'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_normal_x = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_x'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_normal_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_y'), Blockly.VARIABLE_CATEGORY_NAME);
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
     let code = '';
-
+    let setCode = '';
     switch (collide_type) {
       case 'collide_player':
-        code = `gm.physics.onArrowPlayerCollision = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
+        code = `gm.physics.onArrowPlayerCollision = function(playerid, arrowid, colid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_arrow':
-        code = `gm.physics.onArrowArrowCollision = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
+        code = `gm.physics.onArrowArrowCollision = function(playerid, arrowid, colid, colarrowid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        code = `gm.physics.onArrowPlatformCollision = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        code = `gm.physics.onArrowPlatformCollision = function(playerid, arrowid, normal){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
     }
     return code;
@@ -187,7 +257,7 @@ export default function() {
   Blockly.JavaScript['pixel_to_unit'] = function(block) {
     const value = Blockly.JavaScript.valueToCode(block, 'unit_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    const code = `${value}/(gm.physics.gameState.physics.ppm*gm.graphics.rendererClass.scaleRatio)`;
+    const code = `${value}`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -212,7 +282,7 @@ export default function() {
     const value_x = Blockly.JavaScript.valueToCode(block, 'x', Blockly.JavaScript.ORDER_ATOMIC);
     const value_y = Blockly.JavaScript.valueToCode(block, 'y', Blockly.JavaScript.ORDER_ATOMIC);
 
-    const code = `Math.atan2(${value_x}, ${value_y})*(180/Math.PI)`;
+    const code = `SafeTrig.safeATan2(${value_x}, ${value_y})*(180/Math.PI)`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -229,6 +299,36 @@ export default function() {
   };
 
   // blockly built-in
+
+  // add note to variables category
+
+  Blockly.Variables.flyoutCategory = function(workspace) {
+    let xmlList = [];
+    const button = document.createElement('button');
+    button.setAttribute('text', '%{BKY_NEW_VARIABLE}');
+    button.setAttribute('callbackKey', 'CREATE_VARIABLE');
+
+    workspace.registerButtonCallback('CREATE_VARIABLE', function(button) {
+      Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace());
+    });
+
+    xmlList.push(button);
+
+    const helpLabel1 = document.createElement('label');
+    helpLabel1.setAttribute('text', 'You can make a variable global');
+
+    const helpLabel2 = document.createElement('label');
+    helpLabel2.setAttribute('text', 'by adding "GLOBAL_" before its name.');
+
+    xmlList.push(helpLabel1);
+    xmlList.push(helpLabel2);
+
+    const blockList = Blockly.Variables.flyoutCategoryBlocks(workspace);
+    xmlList = xmlList.concat(blockList);
+    return xmlList;
+  };
+
+
   // make variables use own db
   Blockly.JavaScript['math_change'] = function(block) {
     // Add to a variable in place.
@@ -469,5 +569,180 @@ export default function() {
       }
       return tooltip;
     });
+  };
+
+  // Loops using vars fix
+  Blockly.JavaScript['controls_for'] = function(block) {
+    // For loop.
+    const variable0 = Blockly.JavaScript.nameDB_.getName(
+        block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
+    const argument0 = Blockly.JavaScript.valueToCode(block, 'FROM',
+        Blockly.JavaScript.ORDER_ASSIGNMENT) || '0';
+    const argument1 = Blockly.JavaScript.valueToCode(block, 'TO',
+        Blockly.JavaScript.ORDER_ASSIGNMENT) || '0';
+    const increment = Blockly.JavaScript.valueToCode(block, 'BY',
+        Blockly.JavaScript.ORDER_ASSIGNMENT) || '1';
+    let branch = Blockly.JavaScript.statementToCode(block, 'DO');
+    branch = Blockly.JavaScript.addLoopTrap(branch, block);
+    let code;
+    if (Blockly.isNumber(argument0) && Blockly.isNumber(argument1) &&
+        Blockly.isNumber(increment)) {
+      // All arguments are simple numbers.
+      const up = Number(argument0) <= Number(argument1);
+      code = 'for (let ' + variable0 + ' = ' + argument0 + '; ' +
+          variable0 + (up ? ' <= ' : ' >= ') + argument1 + '; ' +
+          variable0;
+      const step = Math.abs(Number(increment));
+      if (step == 1) {
+        code += up ? '++' : '--';
+      } else {
+        code += (up ? ' += ' : ' -= ') + step;
+      }
+      code += ') {' + `gm.blockly.funcs.setVar("${variable0}", gst, playerid, ${variable0});` + branch + '}\n';
+    } else {
+      code = '';
+      // Cache non-trivial values to variables to prevent repeated look-ups.
+      let startVar = argument0;
+      if (!argument0.match(/^\w+$/) && !Blockly.isNumber(argument0)) {
+        startVar = Blockly.JavaScript.nameDB_.getDistinctName(
+            variable0 + '_start', Blockly.VARIABLE_CATEGORY_NAME);
+        code += 'var ' + startVar + ' = ' + argument0 + ';\n';
+      }
+      let endVar = argument1;
+      if (!argument1.match(/^\w+$/) && !Blockly.isNumber(argument1)) {
+        endVar = Blockly.JavaScript.nameDB_.getDistinctName(
+            variable0 + '_end', Blockly.VARIABLE_CATEGORY_NAME);
+        code += 'var ' + endVar + ' = ' + argument1 + ';\n';
+      }
+      // Determine loop direction at start, in case one of the bounds
+      // changes during loop execution.
+      const incVar = Blockly.JavaScript.nameDB_.getDistinctName(
+          variable0 + '_inc', Blockly.VARIABLE_CATEGORY_NAME);
+      code += 'var ' + incVar + ' = ';
+      if (Blockly.isNumber(increment)) {
+        code += Math.abs(increment) + ';\n';
+      } else {
+        code += 'Math.abs(' + increment + ');\n';
+      }
+      code += 'if (' + startVar + ' > ' + endVar + ') {\n';
+      code += Blockly.JavaScript.INDENT + incVar + ' = -' + incVar + ';\n';
+      code += '}\n';
+      code += 'for (let ' + variable0 + ' = ' + startVar + '; ' +
+          incVar + ' >= 0 ? ' +
+          variable0 + ' <= ' + endVar + ' : ' +
+          variable0 + ' >= ' + endVar + '; ' +
+          variable0 + ' += ' + incVar + ') {' +
+          `gm.blockly.funcs.setVar("${variable0}", gst, playerid, ${variable0});` +
+          branch + '}';
+    }
+    return code;
+  };
+
+  Blockly.JavaScript['controls_forEach'] = function(block) {
+    // For each loop.
+    const variable0 = Blockly.JavaScript.nameDB_.getName(
+        block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
+    const argument0 = Blockly.JavaScript.valueToCode(block, 'LIST',
+        Blockly.JavaScript.ORDER_ASSIGNMENT) || '[]';
+    let branch = Blockly.JavaScript.statementToCode(block, 'DO');
+    branch = Blockly.JavaScript.addLoopTrap(branch, block);
+    let code = '';
+    // Cache non-trivial values to variables to prevent repeated look-ups.
+    let listVar = argument0;
+    if (!argument0.match(/^\w+$/)) {
+      listVar = Blockly.JavaScript.nameDB_.getDistinctName(
+          variable0 + '_list', Blockly.VARIABLE_CATEGORY_NAME);
+      code += 'var ' + listVar + ' = ' + argument0 + ';\n';
+    }
+    const indexVar = Blockly.JavaScript.nameDB_.getDistinctName(
+        variable0 + '_index', Blockly.VARIABLE_CATEGORY_NAME);
+    branch = `gm.blockly.funcs.setVar("${variable0}", gst, playerid, ${listVar}[${indexVar}]);${branch}`;
+    code += 'for (var ' + indexVar + ' in ' + listVar + ') {' + branch + '}\n';
+    return code;
+  };
+
+  // use safetrig
+  Blockly.JavaScript['math_single'] = function(block) {
+    // Math operators with single operand.
+    const operator = block.getFieldValue('OP');
+    let code;
+    let arg;
+    if (operator == 'NEG') {
+      // Negation is a special case given its different operator precedence.
+      arg = Blockly.JavaScript.valueToCode(block, 'NUM',
+          Blockly.JavaScript.ORDER_UNARY_NEGATION) || '0';
+      if (arg[0] == '-') {
+        // --3 is not legal in JS.
+        arg = ' ' + arg;
+      }
+      code = '-' + arg;
+      return [code, Blockly.JavaScript.ORDER_UNARY_NEGATION];
+    }
+    if (operator == 'SIN' || operator == 'COS' || operator == 'TAN') {
+      arg = Blockly.JavaScript.valueToCode(block, 'NUM',
+          Blockly.JavaScript.ORDER_DIVISION) || '0';
+    } else {
+      arg = Blockly.JavaScript.valueToCode(block, 'NUM',
+          Blockly.JavaScript.ORDER_NONE) || '0';
+    }
+    // First, handle cases which generate values that don't need parentheses
+    // wrapping the code.
+    switch (operator) {
+      case 'ABS':
+        code = 'Math.abs(' + arg + ')';
+        break;
+      case 'ROOT':
+        code = 'Math.sqrt(' + arg + ')';
+        break;
+      case 'LN':
+        code = 'Math.log(' + arg + ')';
+        break;
+      case 'EXP':
+        code = 'Math.exp(' + arg + ')';
+        break;
+      case 'POW10':
+        code = 'Math.pow(10,' + arg + ')';
+        break;
+      case 'ROUND':
+        code = 'Math.round(' + arg + ')';
+        break;
+      case 'ROUNDUP':
+        code = 'Math.ceil(' + arg + ')';
+        break;
+      case 'ROUNDDOWN':
+        code = 'Math.floor(' + arg + ')';
+        break;
+      case 'SIN':
+        code = 'SafeTrig.safeSin(' + arg + ' / 180 * Math.PI)';
+        break;
+      case 'COS':
+        code = 'SafeTrig.safeCos(' + arg + ' / 180 * Math.PI)';
+        break;
+      case 'TAN':
+        code = 'SafeTrig.safeTan(' + arg + ' / 180 * Math.PI)';
+        break;
+    }
+    if (code) {
+      return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+    }
+    // Second, handle cases which generate values that may need parentheses
+    // wrapping the code.
+    switch (operator) {
+      case 'LOG10':
+        code = 'Math.log(' + arg + ') / Math.log(10)';
+        break;
+      case 'ASIN':
+        code = 'Math.sin(' + arg + ') / Math.PI * 180';
+        break;
+      case 'ACOS':
+        code = 'Math.acos(' + arg + ') / Math.PI * 180';
+        break;
+      case 'ATAN':
+        code = 'Math.atan(' + arg + ') / Math.PI * 180';
+        break;
+      default:
+        throw Error('Unknown math operator: ' + operator);
+    }
+    return [code, Blockly.JavaScript.ORDER_DIVISION];
   };
 }

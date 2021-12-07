@@ -14,7 +14,7 @@ export default {
         gm.graphics.rendering = true;
         if (gm.graphics.rendererClass) {
           for (let i = 0; i != gm.graphics.rendererClass.discGraphics.length; i++) {
-            if (gm.graphics.rendererClass.discGraphics[i] && (!gm.graphics.additionalDiscGraphics[i] || gm.graphics.additionalDiscGraphics[i]._destroyed == true)) {
+            if (gm.graphics.rendererClass.discGraphics[i] && gm.lobby.roundStarting) {
               const discGraphics = new PIXI.Graphics();
 
               gm.graphics.rendererClass.discGraphics[i].playerGraphic.addChild(discGraphics);
@@ -22,8 +22,13 @@ export default {
 
               const worldGraphics = new PIXI.Graphics();
 
-              gm.graphics.rendererClass.particleManager.container.addChild(worldGraphics);
+              gm.graphics.rendererClass.discContainer.addChild(worldGraphics);
               gm.graphics.additionalWorldGraphics[i] = worldGraphics;
+            }
+
+            if (gm.graphics.additionalWorldGraphics[i] && !gm.graphics.additionalWorldGraphics[i]._destroyed && !gm.graphics.rendererClass.discGraphics[i]) {
+              gm.graphics.additionalWorldGraphics[i].clear();
+              gm.graphics.additionalWorldGraphics[i].destroy();
             }
           }
         }
@@ -55,7 +60,7 @@ export default {
             }
           }
 
-          const worldObject = gm.graphics.rendererClass.particleManager.container;
+          const worldObject = gm.graphics.rendererClass.discContainer;
           while (worldObject.children[0]) {
             worldObject.removeChild(worldObject.children[0]);
           }

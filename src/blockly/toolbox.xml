@@ -306,14 +306,31 @@
     <block type="on_each_render_frame"></block>
     <block type="on_player_collide">
       <field name="collide_type">collide_player</field>
+      <field name="return_info">FALSE</field>
+      <field name="player_id" id="0YRMwNZi;j8;w+8P%,=/">hit player id</field>
+      <field name="arrow_id" id="n`,#/rH4N9zK3kN%kqf;">hit arrow number</field>
+      <field name="normal_x" id="_eo=O8;[pMsW1Ays:dqa">hit normal x</field>
+      <field name="normal_y" id="Wg5!le%r1|G4{=IH{Gyq">hit normal y</field>
     </block>
     <block type="on_arrow_collide">
       <field name="collide_type">collide_player</field>
+      <field name="return_info">FALSE</field>
+      <field name="self_arrow_id" id="vc=L=v@m=U6zy=gd!ABw">own arrow number</field>
+      <field name="player_id" id="0YRMwNZi;j8;w+8P%,=/">hit player id</field>
+      <field name="arrow_id" id="n`,#/rH4N9zK3kN%kqf;">hit arrow number</field>
+      <field name="normal_x" id="_eo=O8;[pMsW1Ays:dqa">hit normal x</field>
+      <field name="normal_y" id="Wg5!le%r1|G4{=IH{Gyq">hit normal y</field>
     </block>
   </category>
   <category name="Bonk Physics" colour="#5b67a5">
     <block type="set_player_prop">
+      <field name="player">self</field>
       <field name="player_prop">x</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
       <value name="set_number">
         <shadow type="math_number">
           <field name="NUM">0</field>
@@ -321,7 +338,13 @@
       </value>
     </block>
     <block type="change_player_prop">
+      <field name="player">self</field>
       <field name="player_prop">x</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
       <value name="change_number">
         <shadow type="math_number">
           <field name="NUM">10</field>
@@ -329,10 +352,28 @@
       </value>
     </block>
     <block type="get_player_prop">
+      <field name="player">self</field>
       <field name="property">x</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
     </block>
     <block type="set_last_arrow_prop">
+      <field name="player">self</field>
+      <field name="arrow">last</field>
       <field name="arrow_prop">x</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="arrow_id">
+        <shadow type="math_number">
+          <field name="NUM">1</field>
+        </shadow>
+      </value>
       <value name="set_number">
         <shadow type="math_number">
           <field name="NUM">0</field>
@@ -340,7 +381,19 @@
       </value>
     </block>
     <block type="change_last_arrow_prop">
+      <field name="player">self</field>
+      <field name="arrow">last</field>
       <field name="arrow_prop">x</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="arrow_id">
+        <shadow type="math_number">
+          <field name="NUM">1</field>
+        </shadow>
+      </value>
       <value name="change_number">
         <shadow type="math_number">
           <field name="NUM">10</field>
@@ -348,22 +401,22 @@
       </value>
     </block>
     <block type="get_last_arrow_prop">
+      <field name="player">self</field>
+      <field name="arrow">last</field>
       <field name="property">x</field>
-    </block>
-    <block type="unit_to_pixel">
-      <value name="unit_value">
+      <value name="player_id">
         <shadow type="math_number">
           <field name="NUM">0</field>
         </shadow>
       </value>
-    </block>
-    <block type="pixel_to_unit">
-      <value name="unit_value">
+      <value name="arrow_id">
         <shadow type="math_number">
-          <field name="NUM">0</field>
+          <field name="NUM">1</field>
         </shadow>
       </value>
     </block>
+    <block type="get_own_id"></block>
+    <block type="get_map_size"></block>
     <block type="create_arrow">
       <value name="arrow_xpos">
         <shadow type="math_number">
@@ -390,12 +443,60 @@
           <field name="NUM">90</field>
         </shadow>
       </value>
+      <value name="arrow_time">
+        <shadow type="math_number">
+          <field name="NUM">150</field>
+        </shadow>
+      </value>
     </block>
-    <block type="delete_arrows"></block>
-    <block type="player_die"></block>
+    <block type="get_arrow_amount">
+      <field name="player">self</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="delete_arrows">
+      <field name="player">self</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="player_die">
+      <field name="player">self</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
   </category>
   <category name="Bonk Drawing" colour="#5ba58c">
     <block type="draw_clear"></block>
+    <block type="get_player_color">
+      <field name="player">self</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="unit_to_pixel">
+      <value name="unit_value">
+        <shadow type="get_player_prop">
+          <field name="player">self</field>
+          <field name="property">x</field>
+          <value name="player_id">
+            <shadow type="math_number">
+              <field name="NUM">0</field>
+            </shadow>
+          </value>
+        </shadow>
+      </value>
+    </block>
     <block type="draw_line">
       <field name="line_anchored">FALSE</field>
       <value name="line_x1">

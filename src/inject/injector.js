@@ -95,6 +95,10 @@ window.gmInjectIO = function() {
 };
 
 window.initGM = function() {
+  if (window.gmStyles) {
+    document.querySelector('head').appendChild(window.gmStyles);
+  }
+
   window.gmInjectIO();
 
   // make the gm object
