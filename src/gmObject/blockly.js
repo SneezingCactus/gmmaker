@@ -427,9 +427,9 @@ all blocks are inside an event block, and try again.`);
     },
     getVar: function(varName, gameState, discID) {
       if (gameState.physics.bodies[0]) {
-        if (varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf.global && !(!gameState.physics.bodies[0].cf.global[varName] && gameState.physics.bodies[0].cf.global[varName] !== 0)) {
+        if (varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf.global && Object.keys(gameState.physics.bodies[0].cf.global).includes(varName)) {
           return gameState.physics.bodies[0].cf.global[varName];
-        } else if (!varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf[discID] && !(!gameState.physics.bodies[0].cf[discID][varName] && gameState.physics.bodies[0].cf[discID][varName] !== 0)) {
+        } else if (!varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf[discID] && Object.keys(gameState.physics.bodies[0].cf[discID]).includes(varName)) {
           return gameState.physics.bodies[0].cf[discID][varName];
         }
       }
