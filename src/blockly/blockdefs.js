@@ -142,7 +142,7 @@ module.exports = [{
 {
   'type': 'draw_rect',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw rectangle %1 from x %2 y %3 to x %4 y %5 colour %6 anchored to player? %7',
+  'message0': 'draw rectangle %1 x %2 y %3 width %4 height %5 colour %6 anchored to player? %7',
   'args0': [
     {
       'type': 'input_dummy',
