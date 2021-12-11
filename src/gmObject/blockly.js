@@ -170,8 +170,11 @@ all blocks are inside an event block, and try again.`);
 
       if (!graphics || graphics._destroyed) return;
 
+      if (xpos > 99999 || ypos > 99999 || radius > 99999) return;
+
       color = '0x' + color.slice(1);
 
+      graphics.lineStyle(0, 0, 0);
       graphics.beginFill(color);
       graphics.drawCircle(xpos, ypos, radius);
       graphics.endFill();
@@ -187,8 +190,11 @@ all blocks are inside an event block, and try again.`);
 
       if (!graphics || graphics._destroyed) return;
 
+      if (xpos1 > 99999 || ypos1 > 99999 || xpos2 > 99999 || ypos2 > 99999) return;
+
       color = '0x' + color.slice(1);
 
+      graphics.lineStyle(0, 0, 0);
       graphics.beginFill(color);
       graphics.drawRect(xpos1, ypos1, xpos2, ypos2);
       graphics.endFill();
@@ -203,6 +209,8 @@ all blocks are inside an event block, and try again.`);
       }
 
       if (!graphics || graphics._destroyed) return;
+
+      if (xpos1 > 99999 || ypos1 > 99999 || xpos2 > 99999 || ypos2 > 99999 || width > 99999) return;
 
       color = '0x' + color.slice(1);
 
@@ -231,8 +239,12 @@ all blocks are inside an event block, and try again.`);
         vertex.push(typeof vertexes[i] === 'number' ? vertexes[i] : 0);
         vertex.push(typeof vertexes[i + 1] === 'number' ? vertexes[i + 1] : 0);
 
+        if (vertex[0] > 99999 || vertex[1] > 99999) return;
+
         vertexList.push(vertex);
       }
+
+      graphics.lineStyle(0, 0, 0);
       graphics.beginFill(color);
       graphics.drawPolygon(vertexes);
       graphics.endFill();
@@ -254,6 +266,7 @@ all blocks are inside an event block, and try again.`);
     },
     setPlayerProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined) return gameState;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] = value;
       }
@@ -261,21 +274,24 @@ all blocks are inside an event block, and try again.`);
     },
     changePlayerProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined) return gameState;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] += value;
       }
       return gameState;
     },
     getPlayerProperty: function(gameState, discID, property) {
-      if (gameState.discs[discID] && gameState.discs[discID][property]) {
+      if (gameState.discs[discID] && !(!gameState.discs[discID][property] && gameState.discs[discID][property] !== 0)) {
         return gameState.discs[discID][property];
       } else {
-        return 0;
+        return Infinity;
       }
     },
 
     setArrowProperty: function(gameState, discID, arrowID, property, value) {
       if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined) return gameState;
+
       const projs = gameState.projectiles;
       let accum = 1;
 
@@ -292,6 +308,7 @@ all blocks are inside an event block, and try again.`);
     },
     changeArrowProperty: function(gameState, discID, arrowID, property, value) {
       if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined) return gameState;
       const projs = gameState.projectiles;
       let accum = 1;
 
@@ -319,7 +336,7 @@ all blocks are inside an event block, and try again.`);
           accum++;
         }
       }
-      return 0;
+      return Infinity;
     },
     getArrowAmount: function(gameState, discID) {
       const projs = gameState.projectiles;
@@ -371,36 +388,15 @@ all blocks are inside an event block, and try again.`);
     },
     killPlayer: function(gameState, discID) {
       if (gm.graphics.rendering) return;
-      if (!gm.physics.killsThisStep.includes(discID)) {
-        gm.physics.killsThisStep.push(discID);
+      if (gameState.physics.bodies[0].cf.kills && !gameState.physics.bodies[0].cf.kills.includes(discID)) {
+        gameState.physics.bodies[0].cf.kills.push(discID);
+      } else if (!gameState.physics.bodies[0].cf.kills) {
+        gameState.physics.bodies[0].cf.kills = [];
       }
     },
     setVar: function(varName, gameState, discID, value) {
-      if (!gameState.physics.bodies[0]) {
-        gameState.physics.bodies[0] = {
-          'type': 's',
-          'p': [0, 0],
-          'a': 0,
-          'av': 0,
-          'lv': [0, 0],
-          'ld': 0,
-          'ad': 0,
-          'fr': false,
-          'bu': false,
-          'fx': [],
-          'fric': 0,
-          'fricp': false,
-          'de': 0,
-          're': 0,
-          'f_c': 0,
-          'f_p': false,
-          'f_1': false,
-          'f_2': false,
-          'f_3': false,
-          'f_4': false,
-          'cf': {'x': 0, 'y': 0, 'w': false, 'ct': 0},
-        };
-      }
+      if (value === null || value === undefined) return;
+
       if (!gameState.physics.bodies[0].cf.global) {
         gameState.physics.bodies[0].cf.global = {};
       }
@@ -413,18 +409,42 @@ all blocks are inside an event block, and try again.`);
         gameState.physics.bodies[0].cf[discID][varName] = value;
       }
     },
+    changeVar: function(varName, gameState, discID, value) {
+      if (value === null || value === undefined) return;
+
+      if (!gameState.physics.bodies[0].cf.global) {
+        gameState.physics.bodies[0].cf.global = {};
+      }
+      if (varName.startsWith('GLOBAL_')) {
+        gameState.physics.bodies[0].cf.global[varName] += value;
+      } else if (gameState.physics.bodies[0].cf[discID]) {
+        if (!gameState.physics.bodies[0].cf[discID][varName]) gameState.physics.bodies[0].cf[discID][varName] = 0;
+        gameState.physics.bodies[0].cf[discID][varName] += value;
+      } else {
+        gameState.physics.bodies[0].cf[discID] = {};
+        gameState.physics.bodies[0].cf[discID][varName] = value;
+      }
+    },
     getVar: function(varName, gameState, discID) {
       if (gameState.physics.bodies[0]) {
-        if (varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf.global && gameState.physics.bodies[0].cf.global[varName]) {
+        if (varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf.global && !(!gameState.physics.bodies[0].cf.global[varName] && gameState.physics.bodies[0].cf.global[varName] !== 0)) {
           return gameState.physics.bodies[0].cf.global[varName];
-        } else if (!varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf[discID] && gameState.physics.bodies[0].cf[discID][varName]) {
+        } else if (!varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf[discID] && !(!gameState.physics.bodies[0].cf[discID][varName] && gameState.physics.bodies[0].cf[discID][varName] !== 0)) {
           return gameState.physics.bodies[0].cf[discID][varName];
         }
       }
-      return 0;
+      return Infinity;
     },
     getDistance: function(pointA_X, pointA_Y, pointB_X, pointB_Y) {
       return Math.sqrt(Math.pow(pointB_X - pointA_X, 2)+Math.pow(pointB_Y - pointA_Y, 2));
+    },
+    setInArray: function(array, index, value) {
+      array[index] = value;
+      return array;
+    },
+    insertInArray: function(array, index, value) {
+      array.splice(index, 0, value);
+      return array;
     },
   },
   resetVars: function() {

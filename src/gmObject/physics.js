@@ -9,15 +9,19 @@ export default {
     Box2D.Dynamics.b2World.prototype.Step_OLD = Box2D.Dynamics.b2World.prototype.Step;
     Box2D.Dynamics.b2World.prototype.Step = function() {
       // management of the die
-      for (let i = 0; i != gm.physics.killsThisStep.length; i++) {
-        const discID = gm.physics.killsThisStep[i];
+      if (PhysicsClass.globalStepVars.inputState) {
+        const kills = PhysicsClass.globalStepVars.inputState.physics.bodies[0].cf.kills;
 
-        if (PhysicsClass.globalStepVars.discs[discID]) {
-          PhysicsClass.globalStepVars.discs[discID].diedThisStep = 3;
+        if (kills) {
+          for (let i = 0; i != kills.length; i++) {
+            const discID = kills[i];
+
+            if (PhysicsClass.globalStepVars.discs[discID]) {
+              PhysicsClass.globalStepVars.discs[discID].diedThisStep = 3;
+            }
+          }
         }
       }
-      gm.physics.killsThisStep = [];
-
       return this.Step_OLD(...arguments);
     };
   },
@@ -29,6 +33,32 @@ export default {
       gm.inputs.allPlayerInputs = arguments[1];
 
       gm.physics.gameState = gst;
+
+      if (!gm.physics.gameState.physics.bodies[0]) {
+        gm.physics.gameState.physics.bodies[0] = {
+          'type': 's',
+          'p': [0, 0],
+          'a': 0,
+          'av': 0,
+          'lv': [0, 0],
+          'ld': 0,
+          'ad': 0,
+          'fr': false,
+          'bu': false,
+          'fx': [],
+          'fric': 0,
+          'fricp': false,
+          'de': 0,
+          're': 0,
+          'f_c': 0,
+          'f_p': false,
+          'f_1': false,
+          'f_2': false,
+          'f_3': false,
+          'f_4': false,
+          'cf': {'x': 0, 'y': 0, 'w': false, 'ct': 0},
+        };
+      }
 
       // collision handling
       for (let i = 0; i != gm.physics.collisionsThisStep.length; i++) {
@@ -139,9 +169,6 @@ export default {
       if (gm.lobby.roundStarting && gm.physics.gameState.ftu == -1) {
         gm.lobby.roundStarting = false;
         for (let i = 0; i != gm.physics.gameState.discs.length; i++) {
-          if (gm.physics.gameState.physics.bodies[0].cf[i]) {
-            gm.physics.gameState.physics.bodies[0].cf[i] = [];
-          }
           if (gm.physics.gameState.discs[i]) {
             if (!gm.inputs.allPlayerInputs[i]) {
               gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};

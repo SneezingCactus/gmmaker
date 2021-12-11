@@ -14,21 +14,21 @@ export default {
         gm.graphics.rendering = true;
         if (gm.graphics.rendererClass) {
           for (let i = 0; i != gm.graphics.rendererClass.discGraphics.length; i++) {
-            if (gm.graphics.rendererClass.discGraphics[i] && gm.lobby.roundStarting) {
+            if (gm.graphics.additionalWorldGraphics[i] && !gm.graphics.additionalWorldGraphics[i]._destroyed && (!gm.graphics.rendererClass.discGraphics[i] || gm.lobby.roundStarting)) {
+              gm.graphics.additionalWorldGraphics[i].clear();
+            }
+
+            if (gm.graphics.rendererClass.discGraphics[i] && gm.graphics.rendererClass.discGraphics[i].playerGraphic.children == 0) {
               const discGraphics = new PIXI.Graphics();
 
               gm.graphics.rendererClass.discGraphics[i].playerGraphic.addChild(discGraphics);
               gm.graphics.additionalDiscGraphics[i] = discGraphics;
-
+            }
+            if (gm.graphics.rendererClass.stage.children[1] && gm.lobby.roundStarting) {
               const worldGraphics = new PIXI.Graphics();
 
-              gm.graphics.rendererClass.discContainer.addChild(worldGraphics);
+              gm.graphics.rendererClass.stage.children[1].addChild(worldGraphics);
               gm.graphics.additionalWorldGraphics[i] = worldGraphics;
-            }
-
-            if (gm.graphics.additionalWorldGraphics[i] && !gm.graphics.additionalWorldGraphics[i]._destroyed && !gm.graphics.rendererClass.discGraphics[i]) {
-              gm.graphics.additionalWorldGraphics[i].clear();
-              gm.graphics.additionalWorldGraphics[i].destroy();
             }
           }
         }

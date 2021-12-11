@@ -1,3 +1,5 @@
+/* eslint-disable no-var */
+/* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
 import Blockly from 'blockly';
@@ -336,8 +338,7 @@ export default function() {
         Blockly.JavaScript.ORDER_ADDITION) || '0';
     const varName = Blockly.JavaScript.nameDB_.getName(
         block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
-    return 'gm.blockly.funcs.setVar("' + varName + '", gst, playerid, (typeof gm.blockly.funcs.getVar("' + varName + '", gst, playerid) == \'number\' ?  gm.blockly.funcs.getVar("' + varName +
-                '", gst, playerid) : 0) + ' + argument0 + ');';
+    return 'gm.blockly.funcs.changeVar("' + varName + '", gst, playerid, ' + argument0 + ');';
   };
 
   Blockly.JavaScript['variables_set'] = function(block) {
@@ -446,8 +447,7 @@ export default function() {
     this.appendValueInput('TO')
         .appendField(Blockly.Msg['LISTS_SET_INDEX_INPUT_TO']);
     this.setInputsInline(true);
-    this.setPreviousStatement(true);
-    this.setNextStatement(true);
+    this.setOutput(true);
     this.setTooltip(Blockly.Msg['LISTS_SET_INDEX_TOOLTIP']);
     this.updateAt_(true);
     // Assign 'this' to a variable for use in the tooltip closure below.
@@ -491,7 +491,6 @@ export default function() {
     const MODE =
         [
           [Blockly.Msg['LISTS_GET_INDEX_GET'], 'GET'],
-          [Blockly.Msg['LISTS_GET_INDEX_GET_REMOVE'], 'GET_REMOVE'],
           [Blockly.Msg['LISTS_GET_INDEX_REMOVE'], 'REMOVE'],
         ];
     this.WHERE_OPTIONS =
@@ -504,7 +503,7 @@ export default function() {
     this.setHelpUrl(Blockly.Msg['LISTS_GET_INDEX_HELPURL']);
     this.setStyle('list_blocks');
     const modeMenu = new Blockly.FieldDropdown(MODE, function(value) {
-      const isStatement = (value == 'REMOVE');
+      const isStatement = false;
       // eslint-disable-next-line no-invalid-this
       this.getSourceBlock().updateStatement_(isStatement);
     });
@@ -606,19 +605,19 @@ export default function() {
       if (!argument0.match(/^\w+$/) && !Blockly.isNumber(argument0)) {
         startVar = Blockly.JavaScript.nameDB_.getDistinctName(
             variable0 + '_start', Blockly.VARIABLE_CATEGORY_NAME);
-        code += 'var ' + startVar + ' = ' + argument0 + ';\n';
+        code += 'let ' + startVar + ' = ' + argument0 + ';\n';
       }
       let endVar = argument1;
       if (!argument1.match(/^\w+$/) && !Blockly.isNumber(argument1)) {
         endVar = Blockly.JavaScript.nameDB_.getDistinctName(
             variable0 + '_end', Blockly.VARIABLE_CATEGORY_NAME);
-        code += 'var ' + endVar + ' = ' + argument1 + ';\n';
+        code += 'let ' + endVar + ' = ' + argument1 + ';\n';
       }
       // Determine loop direction at start, in case one of the bounds
       // changes during loop execution.
       const incVar = Blockly.JavaScript.nameDB_.getDistinctName(
           variable0 + '_inc', Blockly.VARIABLE_CATEGORY_NAME);
-      code += 'var ' + incVar + ' = ';
+      code += 'let ' + incVar + ' = ';
       if (Blockly.isNumber(increment)) {
         code += Math.abs(increment) + ';\n';
       } else {
@@ -652,12 +651,12 @@ export default function() {
     if (!argument0.match(/^\w+$/)) {
       listVar = Blockly.JavaScript.nameDB_.getDistinctName(
           variable0 + '_list', Blockly.VARIABLE_CATEGORY_NAME);
-      code += 'var ' + listVar + ' = ' + argument0 + ';\n';
+      code += 'let ' + listVar + ' = ' + argument0 + ';\n';
     }
     const indexVar = Blockly.JavaScript.nameDB_.getDistinctName(
         variable0 + '_index', Blockly.VARIABLE_CATEGORY_NAME);
     branch = `gm.blockly.funcs.setVar("${variable0}", gst, playerid, ${listVar}[${indexVar}]);${branch}`;
-    code += 'for (var ' + indexVar + ' in ' + listVar + ') {' + branch + '}\n';
+    code += 'for (let ' + indexVar + ' in ' + listVar + ') {' + branch + '}\n';
     return code;
   };
 
@@ -744,5 +743,337 @@ export default function() {
         throw Error('Unknown math operator: ' + operator);
     }
     return [code, Blockly.JavaScript.ORDER_DIVISION];
+  };
+
+  // fix lists
+
+  Blockly.JavaScript['lists_length'] = function(block) {
+    // String or array length.
+    let list = + Blockly.JavaScript.valueToCode(block, 'VALUE',
+        Blockly.JavaScript.ORDER_MEMBER) || '[]';
+    list = `(typeof ${list} == 'object' ? ${list} : [])`;
+    return [list + '.length', Blockly.JavaScript.ORDER_MEMBER];
+  };
+
+  Blockly.JavaScript['lists_isEmpty'] = function(block) {
+    // Is the string null or array empty?
+    var list = Blockly.JavaScript.valueToCode(block, 'VALUE',
+        Blockly.JavaScript.ORDER_MEMBER) || '[]';
+    list = `(typeof ${list} == 'object' ? ${list} : [])`;
+    return ['!' + list + '.length', Blockly.JavaScript.ORDER_LOGICAL_NOT];
+  };
+
+  Blockly.JavaScript['lists_indexOf'] = function(block) {
+    // Find an item in the list.
+    const operator =
+        block.getFieldValue('END') === 'FIRST' ? 'indexOf' : 'lastIndexOf';
+    const item =
+       Blockly.JavaScript.valueToCode(block, 'FIND', Blockly.JavaScript.ORDER_NONE) || '\'\'';
+    let list =
+       Blockly.JavaScript.valueToCode(block, 'VALUE', Blockly.JavaScript.ORDER_MEMBER) || '[]';
+    list = `(typeof ${list} == 'object' ? ${list} : [])`;
+    const code = list + '.' + operator + '(' + item + ')';
+    if (block.workspace.options.oneBasedIndex) {
+      return [code + ' + 1', Blockly.JavaScript.ORDER_ADDITION];
+    }
+    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+  };
+
+  Blockly.JavaScript['lists_getIndex'] = function(block) {
+    // Get element at index.
+    // Note: Until January 2013 this block did not have MODE or WHERE inputs.
+    const mode = block.getFieldValue('MODE') || 'GET';
+    const where = block.getFieldValue('WHERE') || 'FROM_START';
+    const listOrder =
+        (where === 'RANDOM') ?Blockly.JavaScript.ORDER_NONE :Blockly.JavaScript.ORDER_MEMBER;
+    let list =Blockly.JavaScript.valueToCode(block, 'VALUE', listOrder) || '[]';
+    list = `(typeof ${list} == 'object' ? ${list} : [])`;
+
+    switch (where) {
+      case ('FIRST'):
+        if (mode === 'GET') {
+          const code = list + '[0]';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'GET_REMOVE') {
+          const code = list + '.shift()';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'REMOVE') {
+          const code = list + '.slice(1)';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        }
+        break;
+      case ('LAST'):
+        if (mode === 'GET') {
+          const code = list + '.slice(-1)[0]';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'GET_REMOVE') {
+          const code = list + '.pop()';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'REMOVE') {
+          const code = list + '.splice(-1)';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        }
+        break;
+      case ('FROM_START'): {
+        const at =Blockly.JavaScript.getAdjusted(block, 'AT');
+        if (mode === 'GET') {
+          const code = list + '[' + at + ']';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'GET_REMOVE') {
+          const code = list + '.splice(' + at + ', 1)[0]';
+          return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+        } else if (mode === 'REMOVE') {
+          const code = list + '.splice(' + at + ', 1)';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        }
+        break;
+      }
+      case ('FROM_END'): {
+        const at = Blockly.JavaScript.getAdjusted(block, 'AT', 1, true);
+        if (mode === 'GET') {
+          const code = list + '.slice(' + at + ')[0]';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'GET_REMOVE') {
+          const code = list + '.splice(' + at + ', 1)[0]';
+          return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+        } else if (mode === 'REMOVE') {
+          const code = list + '.splice(' + at + ', 1)';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        }
+        break;
+      }
+      case ('RANDOM'): {
+        const functionName =Blockly.JavaScript.provideFunction_('listsGetRandomItem', [
+          'function ' +Blockly.JavaScript.FUNCTION_NAME_PLACEHOLDER_ +
+              '(list, remove) {',
+          '  var x = Math.floor(Math.random() * list.length);', '  if (remove) {',
+          '    return list.splice(x, 1)[0];', '  } else {', '    return list[x];',
+          '  }', '}',
+        ]);
+        const code = functionName + '(' + list + ', ' + (mode !== 'GET') + ')';
+        if (mode === 'GET' || mode === 'GET_REMOVE') {
+          return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+        } else if (mode === 'REMOVE') {
+          return code + ';\n';
+        }
+        break;
+      }
+    }
+    throw Error('Unhandled combination (lists_getIndex).');
+  };
+
+  Blockly.JavaScript['lists_setIndex'] = function(block) {
+    // Set element at index.
+    // Note: Until February 2013 this block did not have MODE or WHERE inputs.
+    let list =
+       Blockly.JavaScript.valueToCode(block, 'LIST', Blockly.JavaScript.ORDER_MEMBER) || '[]';
+    list = `(typeof ${list} == 'object' ? ${list} : [])`;
+    const mode = block.getFieldValue('MODE') || 'GET';
+    const where = block.getFieldValue('WHERE') || 'FROM_START';
+    const value =
+       Blockly.JavaScript.valueToCode(block, 'TO', Blockly.JavaScript.ORDER_ASSIGNMENT) ||
+        'null';
+    // Cache non-trivial values to variables to prevent repeated look-ups.
+    // Closure, which accesses and modifies 'list'.
+
+    switch (where) {
+      case ('FIRST'):
+        if (mode === 'SET') {
+          const code = 'gm.blockly.funcs.setInArray(' + list + ', 0, ' + value + ')';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'INSERT') {
+          const code = '[' + value + ', ...' + list + ']';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        }
+        break;
+      case ('LAST'):
+        if (mode === 'SET') {
+          const code = 'gm.blockly.funcs.setInArray(' + list + ', ' + list + '.length - 1, ' + value + ')';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'INSERT') {
+          const code = '[...' + list + ', ' + value + ']';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        }
+        break;
+      case ('FROM_START'): {
+        const at =Blockly.JavaScript.getAdjusted(block, 'AT');
+        if (mode === 'SET') {
+          const code = 'gm.blockly.funcs.setInArray(' + list + ', ' + at + ', ' + value + ')';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'INSERT') {
+          const code = 'gm.blockly.funcs.insertInArray(' + list + ', ' + at + ', ' + value + ')';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        }
+        break;
+      }
+      case ('FROM_END'): {
+        const at =Blockly.JavaScript.getAdjusted(
+            block, 'AT', 1, false, Blockly.JavaScript.ORDER_SUBTRACTION);
+        if (mode === 'SET') {
+          const code = 'gm.blockly.funcs.setInArray(' + list + ', ' + list + '.length - ' + at + ', ' + value + ')';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        } else if (mode === 'INSERT') {
+          const code = 'gm.blockly.funcs.insertInArray(' + list + ', ' + list + '.length - ' + at + ', ' + value + ')';
+          return [code, Blockly.JavaScript.ORDER_MEMBER];
+        }
+        break;
+      }
+      case ('RANDOM'): {
+        let code;
+        const xVar =
+           Blockly.JavaScript.nameDB_.getDistinctName('tmpX', NameType.VARIABLE);
+        code += 'var ' + xVar + ' = Math.floor(Math.random() * ' + list +
+            '.length);\n';
+        if (mode === 'SET') {
+          code += list + '[' + xVar + '] = ' + value + ';\n';
+          return code;
+        } else if (mode === 'INSERT') {
+          code += list + '.splice(' + xVar + ', 0, ' + value + ');\n';
+          return code;
+        }
+        break;
+      }
+    }
+    throw Error('Unhandled combination (lists_setIndex).');
+  };
+
+  /**
+   * Returns an expression calculating the index into a list.
+   * @param {string} listName Name of the list, used to calculate length.
+   * @param {string} where The method of indexing, selected by dropdown in Blockly
+   * @param {string=} opt_at The optional offset when indexing from start/end.
+   * @return {string|undefined} Index expression.
+   */
+  const getSubstringIndex = function(listName, where, opt_at) {
+    if (where === 'FIRST') {
+      return '0';
+    } else if (where === 'FROM_END') {
+      return listName + '.length - 1 - ' + opt_at;
+    } else if (where === 'LAST') {
+      return listName + '.length - 1';
+    } else {
+      return opt_at;
+    }
+  };
+
+  Blockly.JavaScript['lists_getSublist'] = function(block) {
+    // Get sublist.
+    let list =
+       Blockly.JavaScript.valueToCode(block, 'LIST', Blockly.JavaScript.ORDER_MEMBER) || '[]';
+    list = `(typeof ${list} == 'object' ? ${list} : [])`;
+    const where1 = block.getFieldValue('WHERE1');
+    const where2 = block.getFieldValue('WHERE2');
+    let code;
+    if (where1 === 'FIRST' && where2 === 'LAST') {
+      code = list + '.slice(0)';
+    } else if (
+      list.match(/^\w+$/) ||
+        (where1 !== 'FROM_END' && where2 === 'FROM_START')) {
+      // If the list is a variable or doesn't require a call for length, don't
+      // generate a helper function.
+      let at1;
+      switch (where1) {
+        case 'FROM_START':
+          at1 =Blockly.JavaScript.getAdjusted(block, 'AT1');
+          break;
+        case 'FROM_END':
+          at1 =Blockly.JavaScript.getAdjusted(
+              block, 'AT1', 1, false, Blockly.JavaScript.ORDER_SUBTRACTION);
+          at1 = list + '.length - ' + at1;
+          break;
+        case 'FIRST':
+          at1 = '0';
+          break;
+        default:
+          throw Error('Unhandled option (lists_getSublist).');
+      }
+      let at2;
+      switch (where2) {
+        case 'FROM_START':
+          at2 =Blockly.JavaScript.getAdjusted(block, 'AT2', 1);
+          break;
+        case 'FROM_END':
+          at2 =Blockly.JavaScript.getAdjusted(
+              block, 'AT2', 0, false, Blockly.JavaScript.ORDER_SUBTRACTION);
+          at2 = list + '.length - ' + at2;
+          break;
+        case 'LAST':
+          at2 = list + '.length';
+          break;
+        default:
+          throw Error('Unhandled option (lists_getSublist).');
+      }
+      code = list + '.slice(' + at1 + ', ' + at2 + ')';
+    } else {
+      const at1 =Blockly.JavaScript.getAdjusted(block, 'AT1');
+      const at2 =Blockly.JavaScript.getAdjusted(block, 'AT2');
+      const wherePascalCase = {
+        'FIRST': 'First',
+        'LAST': 'Last',
+        'FROM_START': 'FromStart',
+        'FROM_END': 'FromEnd',
+      };
+      const functionName =Blockly.JavaScript.provideFunction_(
+          'subsequence' + wherePascalCase[where1] + wherePascalCase[where2], [
+            'function ' +Blockly.JavaScript.FUNCTION_NAME_PLACEHOLDER_ + '(sequence' +
+                // The value for 'FROM_END' and'FROM_START' depends on `at` so
+                // we add it as a parameter.
+                ((where1 === 'FROM_END' || where1 === 'FROM_START') ? ', at1' :
+                                                                      '') +
+                ((where2 === 'FROM_END' || where2 === 'FROM_START') ? ', at2' :
+                                                                      '') +
+                ') {',
+            getSubstringIndex('sequence', where1, 'at1') + ';',
+            '  var end = ' + getSubstringIndex('sequence', where2, 'at2') +
+                ' + 1;',
+            '  return sequence.slice(start, end);', '}',
+          ]);
+      code = functionName + '(' + list +
+          // The value for 'FROM_END' and 'FROM_START' depends on `at` so we
+          // pass it.
+          ((where1 === 'FROM_END' || where1 === 'FROM_START') ? ', ' + at1 : '') +
+          ((where2 === 'FROM_END' || where2 === 'FROM_START') ? ', ' + at2 : '') +
+          ')';
+    }
+    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
+  };
+
+  Blockly.JavaScript['lists_sort'] = function(block) {
+    // Block for sorting a list.
+    let list =
+       Blockly.JavaScript.valueToCode(block, 'LIST', Blockly.JavaScript.ORDER_FUNCTION_CALL) ||
+        '[]';
+    list = `(typeof ${list} == 'object' ? ${list} : [])`;
+    const direction = block.getFieldValue('DIRECTION') === '1' ? 1 : -1;
+    const type = block.getFieldValue('TYPE');
+    const getCompareFunctionName =
+       Blockly.JavaScript.provideFunction_('listsGetSortCompare', [
+         'function ' +Blockly.JavaScript.FUNCTION_NAME_PLACEHOLDER_ +
+              '(type, direction) {',
+         '  var compareFuncs = {', '    "NUMERIC": function(a, b) {',
+         '        return Number(a) - Number(b); },',
+         '    "TEXT": function(a, b) {',
+         '        return a.toString() > b.toString() ? 1 : -1; },',
+         '    "IGNORE_CASE": function(a, b) {',
+         '        return a.toString().toLowerCase() > ' +
+              'b.toString().toLowerCase() ? 1 : -1; },',
+         '  };', '  var compare = compareFuncs[type];',
+         '  return function(a, b) { return compare(a, b) * direction; }', '}',
+       ]);
+    return [
+      list + '.slice().sort(' + getCompareFunctionName + '("' + type + '", ' +
+          direction + '))',
+      Blockly.JavaScript.ORDER_FUNCTION_CALL,
+    ];
+  };
+
+  Blockly.JavaScript['lists_reverse'] = function(block) {
+    // Block for reversing a list.
+    let list =
+       Blockly.JavaScript.valueToCode(block, 'LIST', Blockly.JavaScript.ORDER_FUNCTION_CALL) ||
+        '[]';
+    list = `(typeof ${list} == 'object' ? ${list} : [])`;
+    const code = list + '.slice().reverse()';
+    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
   };
 }

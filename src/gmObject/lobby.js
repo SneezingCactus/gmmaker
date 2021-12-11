@@ -12,7 +12,7 @@ export default {
       gm.lobby.socket = socket;
       socket.on('disconnect', function() {
         gm.blockly.resetAll();
-        gm.blockly.workspace.clear();
+        // gm.blockly.workspace.clear();
       });
       return socket;
     };
