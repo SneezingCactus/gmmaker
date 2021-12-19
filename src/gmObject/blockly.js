@@ -384,7 +384,7 @@ all blocks are inside an event block, and try again.`);
     },
     setArrowProperty: function(gameState, discID, arrowID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
 
       const projs = gameState.projectiles;
       let accum = 1;
@@ -402,7 +402,7 @@ all blocks are inside an event block, and try again.`);
     },
     setAllArrowsProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
 
       const projs = gameState.projectiles;
 
@@ -415,7 +415,7 @@ all blocks are inside an event block, and try again.`);
     },
     changeArrowProperty: function(gameState, discID, arrowID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
       const projs = gameState.projectiles;
       let accum = 1;
 
@@ -432,7 +432,7 @@ all blocks are inside an event block, and try again.`);
     },
     changeAllArrowsProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
 
       const projs = gameState.projectiles;
 
@@ -527,6 +527,23 @@ all blocks are inside an event block, and try again.`);
           return '#ffeb3b';
       }
       return '#000000';
+    },
+    createArrow: function(gameState, discID, xpos, ypos, xvel, yvel, angle, time) {
+      if (xpos > 99999 || ypos > 99999 || xvel > 99999 || yvel > 99999 || angle > 99999) return;
+      if (gameState.discs[discID]) {
+        gameState.projectiles.push({
+          a: angle,
+          av: 0,
+          did: discID,
+          fte: time,
+          team: gameState.discs[discID].team,
+          type: 'arrow',
+          x: xpos,
+          xv: xvel,
+          y: ypos,
+          yv: yvel,
+        });
+      }
     },
     overrideInput: function(gameState, discID, input, value) {
       if (gm.graphics.rendering) return;

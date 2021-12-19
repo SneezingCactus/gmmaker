@@ -173,7 +173,7 @@ export default function() {
     const arrow_yvel = Blockly.JavaScript.valueToCode(block, 'arrow_yvel', Blockly.JavaScript.ORDER_ATOMIC);
     const arrow_angle = Blockly.JavaScript.valueToCode(block, 'arrow_angle', Blockly.JavaScript.ORDER_ATOMIC);
     const arrow_time = Blockly.JavaScript.valueToCode(block, 'arrow_time', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `if(gst.discs[playerid]){gst.projectiles.push({a: ${arrow_angle}, av: 0, did: playerid, fte: ${arrow_time ? arrow_time : 150}, team: gst.discs[playerid].team, type: "arrow", x: ${arrow_xpos}, xv: ${arrow_xvel}, y: ${arrow_ypos}, yv: ${arrow_yvel}});}`;
+    const code = `gm.blockly.funcs.createArrow(gst, playerid, ${arrow_xpos}, ${arrow_ypos}, ${arrow_xvel}, ${arrow_yvel}, ${arrow_angle}, ${arrow_time != '' ? arrow_time : 150});`;
     return code;
   };
 
