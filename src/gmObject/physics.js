@@ -28,9 +28,29 @@ export default {
   initGameState: function() {
     const step_OLD = PhysicsClass.prototype.step;
     PhysicsClass.prototype.step = function() {
+      gm.inputs.allPlayerInputs = JSON.parse(JSON.stringify(arguments[1]));
+
+      // override inputs
+      if (arguments[0]?.physics.bodies[0]?.cf.overrides) {
+        const overrides = arguments[0].physics.bodies[0].cf.overrides;
+
+        for (let i = 0; i != arguments[0].discs.length; i++) {
+          if (!overrides[i] || !arguments[0].discs[i]) continue;
+
+          arguments[1][i] = {
+            up: overrides[i].up ?? arguments[1][i]?.up ?? false,
+            down: overrides[i].down ?? arguments[1][i]?.down ?? false,
+            left: overrides[i].left ?? arguments[1][i]?.left ?? false,
+            right: overrides[i].right ?? arguments[1][i]?.right ?? false,
+            action: overrides[i].action ?? arguments[1][i]?.action ?? false,
+            action2: overrides[i].action2 ?? arguments[1][i]?.action2 ?? false,
+          };
+        }
+      }
+
       let gst = step_OLD(...arguments);
+
       if (!PhysicsClass.contactListener.EndContact_OLD) gm.physics.initContactListener();
-      gm.inputs.allPlayerInputs = arguments[1];
 
       gm.physics.gameState = gst;
 
@@ -168,6 +188,9 @@ export default {
 
       if (gm.lobby.roundStarting && gm.physics.gameState.ftu == -1) {
         gm.lobby.roundStarting = false;
+
+        gm.blockly.funcs.clearGraphics();
+
         for (let i = 0; i != gm.physics.gameState.discs.length; i++) {
           if (gm.physics.gameState.discs[i]) {
             if (!gm.inputs.allPlayerInputs[i]) {
@@ -215,7 +238,6 @@ export default {
   },
   forceGameState: false,
   collisionsThisStep: [],
-  killsThisStep: [],
   onStep: function() { },
   onFirstStep: function() { },
   onPlayerPlayerCollision: function() { },

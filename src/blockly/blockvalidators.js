@@ -109,6 +109,14 @@ export default function() {
       this.getSourceBlock().getInput('player_id').setVisible(newValue == 'id');
       playerDropdown.forceRerender();
     });
+
+    const arrowDropdown = this.getField('arrow');
+
+    this.getInput('arrow_id').setVisible(arrowDropdown.getValue() == 'id');
+    arrowDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().getInput('arrow_id').setVisible(newValue == 'id');
+      playerDropdown.forceRerender();
+    });
   };
 
   Blockly.Blocks['player_die'].validatorInit = function() {
@@ -246,6 +254,56 @@ export default function() {
       }
 
       collideType.forceRerender();
+    });
+  };
+
+  Blockly.Blocks['input_override'].validatorInit = function() {
+    const playerDropdown = this.getField('player');
+
+    this.getInput('player_id').setVisible(playerDropdown.getValue() == 'id');
+    playerDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().getInput('player_id').setVisible(newValue == 'id');
+      playerDropdown.forceRerender();
+    });
+  };
+
+  Blockly.Blocks['stop_input_override'].validatorInit = function() {
+    const playerDropdown = this.getField('player');
+
+    this.getInput('player_id').setVisible(playerDropdown.getValue() == 'id');
+    playerDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().getInput('player_id').setVisible(newValue == 'id');
+      playerDropdown.forceRerender();
+    });
+  };
+
+  Blockly.Blocks['variables_get'].validatorInit = function() {
+    const playerDropdown = this.getField('player');
+
+    this.getInput('player_id').setVisible(playerDropdown.getValue() == 'id');
+    playerDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().getInput('player_id').setVisible(newValue == 'id');
+      playerDropdown.forceRerender();
+    });
+  };
+
+  Blockly.Blocks['variables_set'].validatorInit = function() {
+    const playerDropdown = this.getField('player');
+
+    this.getInput('player_id').setVisible(playerDropdown.getValue() == 'id');
+    playerDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().getInput('player_id').setVisible(newValue == 'id');
+      playerDropdown.forceRerender();
+    });
+  };
+
+  Blockly.Blocks['math_change'].validatorInit = function() {
+    const playerDropdown = this.getField('player');
+
+    this.getInput('player_id').setVisible(playerDropdown.getValue() == 'id');
+    playerDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().getInput('player_id').setVisible(newValue == 'id');
+      playerDropdown.forceRerender();
     });
   };
 }

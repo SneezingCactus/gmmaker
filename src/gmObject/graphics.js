@@ -16,12 +16,12 @@ export default {
           for (let i = 0; i != gm.graphics.rendererClass.discGraphics.length; i++) {
             if (gm.graphics.additionalWorldGraphics[i] && !gm.graphics.additionalWorldGraphics[i]._destroyed && (!gm.graphics.rendererClass.discGraphics[i] || gm.lobby.roundStarting)) {
               gm.graphics.additionalWorldGraphics[i].clear();
+              gm.graphics.additionalWorldGraphics[i].removeChildren();
             }
-
-            if (gm.graphics.rendererClass.discGraphics[i] && gm.graphics.rendererClass.discGraphics[i].playerGraphic.children == 0) {
+            if (gm.graphics.rendererClass.discGraphics[i] && (!gm.graphics.additionalDiscGraphics[i] || !gm.graphics.rendererClass.discGraphics[i].container.children.includes(gm.graphics.additionalDiscGraphics[i]))) {
               const discGraphics = new PIXI.Graphics();
 
-              gm.graphics.rendererClass.discGraphics[i].playerGraphic.addChild(discGraphics);
+              gm.graphics.rendererClass.discGraphics[i].container.addChild(discGraphics);
               gm.graphics.additionalDiscGraphics[i] = discGraphics;
             }
             if (gm.graphics.rendererClass.stage.children[1] && gm.lobby.roundStarting) {
@@ -54,13 +54,17 @@ export default {
         if (gm.graphics.rendererClass) {
           for (let a = 0; a != gm.graphics.rendererClass.discGraphics.length; a++) {
             if (!gm.graphics.rendererClass.discGraphics[a]) continue;
-            const discObject = gm.graphics.rendererClass.discGraphics[a].playerGraphic;
+
+            gm.graphics.additionalDiscGraphics[a]?.removeChildren();
+            gm.graphics.additionalWorldGraphics[a]?.removeChildren();
+
+            const discObject = gm.graphics.rendererClass.discGraphics[a].container;
             while (discObject.children[0]) {
               discObject.removeChild(discObject.children[0]);
             }
           }
 
-          const worldObject = gm.graphics.rendererClass.discContainer;
+          const worldObject = gm.graphics.rendererClass.stage;
           while (worldObject.children[0]) {
             worldObject.removeChild(worldObject.children[0]);
           }
@@ -77,5 +81,7 @@ export default {
   rendering: false,
   additionalDiscGraphics: [],
   additionalWorldGraphics: [],
+  availableText: [],
+  usedText: [],
   onRender: function() { },
 };

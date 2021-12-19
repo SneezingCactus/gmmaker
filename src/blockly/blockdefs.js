@@ -85,7 +85,7 @@ module.exports = [{
 {
   'type': 'draw_line',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw line %1 from x %2 y %3 to x %4 y %5 width %6 colour %7 anchored to player? %8',
+  'message0': 'draw line %1 from x %2 y %3 to x %4 y %5 width %6 colour %7 alpha (0 to 100) %8 anchored to player? %9',
   'args0': [
     {
       'type': 'input_dummy',
@@ -127,6 +127,12 @@ module.exports = [{
       'align': 'RIGHT',
     },
     {
+      'type': 'input_value',
+      'name': 'line_alpha',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
       'type': 'field_checkbox',
       'name': 'line_anchored',
       'checked': false,
@@ -142,7 +148,7 @@ module.exports = [{
 {
   'type': 'draw_rect',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw rectangle %1 x %2 y %3 width %4 height %5 colour %6 anchored to player? %7',
+  'message0': 'draw rectangle %1 x %2 y %3 width %4 height %5 colour %6 alpha (0 to 100) %7 anchored to player? %8',
   'args0': [
     {
       'type': 'input_dummy',
@@ -178,6 +184,12 @@ module.exports = [{
       'align': 'RIGHT',
     },
     {
+      'type': 'input_value',
+      'name': 'rect_alpha',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
       'type': 'field_checkbox',
       'name': 'rect_anchored',
       'checked': false,
@@ -193,7 +205,7 @@ module.exports = [{
 {
   'type': 'draw_circle',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw circle %1 at x %2 y %3 with radius %4 color %5 anchored to player? %6',
+  'message0': 'draw circle %1 at x %2 y %3 with radius %4 colour %5 alpha (0 to 100) %6 anchored to player? %7',
   'args0': [
     {
       'type': 'input_dummy',
@@ -223,6 +235,12 @@ module.exports = [{
       'align': 'RIGHT',
     },
     {
+      'type': 'input_value',
+      'name': 'circ_alpha',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
       'type': 'field_checkbox',
       'name': 'circ_anchored',
       'checked': false,
@@ -238,7 +256,7 @@ module.exports = [{
 {
   'type': 'draw_text',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw text %1 text %2 at x %3 y %4 color %5 %6 size %7 %8 bold? %9 %10 centered? %11 %12 anchored to player? %13',
+  'message0': 'draw text %1 text %2 at x %3 y %4 size %5 colour %6 alpha (0 to 100) %7 centered? %8 %9 anchored to player? %10',
   'args0': [
     {
       'type': 'input_dummy',
@@ -262,30 +280,21 @@ module.exports = [{
       'align': 'RIGHT',
     },
     {
-      'type': 'field_colour',
-      'name': 'text_color',
-      'colour': '#ff0000',
-    },
-    {
-      'type': 'input_dummy',
-      'align': 'RIGHT',
-    },
-    {
-      'type': 'field_number',
+      'type': 'input_value',
       'name': 'text_size',
-      'value': 11,
-    },
-    {
-      'type': 'input_dummy',
+      'check': 'Number',
       'align': 'RIGHT',
     },
     {
-      'type': 'field_checkbox',
-      'name': 'text_bold',
-      'checked': false,
+      'type': 'input_value',
+      'name': 'text_color',
+      'check': 'Colour',
+      'align': 'RIGHT',
     },
     {
-      'type': 'input_dummy',
+      'type': 'input_value',
+      'name': 'text_alpha',
+      'check': 'Number',
       'align': 'RIGHT',
     },
     {
@@ -307,7 +316,7 @@ module.exports = [{
   'previousStatement': null,
   'nextStatement': null,
   'colour': 160,
-  'tooltip': 'Draw text to the screen.',
+  'tooltip': 'Draw text to the screen. Text is resource intensive, so it\'s a bad idea to have more than 20 of them on screen.',
   'helpUrl': '',
 },
 {
@@ -559,7 +568,7 @@ module.exports = [{
 },
 {
   'type': 'set_last_arrow_prop',
-  'message0': 'set %1 %2 %3 %4 %5 %6 \'s %7 to %8',
+  'message0': 'set %1 %2 %3 %4 %5 %6 %7 to %8',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -594,6 +603,10 @@ module.exports = [{
         [
           'arrow number',
           'id',
+        ],
+        [
+          'arrows',
+          'all',
         ],
       ],
     },
@@ -766,8 +779,7 @@ module.exports = [{
     },
   ],
   'output': 'Number',
-  'colour': 160,
-  'tooltip': 'Turn physics length units into pixels.',
+  'tooltip': '[NO LONGER WORKS]  Turn physics length units into pixels.',
   'helpUrl': '',
 },
 {
@@ -892,7 +904,7 @@ module.exports = [{
 {
   'type': 'draw_poly',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw polygon %1 with vertex list %2 (2 values = 1 vertex) %3 color %4 anchored to player? %5',
+  'message0': 'draw polygon %1 with vertex list %2 (2 values = 1 vertex) %3 colour %4 alpha (0 to 100) %5 anchored to player? %6',
   'args0': [
     {
       'type': 'input_dummy',
@@ -911,6 +923,12 @@ module.exports = [{
       'type': 'input_value',
       'name': 'poly_color',
       'check': 'Colour',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'poly_alpha',
+      'check': 'Number',
       'align': 'RIGHT',
     },
     {
@@ -958,7 +976,7 @@ module.exports = [{
 },
 {
   'type': 'delete_arrows',
-  'message0': 'delete %1 %2 %3 arrows',
+  'message0': 'delete %1 %2 %3 %4 %5 %6',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -982,11 +1000,37 @@ module.exports = [{
       'name': 'player_id',
       'check': 'Number',
     },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow',
+      'options': [
+        [
+          'arrows',
+          'all',
+        ],
+        [
+          'last arrow',
+          'last',
+        ],
+        [
+          'arrow number',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'arrow_id',
+      'check': 'Number',
+    },
   ],
   'previousStatement': null,
   'nextStatement': null,
   'colour': 230,
-  'tooltip': 'Delete all arrows that belong to a player.',
+  'tooltip': 'Delete an arrow or all arrows that belong to a player.',
   'helpUrl': '',
 },
 {
@@ -1075,7 +1119,7 @@ module.exports = [{
 },
 {
   'type': 'change_last_arrow_prop',
-  'message0': 'change %1 %2 %3 %4 %5 %6 \'s %7 by %8',
+  'message0': 'change %1 %2 %3 %4 %5 %6 %7 by %8',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -1110,6 +1154,10 @@ module.exports = [{
         [
           'arrow number',
           'id',
+        ],
+        [
+          'arrows',
+          'all',
         ],
       ],
     },
@@ -1361,4 +1409,306 @@ module.exports = [{
   'colour': 230,
   'tooltip': 'Get your player\'s id.',
   'helpUrl': '',
+},
+{
+  'type': 'input_override',
+  'message0': 'override %1 %2 %3 %4 key to %5 %6',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'key',
+      'options': [
+        [
+          'up',
+          'up',
+        ],
+        [
+          'down',
+          'down',
+        ],
+        [
+          'left',
+          'left',
+        ],
+        [
+          'right',
+          'right',
+        ],
+        [
+          'heavy',
+          'action',
+        ],
+        [
+          'special',
+          'action2',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'override_value',
+      'check': 'Boolean',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 20,
+  'tooltip': 'Overrides a key to be on/off until a "stop overriding" block. Only built-in behaviour related to that key will be overriden, the real value is still visible to the custom mode.',
+  'helpUrl': '',
+},
+{
+  'type': 'stop_input_override',
+  'message0': 'stop overriding %1 %2 %3 %4 key',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'key',
+      'options': [
+        [
+          'up',
+          'up',
+        ],
+        [
+          'down',
+          'down',
+        ],
+        [
+          'left',
+          'left',
+        ],
+        [
+          'right',
+          'right',
+        ],
+        [
+          'heavy',
+          'action',
+        ],
+        [
+          'special',
+          'action2',
+        ],
+      ],
+    },
+  ],
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 20,
+  'tooltip': 'Stop overriding a key.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_player_id_list',
+  'message0': 'get all player ids as list',
+  'output': 'Array',
+  'colour': 230,
+  'tooltip': 'Returns a list that contains the ids of all alive players.',
+  'helpUrl': '',
+},
+{
+  'type': 'variables_get',
+  'message0': '%1 %2 %3 %4',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'VAR',
+      'variable': '%{BKY_VARIABLES_DEFAULT_NAME}',
+    },
+  ],
+  'output': null,
+  'style': 'variable_blocks',
+  'helpUrl': '%{BKY_VARIABLES_GET_HELPURL}',
+  'tooltip': '%{BKY_VARIABLES_GET_TOOLTIP}',
+  'extensions': ['contextMenu_variableSetterGetter'],
+},
+{
+  'type': 'variables_set',
+  'message0': 'set %1 %2 %3 %4 to %5 %6',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'VAR',
+      'variable': 'item',
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'VALUE',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'style': 'variable_blocks',
+  'tooltip': '%{BKY_VARIABLES_SET_TOOLTIP}',
+  'helpUrl': '%{BKY_VARIABLES_SET_HELPURL}',
+  'extensions': ['contextMenu_variableSetterGetter'],
+},
+{
+  'type': 'math_change',
+  'message0': 'change %1 %2 %3 %4 by %5 %6',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'VAR',
+      'variable': 'item',
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'DELTA',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'style': 'variable_blocks',
+  'tooltip': '',
+  'helpUrl': '%{BKY_MATH_CHANGE_HELPURL}',
+  'extensions': ['math_change_tooltip'],
+},
+{
+  'type': 'text_charAt',
+  'message0': '%{BKY_TEXT_CHARAT_TITLE}',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'VALUE',
+      'check': 'String',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'WHERE',
+      'options': [
+        ['%{BKY_TEXT_CHARAT_FROM_START}', 'FROM_START'],
+        ['%{BKY_TEXT_CHARAT_FROM_END}', 'FROM_END'],
+        ['%{BKY_TEXT_CHARAT_FIRST}', 'FIRST'],
+        ['%{BKY_TEXT_CHARAT_LAST}', 'LAST'],
+      ],
+    },
+  ],
+  'output': 'String',
+  'style': 'text_blocks',
+  'helpUrl': '%{BKY_TEXT_CHARAT_HELPURL}',
+  'inputsInline': true,
+  'mutator': 'text_charAt_mutator',
 }];

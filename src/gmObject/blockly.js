@@ -78,6 +78,13 @@ export default {
         scaleSpeed: 1.2,
         pinch: true,
       },
+      theme: Blockly.Theme.defineTheme('themeName', {
+        'base': Blockly.Themes.Classic,
+        'fontStyle': {
+          'family': 'futurept_b1',
+          'size': 12,
+        },
+      }),
     });
 
     window.addEventListener('resize', () => {
@@ -159,7 +166,7 @@ all blocks are inside an event block, and try again.`);
   },
   vars: [],
   funcs: {
-    createCircle: function(discID, xpos, ypos, radius, color, anchored) {
+    createCircle: function(discID, xpos, ypos, radius, color, alpha, anchored) {
       let graphics;
 
       if (anchored) {
@@ -169,17 +176,21 @@ all blocks are inside an event block, and try again.`);
       }
 
       if (!graphics || graphics._destroyed) return;
+
+      xpos = gm.blockly.funcs.getScreenPos(xpos);
+      ypos = gm.blockly.funcs.getScreenPos(ypos);
+      radius = gm.blockly.funcs.getScreenPos(radius);
 
       if (xpos > 99999 || ypos > 99999 || radius > 99999) return;
 
       color = '0x' + color.slice(1);
 
       graphics.lineStyle(0, 0, 0);
-      graphics.beginFill(color);
+      graphics.beginFill(color, alpha / 100);
       graphics.drawCircle(xpos, ypos, radius);
       graphics.endFill();
     },
-    createRect: function(discID, xpos1, ypos1, xpos2, ypos2, color, anchored) {
+    createRect: function(discID, xpos1, ypos1, xpos2, ypos2, color, alpha, anchored) {
       let graphics;
 
       if (anchored) {
@@ -189,17 +200,22 @@ all blocks are inside an event block, and try again.`);
       }
 
       if (!graphics || graphics._destroyed) return;
+
+      xpos1 = gm.blockly.funcs.getScreenPos(xpos1);
+      ypos1 = gm.blockly.funcs.getScreenPos(ypos1);
+      xpos2 = gm.blockly.funcs.getScreenPos(xpos2);
+      ypos2 = gm.blockly.funcs.getScreenPos(ypos2);
 
       if (xpos1 > 99999 || ypos1 > 99999 || xpos2 > 99999 || ypos2 > 99999) return;
 
       color = '0x' + color.slice(1);
 
       graphics.lineStyle(0, 0, 0);
-      graphics.beginFill(color);
+      graphics.beginFill(color, alpha / 100);
       graphics.drawRect(xpos1, ypos1, xpos2, ypos2);
       graphics.endFill();
     },
-    createLine: function(discID, xpos1, ypos1, xpos2, ypos2, color, width, anchored) {
+    createLine: function(discID, xpos1, ypos1, xpos2, ypos2, color, alpha, width, anchored) {
       let graphics;
 
       if (anchored) {
@@ -209,16 +225,21 @@ all blocks are inside an event block, and try again.`);
       }
 
       if (!graphics || graphics._destroyed) return;
+
+      xpos1 = gm.blockly.funcs.getScreenPos(xpos1);
+      ypos1 = gm.blockly.funcs.getScreenPos(ypos1);
+      xpos2 = gm.blockly.funcs.getScreenPos(xpos2);
+      ypos2 = gm.blockly.funcs.getScreenPos(ypos2);
 
       if (xpos1 > 99999 || ypos1 > 99999 || xpos2 > 99999 || ypos2 > 99999 || width > 99999) return;
 
       color = '0x' + color.slice(1);
 
-      graphics.lineStyle(width, color, 1);
+      graphics.lineStyle(width, color, alpha / 100);
       graphics.moveTo(xpos1, ypos1);
       graphics.lineTo(xpos2, ypos2);
     },
-    createPoly: function(discID, vertexes, color, anchored) {
+    createPoly: function(discID, vertexes, color, alpha = 100, anchored) {
       let graphics;
 
       if (anchored) {
@@ -231,42 +252,116 @@ all blocks are inside an event block, and try again.`);
 
       color = '0x' + color.slice(1);
 
-      const vertexList = [];
+      for (let i = 0; i < vertexes.length; i ++) {
+        vertexes[i] = gm.blockly.funcs.getScreenPos(typeof vertexes[i] === 'number' ? vertexes[i] : 0);
 
-      for (let i = 0; i < vertexes.length; i += 2) {
-        const vertex = [];
-
-        vertex.push(typeof vertexes[i] === 'number' ? vertexes[i] : 0);
-        vertex.push(typeof vertexes[i + 1] === 'number' ? vertexes[i + 1] : 0);
-
-        if (vertex[0] > 99999 || vertex[1] > 99999) return;
-
-        vertexList.push(vertex);
+        if (vertexes[i] > 99999) return;
       }
 
       graphics.lineStyle(0, 0, 0);
-      graphics.beginFill(color);
+      graphics.beginFill(color, alpha / 100);
       graphics.drawPolygon(vertexes);
       graphics.endFill();
     },
+    createText: function(discID, xpos, ypos, color, alpha, str, size, centered, anchored) {
+      let graphics;
+
+      if (anchored) {
+        graphics = gm.graphics.additionalDiscGraphics[discID];
+      } else {
+        graphics = gm.graphics.additionalWorldGraphics[discID];
+      }
+
+      if (!graphics || graphics._destroyed) return;
+
+      if (xpos > 99999 || ypos > 99999 || size > 99999) return;
+
+      color = '0x' + color.slice(1);
+
+      if (gm.graphics.availableText.length > 0) {
+        const reusedText = gm.graphics.availableText.pop();
+
+        gm.graphics.usedText.push(reusedText);
+        graphics.addChild(reusedText);
+
+        reusedText.resolution = 2;
+        reusedText.x = gm.blockly.funcs.getScreenPos(xpos);
+        reusedText.y = gm.blockly.funcs.getScreenPos(ypos);
+        reusedText.text = str;
+        reusedText.style.fill = color;
+        reusedText.alpha = alpha / 100;
+        reusedText.style.fontSize = gm.blockly.funcs.getScreenPos(size);
+        reusedText.usedBy = discID;
+
+        if (centered) {
+          reusedText.anchor.set(0.5, 0);
+        } else {
+          reusedText.anchor.set(0, 0);
+        }
+      } else {
+        const text = new PIXI.Text(str, {
+          fontFamily: 'futurept_medium',
+          fontSize: gm.blockly.funcs.getScreenPos(size),
+          fill: color,
+          align: 'center',
+          dropShadow: true,
+          dropShadowDistance: 3,
+          dropShadowAlpha: 0.30,
+        });
+
+        graphics.addChild(text);
+
+        text.resolution = 2;
+        text.x = gm.blockly.funcs.getScreenPos(xpos);
+        text.y = gm.blockly.funcs.getScreenPos(ypos);
+        text.alpha = alpha / 100;
+        text.usedBy = discID;
+
+        if (centered) {
+          text.anchor.set(0.5, 0);
+        }
+
+        gm.graphics.usedText.push(text);
+      }
+    },
     clearGraphics: function(discID) {
-      if (discID) {
+      if (typeof discID !== 'undefined') {
         const discGraphics = gm.graphics.additionalDiscGraphics[discID];
         const worldGraphics = gm.graphics.additionalWorldGraphics[discID];
         if (worldGraphics && !worldGraphics._destroyed) worldGraphics.clear();
         if (discGraphics && !discGraphics._destroyed) discGraphics.clear();
+
+        if (discGraphics) gm.graphics.additionalDiscGraphics[discID].removeChildren();
+        if (worldGraphics) gm.graphics.additionalWorldGraphics[discID].removeChildren();
+
+        for (let i = 0; i < gm.graphics.usedText.length; i++) {
+          if (gm.graphics.usedText[i]?.usedBy === discID) {
+            gm.graphics.availableText.push(gm.graphics.usedText.splice(i, 1)[0]);
+            i--;
+          }
+        }
       } else {
         for (let i = 0; i != gm.graphics.additionalDiscGraphics.length; i++) {
           const discGraphics = gm.graphics.additionalDiscGraphics[i];
           const worldGraphics = gm.graphics.additionalWorldGraphics[i];
           if (worldGraphics && !worldGraphics._destroyed) worldGraphics.clear();
           if (discGraphics && !discGraphics._destroyed) discGraphics.clear();
+
+          if (discGraphics) gm.graphics.additionalDiscGraphics[i].removeChildren();
+          if (worldGraphics) gm.graphics.additionalWorldGraphics[i].removeChildren();
+
+          while (gm.graphics.usedText.length > 0) {
+            gm.graphics.availableText.push(gm.graphics.usedText.pop());
+          }
         }
       }
     },
+    getScreenPos: function(value) {
+      return value * gm.physics.gameState.physics.ppm * gm.graphics.rendererClass.scaleRatio;
+    },
     setPlayerProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] = value;
       }
@@ -274,7 +369,7 @@ all blocks are inside an event block, and try again.`);
     },
     changePlayerProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] += value;
       }
@@ -287,7 +382,6 @@ all blocks are inside an event block, and try again.`);
         return Infinity;
       }
     },
-
     setArrowProperty: function(gameState, discID, arrowID, property, value) {
       if (gm.graphics.rendering) return gameState;
       if (value === null || value === undefined) return gameState;
@@ -306,6 +400,19 @@ all blocks are inside an event block, and try again.`);
       }
       return gameState;
     },
+    setAllArrowsProperty: function(gameState, discID, property, value) {
+      if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined) return gameState;
+
+      const projs = gameState.projectiles;
+
+      for (let i = 0; i != projs.length; i++) {
+        if (projs[i] && projs[i].did == discID) {
+          gameState.projectiles[i][property] = value;
+        }
+      }
+      return gameState;
+    },
     changeArrowProperty: function(gameState, discID, arrowID, property, value) {
       if (gm.graphics.rendering) return gameState;
       if (value === null || value === undefined) return gameState;
@@ -319,6 +426,19 @@ all blocks are inside an event block, and try again.`);
             break;
           }
           accum++;
+        }
+      }
+      return gameState;
+    },
+    changeAllArrowsProperty: function(gameState, discID, property, value) {
+      if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined) return gameState;
+
+      const projs = gameState.projectiles;
+
+      for (let i = 0; i != projs.length; i++) {
+        if (projs[i] && projs[i].did == discID) {
+          gameState.projectiles[i][property] += value;
         }
       }
       return gameState;
@@ -350,6 +470,21 @@ all blocks are inside an event block, and try again.`);
 
       return accum;
     },
+    deletePlayerArrow: function(gameState, discID, arrowID) {
+      if (gm.graphics.rendering) return gameState;
+      const projs = gameState.projectiles;
+      let accum = 1;
+
+      for (let i = 0; i != projs.length; i++) {
+        if (projs[i] && projs[i].did == discID) {
+          if (accum == arrowID) {
+            gameState.projectiles[i] = null;
+            break;
+          }
+          accum++;
+        }
+      }
+    },
     deleteAllPlayerArrows: function(gameState, discID) {
       if (gm.graphics.rendering) return gameState;
       const projs = gameState.projectiles;
@@ -358,6 +493,13 @@ all blocks are inside an event block, and try again.`);
           gameState.projectiles[i] = null;
         }
       }
+    },
+    getAllPlayerIds: function(gameState) {
+      const array = [];
+      for (let i = 0; i != gameState.discs.length; i++) {
+        if (gameState.discs[i]) array.push(i);
+      }
+      return array;
     },
     getPlayerSize: function(discID) {
       const bal = gm.lobby.mpSession.getGameSettings().bal[discID];
@@ -386,12 +528,24 @@ all blocks are inside an event block, and try again.`);
       }
       return '#000000';
     },
+    overrideInput: function(gameState, discID, input, value) {
+      if (gm.graphics.rendering) return;
+      if (gameState.physics.bodies[0].cf.overrides && !gameState.physics.bodies[0].cf.overrides[discID]) {
+        gameState.physics.bodies[0].cf.overrides[discID] = {};
+      } else if (!gameState.physics.bodies[0].cf.overrides) {
+        gameState.physics.bodies[0].cf.overrides = [];
+        gameState.physics.bodies[0].cf.overrides[discID] = {};
+      }
+
+      gameState.physics.bodies[0].cf.overrides[discID][input] = value;
+    },
     killPlayer: function(gameState, discID) {
       if (gm.graphics.rendering) return;
       if (gameState.physics.bodies[0].cf.kills && !gameState.physics.bodies[0].cf.kills.includes(discID)) {
         gameState.physics.bodies[0].cf.kills.push(discID);
       } else if (!gameState.physics.bodies[0].cf.kills) {
         gameState.physics.bodies[0].cf.kills = [];
+        gameState.physics.bodies[0].cf.kills.push(discID);
       }
     },
     setVar: function(varName, gameState, discID, value) {

@@ -253,6 +253,84 @@
       <field name="DIRECTION">1</field>
     </block>
   </category>
+  <category name="Text" colour="#5ba58c">
+    <block type="text">
+      <field name="TEXT"></field>
+    </block>
+    <block type="text_join">
+      <mutation items="2"></mutation>
+    </block>
+    <block type="text_append">
+      <field name="VAR" id=")?E@rk:Ve@UsZ3VblUrR">item</field>
+      <value name="TEXT">
+        <shadow type="text">
+          <field name="TEXT"></field>
+        </shadow>
+      </value>
+    </block>
+    <block type="text_length">
+      <value name="VALUE">
+        <shadow type="text">
+          <field name="TEXT">abc</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="text_isEmpty">
+      <value name="VALUE">
+        <shadow type="text">
+          <field name="TEXT"></field>
+        </shadow>
+      </value>
+    </block>
+    <block type="text_indexOf">
+      <field name="END">FIRST</field>
+      <value name="VALUE">
+        <block type="variables_get">
+          <field name="VAR" id="BM=;WeRTa{JMwH|%:(Zf">text</field>
+        </block>
+      </value>
+      <value name="FIND">
+        <shadow type="text">
+          <field name="TEXT">abc</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="text_charAt">
+      <mutation at="true"></mutation>
+      <field name="WHERE">FROM_START</field>
+      <value name="VALUE">
+        <block type="variables_get">
+          <field name="VAR" id="BM=;WeRTa{JMwH|%:(Zf">text</field>
+        </block>
+      </value>
+    </block>
+    <block type="text_getSubstring">
+      <mutation at1="true" at2="true"></mutation>
+      <field name="WHERE1">FROM_START</field>
+      <field name="WHERE2">FROM_START</field>
+      <value name="STRING">
+        <block type="variables_get">
+          <field name="VAR" id="BM=;WeRTa{JMwH|%:(Zf">text</field>
+        </block>
+      </value>
+    </block>
+    <block type="text_changeCase">
+      <field name="CASE">UPPERCASE</field>
+      <value name="TEXT">
+        <shadow type="text">
+          <field name="TEXT">abc</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="text_trim">
+      <field name="MODE">BOTH</field>
+      <value name="TEXT">
+        <shadow type="text">
+          <field name="TEXT">abc</field>
+        </shadow>
+      </value>
+    </block>
+  </category>
   <category name="Colour" colour="#a5745b">
     <block type="colour_picker">
       <field name="COLOUR">#ff0000</field>
@@ -301,6 +379,29 @@
     <block type="on_round_start"></block>
     <block type="pressing_key">
       <field name="key">up</field>
+    </block>
+    <block type="input_override">
+      <field name="player">self</field>
+      <field name="key">up</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="override_value">
+        <shadow type="logic_boolean">
+          <field name="BOOL">FALSE</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="stop_input_override">
+      <field name="player">self</field>
+      <field name="key">up</field>
+      <value name="player_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
     </block>
     <block type="on_each_phys_frame"></block>
     <block type="on_each_render_frame"></block>
@@ -416,6 +517,7 @@
       </value>
     </block>
     <block type="get_own_id"></block>
+    <block type="get_player_id_list"></block>
     <block type="get_map_size"></block>
     <block type="create_arrow">
       <value name="arrow_xpos">
@@ -459,9 +561,15 @@
     </block>
     <block type="delete_arrows">
       <field name="player">self</field>
+      <field name="arrow">all</field>
       <value name="player_id">
         <shadow type="math_number">
           <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="arrow_id">
+        <shadow type="math_number">
+          <field name="NUM">1</field>
         </shadow>
       </value>
     </block>
@@ -484,19 +592,6 @@
         </shadow>
       </value>
     </block>
-    <block type="unit_to_pixel">
-      <value name="unit_value">
-        <shadow type="get_player_prop">
-          <field name="player">self</field>
-          <field name="property">x</field>
-          <value name="player_id">
-            <shadow type="math_number">
-              <field name="NUM">0</field>
-            </shadow>
-          </value>
-        </shadow>
-      </value>
-    </block>
     <block type="draw_line">
       <field name="line_anchored">FALSE</field>
       <value name="line_x1">
@@ -511,12 +606,12 @@
       </value>
       <value name="line_x2">
         <shadow type="math_number">
-          <field name="NUM">10</field>
+          <field name="NUM">5</field>
         </shadow>
       </value>
       <value name="line_y2">
         <shadow type="math_number">
-          <field name="NUM">10</field>
+          <field name="NUM">5</field>
         </shadow>
       </value>
       <value name="line_width">
@@ -527,6 +622,11 @@
       <value name="line_color">
         <shadow type="colour_picker">
           <field name="COLOUR">#ff0000</field>
+        </shadow>
+      </value>
+      <value name="line_alpha">
+        <shadow type="math_number">
+          <field name="NUM">100</field>
         </shadow>
       </value>
     </block>
@@ -544,17 +644,22 @@
       </value>
       <value name="rect_x2">
         <shadow type="math_number">
-          <field name="NUM">10</field>
+          <field name="NUM">5</field>
         </shadow>
       </value>
       <value name="rect_y2">
         <shadow type="math_number">
-          <field name="NUM">10</field>
+          <field name="NUM">5</field>
         </shadow>
       </value>
       <value name="rect_color">
         <shadow type="colour_picker">
           <field name="COLOUR">#ff0000</field>
+        </shadow>
+      </value>
+      <value name="rect_alpha">
+        <shadow type="math_number">
+          <field name="NUM">100</field>
         </shadow>
       </value>
     </block>
@@ -572,12 +677,17 @@
       </value>
       <value name="circ_radius">
         <shadow type="math_number">
-          <field name="NUM">20</field>
+          <field name="NUM">5</field>
         </shadow>
       </value>
       <value name="circ_color">
         <shadow type="colour_picker">
           <field name="COLOUR">#ff0000</field>
+        </shadow>
+      </value>
+      <value name="circ_alpha">
+        <shadow type="math_number">
+          <field name="NUM">100</field>
         </shadow>
       </value>
     </block>
@@ -598,7 +708,7 @@
           </value>
           <value name="ADD2">
             <shadow type="math_number">
-              <field name="NUM">100</field>
+              <field name="NUM">10</field>
             </shadow>
           </value>
           <value name="ADD3">
@@ -613,7 +723,7 @@
           </value>
           <value name="ADD5">
             <shadow type="math_number">
-              <field name="NUM">100</field>
+              <field name="NUM">10</field>
             </shadow>
           </value>
         </shadow>
@@ -621,6 +731,45 @@
       <value name="poly_color">
         <shadow type="colour_picker">
           <field name="COLOUR">#ff0000</field>
+        </shadow>
+      </value>
+      <value name="poly_alpha">
+        <shadow type="math_number">
+          <field name="NUM">100</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="draw_text">
+      <field name="text_centered">FALSE</field>
+      <field name="text_anchored">FALSE</field>
+      <value name="text_string">
+        <shadow type="text">
+          <field name="TEXT">Hello!</field>
+        </shadow>
+      </value>
+      <value name="text_x">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="text_y">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="text_size">
+        <shadow type="math_number">
+          <field name="NUM">1</field>
+        </shadow>
+      </value>
+      <value name="text_color">
+        <shadow type="colour_picker">
+          <field name="COLOUR">#ff0000</field>
+        </shadow>
+      </value>
+      <value name="text_alpha">
+        <shadow type="math_number">
+          <field name="NUM">100</field>
         </shadow>
       </value>
     </block>
