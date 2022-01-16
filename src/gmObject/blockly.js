@@ -21,9 +21,16 @@ export default {
 
     document.getElementById('gmeditor_newbutton').addEventListener('click', gm.blockly.GMENew);
     document.getElementById('gmeditor_importbutton').addEventListener('click', gm.blockly.GMEImport);
-    document.getElementById('gmeditor_exportbutton').addEventListener('click', gm.blockly.GMEExport);
+    document.getElementById('gmeditor_exportbutton').addEventListener('click', gm.blockly.GMEExportShow);
     document.getElementById('gmeditor_savebutton').addEventListener('click', gm.blockly.GMESave);
     document.getElementById('gmeditor_closebutton').addEventListener('click', gm.blockly.hideGMEWindow);
+
+    document.getElementById('gmexport_cancel').addEventListener('click', gm.blockly.GMEExportCancel);
+    document.getElementById('gmexport_ok').addEventListener('click', gm.blockly.GMEExportSave);
+
+    document.getElementById('gmimportdialog_cancel').addEventListener('click', gm.blockly.GMEImportMapCancel);
+    document.getElementById('gmimportdialog_no').addEventListener('click', gm.blockly.GMEImportMapNo);
+    document.getElementById('gmimportdialog_yes').addEventListener('click', gm.blockly.GMEImportMapYes);
 
 
     const GMOpenButton = document.createElement('div');
@@ -44,13 +51,13 @@ export default {
     }
 
     // add block defs into blockly
-    for (let i = 0; i != this.blockDefs.length; i++) {
+    for (let i = 0; i !== this.blockDefs.length; i++) {
       Blockly.Blocks[this.blockDefs[i].type] = {};
     }
 
     defineBlockValidators();
 
-    for (let i = 0; i != this.blockDefs.length; i++) {
+    for (let i = 0; i !== this.blockDefs.length; i++) {
       Blockly.Blocks[this.blockDefs[i].type].init = function() {
         this.jsonInit(gm.blockly.blockDefs[i]);
 
@@ -95,6 +102,7 @@ export default {
   },
   blockDefs: null,
   workspace: null,
+  xmlToImport: null,
   GMENew: function() {
     const confirmed = confirm('Are you sure you want to delete all blocks?');
 
@@ -117,20 +125,62 @@ export default {
         const xml = document.createElement('xml');
         xml.innerHTML = content;
 
-        gm.blockly.workspace.clear();
-        Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
+        document.getElementById('gmexport_name').value = file.name.slice(0, -4);
+
+        if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID && xml.getElementsByTagName('bonkmap')[0]) {
+          gm.blockly.xmlToImport = xml;
+          document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'visible';
+        } else {
+          gm.blockly.workspace.clear();
+          Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
+        }
       };
     };
 
     input.click();
   },
-  GMEExport: function() {
-    const filename = prompt('File name:', 'export');
+  GMEImportMapCancel: function() {
+    document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
+  },
+  GMEImportMapNo: function() {
+    gm.blockly.workspace.clear();
+    Blockly.Xml.domToWorkspace(gm.blockly.xmlToImport, gm.blockly.workspace);
 
-    if (filename !== null) {
-      const blob = new Blob([Blockly.Xml.workspaceToDom(gm.blockly.workspace).innerHTML], {type: 'text/plain;charset=utf-8'});
-      saveAs(blob, `${filename}.xml`);
+    document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
+  },
+  GMEImportMapYes: function() {
+    const gameSettings = gm.lobby.mpSession.getGameSettings();
+
+    gameSettings.map = MapEncoder.decodeFromDatabase(gm.blockly.xmlToImport.getElementsByTagName('bonkmap')[0].innerHTML);
+
+    gm.lobby.bonkLobby.updateGameSettings(gameSettings);
+    gm.lobby.networkEngine.sendMapAdd(gameSettings.map);
+
+    gm.blockly.workspace.clear();
+    Blockly.Xml.domToWorkspace(gm.blockly.xmlToImport, gm.blockly.workspace);
+
+    document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
+  },
+  GMEExportShow: function() {
+    document.getElementById('gm_exportwindowcontainer').style.visibility = 'visible';
+    document.getElementById('gmexport_name').focus();
+  },
+  GMEExportCancel: function() {
+    document.getElementById('gm_exportwindowcontainer').style.visibility = 'hidden';
+  },
+  GMEExportSave: function() {
+    const filename = document.getElementById('gmexport_name').value;
+    const attachMap = document.getElementById('gmexport_attachmap').checked;
+
+    const xml = Blockly.Xml.workspaceToDom(gm.blockly.workspace);
+
+    if (attachMap) {
+      xml.appendChild(Blockly.Xml.textToDom('<bonkmap>' + MapEncoder.encodeToDatabase(gm.lobby.mpSession.getGameSettings().map) + '</bonkmap>'));
     }
+
+    const blob = new Blob([xml.innerHTML], {type: 'text/plain;charset=utf-8'});
+    saveAs(blob, `${filename}.xml`);
+    document.getElementById('gm_exportwindowcontainer').style.visibility = 'hidden';
   },
   GMESave: function() {
     gm.blockly.resetAll();
@@ -230,6 +280,7 @@ all blocks are inside an event block, and try again.`);
       ypos1 = gm.blockly.funcs.getScreenPos(ypos1);
       xpos2 = gm.blockly.funcs.getScreenPos(xpos2);
       ypos2 = gm.blockly.funcs.getScreenPos(ypos2);
+      width = gm.blockly.funcs.getScreenPos(width);
 
       if (xpos1 > 99999 || ypos1 > 99999 || xpos2 > 99999 || ypos2 > 99999 || width > 99999) return;
 
@@ -341,7 +392,7 @@ all blocks are inside an event block, and try again.`);
           }
         }
       } else {
-        for (let i = 0; i != gm.graphics.additionalDiscGraphics.length; i++) {
+        for (let i = 0; i !== gm.graphics.additionalDiscGraphics.length; i++) {
           const discGraphics = gm.graphics.additionalDiscGraphics[i];
           const worldGraphics = gm.graphics.additionalWorldGraphics[i];
           if (worldGraphics && !worldGraphics._destroyed) worldGraphics.clear();
@@ -389,9 +440,9 @@ all blocks are inside an event block, and try again.`);
       const projs = gameState.projectiles;
       let accum = 1;
 
-      for (let i = 0; i != projs.length; i++) {
-        if (projs[i] && projs[i].did == discID) {
-          if (accum == arrowID) {
+      for (let i = 0; i !== projs.length; i++) {
+        if (projs[i] && projs[i].did === discID) {
+          if (accum === arrowID) {
             gameState.projectiles[i][property] = value;
             break;
           }
@@ -406,8 +457,8 @@ all blocks are inside an event block, and try again.`);
 
       const projs = gameState.projectiles;
 
-      for (let i = 0; i != projs.length; i++) {
-        if (projs[i] && projs[i].did == discID) {
+      for (let i = 0; i !== projs.length; i++) {
+        if (projs[i] && projs[i].did === discID) {
           gameState.projectiles[i][property] = value;
         }
       }
@@ -419,9 +470,9 @@ all blocks are inside an event block, and try again.`);
       const projs = gameState.projectiles;
       let accum = 1;
 
-      for (let i = 0; i != projs.length; i++) {
-        if (projs[i] && projs[i].did == discID) {
-          if (accum == arrowID) {
+      for (let i = 0; i !== projs.length; i++) {
+        if (projs[i] && projs[i].did === discID) {
+          if (accum === arrowID) {
             gameState.projectiles[i][property] += value;
             break;
           }
@@ -436,8 +487,8 @@ all blocks are inside an event block, and try again.`);
 
       const projs = gameState.projectiles;
 
-      for (let i = 0; i != projs.length; i++) {
-        if (projs[i] && projs[i].did == discID) {
+      for (let i = 0; i !== projs.length; i++) {
+        if (projs[i] && projs[i].did === discID) {
           gameState.projectiles[i][property] += value;
         }
       }
@@ -447,9 +498,9 @@ all blocks are inside an event block, and try again.`);
       const projs = gameState.projectiles;
       let accum = 1;
 
-      for (let i = 0; i != projs.length; i++) {
-        if (projs[i] && projs[i].did == discID) {
-          if (accum == arrowID) {
+      for (let i = 0; i !== projs.length; i++) {
+        if (projs[i] && projs[i].did === discID) {
+          if (accum === arrowID) {
             return gameState.projectiles[i][property];
             break;
           }
@@ -462,8 +513,8 @@ all blocks are inside an event block, and try again.`);
       const projs = gameState.projectiles;
       let accum = 0;
 
-      for (let i = 0; i != projs.length; i++) {
-        if (projs[i] && projs[i].did == discID) {
+      for (let i = 0; i !== projs.length; i++) {
+        if (projs[i] && projs[i].did === discID) {
           accum++;
         }
       }
@@ -475,9 +526,9 @@ all blocks are inside an event block, and try again.`);
       const projs = gameState.projectiles;
       let accum = 1;
 
-      for (let i = 0; i != projs.length; i++) {
-        if (projs[i] && projs[i].did == discID) {
-          if (accum == arrowID) {
+      for (let i = 0; i !== projs.length; i++) {
+        if (projs[i] && projs[i].did === discID) {
+          if (accum === arrowID) {
             gameState.projectiles[i] = null;
             break;
           }
@@ -488,15 +539,15 @@ all blocks are inside an event block, and try again.`);
     deleteAllPlayerArrows: function(gameState, discID) {
       if (gm.graphics.rendering) return gameState;
       const projs = gameState.projectiles;
-      for (let i = 0; i != projs.length; i++) {
-        if (projs[i] && projs[i].did == discID) {
+      for (let i = 0; i !== projs.length; i++) {
+        if (projs[i] && projs[i].did === discID) {
           gameState.projectiles[i] = null;
         }
       }
     },
     getAllPlayerIds: function(gameState) {
       const array = [];
-      for (let i = 0; i != gameState.discs.length; i++) {
+      for (let i = 0; i !== gameState.discs.length; i++) {
         if (gameState.discs[i]) array.push(i);
       }
       return array;
@@ -565,6 +616,336 @@ all blocks are inside an event block, and try again.`);
         gameState.physics.bodies[0].cf.kills.push(discID);
       }
     },
+    createRectShape: function(color, xpos, ypos, width, height, angle, noPhys, noGrap, inGrap, death) {
+      color = parseInt(color.slice(1), 16);
+
+      if (xpos > 99999 || ypos > 99999 || width > 99999 || height > 99999) return;
+
+      return {shape: {'type': 'bx', 'w': width, 'h': height, 'c': [xpos, ypos], 'a': angle, 'sk': false}, fixture: {'sh': -1, 'n': 'gmmaker', 'fr': null, 'fp': null, 're': null, 'de': null, 'f': color, 'd': death, 'np': noPhys, 'ng': noGrap, 'ig': inGrap}};
+    },
+    createCircleShape: function(color, xpos, ypos, radius, noPhys, noGrap, inGrap, death) {
+      color = parseInt(color.slice(1), 16);
+
+      if (xpos > 99999 || ypos > 99999 || radius > 99999) return;
+
+      return {shape: {'type': 'ci', 'r': radius, 'c': [xpos, ypos], 'sk': false}, fixture: {'sh': -1, 'n': 'gmmaker', 'fr': null, 'fp': null, 're': null, 'de': null, 'f': color, 'd': death, 'np': noPhys, 'ng': noGrap, 'ig': inGrap}};
+    },
+    createPolyShape: function(color, xpos, ypos, vertexList, angle, scale, noPhys, noGrap, inGrap, death) {
+      color = parseInt(color.slice(1), 16);
+
+      if (xpos > 99999 || ypos > 99999 || angle > 99999 || scale > 99999) return;
+
+      const actualVertexList = [];
+      for (let i = 0; i < vertexList.length; i += 2) {
+        if (vertexList[i] > 99999 || vertexList[i+1] > 99999) return;
+        actualVertexList.push([vertexList[i] ?? 0, vertexList[i+1] ?? 0]);
+      }
+
+      return {shape: {'type': 'po', 'v': actualVertexList, 's': scale, 'a': angle, 'c': [0, 0]}, fixture: {'sh': -1, 'n': 'gmmaker', 'fr': null, 'fp': null, 're': null, 'de': null, 'f': color, 'd': death, 'np': noPhys, 'ng': noGrap, 'ig': inGrap}};
+    },
+    createPlatform: function(gameState, type, xpos, ypos, angle, shapes, bounce, density, friction, fricPlayers, colGroup, colP, colA, colB, colC, colD) {
+      if (gm.graphics.rendering) return -1;
+      const body = {
+        'type': type,
+        'p': [xpos, ypos],
+        'a': angle,
+        'av': 0,
+        'lv': [0, 0],
+        'ld': 0,
+        'ad': 0,
+        'fr': false,
+        'bu': false,
+        'fx': [],
+        'fric': friction,
+        'fricp': fricPlayers,
+        'de': density,
+        're': bounce,
+        'f_c': colGroup,
+        'f_p': colP,
+        'f_1': colA,
+        'f_2': colB,
+        'f_3': colC,
+        'f_4': colD,
+        'cf': {'x': 0, 'y': 0, 'w': true, 'ct': 0},
+      };
+
+      for (let i = 0; i !== shapes.length; i++) {
+        const shIndex = gameState.physics.shapes.length;
+        gameState.physics.shapes.push(shapes[i].shape);
+        const fxIndex = gameState.physics.fixtures.length;
+        gameState.physics.fixtures.push(shapes[i].fixture);
+
+        gameState.physics.fixtures[fxIndex].sh = shIndex;
+
+        body.fx.push(fxIndex);
+      }
+
+      gameState.physics.bodies.push(body);
+      gameState.physics.bro.unshift(gameState.physics.bodies.length - 1);
+
+      gm.graphics.needRerender = true;
+
+      return gameState.physics.bodies.length - 1;
+    },
+    clonePlatform: function(gameState, platID) {
+      if (gameState.physics.bodies[platID]) {
+        const newBody = JSON.parse(JSON.stringify(gameState.physics.bodies[platID]));
+
+        const newFixtureIds = [];
+        for (let i = 0; i != newBody.fx.length; i++) {
+          newFixtureIds.push(gameState.physics.fixtures.length);
+
+          const newFixture = JSON.parse(JSON.stringify(gameState.physics.fixtures[newBody.fx[i]]));
+          const newShape = JSON.parse(JSON.stringify(gameState.physics.shapes[newFixture.sh]));
+
+          newFixture.sh = gameState.physics.shapes.length;
+
+          gameState.physics.shapes.push(newShape);
+          gameState.physics.fixtures.push(newFixture);
+        }
+
+        newBody.fx = newFixtureIds;
+
+        gameState.physics.bro.unshift(gameState.physics.bodies.length);
+        gameState.physics.bodies.push(newBody);
+
+        gm.graphics.needRerender = true;
+
+        return gameState.physics.bodies.length - 1;
+      }
+      return Infinity;
+    },
+    getPlatformByName: function(name) {
+      const map = gm.lobby.mpSession.getGameSettings().map;
+      for (let i = 0; i != map.physics.bodies.length; i++) {
+        if (map.physics.bodies[i]?.n == name) return i;
+      }
+      return Infinity;
+    },
+    getPlatformName: function(platID) {
+      const map = gm.lobby.mpSession.getGameSettings().map;
+      if (map.physics.bodies[platID]) return map.physics.bodies[platID].n;
+      return '';
+    },
+    setPlatformProperty: function(gameState, platID, property, value) {
+      if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
+
+      const body = gameState.physics.bodies[platID];
+      const boolProps = ['fricp', 'f_p', 'f_a', 'f_b', 'f_c', 'f_d'];
+      if (gameState.physics.bodies[platID]) {
+        switch (property) {
+          case 'p_x':
+            body.p[0] = parseFloat(value) === NaN ? body.p[0] : parseFloat(value);
+            break;
+          case 'p_y':
+            body.p[1] = parseFloat(value) === NaN ? body.p[1] : parseFloat(value);
+            break;
+          case 'lv_x':
+            body.lv[0] = parseFloat(value) === NaN ? body.lv[0] : parseFloat(value);
+            break;
+          case 'lv_y':
+            body.lv[1] = parseFloat(value) === NaN ? body.lv[1] : parseFloat(value);
+            break;
+        }
+        if (boolProps.includes(property)) {
+          body[property] = value === true;
+        } else if (body[property] !== undefined) {
+          body[property] = parseFloat(value) === NaN ? body[property] : parseFloat(value);
+        }
+        gameState.physics.bodies[platID] = body;
+      }
+      return gameState;
+    },
+    changePlatformProperty: function(gameState, platID, property, value) {
+      if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
+
+      const body = gameState.physics.bodies[platID];
+      if (gameState.physics.bodies[platID]) {
+        switch (property) {
+          case 'p_x':
+            body.p[0] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+            break;
+          case 'p_y':
+            body.p[1] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+            break;
+          case 'lv_x':
+            body.lv[0] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+            break;
+          case 'lv_y':
+            body.lv[1] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+            break;
+        }
+        if (body[property] !== undefined) {
+          body[property] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+        }
+        gameState.physics.bodies[platID] = body;
+      }
+      return gameState;
+    },
+    getPlatformProperty: function(gameState, platID, property) {
+      const body = gameState.physics.bodies[platID];
+      if (gameState.physics.bodies[platID]) {
+        switch (property) {
+          case 'p_x':
+            return body.p[0];
+          case 'p_y':
+            return body.p[1];
+          case 'lv_x':
+            return body.lv[0];
+          case 'lv_y':
+            return body.lv[1];
+        }
+        if (body[property] !== undefined) {
+          return body[property];
+        }
+      }
+      return Infinity;
+    },
+    setShapeProperty: function(gameState, platID, shapeID, property, value) {
+      if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
+
+      const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
+      const shape = gameState.physics.shapes[fixture?.sh];
+      const boolProps = ['f_np', 'f_ng', 'f_ig', 'f_d'];
+      const breakOnZero = ['s_w', 's_h'];
+      if (fixture && property.startsWith('f_')) {
+        if (property === 'f_f') {
+          fixture.f = parseInt(value.slice(1), 16) || 0;
+        } else if (boolProps.includes(property.slice(2))) {
+          fixture[property.slice(2)] = value === true;
+        } else if (fixture[property.slice(2)] !== undefined) {
+          fixture[property.slice(2)] = parseFloat(value) || 0;
+        }
+
+        gameState.physics.fixtures[gameState.physics.bodies[platID].fx[shapeID - 1]] = fixture;
+        gm.graphics.needRerender = true;
+      } else if (shape && property.startsWith('s_')) {
+        switch (property) {
+          case 's_c_x':
+            shape.c[0] = parseFloat(value) || 0;
+            break;
+          case 's_c_y':
+            shape.c[1] = parseFloat(value) || 0;
+            break;
+        }
+
+        if (shape[property.slice(2)] !== undefined) {
+          shape[property.slice(2)] = parseFloat(value) || 0;
+        }
+
+        if (breakOnZero.includes(property) && shape[property.slice(2)] >= 0 && shape[property.slice(2)] < 0.001) shape[property.slice(2)] = 0.001;
+
+        gameState.physics.shapes[fixture.sh] = shape;
+        gm.graphics.needRerender = true;
+      }
+
+      if (boolProps.includes(property) && property !== 'f_np') gm.graphics.needRerender = false;
+
+      return gameState;
+    },
+    changeShapeProperty: function(gameState, platID, shapeID, property, value) {
+      if (gm.graphics.rendering) return gameState;
+      if (value === null || value === undefined || value === Infinity) return gameState;
+
+      const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
+      const shape = gameState.physics.shapes[fixture?.sh];
+      const breakOnZero = ['s_w', 's_h'];
+      if (fixture && property.startsWith('f_')) {
+        if (fixture[property.slice(2)] !== undefined) {
+          fixture[property.slice(2)] += parseFloat(value) || 0;
+        }
+
+        gameState.physics.fixtures[gameState.physics.bodies[platID].fx[shapeID - 1]] = fixture;
+        gm.graphics.needRerender = true;
+      } else if (shape && property.startsWith('s_')) {
+        switch (property) {
+          case 's_c_x':
+            shape.c[0] += parseFloat(value) || 0;
+            break;
+          case 's_c_y':
+            shape.c[1] += parseFloat(value) || 0;
+            break;
+        }
+
+        if (shape[property.slice(2)] !== undefined) {
+          shape[property.slice(2)] += parseFloat(value) || 0;
+        }
+
+        if (breakOnZero.includes(property) && shape[property.slice(2)] >= 0 && shape[property.slice(2)] < 0.001) shape[property.slice(2)] = 0.001;
+
+        gameState.physics.shapes[fixture.sh] = shape;
+        gm.graphics.needRerender = true;
+      }
+
+      return gameState;
+    },
+    getShapeProperty: function(gameState, platID, shapeID, property) {
+      const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
+      const shape = gameState.physics.shapes[fixture?.sh];
+      if (fixture && property.startsWith('f_')) {
+        if (property === 'f_f') {
+          return '#' + fixture.f.toString(16);
+        } else if (fixture[property.slice(2)] !== undefined) {
+          return fixture[property.slice(2)];
+        }
+
+        gameState.physics.fixtures[gameState.physics.bodies[platID].fx[shapeID - 1]] = fixture;
+      } else if (shape && property.startsWith('s_')) {
+        switch (property) {
+          case 's_c_x':
+            return shape.c[0];
+          case 's_c_y':
+            return shape.c[1];
+        }
+
+        if (shape[property.slice(2)] !== undefined) {
+          return shape[property.slice(2)];
+        }
+      }
+
+      return Infinity;
+    },
+    getShapeAmount: function(gameState, platID) {
+      return gameState.physics.bodies[platID]?.fx.length ?? Infinity;
+    },
+    deletePlatform: function(gameState, platID) {
+      if (gm.graphics.rendering) return gameState;
+      if (gameState.physics.bodies[platID] && gameState.physics.bodies[platID].fx !== 0) {
+        gameState.physics.bodies[platID].fx = [];
+        gameState.physics.bodies[platID].type = 's';
+
+        gm.graphics.needRerender = true;
+      }
+      return gameState;
+    },
+    deleteShape: function(gameState, platID, shapeID) {
+      if (gm.graphics.rendering) return gameState;
+      if (gameState.physics.bodies[platID] && gameState.physics.bodies[platID].fx[shapeID - 1] !== undefined) {
+        gameState.physics.bodies[platID].fx.splice(shapeID - 1, 1);
+
+        gm.graphics.needRerender = true;
+      }
+      return gameState;
+    },
+    addShape: function(gameState, platID, shape) {
+      if (gm.graphics.rendering) return gameState;
+      if (gameState.physics.bodies[platID] && shape.shape.type) {
+        const shIndex = gameState.physics.shapes.length;
+        gameState.physics.shapes.push(shape.shape);
+        const fxIndex = gameState.physics.fixtures.length;
+        gameState.physics.fixtures.push(shape.fixture);
+
+        gameState.physics.fixtures[fxIndex].sh = shIndex;
+
+        gameState.physics.bodies[platID].fx.push(fxIndex);
+
+        gm.graphics.needRerender = true;
+      }
+      return gameState;
+    },
     setVar: function(varName, gameState, discID, value) {
       if (value === null || value === undefined) return;
 
@@ -629,6 +1010,9 @@ all blocks are inside an event block, and try again.`);
     gm.physics.onArrowPlayerCollision = function() {};
     gm.physics.onArrowArrowCollision = function() {};
     gm.physics.onArrowPlatformCollision = function() {};
+    gm.physics.onPlatformPlayerCollision = function() {};
+    gm.physics.onPlatformArrowCollision = function() {};
+    gm.physics.onPlatformPlatformCollision = function() {};
     gm.graphics.onRender = function() {};
   },
   resetAll: function() {

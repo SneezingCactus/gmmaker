@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
+import seedrandom from 'seedrandom';
+
 export default {
   init: function() {
     this.initBonkGraphics();
@@ -10,6 +12,18 @@ export default {
       return function() {
         const result = this.render_OLD.apply(this, arguments);
         gm.graphics.rendererClass = this;
+
+        if (arguments[0].physics.shapes.length != arguments[1].physics.shapes.length) {
+          for (let i = 0; i != arguments[1].physics.shapes.length; i++) {
+            if (!arguments[0].physics.shapes[i]) arguments[0].physics.shapes[i] = arguments[1].physics.shapes[i];
+          }
+          for (let i = 0; i != arguments[1].physics.bodies.length; i++) {
+            if (!arguments[0].physics.bodies[i]) arguments[0].physics.bodies[i] = arguments[1].physics.bodies[i];
+          }
+          for (let i = 0; i != arguments[1].physics.fixtures.length; i++) {
+            if (!arguments[0].physics.fixtures[i]) arguments[0].physics.fixtures[i] = arguments[1].physics.fixtures[i];
+          }
+        }
 
         gm.graphics.rendering = true;
         if (gm.graphics.rendererClass) {
@@ -32,6 +46,37 @@ export default {
             }
           }
         }
+
+        // rerender management
+        if (gm.graphics.needRerender) {
+          gm.graphics.needRerender = false;
+
+          const newRoundGraphics = new gm.graphics.rendererClass.roundGraphics.constructor(gm.physics.gameState, gm.graphics.rendererClass.scaleRatio, gm.graphics.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), gm.graphics.rendererClass.playerArray);
+
+          if (gm.graphics.rendererClass.roundGraphics) {
+            gm.graphics.rendererClass.environmentContainer.removeChild(gm.graphics.rendererClass.roundGraphics);
+            gm.graphics.rendererClass.roundGraphics.destroy();
+            gm.graphics.rendererClass.roundGraphics = null;
+          }
+
+          gm.graphics.rendererClass.roundGraphics = newRoundGraphics;
+          gm.graphics.rendererClass.environmentContainer.addChild(gm.graphics.rendererClass.roundGraphics.displayObject);
+        }
+
+        // make seed based on scene element positions and game state seed\
+        const gst = gm.physics.gameState;
+        let randomSeed = gst.seed;
+        for (let i = 0; i != gst.physics.bodies.length; i++) {
+          if (gst.physics.bodies[i]) {
+            randomSeed += gst.physics.bodies[i].p + gst.physics.bodies[i].a;
+          }
+        }
+        for (let i = 0; i != gst.discs.length; i++) {
+          if (gst.discs[i]) {
+            randomSeed += gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
+          }
+        }
+        gm.physics.pseudoRandom = new seedrandom.alea(randomSeed);
 
         if (gm.physics.gameState && gm.physics.gameState.discs) {
           for (let i = 0; i != gm.physics.gameState.discs.length; i++) {
@@ -77,8 +122,12 @@ export default {
       };
     })();
   },
+  rerender: function() {
+    gm.graphics.rendererClass.roundGraphics.build(gm.physics.gameState, gm.graphics.rendererClass.scaleRatio, gm.graphics.rendererClass.renderer, 0, gm.graphics.rendererClass.playerArray);
+  },
   rendererClass: null,
   rendering: false,
+  needRerender: false,
   additionalDiscGraphics: [],
   additionalWorldGraphics: [],
   availableText: [],

@@ -11,4 +11,41 @@
             <div id="gmeditor_savebutton" class="brownButton brownButton_classic buttonShadow mapeditor_midbox_bottombuttons">SAVE & CLOSE</div>
         </div>
     </div>
+    <div id="gm_exportwindowcontainer" class="gm_dialogwindowcontainer">
+        <div id="behindblocker"></div>
+        <div class="gm_dialogwindow" class="windowShadow">
+            <div class="gm_dialogtopbar">Mode Export</div>
+            <div class="gm_exportoptions">
+                File name<br>
+                <input type="text" id="gmexport_name" value="export" class="whiteInputField windowShadow" spellcheck="false">
+                <br><br>
+                <input type="checkbox" id="gmexport_attachmap"><label for="gmexport_attachmap">Attach current map</label>
+            </div>
+            
+            <div class="gm_dialogbuttoncontainer">
+                <div id="gmexport_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
+                <div id="gmexport_ok" class="brownButton brownButton_classic buttonShadow">EXPORT</div>
+            </div>
+        </div>
+    </div>
+    <div id="gm_importdialogwindowcontainer" class="gm_dialogwindowcontainer">
+        <div id="behindblocker"></div>
+        <div class="gm_dialogwindow" class="windowShadow">
+            <div class="gm_dialogtopbar">Change map?</div>
+            <div class="gm_dialogtext">
+                The mode you imported has an attached map.
+                <br>
+                <br>
+                Do you want to load it?
+                <br>
+                (Note that the mode might not work without it.)
+            </div>
+            
+            <div class="gm_dialogbuttoncontainer">
+                <div id="gmimportdialog_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
+                <div id="gmimportdialog_no" class="brownButton brownButton_classic buttonShadow">NO</div>
+                <div id="gmimportdialog_yes" class="brownButton brownButton_classic buttonShadow">YES</div>
+            </div>
+        </div>
+    </div>
 </div>

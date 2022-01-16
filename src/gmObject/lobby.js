@@ -3,6 +3,7 @@
 export default {
   init: function() {
     this.initSocketio();
+    this.initBonkLobby();
     this.initNetworkEngine();
   },
   initSocketio: function() {
@@ -16,6 +17,19 @@ export default {
       });
       return socket;
     };
+  },
+  initBonkLobby: function() {
+    const smObj = this;
+
+    NewBonkLobby = (function() {
+      const cached_bonklobby = NewBonkLobby;
+
+      return function() {
+        const result = cached_bonklobby.apply(this, arguments); // use .apply() to call it
+        smObj.bonkLobby = this;
+        return result;
+      };
+    })();
   },
   initNetworkEngine: function() {
     const networkengine_OLD = window.NetworkEngine;

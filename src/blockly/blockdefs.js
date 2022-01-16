@@ -363,7 +363,7 @@ module.exports = [{
 },
 {
   'type': 'on_player_collide',
-  'message0': 'when the player collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9',
+  'message0': 'when the player collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -400,6 +400,11 @@ module.exports = [{
       'type': 'field_variable',
       'name': 'arrow_id',
       'variable': 'hit arrow number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'platform_id',
+      'variable': 'hit platform id',
     },
     {
       'type': 'field_variable',
@@ -561,6 +566,7 @@ module.exports = [{
       ],
     },
   ],
+  'inputsInline': true,
   'output': 'Number',
   'colour': 230,
   'tooltip': 'Get a player\'s property. If the player doesn\'t exist, it will return 0.',
@@ -703,7 +709,7 @@ module.exports = [{
 },
 {
   'type': 'on_arrow_collide',
-  'message0': 'when player\'s arrow collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10',
+  'message0': 'when player\'s arrow collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10 %11',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -745,6 +751,11 @@ module.exports = [{
       'type': 'field_variable',
       'name': 'arrow_id',
       'variable': 'hit arrow number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'platform_id',
+      'variable': 'hit platform id',
     },
     {
       'type': 'field_variable',
@@ -1027,6 +1038,7 @@ module.exports = [{
       'check': 'Number',
     },
   ],
+  'inputsInline': true,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 230,
@@ -1112,6 +1124,7 @@ module.exports = [{
       'check': 'Number',
     },
   ],
+  'inputsInline': true,
   'output': 'Colour',
   'colour': 160,
   'tooltip': 'Get a player\'s main (background) colour.',
@@ -1389,6 +1402,7 @@ module.exports = [{
       'check': 'Number',
     },
   ],
+  'inputsInline': true,
   'output': 'Number',
   'colour': 230,
   'tooltip': 'Get the amount of arrows a player has.',
@@ -1398,7 +1412,7 @@ module.exports = [{
   'type': 'get_map_size',
   'message0': 'get map size',
   'output': 'Number',
-  'colour': 230,
+  'colour': 195,
   'tooltip': 'Gives you the map size. This is useful when you need a physics coordinate that is constant between map sizes.',
   'helpUrl': '',
 },
@@ -1539,6 +1553,7 @@ module.exports = [{
       ],
     },
   ],
+  'inputsInline': true,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 20,
@@ -1554,8 +1569,1004 @@ module.exports = [{
   'helpUrl': '',
 },
 {
-  'type': 'variables_get',
-  'message0': '%1 %2 %3 %4',
+  'type': 'rectangle_shape',
+  'message0': 'rectangle shape %1 colour %2 x %3 y %4 width %5 height %6 angle %7 no physics %8 , no grapple %9 %10 inner grap %11 , death %12',
+  'args0': [
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'color',
+      'check': 'Colour',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'xpos',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'ypos',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'width',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'height',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'angle',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'nophys',
+      'checked': false,
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'nograp',
+      'checked': false,
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'ingrap',
+      'checked': false,
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'death',
+      'checked': false,
+    },
+  ],
+  'inputsInline': false,
+  'output': 'Shape',
+  'colour': 195,
+  'tooltip': 'Defines a rectangle shape to use in the "create platform" block.',
+  'helpUrl': '',
+},
+{
+  'type': 'circle_shape',
+  'message0': 'circle shape %1 colour %2 x %3 y %4 radius %5 no physics %6 , no grapple %7 %8 inner grap %9 , death %10',
+  'args0': [
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'color',
+      'check': 'Colour',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'xpos',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'ypos',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'radius',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'nophys',
+      'checked': false,
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'nograp',
+      'checked': false,
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'ingrap',
+      'checked': false,
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'death',
+      'checked': false,
+    },
+  ],
+  'inputsInline': false,
+  'output': 'Shape',
+  'colour': 195,
+  'tooltip': 'Defines a circle shape to use in the "create platform" block.',
+  'helpUrl': '',
+},
+{
+  'type': 'polygon_shape',
+  'message0': 'polygon shape %1 colour %2 x %3 y %4 vertex list %5 (2 values = 1 vertex) %6 angle %7 scale %8 no physics %9 , no grapple %10 %11 inner grap %12 , death %13',
+  'args0': [
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'color',
+      'check': 'Colour',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'xpos',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'ypos',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'vertex',
+      'check': 'Array',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'angle',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'scale',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'nophys',
+      'checked': false,
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'nograp',
+      'checked': false,
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'ingrap',
+      'checked': false,
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'death',
+      'checked': false,
+    },
+  ],
+  'inputsInline': false,
+  'output': 'Shape',
+  'colour': 195,
+  'tooltip': 'Defines a polygon shape to use in the "create platform" block.',
+  'helpUrl': '',
+},
+{
+  'type': 'create_platform',
+  'message0': 'create platform %1 return id %2 %3 type %4 %5 shape list %6 x %7 y %8 angle %9 bounciness %10 density %11 friction %12 fric players %13 collide group %14 %15 collide with.. %16 players %17 , group A %18 , group B %19 , %20 group C %21 , group D %22',
+  'args0': [
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'return_id',
+      'checked': false,
+    },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'type',
+      'options': [
+        [
+          'stationary',
+          's',
+        ],
+        [
+          'free moving',
+          'd',
+        ],
+        [
+          'kinematic',
+          'k',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'shape_list',
+      'check': 'Array',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'xpos',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'ypos',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'angle',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'bounciness',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'density',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'friction',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'fricp',
+      'check': 'Boolean',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'colgroup',
+      'options': [
+        [
+          'A',
+          '1',
+        ],
+        [
+          'B',
+          '2',
+        ],
+        [
+          'C',
+          '3',
+        ],
+        [
+          'D',
+          '4',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'colplayers',
+      'checked': true,
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'cola',
+      'checked': true,
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'colb',
+      'checked': true,
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'colc',
+      'checked': true,
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'cold',
+      'checked': true,
+    },
+  ],
+  'inputsInline': false,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 195,
+  'tooltip': 'Create a platform with the specified shapes and properties. Be aware that this may lag the game if done too often. ',
+  'helpUrl': '',
+},
+{
+  'type': 'set_platform_prop',
+  'message0': 'set platform with id %1 \'s %2 to %3',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'platform_prop',
+      'options': [
+        [
+          'x position',
+          'p_x',
+        ],
+        [
+          'y position',
+          'p_y',
+        ],
+        [
+          'x velocity',
+          'lv_x',
+        ],
+        [
+          'y velocity',
+          'lv_y',
+        ],
+        [
+          'angle',
+          'a',
+        ],
+        [
+          'angular velocity',
+          'av',
+        ],
+        [
+          'bounciness',
+          're',
+        ],
+        [
+          'density',
+          'de',
+        ],
+        [
+          'friction',
+          'fric',
+        ],
+        [
+          'fric players',
+          'fricp',
+        ],
+        [
+          'collide with players',
+          'f_p',
+        ],
+        [
+          'collide with A',
+          'f_a',
+        ],
+        [
+          'collide with B',
+          'f_b',
+        ],
+        [
+          'collide with C',
+          'f_c',
+        ],
+        [
+          'collide with D',
+          'f_d',
+        ],
+        [
+          'linear drag',
+          'ld',
+        ],
+        [
+          'spin drag',
+          'ad',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'set_value',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 195,
+  'tooltip': 'Set a platform\'s property.',
+  'helpUrl': '',
+},
+{
+  'type': 'change_platform_prop',
+  'message0': 'change platform with id %1 \'s %2 by %3',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'platform_prop',
+      'options': [
+        [
+          'x position',
+          'p_x',
+        ],
+        [
+          'y position',
+          'p_y',
+        ],
+        [
+          'x velocity',
+          'lv_x',
+        ],
+        [
+          'y velocity',
+          'lv_y',
+        ],
+        [
+          'angle',
+          'a',
+        ],
+        [
+          'angular velocity',
+          'av',
+        ],
+        [
+          'bounciness',
+          're',
+        ],
+        [
+          'density',
+          'de',
+        ],
+        [
+          'friction',
+          'fric',
+        ],
+        [
+          'linear drag',
+          'ld',
+        ],
+        [
+          'spin drag',
+          'ad',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'change_value',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 195,
+  'tooltip': 'Change a platform\'s property by a specified amount.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_platform_prop',
+  'message0': 'get platform with id %1 \'s %2',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'platform_prop',
+      'options': [
+        [
+          'x position',
+          'p_x',
+        ],
+        [
+          'y position',
+          'p_y',
+        ],
+        [
+          'x velocity',
+          'lv_x',
+        ],
+        [
+          'y velocity',
+          'lv_y',
+        ],
+        [
+          'angle',
+          'a',
+        ],
+        [
+          'angular velocity',
+          'av',
+        ],
+        [
+          'bounciness',
+          're',
+        ],
+        [
+          'density',
+          'de',
+        ],
+        [
+          'friction',
+          'fric',
+        ],
+        [
+          'fric players',
+          'fricp',
+        ],
+        [
+          'collide with players',
+          'f_p',
+        ],
+        [
+          'collide with A',
+          'f_a',
+        ],
+        [
+          'collide with B',
+          'f_b',
+        ],
+        [
+          'collide with C',
+          'f_c',
+        ],
+        [
+          'collide with D',
+          'f_d',
+        ],
+        [
+          'linear drag',
+          'ld',
+        ],
+        [
+          'spin drag',
+          'ad',
+        ],
+      ],
+    },
+  ],
+  'inputsInline': true,
+  'output': null,
+  'colour': 195,
+  'tooltip': 'Get a platform\'s property.',
+  'helpUrl': '',
+},
+{
+  'type': 'set_shape_prop',
+  'message0': 'set platform with id %1 \'s shape # %2 \'s %3 to %4',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'input_value',
+      'name': 'shape_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'shape_prop',
+      'options': [
+        [
+          'colour',
+          'f_f',
+        ],
+        [
+          'x offset',
+          's_c_x',
+        ],
+        [
+          'y offset',
+          's_c_y',
+        ],
+        [
+          'angle (only rectangle)',
+          's_a',
+        ],
+        [
+          'width (only rectangle)',
+          's_w',
+        ],
+        [
+          'height (only rectangle)',
+          's_h',
+        ],
+        [
+          'radius (only circle)',
+          's_r',
+        ],
+        [
+          'no physics',
+          'f_np',
+        ],
+        [
+          'no grapple',
+          'f_ng',
+        ],
+        [
+          'inner grapple',
+          'f_ig',
+        ],
+        [
+          'death',
+          'f_d',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'set_value',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 195,
+  'tooltip': 'Set a platform\'s shape\'s property. Be aware that this may lag the game if done too often.',
+  'helpUrl': '',
+},
+{
+  'type': 'change_shape_prop',
+  'message0': 'change platform with id %1 \'s shape # %2 \'s %3 by %4',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'input_value',
+      'name': 'shape_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'shape_prop',
+      'options': [
+        [
+          'x offset',
+          's_c_x',
+        ],
+        [
+          'y offset',
+          's_c_y',
+        ],
+        [
+          'angle (only rectangle)',
+          's_a',
+        ],
+        [
+          'width (only rectangle)',
+          's_w',
+        ],
+        [
+          'height (only rectangle)',
+          's_h',
+        ],
+        [
+          'radius (only circle)',
+          's_r',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'change_value',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 195,
+  'tooltip': 'Change a platform\'s shape\'s property by a specified amount. Be aware that this may lag the game if done too often.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_shape_prop',
+  'message0': 'get platform with id %1 \'s shape # %2 \'s %3',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'input_value',
+      'name': 'shape_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'shape_prop',
+      'options': [
+        [
+          'colour',
+          'f_f',
+        ],
+        [
+          'x offset',
+          's_c_x',
+        ],
+        [
+          'y offset',
+          's_c_y',
+        ],
+        [
+          'angle (only rectangle)',
+          's_a',
+        ],
+        [
+          'width (only rectangle)',
+          's_w',
+        ],
+        [
+          'height (only rectangle)',
+          's_h',
+        ],
+        [
+          'radius (only circle)',
+          's_r',
+        ],
+        [
+          'no physics',
+          'f_np',
+        ],
+        [
+          'no grapple',
+          'f_ng',
+        ],
+        [
+          'inner grapple',
+          'f_ig',
+        ],
+        [
+          'death',
+          'f_d',
+        ],
+      ],
+    },
+  ],
+  'inputsInline': true,
+  'output': null,
+  'colour': 195,
+  'tooltip': 'Get a platform\'s shape\'s property.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_shape_amount',
+  'message0': 'get platform with id %1 \'s shape amount',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'output': 'Number',
+  'colour': 195,
+  'tooltip': 'Returns the amount of shapes in the specified platform.',
+  'helpUrl': '',
+},
+{
+  'type': 'delete_platform',
+  'message0': 'delete platform with id %1',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 195,
+  'tooltip': 'Delete a platform. Note that this doesn\'t truly delete the platform, it only erases its shapes. Be aware that this may lag the game if done too often.',
+  'helpUrl': '',
+},
+{
+  'type': 'delete_shape',
+  'message0': 'delete platform with id %1 \'s shape # %2',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'input_value',
+      'name': 'shape_id',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 195,
+  'tooltip': 'Delete a shape. Be aware that this may lag the game if done too often.',
+  'helpUrl': '',
+},
+{
+  'type': 'add_shape',
+  'message0': 'add shape %1 to platform with id %2',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'shape',
+      'check': 'Shape',
+    },
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+  ],
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 195,
+  'tooltip': 'Add a shape to a platform. Be aware that this may lag the game if done too often.',
+  'helpUrl': '',
+},
+{
+  'type': 'on_platform_collide',
+  'message0': 'when any platform collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10 %11',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'collide_type',
+      'options': [
+        [
+          'a player',
+          'collide_player',
+        ],
+        [
+          'an arrow',
+          'collide_arrow',
+        ],
+        [
+          'another platform',
+          'collide_platform',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'return_info',
+      'checked': false,
+    },
+    {
+      'type': 'field_variable',
+      'name': 'self_platform_id',
+      'variable': 'platform id',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'player_id',
+      'variable': 'hit player id',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'arrow_id',
+      'variable': 'hit arrow number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'platform_id',
+      'variable': 'hit platform id',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'normal_x',
+      'variable': 'hit normal x',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'normal_y',
+      'variable': 'hit normal y',
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_statement',
+      'name': 'code',
+    },
+  ],
+  'colour': 20,
+  'tooltip': 'Executes when any platform collides with a specified type of object.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_platform_order',
+  'message0': 'get list of platform ids on view order',
+  'output': 'Array',
+  'colour': 195,
+  'tooltip': 'Returns a list of all platform ids on view order, front to back (as shown in the map editor).',
+  'helpUrl': '',
+},
+{
+  'type': 'on_player_die',
+  'message0': 'on player die %1 %2',
+  'args0': [
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_statement',
+      'name': 'code',
+    },
+  ],
+  'colour': 20,
+  'tooltip': 'Executes right before the player dies.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_player_name',
+  'message0': 'get %1 %2 %3 username',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -1579,21 +2590,71 @@ module.exports = [{
       'name': 'player_id',
       'check': 'Number',
     },
-    {
-      'type': 'field_variable',
-      'name': 'VAR',
-      'variable': '%{BKY_VARIABLES_DEFAULT_NAME}',
-    },
   ],
-  'output': null,
-  'style': 'variable_blocks',
-  'helpUrl': '%{BKY_VARIABLES_GET_HELPURL}',
-  'tooltip': '%{BKY_VARIABLES_GET_TOOLTIP}',
-  'extensions': ['contextMenu_variableSetterGetter'],
+  'inputsInline': true,
+  'output': 'String',
+  'colour': 160,
+  'tooltip': 'Returns the player\'s name.',
+  'helpUrl': '',
 },
 {
-  'type': 'variables_set',
-  'message0': 'set %1 %2 %3 %4 to %5 %6',
+  'type': 'clone_platform',
+  'lastDummyAlign0': 'RIGHT',
+  'message0': 'clone platform with id %1 return id %2',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'return_id',
+      'checked': true,
+    },
+  ],
+  'inputsInline': false,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 195,
+  'tooltip': 'Clone a platform. Be aware that this may lag the game if done too often.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_platform_by_name',
+  'message0': 'get platform with name %1 \'s id',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_name',
+      'check': 'String',
+    },
+  ],
+  'inputsInline': true,
+  'output': 'Number',
+  'colour': 195,
+  'tooltip': 'Get a platform\'s id by its name. If there are multiple platforms with the same name, the oldest one will be chosen.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_platform_name',
+  'message0': 'get platform with id %1 \'s name',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'platform_id',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'output': 'String',
+  'colour': 195,
+  'tooltip': 'Get a platform\'s name.',
+  'helpUrl': '',
+},
+{
+  'type': 'variables_get',
+  'message0': '%1 %2 %3 %4',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -1611,6 +2672,50 @@ module.exports = [{
     },
     {
       'type': 'input_dummy',
+      'name': 'drop_container',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'VAR',
+      'variable': '%{BKY_VARIABLES_DEFAULT_NAME}',
+    },
+  ],
+  'inputsInline': true,
+  'output': null,
+  'style': 'variable_blocks',
+  'helpUrl': '%{BKY_VARIABLES_GET_HELPURL}',
+  'tooltip': '%{BKY_VARIABLES_GET_TOOLTIP}',
+  'extensions': ['contextMenu_variableSetterGetter'],
+},
+{
+  'type': 'variables_set',
+  'message0': 'set %1 %2 %3 %4 %5 to %6 %7',
+  'args0': [
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+      'name': 'drop_container',
     },
     {
       'type': 'input_value',
@@ -1640,8 +2745,11 @@ module.exports = [{
 },
 {
   'type': 'math_change',
-  'message0': 'change %1 %2 %3 %4 by %5 %6',
+  'message0': 'change %1 %2 %3 %4 %5 by %6 %7',
   'args0': [
+    {
+      'type': 'input_dummy',
+    },
     {
       'type': 'field_dropdown',
       'name': 'player',
@@ -1658,6 +2766,7 @@ module.exports = [{
     },
     {
       'type': 'input_dummy',
+      'name': 'drop_container',
     },
     {
       'type': 'input_value',
@@ -1685,30 +2794,4 @@ module.exports = [{
   'tooltip': '',
   'helpUrl': '%{BKY_MATH_CHANGE_HELPURL}',
   'extensions': ['math_change_tooltip'],
-},
-{
-  'type': 'text_charAt',
-  'message0': '%{BKY_TEXT_CHARAT_TITLE}',
-  'args0': [
-    {
-      'type': 'input_value',
-      'name': 'VALUE',
-      'check': 'String',
-    },
-    {
-      'type': 'field_dropdown',
-      'name': 'WHERE',
-      'options': [
-        ['%{BKY_TEXT_CHARAT_FROM_START}', 'FROM_START'],
-        ['%{BKY_TEXT_CHARAT_FROM_END}', 'FROM_END'],
-        ['%{BKY_TEXT_CHARAT_FIRST}', 'FIRST'],
-        ['%{BKY_TEXT_CHARAT_LAST}', 'LAST'],
-      ],
-    },
-  ],
-  'output': 'String',
-  'style': 'text_blocks',
-  'helpUrl': '%{BKY_TEXT_CHARAT_HELPURL}',
-  'inputsInline': true,
-  'mutator': 'text_charAt_mutator',
 }];
