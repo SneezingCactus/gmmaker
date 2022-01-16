@@ -506,7 +506,7 @@ export default function() {
   Blockly.JavaScript['get_shape_amount'] = function(block) {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.getShapeAmount(${platform_id})`;
+    var code = `gm.blockly.funcs.getShapeAmount(gst, ${platform_id})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };

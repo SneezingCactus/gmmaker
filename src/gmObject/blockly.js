@@ -813,8 +813,8 @@ all blocks are inside an event block, and try again.`);
       const breakOnZero = ['s_w', 's_h'];
       if (fixture && property.startsWith('f_')) {
         if (property === 'f_f') {
-          fixture.f = parseInt(value.slice(1), 16) || 0;
-        } else if (boolProps.includes(property.slice(2))) {
+          fixture.f = (typeof value !== 'string' ? parseInt(value) : parseInt(value.slice(1), 16)) || 0;
+        } else if (boolProps.includes(property)) {
           fixture[property.slice(2)] = value === true;
         } else if (fixture[property.slice(2)] !== undefined) {
           fixture[property.slice(2)] = parseFloat(value) || 0;
