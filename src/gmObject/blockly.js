@@ -947,7 +947,7 @@ all blocks are inside an event block, and try again.`);
       return gameState;
     },
     setVar: function(varName, gameState, discID, value) {
-      if (value === null || value === undefined) return;
+      if (value === null || value === undefined) return gameState;
 
       if (!gameState.physics.bodies[0].cf.global) {
         gameState.physics.bodies[0].cf.global = {};
@@ -960,9 +960,11 @@ all blocks are inside an event block, and try again.`);
         gameState.physics.bodies[0].cf[discID] = {};
         gameState.physics.bodies[0].cf[discID][varName] = value;
       }
+
+      return gameState;
     },
     changeVar: function(varName, gameState, discID, value) {
-      if (value === null || value === undefined) return;
+      if (value === null || value === undefined) return gameState;
 
       if (!gameState.physics.bodies[0].cf.global) {
         gameState.physics.bodies[0].cf.global = {};
@@ -976,6 +978,8 @@ all blocks are inside an event block, and try again.`);
         gameState.physics.bodies[0].cf[discID] = {};
         gameState.physics.bodies[0].cf[discID][varName] = value;
       }
+
+      return gameState;
     },
     getVar: function(varName, gameState, discID) {
       if (gameState.physics.bodies[0]) {

@@ -63,20 +63,22 @@ export default {
           gm.graphics.rendererClass.environmentContainer.addChild(gm.graphics.rendererClass.roundGraphics.displayObject);
         }
 
-        // make seed based on scene element positions and game state seed\
+        // make seed based on scene element positions and game state seed
         const gst = gm.physics.gameState;
         let randomSeed = gst.seed;
         for (let i = 0; i != gst.physics.bodies.length; i++) {
           if (gst.physics.bodies[i]) {
-            randomSeed += gst.physics.bodies[i].p + gst.physics.bodies[i].a;
+            randomSeed = randomSeed + gst.physics.bodies[i].p[0] + gst.physics.bodies[i].p[1] + gst.physics.bodies[i].a;
           }
         }
         for (let i = 0; i != gst.discs.length; i++) {
           if (gst.discs[i]) {
-            randomSeed += gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
+            randomSeed = randomSeed + gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
           }
         }
-        gm.physics.pseudoRandom = new seedrandom.alea(randomSeed);
+        randomSeed += gst.rl;
+        randomSeed = gm.physics.generateSeed(String(randomSeed))();
+        gm.physics.pseudoRandom = new seedrandom(randomSeed);
 
         if (gm.physics.gameState && gm.physics.gameState.discs) {
           for (let i = 0; i != gm.physics.gameState.discs.length; i++) {

@@ -30,7 +30,6 @@ export default {
   },
   initGameState: function() {
     const step_OLD = PhysicsClass.prototype.step;
-    gm.physics.pseudoRandom = new seedrandom.alea(1);
     PhysicsClass.prototype.step = function() {
       gm.inputs.allPlayerInputs = JSON.parse(JSON.stringify(arguments[1]));
 
@@ -60,15 +59,17 @@ export default {
       let randomSeed = gst.seed;
       for (let i = 0; i != gst.physics.bodies.length; i++) {
         if (gst.physics.bodies[i]) {
-          randomSeed += gst.physics.bodies[i].p + gst.physics.bodies[i].a;
+          randomSeed = randomSeed + gst.physics.bodies[i].p[0] + gst.physics.bodies[i].p[1] + gst.physics.bodies[i].a;
         }
       }
       for (let i = 0; i != gst.discs.length; i++) {
         if (gst.discs[i]) {
-          randomSeed += gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
+          randomSeed = randomSeed + gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
         }
       }
-      gm.physics.pseudoRandom = new seedrandom.alea(randomSeed);
+      randomSeed += gst.rl;
+      randomSeed = gm.physics.generateSeed(String(randomSeed))();
+      gm.physics.pseudoRandom = new seedrandom(randomSeed);
 
       gm.physics.gameState = gst;
 
@@ -264,7 +265,7 @@ export default {
         }
       }
 
-      if (gm.lobby.roundStarting && gm.physics.gameState.ftu === -1) {
+      if (gm.physics.gameState.ftu === 0) {
         gm.lobby.roundStarting = false;
 
         gm.blockly.funcs.clearGraphics();
@@ -317,6 +318,21 @@ export default {
   forceGameState: false,
   collisionsThisStep: [],
   pseudoRandom: null,
+  generateSeed: function(str) {
+    // eslint-disable-next-line no-var
+    for (var k, i = 0, h = 2166136261 >>> 0; i < str.length; i++) {
+      k = Math.imul(str.charCodeAt(i), 3432918353); k = k << 15 | k >>> 17;
+      h ^= Math.imul(k, 461845907); h = h << 13 | h >>> 19;
+      h = Math.imul(h, 5) + 3864292196 | 0;
+    }
+    h ^= str.length;
+    return function() {
+      h ^= h >>> 16; h = Math.imul(h, 2246822507);
+      h ^= h >>> 13; h = Math.imul(h, 3266489909);
+      h ^= h >>> 16;
+      return h >>> 0;
+    };
+  },
   onStep: function() { },
   onFirstStep: function() { },
   onPlayerDie: function() { },

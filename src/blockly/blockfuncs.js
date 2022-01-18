@@ -646,7 +646,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    return 'gm.blockly.funcs.changeVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
+    return 'gst = gm.blockly.funcs.changeVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
   };
 
   Blockly.JavaScript['variables_set'] = function(block) {
@@ -658,7 +658,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    return 'gm.blockly.funcs.setVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
+    return 'gst = gm.blockly.funcs.setVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
   };
 
   Blockly.JavaScript['variables_get'] = function(block) {
