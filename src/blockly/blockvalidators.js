@@ -244,6 +244,36 @@ export default function() {
     });
   };
 
+  Blockly.Blocks['pressing_key'].validatorInit = function() {
+    this.mixin(playerIdMixin);
+
+    this.moveIdInputs = function(movePlayerId) {
+      if (movePlayerId) this.moveNumberedInputBefore(this.inputList.length - 1, 1);
+    };
+
+    const playerDropdown = this.getField('player');
+
+    playerDropdown.setValidator(function(newValue) {
+      const showPlayerId = (newValue === 'id');
+      this.getSourceBlock().updateShape_(showPlayerId);
+    });
+  };
+
+  Blockly.Blocks['player_on_team'].validatorInit = function() {
+    this.mixin(playerIdMixin);
+
+    this.moveIdInputs = function(movePlayerId) {
+      if (movePlayerId) this.moveNumberedInputBefore(this.inputList.length - 1, 1);
+    };
+
+    const playerDropdown = this.getField('player');
+
+    playerDropdown.setValidator(function(newValue) {
+      const showPlayerId = (newValue === 'id');
+      this.getSourceBlock().updateShape_(showPlayerId);
+    });
+  };
+
   Blockly.Blocks['get_player_color'].validatorInit = function() {
     this.mixin(playerIdMixin);
 

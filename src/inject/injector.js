@@ -9,6 +9,7 @@ import gmPhysics from '../gmObject/physics.js';
 import gmGraphics from '../gmObject/graphics.js';
 import gmInput from '../gmObject/inputs.js';
 import gmLobby from '../gmObject/lobby.js';
+import gmAudio from '../gmObject/audio.js';
 import gmBlockly from '../gmObject/blockly.js';
 
 window.Blockly = Blockly;
@@ -27,6 +28,10 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'GameRendererClass', regex: 'null;[A-Za-z0-9\\[\\]]+\\(true\\);[A-Za-z0-9\\[\\]]+=null;}};([A-Za-z0-9\\[\\]]+)=class', isConstructor: true},
       {name: 'PhysicsClass', regex: ';([A-Za-z])\\[.{0,100}]={discs', isConstructor: true},
       {name: 'LocalInputs', regex: 'Date.{0,200}new (.{2}).{0,100}\\$\\(document\\)', isConstructor: true},
+      {name: 'JoinLeaveHandlers', regex: 'new (..)\\(null\\)', isConstructor: true},
+    ],
+    replace: [
+      {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Z]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.GMEndStep = () => {$1};'},
     ],
     inject: {
       vars: 'var\\s(...)=\\[arguments\\]',
@@ -40,13 +45,21 @@ window.gmInjectBonkScript = function(bonkSrc) {
 
   let newBonkSrc = bonkSrc;
   let funcHooks = '';
+  const funcNames = [];
   gmRegexes.funcs.map((function(func) {
     const funcInBonk = bonkSrc.match(func.regex)[1];
+    funcNames.push({name: func.name, regex: func.regex, func: funcInBonk});
     funcHooks += `window.${func.name} = ${funcInBonk}; window.${func.name}_OLD = ${funcInBonk}; ${funcInBonk} = ` + (func.isConstructor ? `new Proxy(${funcInBonk}, {\n	construct(target, args) { \n		return new ${func.name}(...args); \n	}\n});\n` : `function(){\n	return ${func.name}(...arguments);\n};\n`);
   }));
+
+  console.log('[Game Mode Maker] Using hooks:', funcNames);
   newBonkSrc = newBonkSrc.replace(new RegExp(gmRegexes.inject.regex), `${gmRegexes.inject.wrap.left}${funcHooks}window.initGM();${gmRegexes.inject.wrap.right}`);
   newBonkSrc = newBonkSrc.replace(new RegExp(gmRegexes.inject.vars, 'g'), 'var $1 = [arguments]; window.gmBonkVars.$1 = () => $1;');
   window.gmBonkVars = {};
+
+  gmRegexes.replace.map((function(replace) {
+    newBonkSrc = newBonkSrc.replace(new RegExp(replace.regex), replace.to);
+  }));
 
   return newBonkSrc;
 };
@@ -72,6 +85,8 @@ a bonk.io update.`);
     throw error;
   }
 });
+
+window.bonkCodeInjectors.push((bonkSrc) => bonkSrc);
 
 /**
 *   so ugly
@@ -103,6 +118,7 @@ window.initGM = function() {
 
   // make the gm object
   window.gm = {
+    audio: gmAudio,
     physics: gmPhysics,
     graphics: gmGraphics,
     lobby: gmLobby,

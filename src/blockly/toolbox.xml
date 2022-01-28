@@ -355,6 +355,13 @@
     <block type="colour_picker">
       <field name="COLOUR">#ff0000</field>
     </block>
+    <block type="colour_hex">
+      <value name="hex_code">
+        <shadow type="text">
+          <field name="TEXT">FF0000</field>
+        </shadow>
+      </value>
+    </block>
     <block type="colour_random"></block>
     <block type="colour_rgb">
       <value name="RED">
@@ -397,22 +404,6 @@
   <sep></sep>
   <category name="Bonk Events" colour="#a5745b">
     <block type="on_round_start"></block>
-    <block type="pressing_key">
-      <field name="key">up</field>
-    </block>
-    <block type="input_override">
-      <field name="player">self</field>
-      <field name="key">up</field>
-      <value name="override_value">
-        <shadow type="logic_boolean">
-          <field name="BOOL">FALSE</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="stop_input_override">
-      <field name="player">self</field>
-      <field name="key">up</field>
-    </block>
     <block type="on_each_phys_frame"></block>
     <block type="on_each_render_frame"></block>
     <block type="on_player_die"></block>
@@ -460,6 +451,37 @@
       <value name="platform_id">
         <shadow type="math_number">
           <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="raycast">
+      <field name="collide_a">TRUE</field>
+      <field name="collide_b">TRUE</field>
+      <field name="collide_c">TRUE</field>
+      <field name="collide_d">TRUE</field>
+      <field name="collide_player">FALSE</field>
+      <field name="point_x" id="d~|`8[0U:G4^,mAO:SDY">hit point x</field>
+      <field name="point_y" id="M;q2y5Pmh-ax72@!1IZ7">hit point y</field>
+      <field name="normal_x" id="MnUZ%.[qb*QxyBjN!1[w">hit normal x</field>
+      <field name="normal_y" id="5=tEmDRp@!~p-ywup)ow">hit normal y</field>
+      <value name="a_x">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="a_y">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="b_x">
+        <shadow type="math_number">
+          <field name="NUM">10</field>
+        </shadow>
+      </value>
+      <value name="b_y">
+        <shadow type="math_number">
+          <field name="NUM">10</field>
         </shadow>
       </value>
     </block>
@@ -892,6 +914,27 @@
     </block>
     <block type="get_own_id"></block>
     <block type="get_player_id_list"></block>
+    <block type="player_on_team">
+      <field name="player">self</field>
+      <field name="team">1</field>
+    </block>
+    <block type="pressing_key">
+      <field name="player">self</field>
+      <field name="key">up</field>
+    </block>
+    <block type="input_override">
+      <field name="player">self</field>
+      <field name="key">up</field>
+      <value name="override_value">
+        <shadow type="logic_boolean">
+          <field name="BOOL">FALSE</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="stop_input_override">
+      <field name="player">self</field>
+      <field name="key">up</field>
+    </block>
     <block type="create_arrow">
       <value name="arrow_xpos">
         <shadow type="math_number">
@@ -1001,6 +1044,11 @@
       <value name="rect_y2">
         <shadow type="math_number">
           <field name="NUM">5</field>
+        </shadow>
+      </value>
+      <value name="rect_angle">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
         </shadow>
       </value>
       <value name="rect_color">
@@ -1121,6 +1169,20 @@
       <value name="text_alpha">
         <shadow type="math_number">
           <field name="NUM">100</field>
+        </shadow>
+      </value>
+    </block>
+  </category>
+  <category name="Misc" colour="#a55b5b">
+    <block type="play_sound">
+      <value name="sound_volume">
+        <shadow type="math_number">
+          <field name="NUM">1</field>
+        </shadow>
+      </value>
+      <value name="sound_pan">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
         </shadow>
       </value>
     </block>

@@ -85,7 +85,7 @@ module.exports = [{
 {
   'type': 'draw_line',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw line %1 from x %2 y %3 to x %4 y %5 width %6 colour %7 alpha (0 to 100) %8 anchored to player? %9',
+  'message0': 'draw line %1 from x %2 y %3 to x %4 y %5 width %6 colour %7 alpha (0 to 100) %8 anchored to player? %9 %10 only visible to player? %11',
   'args0': [
     {
       'type': 'input_dummy',
@@ -137,6 +137,15 @@ module.exports = [{
       'name': 'line_anchored',
       'checked': false,
     },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'line_onlyplayer',
+      'checked': false,
+    },
   ],
   'inputsInline': false,
   'previousStatement': null,
@@ -148,7 +157,7 @@ module.exports = [{
 {
   'type': 'draw_rect',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw rectangle %1 x %2 y %3 width %4 height %5 colour %6 alpha (0 to 100) %7 anchored to player? %8',
+  'message0': 'draw rectangle %1 x %2 y %3 width %4 height %5 angle %6 colour %7 alpha (0 to 100) %8 anchored to player? %9 %10 only visible to player? %11',
   'args0': [
     {
       'type': 'input_dummy',
@@ -179,6 +188,12 @@ module.exports = [{
     },
     {
       'type': 'input_value',
+      'name': 'rect_angle',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
       'name': 'rect_color',
       'check': 'Colour',
       'align': 'RIGHT',
@@ -194,6 +209,15 @@ module.exports = [{
       'name': 'rect_anchored',
       'checked': false,
     },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'rect_onlyplayer',
+      'checked': false,
+    },
   ],
   'inputsInline': false,
   'previousStatement': null,
@@ -205,7 +229,7 @@ module.exports = [{
 {
   'type': 'draw_circle',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw circle %1 at x %2 y %3 with radius %4 colour %5 alpha (0 to 100) %6 anchored to player? %7',
+  'message0': 'draw circle %1 at x %2 y %3 with radius %4 colour %5 alpha (0 to 100) %6 anchored to player? %7 %8 only visible to player? %9',
   'args0': [
     {
       'type': 'input_dummy',
@@ -245,6 +269,15 @@ module.exports = [{
       'name': 'circ_anchored',
       'checked': false,
     },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'circ_onlyplayer',
+      'checked': false,
+    },
   ],
   'inputsInline': false,
   'previousStatement': null,
@@ -256,7 +289,7 @@ module.exports = [{
 {
   'type': 'draw_text',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw text %1 text %2 at x %3 y %4 size %5 colour %6 alpha (0 to 100) %7 centered? %8 %9 anchored to player? %10',
+  'message0': 'draw text %1 text %2 at x %3 y %4 size %5 colour %6 alpha (0 to 100) %7 centered? %8 %9 anchored to player? %10 %11 only visible to player? %12',
   'args0': [
     {
       'type': 'input_dummy',
@@ -309,6 +342,15 @@ module.exports = [{
     {
       'type': 'field_checkbox',
       'name': 'text_anchored',
+      'checked': false,
+    },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'text_onlyplayer',
       'checked': false,
     },
   ],
@@ -669,8 +711,30 @@ module.exports = [{
 },
 {
   'type': 'pressing_key',
-  'message0': 'the player is pressing %1',
+  'message0': '%1 %2 %3 is pressing %4',
   'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your player',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
     {
       'type': 'field_dropdown',
       'name': 'key',
@@ -702,8 +766,9 @@ module.exports = [{
       ],
     },
   ],
+  'inputsInline': true,
   'output': 'Boolean',
-  'colour': 20,
+  'colour': 230,
   'tooltip': 'Returns true if the player is pressing the specified key.',
   'helpUrl': '',
 },
@@ -810,7 +875,7 @@ module.exports = [{
 {
   'type': 'raycast',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'raycast from x: %1 y: %2 to x: %3 y: %4 collide with A: %5 %6 B: %7 %8 C: %9 %10 D: %11 %12 players (including self): %13 %14 and return %15 %16 %17 %18 %19',
+  'message0': 'raycast from x: %1 y: %2 to x: %3 y: %4 collide with A: %5 %6 B: %7 %8 C: %9 %10 D: %11 %12 players (including self): %13 %14 and return %15 %16 %17 %18 %19 %20 %21 %22',
   'args0': [
     {
       'type': 'input_value',
@@ -905,17 +970,31 @@ module.exports = [{
       'name': 'normal_y',
       'variable': 'hit normal y',
     },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'object_type',
+      'variable': 'hit object type',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'object_id',
+      'variable': 'hit object id',
+    },
   ],
   'inputsInline': false,
   'output': null,
-  'colour': 230,
-  'tooltip': '"Throws" a ray from point A to point B and if it hits, returns hit point and normal.',
+  'colour': 195,
+  'tooltip': '"Throws" a ray from point A to point B. if it hits something, it returns true and sets the specified variables to hit point, normal, object type and id. Object type can be "platform" or "player".',
   'helpUrl': '',
 },
 {
   'type': 'draw_poly',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw polygon %1 with vertex list %2 (2 values = 1 vertex) %3 colour %4 alpha (0 to 100) %5 anchored to player? %6',
+  'message0': 'draw polygon %1 with vertex list %2 (2 values = 1 vertex) %3 colour %4 alpha (0 to 100) %5 anchored to player? %6 %7 only visible to player? %8',
   'args0': [
     {
       'type': 'input_dummy',
@@ -945,6 +1024,15 @@ module.exports = [{
     {
       'type': 'field_checkbox',
       'name': 'poly_anchored',
+      'checked': false,
+    },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'poly_onlyplayer',
       'checked': false,
     },
   ],
@@ -1492,7 +1580,7 @@ module.exports = [{
   'inputsInline': true,
   'previousStatement': null,
   'nextStatement': null,
-  'colour': 20,
+  'colour': 230,
   'tooltip': 'Overrides a key to be on/off until a "stop overriding" block. Only built-in behaviour related to that key will be overriden, the real value is still visible to the custom mode.',
   'helpUrl': '',
 },
@@ -1556,7 +1644,7 @@ module.exports = [{
   'inputsInline': true,
   'previousStatement': null,
   'nextStatement': null,
-  'colour': 20,
+  'colour': 230,
   'tooltip': 'Stop overriding a key.',
   'helpUrl': '',
 },
@@ -2633,7 +2721,7 @@ module.exports = [{
   'inputsInline': true,
   'output': 'Number',
   'colour': 195,
-  'tooltip': 'Get a platform\'s id by its name. If there are multiple platforms with the same name, the oldest one will be chosen.',
+  'tooltip': 'Get a platform\\\'s id by its name. If there are multiple platforms with the same name, the oldest one will be chosen.',
   'helpUrl': '',
 },
 {
@@ -2650,6 +2738,169 @@ module.exports = [{
   'output': 'String',
   'colour': 195,
   'tooltip': 'Get a platform\'s name.',
+  'helpUrl': '',
+},
+{
+  'type': 'play_sound',
+  'message0': 'play sound %1 %2 with volume (0.0 to 1.0) %3 with balance (-1.0 to 1.0) %4',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'sound_name',
+      'options': [
+        [
+          'player-platform collision',
+          'platBounce',
+        ],
+        [
+          'player-player collision',
+          'discDisc',
+        ],
+        [
+          'player death',
+          'discDeath',
+        ],
+        [
+          'player offscreen',
+          'discOffScreen',
+        ],
+        [
+          'capzone increase',
+          'capIncrease',
+        ],
+        [
+          'capzone decrease',
+          'capDecrease',
+        ],
+        [
+          'capzone full',
+          'capComplete',
+        ],
+        [
+          'football kick',
+          'footKick',
+        ],
+        [
+          'football bounce',
+          'footBounce',
+        ],
+        [
+          'football goal',
+          'footGoal',
+        ],
+        [
+          'football win swoosh',
+          'scoreAnimation',
+        ],
+        [
+          'countdown beep',
+          'digiBeep',
+        ],
+        [
+          'button hover',
+          'classicButtonHover',
+        ],
+        [
+          'button press',
+          'classicButtonClick',
+        ],
+        [
+          'back/cancel button press',
+          'classicButtonBack',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'sound_volume',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'input_value',
+      'name': 'sound_pan',
+      'check': 'Number',
+      'align': 'RIGHT',
+    },
+  ],
+  'inputsInline': false,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 0,
+  'tooltip': 'Plays a sound with a specified amount of volume and balance (panning).',
+  'helpUrl': '',
+},
+{
+  'type': 'colour_hex',
+  'message0': 'hex color code %1',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'hex_code',
+      'check': 'String',
+    },
+  ],
+  'output': 'Colour',
+  'colour': 20,
+  'tooltip': 'Creates a colour with the hex code.',
+  'helpUrl': '',
+},
+{
+  'type': 'player_on_team',
+  'message0': '%1 %2 %3 is on %4 team',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your player',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'team',
+      'options': [
+        [
+          'red',
+          '2',
+        ],
+        [
+          'blue',
+          '3',
+        ],
+        [
+          'green',
+          '4',
+        ],
+        [
+          'yellow',
+          '5',
+        ],
+      ],
+    },
+  ],
+  'inputsInline': true,
+  'output': 'Boolean',
+  'colour': 230,
+  'tooltip': 'Returns true if the player is on the specified team, if not, returns false.',
   'helpUrl': '',
 },
 {

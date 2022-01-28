@@ -99,10 +99,28 @@ export default {
     }, false);
 
     this.hideGMEWindow();
+
+    gm.blockly.savedXml = document.createElement('xml');
   },
   blockDefs: null,
   workspace: null,
   xmlToImport: null,
+  xmlDict: ['block', 'mutation', 'field', 'variable', 'variables', 'bonkmap', 'statement', 'shadow', 'value', 'name', 'type', 'next', 'playerid_input', 'show_dropdown'],
+  savedXml: null,
+  compressXml: function(xml) {
+    for (let i = 0; i != this.xmlDict.length; i++) {
+      xml = xml.replace(new RegExp(`<(\/|)${this.xmlDict[i]}([ >])`, 'g'), `<$1${i}$2`);
+      xml = xml.replace(new RegExp(` ${this.xmlDict[i]}="`, 'g'), ` ${i}="`);
+    }
+    return xml;
+  },
+  decompressXml: function(xml) {
+    for (let i = 0; i != this.xmlDict.length; i++) {
+      xml = xml.replace(new RegExp(`<(\/|)${i}([ >])`, 'g'), `<$1${this.xmlDict[i]}$2`);
+      xml = xml.replace(new RegExp(` ${i}="`, 'g'), ` ${this.xmlDict[i]}="`);
+    }
+    return xml;
+  },
   GMENew: function() {
     const confirmed = confirm('Are you sure you want to delete all blocks?');
 
@@ -121,7 +139,13 @@ export default {
       reader.readAsText(file, 'UTF-8');
 
       reader.onload = (readerEvent) => {
-        const content = readerEvent.target.result;
+        let content = readerEvent.target.result;
+
+        if (content.startsWith('!!!COMPRESSED!!!')) {
+          content = content.replace('!!!COMPRESSED!!!', '');
+          content = gm.blockly.decompressXml(content);
+        }
+
         const xml = document.createElement('xml');
         xml.innerHTML = content;
 
@@ -172,31 +196,38 @@ export default {
     const filename = document.getElementById('gmexport_name').value;
     const attachMap = document.getElementById('gmexport_attachmap').checked;
 
-    const xml = Blockly.Xml.workspaceToDom(gm.blockly.workspace);
+    const xml = Blockly.Xml.workspaceToDom(gm.blockly.workspace, true);
 
     if (attachMap) {
       xml.appendChild(Blockly.Xml.textToDom('<bonkmap>' + MapEncoder.encodeToDatabase(gm.lobby.mpSession.getGameSettings().map) + '</bonkmap>'));
     }
 
-    const blob = new Blob([xml.innerHTML], {type: 'text/plain;charset=utf-8'});
+    const blob = new Blob(['!!!COMPRESSED!!!' + gm.blockly.compressXml(xml.innerHTML)], {type: 'text/plain;charset=utf-8'});
     saveAs(blob, `${filename}.xml`);
     document.getElementById('gm_exportwindowcontainer').style.visibility = 'hidden';
   },
   GMESave: function() {
-    gm.blockly.resetAll();
+    if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
+      gm.blockly.resetAll();
 
-    try {
-      eval(gm.blockly.generateCode());
-    } catch (e) {
-      alert(`An error ocurred while trying to save.
+      try {
+        eval(gm.blockly.generateCode());
+      } catch (e) {
+        alert(`An error ocurred while trying to save.
 
 
-Remember that blocks CANNOT be outside events. Make sure \
-all blocks are inside an event block, and try again.`);
-      throw (e);
+  Remember that blocks CANNOT be outside events. Make sure \
+  all blocks are inside an event block, and try again.`);
+        throw (e);
+      }
+      const xml = Blockly.Xml.workspaceToDom(gm.blockly.workspace, true);
+
+      gm.blockly.savedXml = xml;
+      const compressedXml = gm.blockly.compressXml(xml.innerHTML);
+      gm.lobby.socket.emit(23, {'m': `!!!GMMODE!!!${compressedXml}`});
+      gm.lobby.mpSession.getGameSettings().GMMode = compressedXml;
+      gm.blockly.hideGMEWindow();
     }
-
-    gm.blockly.hideGMEWindow();
   },
   showGMEWindow: function() {
     document.getElementById('gmeditor').style.transform = 'scale(1)';
@@ -216,7 +247,9 @@ all blocks are inside an event block, and try again.`);
   },
   vars: [],
   funcs: {
-    createCircle: function(discID, xpos, ypos, radius, color, alpha, anchored) {
+    createCircle: function(discID, xpos, ypos, radius, color, alpha, anchored, onlyPlayer) {
+      if (onlyPlayer && gm.lobby.networkEngine.getLSID() !== discID) return;
+
       let graphics;
 
       if (anchored) {
@@ -240,7 +273,9 @@ all blocks are inside an event block, and try again.`);
       graphics.drawCircle(xpos, ypos, radius);
       graphics.endFill();
     },
-    createRect: function(discID, xpos1, ypos1, xpos2, ypos2, color, alpha, anchored) {
+    createRect: function(discID, xpos, ypos, width, height, angle, color, alpha, anchored, onlyPlayer) {
+      if (onlyPlayer && gm.lobby.networkEngine.getLSID() !== discID) return;
+
       let graphics;
 
       if (anchored) {
@@ -251,21 +286,37 @@ all blocks are inside an event block, and try again.`);
 
       if (!graphics || graphics._destroyed) return;
 
-      xpos1 = gm.blockly.funcs.getScreenPos(xpos1);
-      ypos1 = gm.blockly.funcs.getScreenPos(ypos1);
-      xpos2 = gm.blockly.funcs.getScreenPos(xpos2);
-      ypos2 = gm.blockly.funcs.getScreenPos(ypos2);
+      xpos = gm.blockly.funcs.getScreenPos(xpos);
+      ypos = gm.blockly.funcs.getScreenPos(ypos);
+      width = gm.blockly.funcs.getScreenPos(width) / 2;
+      height = gm.blockly.funcs.getScreenPos(height) / 2;
 
-      if (xpos1 > 99999 || ypos1 > 99999 || xpos2 > 99999 || ypos2 > 99999) return;
+      if (xpos > 99999 || ypos > 99999 || width > 99999 || height > 99999) return;
 
       color = '0x' + color.slice(1);
 
       graphics.lineStyle(0, 0, 0);
       graphics.beginFill(color, alpha / 100);
-      graphics.drawRect(xpos1, ypos1, xpos2, ypos2);
+
+      const pointArray = [];
+      pointArray.push(new PIXI.Point(width, -height));
+      pointArray.push(new PIXI.Point(width, height));
+      pointArray.push(new PIXI.Point(-width, height));
+      pointArray.push(new PIXI.Point(-width, -height));
+      for (let i = 0; i != pointArray.length; i++) {
+        const oldVec = [pointArray[i].x, pointArray[i].y];
+        pointArray[i].x = oldVec[0] * SafeTrig.safeCos(angle * (Math.PI/180)) - oldVec[1] * SafeTrig.safeSin(angle * (Math.PI/180));
+        pointArray[i].y = oldVec[0] * SafeTrig.safeSin(angle * (Math.PI/180)) + oldVec[1] * SafeTrig.safeCos(angle * (Math.PI/180));
+        pointArray[i].x += xpos;
+        pointArray[i].y += ypos;
+      }
+
+      graphics.drawPolygon(pointArray);
       graphics.endFill();
     },
-    createLine: function(discID, xpos1, ypos1, xpos2, ypos2, color, alpha, width, anchored) {
+    createLine: function(discID, xpos1, ypos1, xpos2, ypos2, color, alpha, width, anchored, onlyPlayer) {
+      if (onlyPlayer && gm.lobby.networkEngine.getLSID() !== discID) return;
+
       let graphics;
 
       if (anchored) {
@@ -290,7 +341,9 @@ all blocks are inside an event block, and try again.`);
       graphics.moveTo(xpos1, ypos1);
       graphics.lineTo(xpos2, ypos2);
     },
-    createPoly: function(discID, vertexes, color, alpha = 100, anchored) {
+    createPoly: function(discID, vertexes, color, alpha = 100, anchored, onlyPlayer) {
+      if (onlyPlayer && gm.lobby.networkEngine.getLSID() !== discID) return;
+
       let graphics;
 
       if (anchored) {
@@ -314,7 +367,9 @@ all blocks are inside an event block, and try again.`);
       graphics.drawPolygon(vertexes);
       graphics.endFill();
     },
-    createText: function(discID, xpos, ypos, color, alpha, str, size, centered, anchored) {
+    createText: function(discID, xpos, ypos, color, alpha, str, size, centered, anchored, onlyPlayer) {
+      if (onlyPlayer && gm.lobby.networkEngine.getLSID() !== discID) return;
+
       let graphics;
 
       if (anchored) {
@@ -578,6 +633,53 @@ all blocks are inside an event block, and try again.`);
           return '#ffeb3b';
       }
       return '#000000';
+    },
+    rayCast: function(gameState, discID, x1, y1, x2, y2, colA, colB, colC, colD, colP, pointXVar, pointYVar, normalXVar, normalYVar, objectTypeVar, objectIdVar) {
+      let maskBits = 65535;
+      if (!colP) maskBits -= 1;
+      if (!colA) maskBits -= 4;
+      if (!colB) maskBits -= 8;
+      if (!colC) maskBits -= 16;
+      if (!colD) maskBits -= 32;
+
+      const vectorA = new Box2D.Common.Math.b2Vec2(x1, y1);
+      const vectorB = new Box2D.Common.Math.b2Vec2(x2, y2);
+
+      let objectFound = false;
+      let theChosenOne = {point: vectorB};
+
+      const mdf = Math.abs(vectorB.x - vectorA.x) > Math.abs(vectorB.y - vectorA.y) ? 'x' : 'y'; // mdf stands for Major Distance Factor
+
+      const rayCastCallback = (fixture, point, normal) => {
+        const category = fixture.GetFilterData().categoryBits;
+        if ((maskBits & category) != category) return -1;
+
+        objectFound = true;
+        if (Math.abs(point[mdf] - vectorA[mdf]) < Math.abs(theChosenOne.point[mdf] - vectorA[mdf])) {
+          theChosenOne = {
+            fixture: fixture,
+            point: point,
+            normal: normal,
+          };
+        }
+        return 1;
+      };
+
+      window.PhysicsClass.world.RayCast(rayCastCallback, vectorA, vectorB);
+
+      if (objectFound) {
+        gameState = gm.blockly.funcs.setVar(pointXVar, gameState, discID, theChosenOne.point.x);
+        gameState = gm.blockly.funcs.setVar(pointYVar, gameState, discID, theChosenOne.point.y);
+        gameState = gm.blockly.funcs.setVar(normalXVar, gameState, discID, theChosenOne.normal.x);
+        gameState = gm.blockly.funcs.setVar(normalYVar, gameState, discID, theChosenOne.normal.y);
+
+        const fixtureData = theChosenOne.fixture.GetBody().GetUserData();
+
+        gameState = gm.blockly.funcs.setVar(objectTypeVar, gameState, discID, fixtureData.type == 'phys' ? 'platform' : 'player');
+        gameState = gm.blockly.funcs.setVar(objectIdVar, gameState, discID, fixtureData.discID ?? fixtureData.arrayID);
+      }
+
+      return objectFound;
     },
     createArrow: function(gameState, discID, xpos, ypos, xvel, yvel, angle, time) {
       if (xpos > 99999 || ypos > 99999 || xvel > 99999 || yvel > 99999 || angle > 99999) return;
@@ -887,7 +989,7 @@ all blocks are inside an event block, and try again.`);
       const shape = gameState.physics.shapes[fixture?.sh];
       if (fixture && property.startsWith('f_')) {
         if (property === 'f_f') {
-          return '#' + fixture.f.toString(16);
+          return gm.blockly.funcs.parseColour(fixture.f.toString(16));
         } else if (fixture[property.slice(2)] !== undefined) {
           return fixture[property.slice(2)];
         }
@@ -993,6 +1095,12 @@ all blocks are inside an event block, and try again.`);
     },
     getDistance: function(pointA_X, pointA_Y, pointB_X, pointB_Y) {
       return Math.sqrt(Math.pow(pointB_X - pointA_X, 2)+Math.pow(pointB_Y - pointA_Y, 2));
+    },
+    parseColour: function(colourString) {
+      if (parseInt(colourString, 16) == NaN) {
+        return '#000000';
+      }
+      return '#' + '0'.repeat(6 - colourString.length) + colourString;
     },
     setInArray: function(array, index, value) {
       array[index] = value;

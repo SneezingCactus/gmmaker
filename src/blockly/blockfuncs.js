@@ -18,7 +18,8 @@ export default function() {
     let line_alpha = Blockly.JavaScript.valueToCode(block, 'line_alpha', Blockly.JavaScript.ORDER_ATOMIC);
     if (line_alpha === '') line_alpha = '100';
     const line_anchored = block.getFieldValue('line_anchored') === 'TRUE';
-    const code = `gm.blockly.funcs.createLine(playerid,${line_x1},${line_y1},${line_x2},${line_y2},${line_color},${line_alpha},${line_width},${line_anchored});`;
+    const line_onlyplayer = block.getFieldValue('line_onlyplayer') === 'TRUE';
+    const code = `gm.blockly.funcs.createLine(playerid,${line_x1},${line_y1},${line_x2},${line_y2},${line_color},${line_alpha},${line_width},${line_anchored},${line_onlyplayer});`;
     return code;
   };
 
@@ -27,11 +28,13 @@ export default function() {
     const rect_y1 = Blockly.JavaScript.valueToCode(block, 'rect_y1', Blockly.JavaScript.ORDER_ATOMIC);
     const rect_x2 = Blockly.JavaScript.valueToCode(block, 'rect_x2', Blockly.JavaScript.ORDER_ATOMIC);
     const rect_y2 = Blockly.JavaScript.valueToCode(block, 'rect_y2', Blockly.JavaScript.ORDER_ATOMIC);
+    const rect_angle = Blockly.JavaScript.valueToCode(block, 'rect_angle', Blockly.JavaScript.ORDER_ATOMIC) || '0';
     const rect_color = Blockly.JavaScript.valueToCode(block, 'rect_color', Blockly.JavaScript.ORDER_ATOMIC);
     let rect_alpha = Blockly.JavaScript.valueToCode(block, 'rect_alpha', Blockly.JavaScript.ORDER_ATOMIC);
     if (rect_alpha === '') rect_alpha = '100';
     const rect_anchored = block.getFieldValue('rect_anchored') === 'TRUE';
-    const code = `gm.blockly.funcs.createRect(playerid,${rect_x1},${rect_y1},${rect_x2},${rect_y2},${rect_color},${rect_alpha},${rect_anchored});`;
+    const rect_onlyplayer = block.getFieldValue('rect_onlyplayer') === 'TRUE';
+    const code = `gm.blockly.funcs.createRect(playerid,${rect_x1},${rect_y1},${rect_x2},${rect_y2},${rect_angle},${rect_color},${rect_alpha},${rect_anchored},${rect_onlyplayer});`;
     return code;
   };
 
@@ -43,7 +46,8 @@ export default function() {
     let circ_alpha = Blockly.JavaScript.valueToCode(block, 'circ_alpha', Blockly.JavaScript.ORDER_ATOMIC);
     if (circ_alpha === '') circ_alpha = '100';
     const circ_anchored = block.getFieldValue('circ_anchored') === 'TRUE';
-    const code = `gm.blockly.funcs.createCircle(playerid,${circ_x},${circ_y},${circ_radius},${circ_color},${circ_alpha},${circ_anchored});`;
+    const circ_onlyplayer = block.getFieldValue('circ_onlyplayer') === 'TRUE';
+    const code = `gm.blockly.funcs.createCircle(playerid,${circ_x},${circ_y},${circ_radius},${circ_color},${circ_alpha},${circ_anchored},${circ_onlyplayer});`;
     return code;
   };
 
@@ -53,8 +57,9 @@ export default function() {
     let poly_alpha = Blockly.JavaScript.valueToCode(block, 'poly_alpha', Blockly.JavaScript.ORDER_ATOMIC);
     if (poly_alpha === '') poly_alpha = '100';
     const poly_anchored = block.getFieldValue('poly_anchored') === 'TRUE';
+    const poly_onlyplayer = block.getFieldValue('poly_onlyplayer') === 'TRUE';
 
-    const code = `gm.blockly.funcs.createPoly(playerid,${poly_vertex},${poly_color},${poly_alpha},${poly_anchored});`;
+    const code = `gm.blockly.funcs.createPoly(playerid,${poly_vertex},${poly_color},${poly_alpha},${poly_anchored},${poly_onlyplayer});`;
     return code;
   };
 
@@ -68,8 +73,9 @@ export default function() {
     if (text_alpha === '') text_alpha = '100';
     var text_centered = block.getFieldValue('text_centered') === 'TRUE';
     var text_anchored = block.getFieldValue('text_anchored') === 'TRUE';
+    const text_onlyplayer = block.getFieldValue('text_onlyplayer') === 'TRUE';
 
-    const code = `gm.blockly.funcs.createText(playerid,${text_x},${text_y},${text_color},${text_alpha},${text_string},${text_size},${text_centered},${text_anchored});`;
+    const code = `gm.blockly.funcs.createText(playerid,${text_x},${text_y},${text_color},${text_alpha},${text_string},${text_size},${text_centered},${text_anchored},${text_onlyplayer});`;
     return code;
   };
 
@@ -211,6 +217,28 @@ export default function() {
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
+  Blockly.JavaScript['raycast'] = function(block) {
+    var a_x = Blockly.JavaScript.valueToCode(block, 'a_x', Blockly.JavaScript.ORDER_ATOMIC);
+    var a_y = Blockly.JavaScript.valueToCode(block, 'a_y', Blockly.JavaScript.ORDER_ATOMIC);
+    var b_x = Blockly.JavaScript.valueToCode(block, 'b_x', Blockly.JavaScript.ORDER_ATOMIC);
+    var b_y = Blockly.JavaScript.valueToCode(block, 'b_y', Blockly.JavaScript.ORDER_ATOMIC);
+    var collide_a = block.getFieldValue('collide_a') == 'TRUE';
+    var collide_b = block.getFieldValue('collide_b') == 'TRUE';
+    var collide_c = block.getFieldValue('collide_c') == 'TRUE';
+    var collide_d = block.getFieldValue('collide_d') == 'TRUE';
+    var collide_player = block.getFieldValue('collide_player') == 'TRUE';
+    var point_x = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('point_x'), Blockly.VARIABLE_CATEGORY_NAME);
+    var point_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('point_y'), Blockly.VARIABLE_CATEGORY_NAME);
+    var normal_x = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_x'), Blockly.VARIABLE_CATEGORY_NAME);
+    var normal_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_y'), Blockly.VARIABLE_CATEGORY_NAME);
+    var object_type = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('object_type'), Blockly.Variables.NAME_TYPE);
+    var object_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('object_id'), Blockly.Variables.NAME_TYPE);
+
+    var code = `gm.blockly.funcs.rayCast(gst, playerid, ${a_x}, ${a_y}, ${b_x}, ${b_y}, ${collide_a}, ${collide_b}, ${collide_c}, ${collide_d}, ${collide_player}, "${point_x}", "${point_y}", "${normal_x}", "${normal_y}", "${object_type}", "${object_id}")`;
+
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
   Blockly.JavaScript['get_map_size'] = function(block) {
     const code = 'gm.physics.gameState.physics.ppm';
     return [code, Blockly.JavaScript.ORDER_NONE];
@@ -222,6 +250,16 @@ export default function() {
 
     const code = `gm.blockly.funcs.killPlayer(gst, ${player === 'self' ? 'playerid' : player_id});`;
     return code;
+  };
+
+  Blockly.JavaScript['player_on_team'] = function(block) {
+    var player = block.getFieldValue('player');
+    var player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+    var team = block.getFieldValue('team');
+
+    var code = `gst.discs[${player === 'self' ? 'playerid' : player_id}]?.team == ${team}`;
+
+    return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
   Blockly.JavaScript['input_override'] = function(block) {
@@ -296,8 +334,10 @@ export default function() {
   };
 
   Blockly.JavaScript['pressing_key'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     const key = block.getFieldValue('key');
-    const code = `(gm.inputs.allPlayerInputs[playerid] && gm.inputs.allPlayerInputs[playerid]["${key}"])`;
+    const code = `(gm.inputs.allPlayerInputs[${player === 'self' ? 'playerid' : player_id}] && gm.inputs.allPlayerInputs[${player === 'self' ? 'playerid' : player_id}]["${key}"])`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -606,7 +646,114 @@ export default function() {
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
+  Blockly.JavaScript['play_sound'] = function(block) {
+    var sound_name = block.getFieldValue('sound_name');
+    var sound_volume = Blockly.JavaScript.valueToCode(block, 'sound_volume', Blockly.JavaScript.ORDER_ATOMIC);
+    var sound_pan = Blockly.JavaScript.valueToCode(block, 'sound_pan', Blockly.JavaScript.ORDER_ATOMIC);
+
+    var code = `gm.audio.playSound("${sound_name}", ${sound_volume}, ${sound_pan});`;
+    return code;
+  };
+
+  Blockly.JavaScript['colour_hex'] = function(block) {
+    var hex_code = Blockly.JavaScript.valueToCode(block, 'hex_code', Blockly.JavaScript.ORDER_ATOMIC);
+
+    var code = `gm.blockly.funcs.parseColour(${hex_code})`;
+
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
   // blockly built-in
+
+  // fix variable context menu thing
+  const CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN = {
+    /**
+     * Add menu option to create getter/setter block for this setter/getter.
+     * @param {!Array} options List of menu options to add to.
+     * @this {Block}
+     */
+    customContextMenu: function(options) {
+      if (!this.isInFlyout) {
+        let oppositeType;
+        let contextMenuMsg;
+        // Getter blocks have the option to create a setter block, and vice versa.
+        if (this.type === 'variables_get') {
+          oppositeType = 'variables_set';
+          contextMenuMsg = Blockly.Msg['VARIABLES_GET_CREATE_SET'];
+        } else {
+          oppositeType = 'variables_get';
+          contextMenuMsg = Blockly.Msg['VARIABLES_SET_CREATE_GET'];
+        }
+
+        const option = {enabled: this.workspace.remainingCapacity() > 0};
+        const name = this.getField('VAR').getText();
+        option.text = contextMenuMsg.replace('%1', name);
+        const xmlField = Blockly.utils.xml.createElement('field');
+        xmlField.setAttribute('name', 'VAR');
+        xmlField.appendChild(Blockly.utils.xml.createTextNode(name));
+        const xmlBlock = Blockly.utils.xml.createElement('block');
+        xmlBlock.setAttribute('type', oppositeType);
+        xmlBlock.appendChild(Blockly.Xml.textToDom('<mutation playerid_input="false" show_dropdown="' +
+        !name.startsWith('GLOBAL_') + '"></mutation>'));
+        xmlBlock.appendChild(xmlField);
+        option.callback = Blockly.ContextMenu.callbackFactory(this, xmlBlock);
+        options.push(option);
+        // Getter blocks have the option to rename or delete that variable.
+      } else {
+        if (this.type === 'variables_get' ||
+            this.type === 'variables_get_reporter') {
+          const renameOption = {
+            text: Blockly.Msg['RENAME_VARIABLE'],
+            enabled: true,
+            callback: renameOptionCallbackFactory(this),
+          };
+          const name = this.getField('VAR').getText();
+          const deleteOption = {
+            text: Blockly.Msg['DELETE_VARIABLE'].replace('%1', name),
+            enabled: true,
+            callback: deleteOptionCallbackFactory(this),
+          };
+          options.unshift(renameOption);
+          options.unshift(deleteOption);
+        }
+      }
+    },
+  };
+
+  /**
+   * Factory for callbacks for rename variable dropdown menu option
+   * associated with a variable getter block.
+   * @param {!Block} block The block with the variable to rename.
+   * @return {!function()} A function that renames the variable.
+   */
+  const renameOptionCallbackFactory = function(block) {
+    return function() {
+      const workspace = block.workspace;
+      const variable = block.getField('VAR').getVariable();
+      Blockly.Variables.renameVariable(workspace, variable);
+    };
+  };
+
+  /**
+   * Factory for callbacks for delete variable dropdown menu option
+   * associated with a variable getter block.
+   * @param {!Block} block The block with the variable to delete.
+   * @return {!function()} A function that deletes the variable.
+   */
+  const deleteOptionCallbackFactory = function(block) {
+    return function() {
+      const workspace = block.workspace;
+      const variable = block.getField('VAR').getVariable();
+      workspace.deleteVariableById(variable.getId());
+      workspace.refreshToolboxSelection();
+    };
+  };
+
+  Blockly.Extensions.unregister('contextMenu_variableSetterGetter');
+
+  Blockly.Extensions.registerMixin(
+      'contextMenu_variableSetterGetter',
+      CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN);
 
   // add note to variables category
   Blockly.Variables.flyoutCategory = function(workspace) {

@@ -298,6 +298,8 @@ export default {
       }
       gm.physics.gameState = gst;
 
+      if (window.GMEndStep) window.GMEndStep();
+
       return gst;
     };
   },
