@@ -986,9 +986,9 @@ module.exports = [{
     },
   ],
   'inputsInline': false,
-  'output': null,
+  'output': 'Boolean',
   'colour': 195,
-  'tooltip': '"Throws" a ray from point A to point B. if it hits something, it returns true and sets the specified variables to hit point, normal, object type and id. Object type can be "platform" or "player".',
+  'tooltip': '"Throws" a ray from point A to point B. if it hits something, it returns true and sets the specified variables to hit point, normal, object type and id. The "hit object type" returned is text, and it can be either "platform" or "player".',
   'helpUrl': '',
 },
 {

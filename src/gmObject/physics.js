@@ -11,6 +11,8 @@ export default {
   initb2Step: function() {
     Box2D.Dynamics.b2World.prototype.Step_OLD = Box2D.Dynamics.b2World.prototype.Step;
     Box2D.Dynamics.b2World.prototype.Step = function() {
+      if (!PhysicsClass.contactListener.BeginContact_OLD) gm.physics.initContactListener();
+
       // management of the die
       if (PhysicsClass.globalStepVars?.inputState) {
         const kills = PhysicsClass.globalStepVars.inputState.physics.bodies[0].cf.kills;
@@ -51,9 +53,9 @@ export default {
         }
       }
 
-      let gst = step_OLD(...arguments);
+      gm.physics.collisionsThisStep = [];
 
-      if (!PhysicsClass.contactListener.EndContact_OLD) gm.physics.initContactListener();
+      let gst = step_OLD(...arguments);
 
       // make seed based on scene element positions and game state seed
       let randomSeed = gst.seed;
@@ -245,8 +247,6 @@ export default {
         }
       }
 
-      gm.physics.collisionsThisStep = [];
-
       // step handling
       if (gm.physics.forceGameState) {
         gm.physics.forceGameState = false;
@@ -304,12 +304,12 @@ export default {
     };
   },
   initContactListener: function() {
-    PhysicsClass.contactListener.EndContact_OLD = PhysicsClass.contactListener.EndContact;
-    PhysicsClass.contactListener.EndContact = function(contact) {
+    PhysicsClass.contactListener.BeginContact_OLD = PhysicsClass.contactListener.BeginContact;
+    PhysicsClass.contactListener.BeginContact = function(contact) {
       const worldManifold = new Box2D.Collision.b2WorldManifold();
       contact.GetWorldManifold(worldManifold);
       gm.physics.collisionsThisStep.push({contact: contact, manifold: worldManifold});
-      return PhysicsClass.contactListener.EndContact_OLD(...arguments);
+      return PhysicsClass.contactListener.BeginContact_OLD(...arguments);
     };
   },
   gameState: null,
