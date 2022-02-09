@@ -11,7 +11,7 @@ export default {
   initb2Step: function() {
     Box2D.Dynamics.b2World.prototype.Step_OLD = Box2D.Dynamics.b2World.prototype.Step;
     Box2D.Dynamics.b2World.prototype.Step = function() {
-      if (!PhysicsClass.contactListener.BeginContact_OLD) gm.physics.initContactListener();
+      if (!PhysicsClass.contactListener.PostSolve_OLD) gm.physics.initContactListener();
 
       // management of the die
       if (PhysicsClass.globalStepVars?.inputState) {
@@ -57,8 +57,12 @@ export default {
 
       let gst = step_OLD(...arguments);
 
+      if (gst.ftu == 0) {
+        gm.graphics.renderUpdates = [];
+      }
+
       // make seed based on scene element positions and game state seed
-      let randomSeed = gst.seed;
+      let randomSeed = 0;
       for (let i = 0; i != gst.physics.bodies.length; i++) {
         if (gst.physics.bodies[i]) {
           randomSeed = randomSeed + gst.physics.bodies[i].p[0] + gst.physics.bodies[i].p[1] + gst.physics.bodies[i].a;
@@ -70,7 +74,7 @@ export default {
         }
       }
       randomSeed += gst.rl;
-      randomSeed = gm.physics.generateSeed(String(randomSeed))();
+      randomSeed /= gst.seed;
       gm.physics.pseudoRandom = new seedrandom(randomSeed);
 
       gm.physics.gameState = gst;
@@ -103,9 +107,9 @@ export default {
 
       // collision handling
       for (let i = 0; i !== gm.physics.collisionsThisStep.length; i++) {
-        const fixtureA = gm.physics.collisionsThisStep[i].contact.GetFixtureA().GetBody();
-        const fixtureB = gm.physics.collisionsThisStep[i].contact.GetFixtureB().GetBody();
-        const normal = gm.physics.collisionsThisStep[i].manifold.m_normal;
+        const fixtureA = gm.physics.collisionsThisStep[i].fixtureABodyData;
+        const fixtureB = gm.physics.collisionsThisStep[i].fixtureBBodyData;
+        const normal = gm.physics.collisionsThisStep[i].normal;
         const projs = gm.physics.gameState.projectiles;
 
         // disc collision
@@ -113,20 +117,21 @@ export default {
         let collisionFixture;
         let isFixtureA = false;
 
-        if (fixtureA.GetUserData().type === 'disc') {
+        if (fixtureA.type === 'disc') {
           isFixtureA = true;
-          discFixture = fixtureA.GetUserData();
-          collisionFixture = fixtureB.GetUserData();
-        } else if (fixtureB.GetUserData().type === 'disc') {
+          discFixture = fixtureA;
+          collisionFixture = fixtureB;
+        } else if (fixtureB.type === 'disc') {
           isFixtureA = false;
-          discFixture = fixtureB.GetUserData();
-          collisionFixture = fixtureA.GetUserData();
+          discFixture = fixtureB;
+          collisionFixture = fixtureA;
         }
 
-        if (discFixture) {
+        if (discFixture && gst.discs[discFixture.arrayID]) { // check if self element exists
           switch (collisionFixture.type) {
             case 'disc':
-              if (discFixture.team === 1 || discFixture.team !== collisionFixture.team) {
+              if (discFixture.team === 1 || discFixture.team !== collisionFixture.team && // check for self and team collisions
+                  gst.discs[collisionFixture.arrayID]) { // check if collided element exists
                 gm.physics.onPlayerPlayerCollision(discFixture.arrayID, collisionFixture.arrayID);
                 gm.physics.onPlayerPlayerCollision(collisionFixture.arrayID, discFixture.arrayID);
               }
@@ -144,12 +149,15 @@ export default {
 
               if (arrowNumber === 0) break;
 
-              if (discFixture.arrayID !== collisionFixture.discID && (discFixture.team === 1 || discFixture.team !== collisionFixture.team)) {
+              if (discFixture.arrayID !== collisionFixture.discID && (discFixture.team === 1 || discFixture.team !== collisionFixture.team) && // check for self and team collisions
+                  gst.projectiles[collisionFixture.arrayID]) { // check if collided element exists
                 gm.physics.onPlayerArrowCollision(discFixture.arrayID, collisionFixture.discID, arrowNumber);
               }
               break;
             case 'phys':
-              gm.physics.onPlayerPlatformCollision(discFixture.arrayID, collisionFixture.arrayID, isFixtureA ? normal.GetNegative() : normal);
+              if (gst.physics.bodies[collisionFixture.arrayID]?.fx.length > 0) { // check if collided element exists
+                gm.physics.onPlayerPlatformCollision(discFixture.arrayID, collisionFixture.arrayID, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
+              }
               break;
           }
         }
@@ -159,14 +167,14 @@ export default {
         let arrowNumberA = 0;
         let arrowNumberB = 0;
 
-        if (fixtureA.GetUserData().type === 'arrow') {
+        if (fixtureA.type === 'arrow') {
           isFixtureA = true;
-          arrowFixture = fixtureA.GetUserData();
-          collisionFixture = fixtureB.GetUserData();
-        } else if (fixtureB.GetUserData().type === 'arrow') {
+          arrowFixture = fixtureA;
+          collisionFixture = fixtureB;
+        } else if (fixtureB.type === 'arrow') {
           isFixtureA = false;
-          arrowFixture = fixtureB.GetUserData();
-          collisionFixture = fixtureA.GetUserData();
+          arrowFixture = fixtureB;
+          collisionFixture = fixtureA;
         }
 
         let accumA = 1;
@@ -185,19 +193,24 @@ export default {
           }
         }
 
-        if (arrowFixture) {
+        if (arrowFixture && gst.projectiles[arrowFixture.arrayID] && gst.discs[arrowFixture.discID]) { // check if self element exists
           switch (collisionFixture.type) {
             case 'disc':
-              if (arrowFixture.discID !== collisionFixture.arrayID && (collisionFixture.team === 1 || arrowFixture.team !== collisionFixture.team)) {
+              if (arrowFixture.discID !== collisionFixture.arrayID && (collisionFixture.team === 1 || arrowFixture.team !== collisionFixture.team) && // check for self and team collisions
+                gst.discs[collisionFixture.arrayID]) { // check if collided element exists
                 gm.physics.onArrowPlayerCollision(arrowFixture.discID, arrowNumberA, collisionFixture.arrayID);
               }
               break;
             case 'arrow':
-              gm.physics.onArrowArrowCollision(arrowFixture.discID, arrowNumberA, collisionFixture.discID, arrowNumberB);
-              gm.physics.onArrowArrowCollision(collisionFixture.discID, arrowNumberB, arrowFixture.discID, arrowNumberA);
+              if (gst.projectiles[collisionFixture.arrayID] && gst.discs[collisionFixture.discID]) { // check if collided element exists
+                gm.physics.onArrowArrowCollision(arrowFixture.discID, arrowNumberA, collisionFixture.discID, arrowNumberB);
+                gm.physics.onArrowArrowCollision(collisionFixture.discID, arrowNumberB, arrowFixture.discID, arrowNumberA);
+              }
               break;
             case 'phys':
-              gm.physics.onArrowPlatformCollision(arrowFixture.discID, arrowNumberA, collisionFixture.arrayID, isFixtureA ? normal.GetNegative() : normal);
+              if (gst.physics.bodies[collisionFixture.arrayID]?.fx.length > 0) { // check if collided element exists
+                gm.physics.onArrowPlatformCollision(arrowFixture.discID, arrowNumberA, collisionFixture.arrayID, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
+              }
               break;
           }
         }
@@ -205,22 +218,24 @@ export default {
         // platform collision
         let platFixture;
 
-        if (fixtureA.GetUserData().type === 'phys') {
+        if (fixtureA.type === 'phys') {
           isFixtureA = true;
-          platFixture = fixtureA.GetUserData();
-          collisionFixture = fixtureB.GetUserData();
-        } else if (fixtureB.GetUserData().type === 'phys') {
+          platFixture = fixtureA;
+          collisionFixture = fixtureB;
+        } else if (fixtureB.type === 'phys') {
           isFixtureA = false;
-          platFixture = fixtureB.GetUserData();
-          collisionFixture = fixtureA.GetUserData();
+          platFixture = fixtureB;
+          collisionFixture = fixtureA;
         }
 
-        if (platFixture) {
+        if (platFixture && gst.physics.bodies[platFixture.arrayID]?.fx.length > 0) { // check if self element exists
           for (let i = 0; i != gst.discs.length; i++) {
             if (gst.discs[i]) {
               switch (collisionFixture.type) {
                 case 'disc':
-                  gm.physics.onPlatformPlayerCollision(i, platFixture.arrayID, collisionFixture.arrayID);
+                  if (gst.discs[collisionFixture.arrayID]) { // check if collided element exists
+                    gm.physics.onPlatformPlayerCollision(i, platFixture.arrayID, collisionFixture.arrayID);
+                  }
                   break;
                 case 'arrow':
                   let arrowNumber = 0;
@@ -235,11 +250,15 @@ export default {
 
                   if (arrowNumber === 0) break;
 
-                  gm.physics.onPlatformArrowCollision(i, platFixture.arrayID, collisionFixture.discID, arrowNumber);
+                  if (gst.discs[collisionFixture.discID] && gst.projectiles[collisionFixture.arrayID]) { // check if collided element exists
+                    gm.physics.onPlatformArrowCollision(i, platFixture.arrayID, collisionFixture.discID, arrowNumber);
+                  }
                   break;
                 case 'phys':
-                  gm.physics.onPlatformPlatformCollision(i, platFixture.arrayID, collisionFixture.arrayID, isFixtureA ? normal.GetNegative() : normal);
-                  gm.physics.onPlatformPlatformCollision(i, collisionFixture.arrayID, platFixture.arrayID, isFixtureA ? normal : normal.GetNegative());
+                  if (gst.physics.bodies[collisionFixture.arrayID]?.fx.length > 0) { // check if collided element exists
+                    gm.physics.onPlatformPlatformCollision(i, platFixture.arrayID, collisionFixture.arrayID, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
+                    gm.physics.onPlatformPlatformCollision(i, collisionFixture.arrayID, platFixture.arrayID, isFixtureA ? normal : {x: -normal.x, y: -normal.y});
+                  }
                   break;
               }
             }
@@ -296,7 +315,12 @@ export default {
         gm.physics.forceGameState = false;
         gst = gm.physics.gameState;
       }
+
       gm.physics.gameState = gst;
+
+      gm.graphics.doRenderUpdates(gst);
+
+      gm.physics.collisionsThisStep = [];
 
       if (window.GMEndStep) window.GMEndStep();
 
@@ -304,12 +328,22 @@ export default {
     };
   },
   initContactListener: function() {
-    PhysicsClass.contactListener.BeginContact_OLD = PhysicsClass.contactListener.BeginContact;
-    PhysicsClass.contactListener.BeginContact = function(contact) {
-      const worldManifold = new Box2D.Collision.b2WorldManifold();
-      contact.GetWorldManifold(worldManifold);
-      gm.physics.collisionsThisStep.push({contact: contact, manifold: worldManifold});
-      return PhysicsClass.contactListener.BeginContact_OLD(...arguments);
+    PhysicsClass.contactListener.PostSolve_OLD = PhysicsClass.contactListener.PostSolve;
+    PhysicsClass.contactListener.PostSolve = function(contact, impulses) {
+      if (impulses.normalImpulses[0] > 0.1) {
+        const worldManifold = new Box2D.Collision.b2WorldManifold();
+        contact.GetWorldManifold(worldManifold);
+
+        gm.physics.collisionsThisStep.push({
+          fixtureAData: contact.GetFixtureA().GetUserData(),
+          fixtureABodyData: contact.GetFixtureA().GetBody().GetUserData(),
+          fixtureBData: contact.GetFixtureB().GetUserData(),
+          fixtureBBodyData: contact.GetFixtureB().GetBody().GetUserData(),
+          normal: {x: worldManifold.m_normal.x, y: worldManifold.m_normal.y},
+        });
+      }
+
+      return PhysicsClass.contactListener.PostSolve_OLD(...arguments);
     };
   },
   gameState: null,
@@ -320,21 +354,7 @@ export default {
   forceGameState: false,
   collisionsThisStep: [],
   pseudoRandom: null,
-  generateSeed: function(str) {
-    // eslint-disable-next-line no-var
-    for (var k, i = 0, h = 2166136261 >>> 0; i < str.length; i++) {
-      k = Math.imul(str.charCodeAt(i), 3432918353); k = k << 15 | k >>> 17;
-      h ^= Math.imul(k, 461845907); h = h << 13 | h >>> 19;
-      h = Math.imul(h, 5) + 3864292196 | 0;
-    }
-    h ^= str.length;
-    return function() {
-      h ^= h >>> 16; h = Math.imul(h, 2246822507);
-      h ^= h >>> 13; h = Math.imul(h, 3266489909);
-      h ^= h >>> 16;
-      return h >>> 0;
-    };
-  },
+  lastStepCount: 0,
   onStep: function() { },
   onFirstStep: function() { },
   onPlayerDie: function() { },

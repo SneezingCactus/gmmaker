@@ -463,7 +463,7 @@ export default {
       }
     },
     getScreenPos: function(value) {
-      return value * gm.physics.gameState.physics.ppm * gm.graphics.rendererClass.scaleRatio;
+      return value * gm.physics.gameState.physics.ppm;
     },
     setPlayerProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
@@ -772,6 +772,8 @@ export default {
       };
 
       for (let i = 0; i !== shapes.length; i++) {
+        if (shapes[i] === null || shapes[i] === undefined) continue;
+
         const shIndex = gameState.physics.shapes.length;
         gameState.physics.shapes.push(shapes[i].shape);
         const fxIndex = gameState.physics.fixtures.length;
@@ -782,10 +784,14 @@ export default {
         body.fx.push(fxIndex);
       }
 
+      if (body.fx.length == 0) return Infinity;
+
       gameState.physics.bodies.push(body);
       gameState.physics.bro.unshift(gameState.physics.bodies.length - 1);
 
       gm.graphics.needRerender = true;
+      if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
+      gm.graphics.renderUpdates[gameState.rl].push({action: 'create', id: gameState.physics.bodies.length - 1});
 
       return gameState.physics.bodies.length - 1;
     },
@@ -812,6 +818,8 @@ export default {
         gameState.physics.bodies.push(newBody);
 
         gm.graphics.needRerender = true;
+        if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
+        gm.graphics.renderUpdates[gameState.rl].push({action: 'create', id: gameState.physics.bodies.length - 1});
 
         return gameState.physics.bodies.length - 1;
       }
@@ -924,6 +932,8 @@ export default {
 
         gameState.physics.fixtures[gameState.physics.bodies[platID].fx[shapeID - 1]] = fixture;
         gm.graphics.needRerender = true;
+        if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
+        gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       } else if (shape && property.startsWith('s_')) {
         switch (property) {
           case 's_c_x':
@@ -942,6 +952,8 @@ export default {
 
         gameState.physics.shapes[fixture.sh] = shape;
         gm.graphics.needRerender = true;
+        if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
+        gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       }
 
       if (boolProps.includes(property) && property !== 'f_np') gm.graphics.needRerender = false;
@@ -962,6 +974,7 @@ export default {
 
         gameState.physics.fixtures[gameState.physics.bodies[platID].fx[shapeID - 1]] = fixture;
         gm.graphics.needRerender = true;
+        gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       } else if (shape && property.startsWith('s_')) {
         switch (property) {
           case 's_c_x':
@@ -980,6 +993,8 @@ export default {
 
         gameState.physics.shapes[fixture.sh] = shape;
         gm.graphics.needRerender = true;
+        if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
+        gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       }
 
       return gameState;
@@ -1020,12 +1035,16 @@ export default {
         gameState.physics.bodies[platID].type = 's';
 
         gm.graphics.needRerender = true;
+        if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
+        gm.graphics.renderUpdates[gameState.rl].push({action: 'delete', id: platID});
       }
       return gameState;
     },
     deleteShape: function(gameState, platID, shapeID) {
       if (gm.graphics.rendering) return gameState;
       if (gameState.physics.bodies[platID] && gameState.physics.bodies[platID].fx[shapeID - 1] !== undefined) {
+        if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
+        gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
         gameState.physics.bodies[platID].fx.splice(shapeID - 1, 1);
 
         gm.graphics.needRerender = true;
@@ -1045,6 +1064,8 @@ export default {
         gameState.physics.bodies[platID].fx.push(fxIndex);
 
         gm.graphics.needRerender = true;
+        if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
+        gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       }
       return gameState;
     },

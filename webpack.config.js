@@ -3,8 +3,8 @@ const path = require('path');
 module.exports = {
   mode: 'production',
   performance: {
-    maxEntrypointSize: 1e6,
-    maxAssetSize: 1e6,
+    maxEntrypointSize: 1e10,
+    maxAssetSize: 1e10,
   },
   optimization: {
     minimize: true,

@@ -20,7 +20,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
   window.gmRegexes = {
     funcs: [
       {name: 'io', regex: 'requirejs\\(\\[[^\\]]+\\],function\\(([^,]+)', isConstructor: false},
-      {name: 'Box2D', regex: 'requirejs\\(\\[[^\\]]+\\],function\\([^,]+,[^,]+,([^\\)]+)', isConstructor: false},
+      {name: 'Box2D', regex: 'requirejs\\(\\[[^\\]]+\\],function\\([^,]+,[^,]+,([^\\)]+)', isConstructor: true},
       {name: 'BonkGraphics', regex: 'shrinkPerFrame:0\\.016.*?\\*=(.)\\[', isConstructor: true},
       {name: 'NetworkEngine', regex: 'function ([^\\)]*)\\([^\\)]{11}\\).{0,5000}reconnection:false', isConstructor: true},
       {name: 'NewBonkLobby', regex: 'function (..)\\(.{15}\\).{0,10000}newbonklobby', isConstructor: true},
@@ -31,7 +31,14 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'JoinLeaveHandlers', regex: 'new (..)\\(null\\)', isConstructor: true},
     ],
     replace: [
+      // make step function not delete the world's bodies and instead put that code into a global function
       {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Z]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.GMEndStep = () => {$1};'},
+      // fix fixtures and ppm being a reference to a single fixtures and ppm shared by all game states
+      {regex: '(shapes:JSON[^,]{0,100},fixtures:)([^,]{0,100})(.{0,400}ppm:)([^}]{0,100})', to: '$1JSON.parse(JSON.stringify($2))$3JSON.parse(JSON.stringify($4))'},
+      // make game state list globally accessible
+      {regex: '( < 100\\).{0,100}\\+ 1.{0,200}\\+\\+;)([^\\]]+\\])', to: '$1window.GMGameStateList = $2;$2'},
+      // call graphics rollback function
+      {regex: 'if\\(([^ ]+)( != Infinity\\){)(for[^<]+< )([^\\]]+\\])(.{0,400}=Infinity;)', to: 'if($1$2gm.graphics.doRollback($4, $1);$3$4$5'},
     ],
     inject: {
       vars: 'var\\s(...)=\\[arguments\\]',
@@ -47,7 +54,14 @@ window.gmInjectBonkScript = function(bonkSrc) {
   let funcHooks = '';
   const funcNames = [];
   gmRegexes.funcs.map((function(func) {
-    const funcInBonk = bonkSrc.match(func.regex)[1];
+    const match = bonkSrc.match(func.regex);
+
+    if (!match) {
+      console.error(`[Game Mode Maker] Regex failed!`, func);
+      // eslint-disable-next-line no-throw-literal
+      throw 'Game Mode Maker injection error';
+    }
+    const funcInBonk = match[1];
     funcNames.push({name: func.name, regex: func.regex, func: funcInBonk});
     funcHooks += `window.${func.name} = ${funcInBonk}; window.${func.name}_OLD = ${funcInBonk}; ${funcInBonk} = ` + (func.isConstructor ? `new Proxy(${funcInBonk}, {\n	construct(target, args) { \n		return new ${func.name}(...args); \n	}\n});\n` : `function(){\n	return ${func.name}(...arguments);\n};\n`);
   }));
@@ -58,6 +72,12 @@ window.gmInjectBonkScript = function(bonkSrc) {
   window.gmBonkVars = {};
 
   gmRegexes.replace.map((function(replace) {
+    if (!bonkSrc.match(replace.regex)) {
+      console.error(`[Game Mode Maker] Regex failed!`, replace);
+      // eslint-disable-next-line no-throw-literal
+      throw 'Game Mode Maker injection error';
+    }
+
     newBonkSrc = newBonkSrc.replace(new RegExp(replace.regex), replace.to);
   }));
 
