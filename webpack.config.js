@@ -1,4 +1,5 @@
 const path = require('path');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = {
   mode: 'production',
@@ -7,7 +8,14 @@ module.exports = {
     maxAssetSize: 1e10,
   },
   optimization: {
-    minimize: true,
+    minimize: false,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          mangle: false,
+        },
+      }),
+    ],
   },
   module: {
     rules: [
@@ -60,9 +68,9 @@ module.exports = {
     ],
   },
   entry: {
+    'js/injector': './src/inject/injector.js',
     'background': './src/background.js',
     'css/style': './src/gmWindow/style.css',
-    'js/injector': './src/inject/injector.js',
     'js/loadInjector': './src/inject/loadInjector.js',
     'js/runInjectors': './src/inject/runInjectors.js',
   },

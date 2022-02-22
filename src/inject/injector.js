@@ -12,8 +12,6 @@ import gmLobby from '../gmObject/lobby.js';
 import gmAudio from '../gmObject/audio.js';
 import gmBlockly from '../gmObject/blockly.js';
 
-window.Blockly = Blockly;
-
 window.gmInjectBonkScript = function(bonkSrc) {
   console.log('[Game Mode Maker] Injecting alpha2s.js...');
 
@@ -32,13 +30,15 @@ window.gmInjectBonkScript = function(bonkSrc) {
     ],
     replace: [
       // make step function not delete the world's bodies and instead put that code into a global function
-      {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Z]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.GMEndStep = () => {$1};'},
+      {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Z]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.gmReplaceAccessors.endStep = () => {$1};'},
       // fix fixtures and ppm being a reference to a single fixtures and ppm shared by all game states
       {regex: '(shapes:JSON[^,]{0,100},fixtures:)([^,]{0,100})(.{0,400}ppm:)([^}]{0,100})', to: '$1JSON.parse(JSON.stringify($2))$3JSON.parse(JSON.stringify($4))'},
       // make game state list globally accessible
-      {regex: '( < 100\\).{0,100}\\+ 1.{0,200}\\+\\+;)([^\\]]+\\])', to: '$1window.GMGameStateList = $2;$2'},
+      {regex: '( < 100\\).{0,100}\\+ 1.{0,200}\\+\\+;)([^\\]]+\\])', to: '$1window.gmReplaceAccessors.gameStateList = $2;$2'},
       // call graphics rollback function
       {regex: 'if\\(([^ ]+)( != Infinity\\){)(for[^<]+< )([^\\]]+\\])(.{0,400}=Infinity;)', to: 'if($1$2gm.graphics.doRollback($4, $1);$3$4$5'},
+      // allow for toggling of the death barrier
+      {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
     ],
     inject: {
       vars: 'var\\s(...)=\\[arguments\\]',
@@ -70,6 +70,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
   newBonkSrc = newBonkSrc.replace(new RegExp(gmRegexes.inject.regex), `${gmRegexes.inject.wrap.left}${funcHooks}window.initGM();${gmRegexes.inject.wrap.right}`);
   newBonkSrc = newBonkSrc.replace(new RegExp(gmRegexes.inject.vars, 'g'), 'var $1 = [arguments]; window.gmBonkVars.$1 = () => $1;');
   window.gmBonkVars = {};
+  window.gmReplaceAccessors = {};
 
   gmRegexes.replace.map((function(replace) {
     if (!bonkSrc.match(replace.regex)) {
@@ -114,16 +115,14 @@ window.bonkCodeInjectors.push((bonkSrc) => bonkSrc);
 window.gmInjectIO = function() {
   for (let i = 0, vars = Object.keys(window.gmBonkVars); i != vars.length; i++) {
     for (let i2 = 0, varChildren = window.gmBonkVars[vars[i]](); i2 != varChildren.length; i2++) {
-      if (varChildren[i2] && varChildren[i2].length) {
-        for (let i3 = 0; i3 != varChildren[i2].length; i3++) {
-          if (varChildren[i2][i3] && varChildren[i2][i3].connect) {
-            window.io = varChildren[i2][i3];
-            window.io_OLD = varChildren[i2][i3];
-            varChildren[i2][i3] = function() {
-              return window.io(...arguments);
-            };
-          }
-        }
+      if (!varChildren[i2] || !varChildren[i2].length) continue;
+      for (let i3 = 0; i3 != varChildren[i2].length; i3++) {
+        if (!varChildren[i2][i3] || !varChildren[i2][i3].connect) continue;
+        window.io = varChildren[i2][i3];
+        window.io_OLD = varChildren[i2][i3];
+        varChildren[i2][i3] = function() {
+          return window.io(...arguments);
+        };
       }
     }
   }

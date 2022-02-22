@@ -308,57 +308,47 @@ export default function() {
     const returnInfo = this.getField('return_info');
     const collideType = this.getField('collide_type');
 
-    returnInfo.setValidator(function(newValue) {
-      this.getSourceBlock().getField('player_id').setVisible(false);
-      this.getSourceBlock().getField('arrow_id').setVisible(false);
-      this.getSourceBlock().getField('platform_id').setVisible(false);
-      this.getSourceBlock().getField('normal_x').setVisible(false);
-      this.getSourceBlock().getField('normal_y').setVisible(false);
+    const block = this;
 
-      if (newValue == 'TRUE') {
-        switch (collideType.getValue()) {
+    /**
+     * Shows the appropiate vars for the collision type.
+     * @param {bool} showVars
+     * @param {string} colType
+     */
+    function showHideVars(showVars, colType) {
+      block.getField('player_id').setVisible(false);
+      block.getField('arrow_id').setVisible(false);
+      block.getField('platform_id').setVisible(false);
+      block.getField('shape_id').setVisible(false);
+      block.getField('normal_x').setVisible(false);
+      block.getField('normal_y').setVisible(false);
+
+      if (showVars == 'TRUE') {
+        switch (colType) {
           case 'collide_player':
-            this.getSourceBlock().getField('player_id').setVisible(true);
+            block.getField('player_id').setVisible(true);
             break;
           case 'collide_arrow':
-            this.getSourceBlock().getField('player_id').setVisible(true);
-            this.getSourceBlock().getField('arrow_id').setVisible(true);
+            block.getField('player_id').setVisible(true);
+            block.getField('arrow_id').setVisible(true);
             break;
           case 'collide_platform':
-            this.getSourceBlock().getField('platform_id').setVisible(true);
-            this.getSourceBlock().getField('normal_x').setVisible(true);
-            this.getSourceBlock().getField('normal_y').setVisible(true);
+            block.getField('platform_id').setVisible(true);
+            block.getField('shape_id').setVisible(true);
+            block.getField('normal_x').setVisible(true);
+            block.getField('normal_y').setVisible(true);
             break;
         }
       }
+    }
 
+    returnInfo.setValidator(function(newValue) {
+      showHideVars(newValue, collideType.getValue());
       returnInfo.forceRerender();
     });
 
     collideType.setValidator(function(newValue) {
-      this.getSourceBlock().getField('player_id').setVisible(false);
-      this.getSourceBlock().getField('arrow_id').setVisible(false);
-      this.getSourceBlock().getField('platform_id').setVisible(false);
-      this.getSourceBlock().getField('normal_x').setVisible(false);
-      this.getSourceBlock().getField('normal_y').setVisible(false);
-
-      if (returnInfo.getValue() == 'TRUE') {
-        switch (newValue) {
-          case 'collide_player':
-            this.getSourceBlock().getField('player_id').setVisible(true);
-            break;
-          case 'collide_arrow':
-            this.getSourceBlock().getField('player_id').setVisible(true);
-            this.getSourceBlock().getField('arrow_id').setVisible(true);
-            break;
-          case 'collide_platform':
-            this.getSourceBlock().getField('platform_id').setVisible(true);
-            this.getSourceBlock().getField('normal_x').setVisible(true);
-            this.getSourceBlock().getField('normal_y').setVisible(true);
-            break;
-        }
-      }
-
+      showHideVars(returnInfo.getValue(), newValue);
       collideType.forceRerender();
     });
   };
@@ -367,65 +357,51 @@ export default function() {
     const returnInfo = this.getField('return_info');
     const collideType = this.getField('collide_type');
 
-    returnInfo.setValidator(function(newValue) {
-      this.getSourceBlock().getField('self_arrow_id').setVisible(false);
-      this.getSourceBlock().getField('player_id').setVisible(false);
-      this.getSourceBlock().getField('arrow_id').setVisible(false);
-      this.getSourceBlock().getField('platform_id').setVisible(false);
-      this.getSourceBlock().getField('normal_x').setVisible(false);
-      this.getSourceBlock().getField('normal_y').setVisible(false);
+    const block = this;
 
-      if (newValue == 'TRUE') {
-        switch (collideType.getValue()) {
+    /**
+     * Shows the appropiate vars for the collision type.
+     * @param {bool} showVars
+     * @param {string} colType
+     */
+    function showHideVars(showVars, colType) {
+      block.getField('self_arrow_id').setVisible(false);
+      block.getField('player_id').setVisible(false);
+      block.getField('arrow_id').setVisible(false);
+      block.getField('platform_id').setVisible(false);
+      block.getField('shape_id').setVisible(false);
+      block.getField('normal_x').setVisible(false);
+      block.getField('normal_y').setVisible(false);
+
+      if (showVars == 'TRUE') {
+        switch (colType) {
           case 'collide_player':
-            this.getSourceBlock().getField('self_arrow_id').setVisible(true);
-            this.getSourceBlock().getField('player_id').setVisible(true);
+            block.getField('self_arrow_id').setVisible(true);
+            block.getField('player_id').setVisible(true);
             break;
           case 'collide_arrow':
-            this.getSourceBlock().getField('self_arrow_id').setVisible(true);
-            this.getSourceBlock().getField('player_id').setVisible(true);
-            this.getSourceBlock().getField('arrow_id').setVisible(true);
+            block.getField('self_arrow_id').setVisible(true);
+            block.getField('player_id').setVisible(true);
+            block.getField('arrow_id').setVisible(true);
             break;
           case 'collide_platform':
-            this.getSourceBlock().getField('self_arrow_id').setVisible(true);
-            this.getSourceBlock().getField('platform_id').setVisible(true);
-            this.getSourceBlock().getField('normal_x').setVisible(true);
-            this.getSourceBlock().getField('normal_y').setVisible(true);
+            block.getField('self_arrow_id').setVisible(true);
+            block.getField('platform_id').setVisible(true);
+            block.getField('shape_id').setVisible(true);
+            block.getField('normal_x').setVisible(true);
+            block.getField('normal_y').setVisible(true);
             break;
         }
       }
+    }
 
+    returnInfo.setValidator(function(newValue) {
+      showHideVars(newValue, collideType.getValue());
       returnInfo.forceRerender();
     });
 
     collideType.setValidator(function(newValue) {
-      this.getSourceBlock().getField('self_arrow_id').setVisible(false);
-      this.getSourceBlock().getField('player_id').setVisible(false);
-      this.getSourceBlock().getField('arrow_id').setVisible(false);
-      this.getSourceBlock().getField('platform_id').setVisible(false);
-      this.getSourceBlock().getField('normal_x').setVisible(false);
-      this.getSourceBlock().getField('normal_y').setVisible(false);
-
-      if (returnInfo.getValue() == 'TRUE') {
-        switch (newValue) {
-          case 'collide_player':
-            this.getSourceBlock().getField('self_arrow_id').setVisible(true);
-            this.getSourceBlock().getField('player_id').setVisible(true);
-            break;
-          case 'collide_arrow':
-            this.getSourceBlock().getField('self_arrow_id').setVisible(true);
-            this.getSourceBlock().getField('player_id').setVisible(true);
-            this.getSourceBlock().getField('arrow_id').setVisible(true);
-            break;
-          case 'collide_platform':
-            this.getSourceBlock().getField('self_arrow_id').setVisible(true);
-            this.getSourceBlock().getField('platform_id').setVisible(true);
-            this.getSourceBlock().getField('normal_x').setVisible(true);
-            this.getSourceBlock().getField('normal_y').setVisible(true);
-            break;
-        }
-      }
-
+      showHideVars(returnInfo.getValue(), newValue);
       collideType.forceRerender();
     });
   };
@@ -434,65 +410,55 @@ export default function() {
     const returnInfo = this.getField('return_info');
     const collideType = this.getField('collide_type');
 
-    returnInfo.setValidator(function(newValue) {
-      this.getSourceBlock().getField('self_platform_id').setVisible(false);
-      this.getSourceBlock().getField('player_id').setVisible(false);
-      this.getSourceBlock().getField('arrow_id').setVisible(false);
-      this.getSourceBlock().getField('platform_id').setVisible(false);
-      this.getSourceBlock().getField('normal_x').setVisible(false);
-      this.getSourceBlock().getField('normal_y').setVisible(false);
+    const block = this;
 
-      if (newValue == 'TRUE') {
-        switch (collideType.getValue()) {
+    /**
+     * Shows the appropiate vars for the collision type.
+     * @param {bool} showVars
+     * @param {string} colType
+     */
+    function showHideVars(showVars, colType) {
+      block.getField('self_platform_id').setVisible(false);
+      block.getField('self_shape_id').setVisible(false);
+      block.getField('player_id').setVisible(false);
+      block.getField('arrow_id').setVisible(false);
+      block.getField('platform_id').setVisible(false);
+      block.getField('shape_id').setVisible(false);
+      block.getField('normal_x').setVisible(false);
+      block.getField('normal_y').setVisible(false);
+
+      if (showVars == 'TRUE') {
+        switch (colType) {
           case 'collide_player':
-            this.getSourceBlock().getField('self_platform_id').setVisible(true);
-            this.getSourceBlock().getField('player_id').setVisible(true);
+            block.getField('self_platform_id').setVisible(true);
+            block.getField('self_shape_id').setVisible(true);
+            block.getField('player_id').setVisible(true);
             break;
           case 'collide_arrow':
-            this.getSourceBlock().getField('self_platform_id').setVisible(true);
-            this.getSourceBlock().getField('player_id').setVisible(true);
-            this.getSourceBlock().getField('arrow_id').setVisible(true);
+            block.getField('self_platform_id').setVisible(true);
+            block.getField('self_shape_id').setVisible(true);
+            block.getField('player_id').setVisible(true);
+            block.getField('arrow_id').setVisible(true);
             break;
           case 'collide_platform':
-            this.getSourceBlock().getField('self_platform_id').setVisible(true);
-            this.getSourceBlock().getField('platform_id').setVisible(true);
-            this.getSourceBlock().getField('normal_x').setVisible(true);
-            this.getSourceBlock().getField('normal_y').setVisible(true);
+            block.getField('self_platform_id').setVisible(true);
+            block.getField('self_shape_id').setVisible(true);
+            block.getField('platform_id').setVisible(true);
+            block.getField('shape_id').setVisible(true);
+            block.getField('normal_x').setVisible(true);
+            block.getField('normal_y').setVisible(true);
             break;
         }
       }
+    }
 
+    returnInfo.setValidator(function(newValue) {
+      showHideVars(newValue, collideType.getValue());
       returnInfo.forceRerender();
     });
 
     collideType.setValidator(function(newValue) {
-      this.getSourceBlock().getField('self_platform_id').setVisible(false);
-      this.getSourceBlock().getField('player_id').setVisible(false);
-      this.getSourceBlock().getField('arrow_id').setVisible(false);
-      this.getSourceBlock().getField('platform_id').setVisible(false);
-      this.getSourceBlock().getField('normal_x').setVisible(false);
-      this.getSourceBlock().getField('normal_y').setVisible(false);
-
-      if (returnInfo.getValue() == 'TRUE') {
-        switch (newValue) {
-          case 'collide_player':
-            this.getSourceBlock().getField('self_platform_id').setVisible(true);
-            this.getSourceBlock().getField('player_id').setVisible(true);
-            break;
-          case 'collide_arrow':
-            this.getSourceBlock().getField('self_platform_id').setVisible(true);
-            this.getSourceBlock().getField('player_id').setVisible(true);
-            this.getSourceBlock().getField('arrow_id').setVisible(true);
-            break;
-          case 'collide_platform':
-            this.getSourceBlock().getField('self_platform_id').setVisible(true);
-            this.getSourceBlock().getField('platform_id').setVisible(true);
-            this.getSourceBlock().getField('normal_x').setVisible(true);
-            this.getSourceBlock().getField('normal_y').setVisible(true);
-            break;
-        }
-      }
-
+      showHideVars(returnInfo.getValue(), newValue);
       collideType.forceRerender();
     });
   };
@@ -513,6 +479,21 @@ export default function() {
   };
 
   Blockly.Blocks['stop_input_override'].validatorInit = function() {
+    this.mixin(playerIdMixin);
+
+    this.moveIdInputs = function(movePlayerId) {
+      if (movePlayerId) this.moveNumberedInputBefore(this.inputList.length - 1, 1);
+    };
+
+    const playerDropdown = this.getField('player');
+
+    playerDropdown.setValidator(function(newValue) {
+      const showPlayerId = (newValue === 'id');
+      this.getSourceBlock().updateShape_(showPlayerId);
+    });
+  };
+
+  Blockly.Blocks['get_camera_prop'].validatorInit = function() {
     this.mixin(playerIdMixin);
 
     this.moveIdInputs = function(movePlayerId) {

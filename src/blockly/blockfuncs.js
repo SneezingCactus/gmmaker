@@ -770,12 +770,15 @@ export default function() {
 
     const helpLabel1 = document.createElement('label');
     helpLabel1.setAttribute('text', 'You can make a variable global');
-    helpLabel1.setAttribute('gap', 4);
+
+    const labelGap = document.createElement('sep');
+    labelGap.setAttribute('gap', '4');
 
     const helpLabel2 = document.createElement('label');
     helpLabel2.setAttribute('text', 'by adding "GLOBAL_" before its name.');
 
     xmlList.push(helpLabel1);
+    xmlList.push(labelGap);
     xmlList.push(helpLabel2);
 
     const blockList = Blockly.Variables.flyoutCategoryBlocks(workspace);
@@ -820,39 +823,77 @@ export default function() {
 
   Blockly.Variables.flyoutCategoryBlocks = function(workspace) {
     const variableModelList = workspace.getVariablesOfType('');
+    const eventVariableList = [];
+    const eventBlockNames = ['on_player_collide', 'on_arrow_collide', 'on_platform_collide', 'raycast'];
+
+    // it's not pretty, but at least it's better than the monstrosity that is injectIO
+    for (const blockName of eventBlockNames) {
+      for (const block of workspace.getBlocksByType(blockName)) {
+        for (const varModel of block.getVarModels()) {
+          if (!eventVariableList.includes(varModel)) eventVariableList.push(varModel);
+        }
+      }
+    }
 
     const xmlList = [];
     if (variableModelList.length > 0) {
-      // New variables are added to the end of the variableModelList.
-      const mostRecentVariable = variableModelList[variableModelList.length - 1];
-      if (Blockly.Blocks['variables_set']) {
-        const block = Blockly.utils.xml.createElement('block');
-        block.setAttribute('type', 'variables_set');
-        block.setAttribute('gap', Blockly.Blocks['math_change'] ? 8 : 24);
-        block.appendChild(Blockly.Variables.generateVariableFieldDom(mostRecentVariable));
-        block.appendChild(Blockly.Xml.textToDom('<mutation playerid_input="false" show_dropdown="' +
-                          !Blockly.Variables.generateVariableFieldDom(mostRecentVariable).innerHTML.startsWith('GLOBAL_') + '"></mutation>'));
-        xmlList.push(block);
+      let mostRecentVariable = null;
+
+      for (let i = variableModelList.length - 1; i >= 0; i--) {
+        if (eventVariableList.includes(variableModelList[i])) continue;
+        mostRecentVariable = variableModelList[i];
+        break;
       }
-      if (Blockly.Blocks['math_change']) {
-        const block = Blockly.utils.xml.createElement('block');
-        block.setAttribute('type', 'math_change');
-        block.setAttribute('gap', Blockly.Blocks['variables_get'] ? 20 : 8);
-        block.appendChild(Blockly.Variables.generateVariableFieldDom(mostRecentVariable));
-        block.appendChild(Blockly.Xml.textToDom('<mutation playerid_input="false" show_dropdown="' +
+
+      if (mostRecentVariable) {
+        const setBlock = Blockly.utils.xml.createElement('block');
+        setBlock.setAttribute('type', 'variables_set');
+        setBlock.setAttribute('gap', Blockly.Blocks['math_change'] ? 8 : 24);
+        setBlock.appendChild(Blockly.Variables.generateVariableFieldDom(mostRecentVariable));
+        setBlock.appendChild(Blockly.Xml.textToDom('<mutation playerid_input="false" show_dropdown="' +
                           !Blockly.Variables.generateVariableFieldDom(mostRecentVariable).innerHTML.startsWith('GLOBAL_') + '"></mutation>'));
-        block.appendChild(Blockly.Xml.textToDom(
+        xmlList.push(setBlock);
+
+        const changeBlock = Blockly.utils.xml.createElement('block');
+        changeBlock.setAttribute('type', 'math_change');
+        changeBlock.setAttribute('gap', Blockly.Blocks['variables_get'] ? 20 : 8);
+        changeBlock.appendChild(Blockly.Variables.generateVariableFieldDom(mostRecentVariable));
+        changeBlock.appendChild(Blockly.Xml.textToDom('<mutation playerid_input="false" show_dropdown="' +
+                          !Blockly.Variables.generateVariableFieldDom(mostRecentVariable).innerHTML.startsWith('GLOBAL_') + '"></mutation>'));
+        changeBlock.appendChild(Blockly.Xml.textToDom(
             '<value name="DELTA">' +
             '<shadow type="math_number">' +
             '<field name="NUM">1</field>' +
             '</shadow>' +
             '</value>'));
-        xmlList.push(block);
+        xmlList.push(changeBlock);
       }
 
       if (Blockly.Blocks['variables_get']) {
         variableModelList.sort(Blockly.VariableModel.compareByName);
+        eventVariableList.sort(Blockly.VariableModel.compareByName);
         for (let i = 0, variable; (variable = variableModelList[i]); i++) {
+          if (eventVariableList.includes(variable)) continue;
+          const block = Blockly.utils.xml.createElement('block');
+          block.setAttribute('type', 'variables_get');
+          block.setAttribute('gap', 8);
+          block.appendChild(Blockly.Variables.generateVariableFieldDom(variable));
+          block.appendChild(Blockly.Xml.textToDom('<mutation playerid_input="false" show_dropdown="' +
+                            !Blockly.Variables.generateVariableFieldDom(variable).innerHTML.startsWith('GLOBAL_') + '"></mutation>'));
+          xmlList.push(block);
+        }
+
+        if (eventVariableList.length > 0) {
+          const eventsSep = Blockly.utils.xml.createElement('label');
+          eventsSep.setAttribute('gap', 8);
+          xmlList.push(eventsSep);
+
+          const eventsLabel = Blockly.utils.xml.createElement('label');
+          eventsLabel.setAttribute('text', 'Variables used by events:');
+          xmlList.push(eventsLabel);
+        }
+
+        for (let i = 0, variable; (variable = eventVariableList[i]); i++) {
           const block = Blockly.utils.xml.createElement('block');
           block.setAttribute('type', 'variables_get');
           block.setAttribute('gap', 8);
@@ -864,6 +905,56 @@ export default function() {
       }
     }
     return xmlList;
+  };
+
+  Blockly.FieldVariable.dropdownCreate = function() {
+    if (!this.variable_) {
+      throw Error(
+          'Tried to call dropdownCreate on a variable field with no' +
+          ' variable selected.');
+    }
+    const name = this.getText();
+    let variableModelList = [];
+    if (this.sourceBlock_ && this.sourceBlock_.workspace) {
+      const variableTypes = this.getVariableTypes_();
+      // Get a copy of the list, so that adding rename and new variable options
+      // doesn't modify the workspace's list.
+      for (let i = 0; i < variableTypes.length; i++) {
+        const variableType = variableTypes[i];
+        const variables =
+            this.sourceBlock_.workspace.getVariablesOfType(variableType);
+        variableModelList = variableModelList.concat(variables);
+      }
+    }
+    variableModelList.sort(Blockly.VariableModel.compareByName);
+
+    const eventVariableList = [];
+    const eventBlockNames = ['on_player_collide', 'on_arrow_collide', 'on_platform_collide', 'raycast'];
+
+    for (const blockName of eventBlockNames) {
+      for (const block of this.sourceBlock_.workspace.getBlocksByType(blockName)) {
+        for (const varModel of block.getVarModels()) {
+          if (!eventVariableList.includes(varModel)) eventVariableList.push(varModel);
+        }
+      }
+    }
+
+    const options = [];
+    for (let i = 0; i < variableModelList.length; i++) {
+      if (eventVariableList.includes(variableModelList[i]) && !eventBlockNames.includes(this.sourceBlock_.type)) continue;
+
+      // Set the UUID as the internal representation of the variable.
+      options.push([variableModelList[i].name, variableModelList[i].getId()]);
+    }
+    options.push([Blockly.Msg['RENAME_VARIABLE'], 'RENAME_VARIABLE_ID']);
+    if (Blockly.Msg['DELETE_VARIABLE']) {
+      options.push([
+        Blockly.Msg['DELETE_VARIABLE'].replace('%1', name),
+        'DELETE_VARIABLE_ID',
+      ]);
+    }
+
+    return options;
   };
 
   // fix create repeated list

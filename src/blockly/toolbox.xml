@@ -429,7 +429,7 @@
     <block type="on_platform_collide">
       <field name="collide_type">collide_player</field>
       <field name="return_info">FALSE</field>
-      <field name="self_platform_id" id="V6vQ,J11COF*;i]GkIlj">platform id</field>
+      <field name="self_platform_id" id="V6vQ,J11COF*;i]GkIlj">own platform id</field>
       <field name="player_id" id="0YRMwNZi;j8;w+8P%,=/">hit player id</field>
       <field name="arrow_id" id="n`,#/rH4N9zK3kN%kqf;">hit arrow number</field>
       <field name="platform_id" id=":SJf9G~6AmE3!:UU}OmF">hit platform id</field>
@@ -974,6 +974,9 @@
       <field name="player">self</field>
       <field name="arrow">all</field>
     </block>
+    <block type="change_death_barrier">
+      <field name="enable">false</field>
+    </block>
     <block type="player_die">
       <field name="player">self</field>
     </block>
@@ -1185,6 +1188,31 @@
           <field name="NUM">0</field>
         </shadow>
       </value>
+    </block>
+    <block type="set_camera_prop">
+      <field name="camera_prop">xpos</field>
+      <field name="only_player">FALSE</field>
+      <value name="set_number">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="change_camera_prop">
+      <field name="camera_prop">x</field>
+      <field name="only_player">FALSE</field>
+      <value name="change_number">
+        <shadow type="math_number">
+          <field name="NUM">10</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="get_camera_prop">
+      <field name="player">self</field>
+      <field name="camera_prop">x</field>
+    </block>
+    <block type="change_camera_lerp">
+      <field name="enable">false</field>
     </block>
   </category>
 </xml>

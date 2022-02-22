@@ -25,7 +25,9 @@ export default {
       const socket = io_OLD(...arguments);
       gm.lobby.socket = socket;
       socket.on('disconnect', function() {
+        gm.blockly.savedXml = null;
         gm.blockly.resetAll();
+        gm.blockly.hideGMEWindow();
       });
       socket.on(29, function(data) {
         if (data.startsWith('!!!GMMODE!!!')) {
@@ -199,4 +201,13 @@ export default {
   mpSession: null,
   networkEngine: null,
   roundStarting: false,
+  gameHalt: function() {
+    gm.lobby.bonkLobby?.showStatusMessage('* [GMMaker] Game was halted because an unexpected error ocurred. This may or may not have been caused by GMMaker. Please open the browser\'s dev tools (Ctrl+Shift+I), go to the Console tab, and send SneezingCactus a full screenshot of the console.', '#cc3333');
+    gm.lobby.gameCrashed = false;
+
+    // kinda lazy, i know
+    if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
+      document.getElementById('pretty_top_exit').click();
+    }
+  },
 };

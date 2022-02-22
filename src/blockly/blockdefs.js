@@ -85,7 +85,7 @@ module.exports = [{
 {
   'type': 'draw_line',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw line %1 from x %2 y %3 to x %4 y %5 width %6 colour %7 alpha (0 to 100) %8 anchored to player? %9 %10 only visible to player? %11',
+  'message0': 'draw line %1 from x %2 y %3 to x %4 y %5 width %6 colour %7 alpha (0 to 100) %8 anchored to player? %9 %10 only visible to player? %11 %12 doesn\'t move with camera? %13',
   'args0': [
     {
       'type': 'input_dummy',
@@ -146,18 +146,27 @@ module.exports = [{
       'name': 'line_onlyplayer',
       'checked': false,
     },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'line_nocameramove',
+      'checked': false,
+    },
   ],
   'inputsInline': false,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 160,
-  'tooltip': 'Draw a line to the screen.',
+  'tooltip': 'Draw a line to the screen. If the drawing is anchored to player, the "don\'t move with camera" option will be ignored.',
   'helpUrl': '',
 },
 {
   'type': 'draw_rect',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw rectangle %1 x %2 y %3 width %4 height %5 angle %6 colour %7 alpha (0 to 100) %8 anchored to player? %9 %10 only visible to player? %11',
+  'message0': 'draw rectangle %1 x %2 y %3 width %4 height %5 angle %6 colour %7 alpha (0 to 100) %8 anchored to player? %9 %10 only visible to player? %11 %12 doesn\'t move with camera? %13',
   'args0': [
     {
       'type': 'input_dummy',
@@ -218,18 +227,27 @@ module.exports = [{
       'name': 'rect_onlyplayer',
       'checked': false,
     },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'rect_nocameramove',
+      'checked': false,
+    },
   ],
   'inputsInline': false,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 160,
-  'tooltip': 'Draw a rectangle to the screen.',
+  'tooltip': 'Draw a rectangle to the screen.  If the drawing is anchored to player, the "don\'t move with camera" option will be ignored.',
   'helpUrl': '',
 },
 {
   'type': 'draw_circle',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw circle %1 at x %2 y %3 with radius %4 colour %5 alpha (0 to 100) %6 anchored to player? %7 %8 only visible to player? %9',
+  'message0': 'draw circle %1 at x %2 y %3 with radius %4 colour %5 alpha (0 to 100) %6 anchored to player? %7 %8 only visible to player? %9 %10 doesn\'t move with camera? %11',
   'args0': [
     {
       'type': 'input_dummy',
@@ -278,18 +296,27 @@ module.exports = [{
       'name': 'circ_onlyplayer',
       'checked': false,
     },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'circ_nocameramove',
+      'checked': false,
+    },
   ],
   'inputsInline': false,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 160,
-  'tooltip': 'Draw a circle to the screen.',
+  'tooltip': 'Draw a circle to the screen.  If the drawing is anchored to player, the "don\'t move with camera" option will be ignored.',
   'helpUrl': '',
 },
 {
   'type': 'draw_text',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw text %1 text %2 at x %3 y %4 size %5 colour %6 alpha (0 to 100) %7 centered? %8 %9 anchored to player? %10 %11 only visible to player? %12',
+  'message0': 'draw text %1 text %2 at x %3 y %4 size %5 colour %6 alpha (0 to 100) %7 centered? %8 %9 anchored to player? %10 %11 only visible to player? %12 %13 doesn\'t move with camera? %14',
   'args0': [
     {
       'type': 'input_dummy',
@@ -353,12 +380,21 @@ module.exports = [{
       'name': 'text_onlyplayer',
       'checked': false,
     },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'text_nocameramove',
+      'checked': false,
+    },
   ],
   'inputsInline': false,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 160,
-  'tooltip': 'Draw text to the screen. Text is resource intensive, so it\'s a bad idea to have more than 20 of them on screen.',
+  'tooltip': 'Draw text to the screen.  If the drawing is anchored to player, the "don\'t move with camera" option will be ignored. Text is resource intensive, so it\'s a bad idea to have more than 20 of them on screen.',
   'helpUrl': '',
 },
 {
@@ -405,7 +441,7 @@ module.exports = [{
 },
 {
   'type': 'on_player_collide',
-  'message0': 'when the player collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10',
+  'message0': 'when the player collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10 %11',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -447,6 +483,11 @@ module.exports = [{
       'type': 'field_variable',
       'name': 'platform_id',
       'variable': 'hit platform id',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'shape_id',
+      'variable': 'hit shape number',
     },
     {
       'type': 'field_variable',
@@ -774,7 +815,7 @@ module.exports = [{
 },
 {
   'type': 'on_arrow_collide',
-  'message0': 'when player\'s arrow collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10 %11',
+  'message0': 'when player\'s arrow collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10 %11 %12',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -821,6 +862,11 @@ module.exports = [{
       'type': 'field_variable',
       'name': 'platform_id',
       'variable': 'hit platform id',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'shape_id',
+      'variable': 'hit shape number',
     },
     {
       'type': 'field_variable',
@@ -994,7 +1040,7 @@ module.exports = [{
 {
   'type': 'draw_poly',
   'lastDummyAlign0': 'RIGHT',
-  'message0': 'draw polygon %1 with vertex list %2 (2 values = 1 vertex) %3 colour %4 alpha (0 to 100) %5 anchored to player? %6 %7 only visible to player? %8',
+  'message0': 'draw polygon %1 with vertex list %2 (2 items = 1 vertex) %3 colour %4 alpha (0 to 100) %5 anchored to player? %6 %7 only visible to player? %8 %9 doesn\'t move with camera? %10',
   'args0': [
     {
       'type': 'input_dummy',
@@ -1035,12 +1081,21 @@ module.exports = [{
       'name': 'poly_onlyplayer',
       'checked': false,
     },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'poly_nocameramove',
+      'checked': false,
+    },
   ],
   'inputsInline': false,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 160,
-  'tooltip': 'Draw a polygon to the screen.',
+  'tooltip': 'Draw a polygon to the screen. Every pair of items correspond to the x and y coordinates of a vertex.  If the drawing is anchored to player, the "don\'t move with camera" option will be ignored.',
   'helpUrl': '',
 },
 {
@@ -2104,6 +2159,10 @@ module.exports = [{
     {
       'type': 'input_value',
       'name': 'set_value',
+      'check': [
+        'Number',
+        'Boolean',
+      ],
     },
   ],
   'inputsInline': true,
@@ -2270,7 +2329,10 @@ module.exports = [{
     },
   ],
   'inputsInline': true,
-  'output': null,
+  'output': [
+    'Number',
+    'Boolean',
+  ],
   'colour': 195,
   'tooltip': 'Get a platform\'s property.',
   'helpUrl': '',
@@ -2342,6 +2404,11 @@ module.exports = [{
     {
       'type': 'input_value',
       'name': 'set_value',
+      'check': [
+        'Number',
+        'Boolean',
+        'Colour',
+      ],
     },
   ],
   'inputsInline': true,
@@ -2474,7 +2541,11 @@ module.exports = [{
     },
   ],
   'inputsInline': true,
-  'output': null,
+  'output': [
+    'Number',
+    'Boolean',
+    'Colour',
+  ],
   'colour': 195,
   'tooltip': 'Get a platform\'s shape\'s property.',
   'helpUrl': '',
@@ -2558,7 +2629,7 @@ module.exports = [{
 },
 {
   'type': 'on_platform_collide',
-  'message0': 'when any platform collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10 %11',
+  'message0': 'when any platform collides with  %1 %2 store info in variables %3 %4 %5 %6 %7 %8 %9 %10 %11 %12 %13',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -2589,7 +2660,12 @@ module.exports = [{
     {
       'type': 'field_variable',
       'name': 'self_platform_id',
-      'variable': 'platform id',
+      'variable': 'own platform id',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'self_shape_id',
+      'variable': 'own shape number',
     },
     {
       'type': 'field_variable',
@@ -2605,6 +2681,11 @@ module.exports = [{
       'type': 'field_variable',
       'name': 'platform_id',
       'variable': 'hit platform id',
+    },
+    {
+      'type': 'field_variable',
+      'name': 'shape_id',
+      'variable': 'hit shape number',
     },
     {
       'type': 'field_variable',
@@ -2901,6 +2982,238 @@ module.exports = [{
   'output': 'Boolean',
   'colour': 230,
   'tooltip': 'Returns true if the player is on the specified team, if not, returns false.',
+  'helpUrl': '',
+},
+{
+  'type': 'set_camera_prop',
+  'lastDummyAlign0': 'RIGHT',
+  'message0': 'set camera\'s %1 to %2 only change your camera %3',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'camera_prop',
+      'options': [
+        [
+          'x position',
+          'xpos',
+        ],
+        [
+          'y position',
+          'ypos',
+        ],
+        [
+          'angle',
+          'angle',
+        ],
+        [
+          'x scale',
+          'xscal',
+        ],
+        [
+          'y scale',
+          'yscal',
+        ],
+        [
+          'x skew',
+          'xskew',
+        ],
+        [
+          'y skew',
+          'yskew',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'set_number',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'only_player',
+      'checked': true,
+    },
+  ],
+  'inputsInline': false,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 0,
+  'tooltip': 'Set one of the camera\'s properties to a specified value. You can make it so that only one player\'s camera is modified.',
+  'helpUrl': '',
+},
+{
+  'type': 'change_camera_prop',
+  'lastDummyAlign0': 'RIGHT',
+  'message0': 'change camera\'s %1 by %2 only change your camera %3',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'camera_prop',
+      'options': [
+        [
+          'x position',
+          'xpos',
+        ],
+        [
+          'y position',
+          'ypos',
+        ],
+        [
+          'angle',
+          'angle',
+        ],
+        [
+          'x scale',
+          'xscal',
+        ],
+        [
+          'y scale',
+          'yscal',
+        ],
+        [
+          'x skew',
+          'xskew',
+        ],
+        [
+          'y skew',
+          'yskew',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'change_number',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_checkbox',
+      'name': 'only_player',
+      'checked': true,
+    },
+  ],
+  'inputsInline': false,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 0,
+  'tooltip': 'Change one of the camera\'s properties by a specified amount. You can make it so that only one player\'s camera is modified.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_camera_prop',
+  'lastDummyAlign0': 'RIGHT',
+  'message0': 'get %1 %2 %3 camera\'s %4',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'camera_prop',
+      'options': [
+        [
+          'x position',
+          'xpos',
+        ],
+        [
+          'y position',
+          'ypos',
+        ],
+        [
+          'angle',
+          'angle',
+        ],
+        [
+          'x scale',
+          'xscal',
+        ],
+        [
+          'y scale',
+          'yscal',
+        ],
+        [
+          'x skew',
+          'xskew',
+        ],
+        [
+          'y skew',
+          'yskew',
+        ],
+      ],
+    },
+  ],
+  'inputsInline': true,
+  'output': 'Number',
+  'colour': 0,
+  'tooltip': 'Get one of the camera\'s properties of a specified player. Different players can have different camera properties.',
+  'helpUrl': '',
+},
+{
+  'type': 'change_camera_lerp',
+  'message0': '%1 camera interpolation',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'enable',
+      'options': [
+        [
+          'enable',
+          'true',
+        ],
+        [
+          'disable',
+          'false',
+        ],
+      ],
+    },
+  ],
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 0,
+  'tooltip': 'Enables or disables camera interpolation between physics steps. Enable this if you want a smoother look when moving around the camera, disable it if you want to make a hard transition from one place to another. This is enabled by default.',
+  'helpUrl': '',
+},
+{
+  'type': 'change_death_barrier',
+  'message0': '%1 death barrier',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'enable',
+      'options': [
+        [
+          'enable',
+          'true',
+        ],
+        [
+          'disable',
+          'false',
+        ],
+      ],
+    },
+  ],
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 230,
+  'tooltip': 'Enables or disables the vanilla death barrier that kills players when they touch the map\'s ground or go too far from the screen.',
   'helpUrl': '',
 },
 {

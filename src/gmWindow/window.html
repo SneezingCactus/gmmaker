@@ -1,51 +1,59 @@
 <div id="gmeditor">
     <div id="gmeditorwindow">
         <div class="windowTopBar windowTopBar_classic">Game Mode Editor</div>
-        <div id="gmeditor_helptext">Feeling lost? Hover over a block to get a brief description of what it does.</div>
-        <div id="gmblocklydiv"></div>
         <div id="gmeditor_buttoncontainer">
-            <div id="gmeditor_newbutton" class="brownButton brownButton_classic buttonShadow mapeditor_midbox_bottombuttons">NEW</div>
-            <div id="gmeditor_importbutton" class="brownButton brownButton_classic buttonShadow mapeditor_midbox_bottombuttons">IMPORT</div>
-            <div id="gmeditor_exportbutton" class="brownButton brownButton_classic buttonShadow mapeditor_midbox_bottombuttons">EXPORT</div>
-            <div id="gmeditor_closebutton" class="brownButton brownButton_classic buttonShadow mapeditor_midbox_bottombuttons">CLOSE</div>
-            <div id="gmeditor_savebutton" class="brownButton brownButton_classic buttonShadow mapeditor_midbox_bottombuttons">SAVE & CLOSE</div>
+            <div id="gmeditor_filebutton" class="brownButton brownButton_classic gmeditor_button">
+                File
+                <div id="gmeditor_filedropdown" class="gm_dropdowncontainer" style="left: 0px">
+                    <div id="gmeditor_newbutton" class="brownButton brownButton_classic">New</div>
+                    <div id="gmeditor_importbutton" class="brownButton brownButton_classic">Import</div>
+                    <div id="gmeditor_exportbutton" class="brownButton brownButton_classic">Export</div>
+                    <div id="gmeditor_savebutton" class="brownButton brownButton_classic">Save & Close</div>
+                    <div id="gmeditor_closebutton" class="brownButton brownButton_classic">Close</div>
+                </div>
+            </div>
+            <div id="gmeditor_settingsbutton" class="brownButton brownButton_classic gmeditor_button">Settings</div>
+            <div id="gmeditor_helpbutton" class="brownButton brownButton_classic gmeditor_button">Help</div>
+        </div>
+        <div id="gmblocklydiv"></div>
+    </div>
+</div>
+<div id="gm_exportwindowcontainer" class="gm_dialogwindowcontainer">
+    <div id="behindblocker"></div>
+    <div class="gm_dialogwindow" class="windowShadow">
+        <div class="gm_dialogtopbar">Mode Export</div>
+        <div class="gm_exportoptions">
+            File name<br>
+            <input type="text" id="gmexport_name" value="export" class="whiteInputField windowShadow"
+                spellcheck="false">
+            <br><br>
+            <input type="checkbox" id="gmexport_attachmap"><label for="gmexport_attachmap">Attach current map</label>
+        </div>
+
+        <div class="gm_dialogbuttoncontainer">
+            <div id="gmexport_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
+            <div id="gmexport_ok" class="brownButton brownButton_classic buttonShadow">EXPORT</div>
         </div>
     </div>
-    <div id="gm_exportwindowcontainer" class="gm_dialogwindowcontainer">
-        <div id="behindblocker"></div>
-        <div class="gm_dialogwindow" class="windowShadow">
-            <div class="gm_dialogtopbar">Mode Export</div>
-            <div class="gm_exportoptions">
-                File name<br>
-                <input type="text" id="gmexport_name" value="export" class="whiteInputField windowShadow" spellcheck="false">
-                <br><br>
-                <input type="checkbox" id="gmexport_attachmap"><label for="gmexport_attachmap">Attach current map</label>
-            </div>
-            
-            <div class="gm_dialogbuttoncontainer">
-                <div id="gmexport_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
-                <div id="gmexport_ok" class="brownButton brownButton_classic buttonShadow">EXPORT</div>
-            </div>
+</div>
+<div id="gm_importdialogwindowcontainer" class="gm_dialogwindowcontainer">
+    <div id="behindblocker"></div>
+    <div class="gm_dialogwindow" class="windowShadow">
+        <div class="gm_dialogtopbar">Change map?</div>
+        <div class="gm_dialogtext">
+            The mode you imported has an attached map.
+            <br>
+            <br>
+            Do you want to load it?
+            <br>
+            (Note that the mode might not work without it.)
+        </div>
+
+        <div class="gm_dialogbuttoncontainer">
+            <div id="gmimportdialog_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
+            <div id="gmimportdialog_no" class="brownButton brownButton_classic buttonShadow">NO</div>
+            <div id="gmimportdialog_yes" class="brownButton brownButton_classic buttonShadow">YES</div>
         </div>
     </div>
-    <div id="gm_importdialogwindowcontainer" class="gm_dialogwindowcontainer">
-        <div id="behindblocker"></div>
-        <div class="gm_dialogwindow" class="windowShadow">
-            <div class="gm_dialogtopbar">Change map?</div>
-            <div class="gm_dialogtext">
-                The mode you imported has an attached map.
-                <br>
-                <br>
-                Do you want to load it?
-                <br>
-                (Note that the mode might not work without it.)
-            </div>
-            
-            <div class="gm_dialogbuttoncontainer">
-                <div id="gmimportdialog_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
-                <div id="gmimportdialog_no" class="brownButton brownButton_classic buttonShadow">NO</div>
-                <div id="gmimportdialog_yes" class="brownButton brownButton_classic buttonShadow">YES</div>
-            </div>
-        </div>
-    </div>
+</div>
 </div>

@@ -19,6 +19,9 @@ export default {
     document.getElementById('newbonkgamecontainer').appendChild(GMEditorWindow);
     GMEditorWindow.outerHTML = windowHtml;
 
+    document.getElementById('gmeditor_filebutton').addEventListener('click', () => gm.blockly.GMEDropdownClick('gmeditor_filedropdown'));
+    document.getElementById('gmeditor_filebutton').addEventListener('blur', gm.blockly.GMEDropdownHideAll);
+
     document.getElementById('gmeditor_newbutton').addEventListener('click', gm.blockly.GMENew);
     document.getElementById('gmeditor_importbutton').addEventListener('click', gm.blockly.GMEImport);
     document.getElementById('gmeditor_exportbutton').addEventListener('click', gm.blockly.GMEExportShow);
@@ -120,6 +123,20 @@ export default {
       xml = xml.replace(new RegExp(` ${i}="`, 'g'), ` ${this.xmlDict[i]}="`);
     }
     return xml;
+  },
+  dropdownIds: ['gmeditor_filedropdown'],
+  GMEDropdownHideAll: function() {
+    for (let i = 0; i != this.dropdownIds.length; i++) {
+      document.getElementById(this.dropdownIds[i]).style.display = 'none';
+    }
+  },
+  GMEDropdownClick: function(dropdownId) {
+    const dropElement = document.getElementById(dropdownId);
+    const hide = dropElement.style.display == 'block';
+
+    this.GMEDropdownHideAll();
+
+    dropElement.style.display = hide ? 'none' : 'block';
   },
   GMENew: function() {
     const confirmed = confirm('Are you sure you want to delete all blocks?');
@@ -654,8 +671,8 @@ export default {
         const category = fixture.GetFilterData().categoryBits;
         if ((maskBits & category) != category) return -1;
 
-        objectFound = true;
         if (Math.abs(point[mdf] - vectorA[mdf]) < Math.abs(theChosenOne.point[mdf] - vectorA[mdf])) {
+          objectFound = true;
           theChosenOne = {
             fixture: fixture,
             point: point,
@@ -789,7 +806,7 @@ export default {
       gameState.physics.bodies.push(body);
       gameState.physics.bro.unshift(gameState.physics.bodies.length - 1);
 
-      gm.graphics.needRerender = true;
+
       if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
       gm.graphics.renderUpdates[gameState.rl].push({action: 'create', id: gameState.physics.bodies.length - 1});
 
@@ -817,7 +834,7 @@ export default {
         gameState.physics.bro.unshift(gameState.physics.bodies.length);
         gameState.physics.bodies.push(newBody);
 
-        gm.graphics.needRerender = true;
+
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'create', id: gameState.physics.bodies.length - 1});
 
@@ -931,7 +948,7 @@ export default {
         }
 
         gameState.physics.fixtures[gameState.physics.bodies[platID].fx[shapeID - 1]] = fixture;
-        gm.graphics.needRerender = true;
+
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       } else if (shape && property.startsWith('s_')) {
@@ -951,7 +968,7 @@ export default {
         if (breakOnZero.includes(property) && shape[property.slice(2)] >= 0 && shape[property.slice(2)] < 0.001) shape[property.slice(2)] = 0.001;
 
         gameState.physics.shapes[fixture.sh] = shape;
-        gm.graphics.needRerender = true;
+
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       }
@@ -973,7 +990,7 @@ export default {
         }
 
         gameState.physics.fixtures[gameState.physics.bodies[platID].fx[shapeID - 1]] = fixture;
-        gm.graphics.needRerender = true;
+
         gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       } else if (shape && property.startsWith('s_')) {
         switch (property) {
@@ -992,7 +1009,7 @@ export default {
         if (breakOnZero.includes(property) && shape[property.slice(2)] >= 0 && shape[property.slice(2)] < 0.001) shape[property.slice(2)] = 0.001;
 
         gameState.physics.shapes[fixture.sh] = shape;
-        gm.graphics.needRerender = true;
+
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       }
@@ -1034,7 +1051,7 @@ export default {
         gameState.physics.bodies[platID].fx = [];
         gameState.physics.bodies[platID].type = 's';
 
-        gm.graphics.needRerender = true;
+
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'delete', id: platID});
       }
@@ -1046,8 +1063,6 @@ export default {
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
         gameState.physics.bodies[platID].fx.splice(shapeID - 1, 1);
-
-        gm.graphics.needRerender = true;
       }
       return gameState;
     },
@@ -1063,7 +1078,7 @@ export default {
 
         gameState.physics.bodies[platID].fx.push(fxIndex);
 
-        gm.graphics.needRerender = true;
+
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       }
