@@ -9,73 +9,78 @@ import Blockly from 'blockly';
 */
 export default function() {
   Blockly.JavaScript['draw_line'] = function(block) {
-    const line_x1 = Blockly.JavaScript.valueToCode(block, 'line_x1', Blockly.JavaScript.ORDER_ATOMIC);
-    const line_y1 = Blockly.JavaScript.valueToCode(block, 'line_y1', Blockly.JavaScript.ORDER_ATOMIC);
-    const line_x2 = Blockly.JavaScript.valueToCode(block, 'line_x2', Blockly.JavaScript.ORDER_ATOMIC);
-    const line_y2 = Blockly.JavaScript.valueToCode(block, 'line_y2', Blockly.JavaScript.ORDER_ATOMIC);
-    const line_width = Blockly.JavaScript.valueToCode(block, 'line_width', Blockly.JavaScript.ORDER_ATOMIC);
-    const line_color = Blockly.JavaScript.valueToCode(block, 'line_color', Blockly.JavaScript.ORDER_ATOMIC);
-    let line_alpha = Blockly.JavaScript.valueToCode(block, 'line_alpha', Blockly.JavaScript.ORDER_ATOMIC);
-    if (line_alpha === '') line_alpha = '100';
-    const line_anchored = block.getFieldValue('line_anchored') === 'TRUE';
-    const line_onlyplayer = block.getFieldValue('line_onlyplayer') === 'TRUE';
-    const code = `gm.blockly.funcs.createLine(playerid,${line_x1},${line_y1},${line_x2},${line_y2},${line_color},${line_alpha},${line_width},${line_anchored},${line_onlyplayer});`;
+    const x1 = Blockly.JavaScript.valueToCode(block, 'line_x1', Blockly.JavaScript.ORDER_ATOMIC);
+    const y1 = Blockly.JavaScript.valueToCode(block, 'line_y1', Blockly.JavaScript.ORDER_ATOMIC);
+    const x2 = Blockly.JavaScript.valueToCode(block, 'line_x2', Blockly.JavaScript.ORDER_ATOMIC);
+    const y2 = Blockly.JavaScript.valueToCode(block, 'line_y2', Blockly.JavaScript.ORDER_ATOMIC);
+    const width = Blockly.JavaScript.valueToCode(block, 'line_width', Blockly.JavaScript.ORDER_ATOMIC);
+    const color = Blockly.JavaScript.valueToCode(block, 'line_color', Blockly.JavaScript.ORDER_ATOMIC);
+    let alpha = Blockly.JavaScript.valueToCode(block, 'line_alpha', Blockly.JavaScript.ORDER_ATOMIC);
+    if (alpha === '') alpha = '100';
+    const anchored = block.getFieldValue('line_anchored') === 'TRUE';
+    const onlyplayer = block.getFieldValue('line_onlyplayer') === 'TRUE';
+    const nocameramove = block.getFieldValue('line_nocameramove') === 'TRUE';
+    const code = `gm.blockly.funcs.createLine(playerid,${x1},${y1},${x2},${y2},${color},${alpha},${width},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
   Blockly.JavaScript['draw_rect'] = function(block) {
-    const rect_x1 = Blockly.JavaScript.valueToCode(block, 'rect_x1', Blockly.JavaScript.ORDER_ATOMIC);
-    const rect_y1 = Blockly.JavaScript.valueToCode(block, 'rect_y1', Blockly.JavaScript.ORDER_ATOMIC);
-    const rect_x2 = Blockly.JavaScript.valueToCode(block, 'rect_x2', Blockly.JavaScript.ORDER_ATOMIC);
-    const rect_y2 = Blockly.JavaScript.valueToCode(block, 'rect_y2', Blockly.JavaScript.ORDER_ATOMIC);
-    const rect_angle = Blockly.JavaScript.valueToCode(block, 'rect_angle', Blockly.JavaScript.ORDER_ATOMIC) || '0';
-    const rect_color = Blockly.JavaScript.valueToCode(block, 'rect_color', Blockly.JavaScript.ORDER_ATOMIC);
-    let rect_alpha = Blockly.JavaScript.valueToCode(block, 'rect_alpha', Blockly.JavaScript.ORDER_ATOMIC);
-    if (rect_alpha === '') rect_alpha = '100';
-    const rect_anchored = block.getFieldValue('rect_anchored') === 'TRUE';
-    const rect_onlyplayer = block.getFieldValue('rect_onlyplayer') === 'TRUE';
-    const code = `gm.blockly.funcs.createRect(playerid,${rect_x1},${rect_y1},${rect_x2},${rect_y2},${rect_angle},${rect_color},${rect_alpha},${rect_anchored},${rect_onlyplayer});`;
+    const x1 = Blockly.JavaScript.valueToCode(block, 'rect_x1', Blockly.JavaScript.ORDER_ATOMIC);
+    const y1 = Blockly.JavaScript.valueToCode(block, 'rect_y1', Blockly.JavaScript.ORDER_ATOMIC);
+    const x2 = Blockly.JavaScript.valueToCode(block, 'rect_x2', Blockly.JavaScript.ORDER_ATOMIC);
+    const y2 = Blockly.JavaScript.valueToCode(block, 'rect_y2', Blockly.JavaScript.ORDER_ATOMIC);
+    const angle = Blockly.JavaScript.valueToCode(block, 'rect_angle', Blockly.JavaScript.ORDER_ATOMIC) || '0';
+    const color = Blockly.JavaScript.valueToCode(block, 'rect_color', Blockly.JavaScript.ORDER_ATOMIC);
+    let alpha = Blockly.JavaScript.valueToCode(block, 'rect_alpha', Blockly.JavaScript.ORDER_ATOMIC);
+    if (alpha === '') alpha = '100';
+    const anchored = block.getFieldValue('rect_anchored') === 'TRUE';
+    const onlyplayer = block.getFieldValue('rect_onlyplayer') === 'TRUE';
+    const nocameramove = block.getFieldValue('rect_nocameramove') === 'TRUE';
+    const code = `gm.blockly.funcs.createRect(playerid,${x1},${y1},${x2},${y2},${angle},${color},${alpha},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
   Blockly.JavaScript['draw_circle'] = function(block) {
-    const circ_x = Blockly.JavaScript.valueToCode(block, 'circ_x', Blockly.JavaScript.ORDER_ATOMIC);
-    const circ_y = Blockly.JavaScript.valueToCode(block, 'circ_y', Blockly.JavaScript.ORDER_ATOMIC);
-    const circ_radius = Blockly.JavaScript.valueToCode(block, 'circ_radius', Blockly.JavaScript.ORDER_ATOMIC);
-    const circ_color = Blockly.JavaScript.valueToCode(block, 'circ_color', Blockly.JavaScript.ORDER_ATOMIC);
-    let circ_alpha = Blockly.JavaScript.valueToCode(block, 'circ_alpha', Blockly.JavaScript.ORDER_ATOMIC);
-    if (circ_alpha === '') circ_alpha = '100';
-    const circ_anchored = block.getFieldValue('circ_anchored') === 'TRUE';
-    const circ_onlyplayer = block.getFieldValue('circ_onlyplayer') === 'TRUE';
-    const code = `gm.blockly.funcs.createCircle(playerid,${circ_x},${circ_y},${circ_radius},${circ_color},${circ_alpha},${circ_anchored},${circ_onlyplayer});`;
+    const x = Blockly.JavaScript.valueToCode(block, 'circ_x', Blockly.JavaScript.ORDER_ATOMIC);
+    const y = Blockly.JavaScript.valueToCode(block, 'circ_y', Blockly.JavaScript.ORDER_ATOMIC);
+    const radius = Blockly.JavaScript.valueToCode(block, 'circ_radius', Blockly.JavaScript.ORDER_ATOMIC);
+    const color = Blockly.JavaScript.valueToCode(block, 'circ_color', Blockly.JavaScript.ORDER_ATOMIC);
+    let alpha = Blockly.JavaScript.valueToCode(block, 'circ_alpha', Blockly.JavaScript.ORDER_ATOMIC);
+    if (alpha === '') alpha = '100';
+    const anchored = block.getFieldValue('circ_anchored') === 'TRUE';
+    const onlyplayer = block.getFieldValue('circ_onlyplayer') === 'TRUE';
+    const nocameramove = block.getFieldValue('circ_nocameramove') === 'TRUE';
+    const code = `gm.blockly.funcs.createCircle(playerid,${x},${y},${radius},${color},${alpha},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
   Blockly.JavaScript['draw_poly'] = function(block) {
-    const poly_vertex = Blockly.JavaScript.valueToCode(block, 'poly_vertex', Blockly.JavaScript.ORDER_ATOMIC);
-    const poly_color = Blockly.JavaScript.valueToCode(block, 'poly_color', Blockly.JavaScript.ORDER_ATOMIC);
-    let poly_alpha = Blockly.JavaScript.valueToCode(block, 'poly_alpha', Blockly.JavaScript.ORDER_ATOMIC);
-    if (poly_alpha === '') poly_alpha = '100';
-    const poly_anchored = block.getFieldValue('poly_anchored') === 'TRUE';
-    const poly_onlyplayer = block.getFieldValue('poly_onlyplayer') === 'TRUE';
+    const vertex = Blockly.JavaScript.valueToCode(block, 'poly_vertex', Blockly.JavaScript.ORDER_ATOMIC);
+    const color = Blockly.JavaScript.valueToCode(block, 'poly_color', Blockly.JavaScript.ORDER_ATOMIC);
+    let alpha = Blockly.JavaScript.valueToCode(block, 'poly_alpha', Blockly.JavaScript.ORDER_ATOMIC);
+    if (alpha === '') alpha = '100';
+    const anchored = block.getFieldValue('poly_anchored') === 'TRUE';
+    const onlyplayer = block.getFieldValue('poly_onlyplayer') === 'TRUE';
+    const nocameramove = block.getFieldValue('poly_nocameramove') === 'TRUE';
 
-    const code = `gm.blockly.funcs.createPoly(playerid,${poly_vertex},${poly_color},${poly_alpha},${poly_anchored},${poly_onlyplayer});`;
+    const code = `gm.blockly.funcs.createPoly(playerid,${vertex},${color},${alpha},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
   Blockly.JavaScript['draw_text'] = function(block) {
-    var text_string = Blockly.JavaScript.valueToCode(block, 'text_string', Blockly.JavaScript.ORDER_ATOMIC);
-    var text_x = Blockly.JavaScript.valueToCode(block, 'text_x', Blockly.JavaScript.ORDER_ATOMIC);
-    var text_y = Blockly.JavaScript.valueToCode(block, 'text_y', Blockly.JavaScript.ORDER_ATOMIC);
-    var text_size = Blockly.JavaScript.valueToCode(block, 'text_size', Blockly.JavaScript.ORDER_ATOMIC);
-    var text_color = Blockly.JavaScript.valueToCode(block, 'text_color', Blockly.JavaScript.ORDER_ATOMIC);
-    var text_alpha = Blockly.JavaScript.valueToCode(block, 'text_alpha', Blockly.JavaScript.ORDER_ATOMIC);
-    if (text_alpha === '') text_alpha = '100';
-    var text_centered = block.getFieldValue('text_centered') === 'TRUE';
-    var text_anchored = block.getFieldValue('text_anchored') === 'TRUE';
-    const text_onlyplayer = block.getFieldValue('text_onlyplayer') === 'TRUE';
+    var string = Blockly.JavaScript.valueToCode(block, 'text_string', Blockly.JavaScript.ORDER_ATOMIC);
+    var x = Blockly.JavaScript.valueToCode(block, 'text_x', Blockly.JavaScript.ORDER_ATOMIC);
+    var y = Blockly.JavaScript.valueToCode(block, 'text_y', Blockly.JavaScript.ORDER_ATOMIC);
+    var size = Blockly.JavaScript.valueToCode(block, 'text_size', Blockly.JavaScript.ORDER_ATOMIC);
+    var color = Blockly.JavaScript.valueToCode(block, 'text_color', Blockly.JavaScript.ORDER_ATOMIC);
+    var alpha = Blockly.JavaScript.valueToCode(block, 'text_alpha', Blockly.JavaScript.ORDER_ATOMIC);
+    if (alpha === '') alpha = '100';
+    var centered = block.getFieldValue('text_centered') === 'TRUE';
+    var anchored = block.getFieldValue('text_anchored') === 'TRUE';
+    const onlyplayer = block.getFieldValue('text_onlyplayer') === 'TRUE';
+    const nocameramove = block.getFieldValue('text_nocameramove') === 'TRUE';
 
-    const code = `gm.blockly.funcs.createText(playerid,${text_x},${text_y},${text_color},${text_alpha},${text_string},${text_size},${text_centered},${text_anchored},${text_onlyplayer});`;
+    const code = `gm.blockly.funcs.createText(playerid,${x},${y},${color},${alpha},${string},${size},${centered},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
@@ -199,7 +204,10 @@ export default function() {
   };
 
   Blockly.JavaScript['get_own_id'] = function(block) {
-    const code = 'playerid';
+    const player = block.getFieldValue('player');
+
+    const code = player === 'self' ? 'playerid' : 'gm.lobby.networkEngine?.hostID ?? Infinity';
+
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
@@ -209,12 +217,57 @@ export default function() {
   };
 
   Blockly.JavaScript['get_player_name'] = function(block) {
-    var player = block.getFieldValue('player');
-    var player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    var code = `gm.graphics.rendererClass.playerArray[${player === 'self' ? 'playerid' : player_id}]?.userName ?? ""`;
+    const code = `gm.graphics.rendererClass.playerArray[${player === 'self' ? 'playerid' : player_id}]?.userName ?? ""`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
+  Blockly.JavaScript['change_death_barrier'] = function(block) {
+    const enable = block.getFieldValue('enable');
+
+    var code = `gm.blockly.funcs.enableDeathBarrier(gst, ${enable});`;
+    return code;
+  };
+
+  Blockly.JavaScript['set_camera_prop'] = function(block) {
+    const camera_prop = block.getFieldValue('camera_prop');
+    const set_number = Blockly.JavaScript.valueToCode(block, 'set_number', Blockly.JavaScript.ORDER_ATOMIC);
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
+
+    const code = `gst = gm.blockly.funcs.setCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${set_number});`;
+    return code;
+  };
+
+  Blockly.JavaScript['change_camera_prop'] = function(block) {
+    const camera_prop = block.getFieldValue('camera_prop');
+    const change_number = Blockly.JavaScript.valueToCode(block, 'change_number', Blockly.JavaScript.ORDER_ATOMIC);
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
+
+    const code = `gst = gm.blockly.funcs.changeCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${change_number});`;
+    return code;
+  };
+
+  Blockly.JavaScript['get_camera_prop'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
+    const camera_prop = block.getFieldValue('camera_prop');
+
+    const code = `gm.blockly.funcs.getCameraProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${camera_prop}")`;
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
+  Blockly.JavaScript['change_camera_lerp'] = function(block) {
+    const enable = block.getFieldValue('enable');
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
+
+    var code = `gst = gm.blockly.funcs.enableCameraLerp(gst, ${enable}, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'});`;
+    return code;
   };
 
   Blockly.JavaScript['raycast'] = function(block) {
@@ -283,25 +336,25 @@ export default function() {
 
   Blockly.JavaScript['on_round_start'] = function(block) {
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
-    const code = `gm.physics.onFirstStep = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+    const code = `gm.physics.onFirstStep = function(playerid){let gst = gm.physics.gameState;let loopIterations = 0;${inside_code}gm.physics.setGameState(gst);}`;
     return code;
   };
 
   Blockly.JavaScript['on_player_die'] = function(block) {
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
-    const code = `gm.physics.onPlayerDie = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+    const code = `gm.physics.onPlayerDie = function(playerid){let gst = gm.physics.gameState;let loopIterations = 0;${inside_code}gm.physics.setGameState(gst);}`;
     return code;
   };
 
   Blockly.JavaScript['on_each_phys_frame'] = function(block) {
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
-    const code = `gm.physics.onStep = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+    const code = `gm.physics.onStep = function(playerid){let gst = gm.physics.gameState;let loopIterations = 0;${inside_code}gm.physics.setGameState(gst);}`;
     return code;
   };
 
   Blockly.JavaScript['on_each_render_frame'] = function(block) {
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
-    const code = `gm.graphics.onRender = function(playerid){let gst = gm.physics.gameState;${inside_code}gm.physics.setGameState(gst);}`;
+    const code = `gm.graphics.onRender = function(playerid){let gst = gm.physics.gameState;let loopIterations = 0;${inside_code}gm.physics.setGameState(gst);}`;
     return code;
   };
 
@@ -311,6 +364,7 @@ export default function() {
     const hit_player_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('player_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_arrow_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('arrow_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_platform_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('platform_id'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_shape_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('shape_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_normal_x = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_x'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_normal_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_y'), Blockly.VARIABLE_CATEGORY_NAME);
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
@@ -319,15 +373,15 @@ export default function() {
     switch (collide_type) {
       case 'collide_player':
         setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
-        code = `gm.physics.onPlayerPlayerCollision = function(playerid, colid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        code = `gm.physics.onPlayerPlayerCollision = function(playerid, colid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_arrow':
         setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
-        code = `gm.physics.onPlayerArrowCollision = function(playerid, colid, colarrowid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        code = `gm.physics.onPlayerArrowCollision = function(playerid, colid, colarrowid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        setCode = `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
-        code = `gm.physics.onPlayerPlatformCollision = function(playerid, colid, normal){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        code = `gm.physics.onPlayerPlatformCollision = function(playerid, colid, colshapeid, normal){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
     }
     return code;
@@ -349,23 +403,24 @@ export default function() {
     const hit_player_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('player_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_arrow_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('arrow_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_platform_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('platform_id'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_shape_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('shape_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_normal_x = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_x'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_normal_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_y'), Blockly.VARIABLE_CATEGORY_NAME);
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
     let code = '';
-    let setCode = '';
+    let setCode = `gm.blockly.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);`;
     switch (collide_type) {
       case 'collide_player':
-        setCode = `gm.blockly.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
-        code = `gm.physics.onArrowPlayerCollision = function(playerid, arrowid, colid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
+        code = `gm.physics.onArrowPlayerCollision = function(playerid, arrowid, colid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_arrow':
-        setCode = `gm.blockly.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
-        code = `gm.physics.onArrowArrowCollision = function(playerid, arrowid, colid, colarrowid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
+        code = `gm.physics.onArrowArrowCollision = function(playerid, arrowid, colid, colarrowid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        setCode = `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
-        code = `gm.physics.onArrowPlatformCollision = function(playerid, arrowid, colid, normal){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        code = `gm.physics.onArrowPlatformCollision = function(playerid, arrowid, colid, colshapeid, normal){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
     }
     return code;
@@ -375,26 +430,28 @@ export default function() {
     const collide_type = block.getFieldValue('collide_type');
     const return_info = block.getFieldValue('return_info') === 'TRUE';
     const self_platform_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('self_platform_id'), Blockly.VARIABLE_CATEGORY_NAME);
+    const self_shape_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('self_shape_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_player_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('player_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_arrow_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('arrow_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_platform_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('platform_id'), Blockly.VARIABLE_CATEGORY_NAME);
+    const hit_shape_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('shape_id'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_normal_x = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_x'), Blockly.VARIABLE_CATEGORY_NAME);
     const hit_normal_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_y'), Blockly.VARIABLE_CATEGORY_NAME);
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
     let code = '';
-    let setCode = '';
+    let setCode = `gm.blockly.funcs.setVar("${self_platform_id}", gst, playerid, platid);gm.blockly.funcs.setVar("${self_shape_id}", gst, playerid, shapeid);`;
     switch (collide_type) {
       case 'collide_player':
-        setCode = `gm.blockly.funcs.setVar("${self_platform_id}", gst, playerid, platid);gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
-        code = `gm.physics.onPlatformPlayerCollision = function(playerid, platid, colid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode += `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
+        code = `gm.physics.onPlatformPlayerCollision = function(playerid, platid, shapeid, colid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_arrow':
-        setCode = `gm.blockly.funcs.setVar("${self_platform_id}", gst, playerid, platid);gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
-        code = `gm.physics.onPlatformArrowCollision = function(playerid, platid, colid, colarrowid){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode += `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
+        code = `gm.physics.onPlatformArrowCollision = function(playerid, platid, shapeid, colid, colarrowid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        setCode = `gm.blockly.funcs.setVar("${self_platform_id}", gst, playerid, platid);gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
-        code = `gm.physics.onPlatformPlatformCollision = function(playerid, platid, colid, normal){let gst = gm.physics.gameState;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode += `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        code = `gm.physics.onPlatformPlatformCollision = function(playerid, platid, shapeid, colid, colshapeid, normal){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
     }
     return code;
@@ -450,7 +507,7 @@ export default function() {
 
   Blockly.JavaScript['create_platform'] = function(block) {
     var type = block.getFieldValue('type');
-    var shape_list = Blockly.JavaScript.valueToCode(block, 'shape_list', Blockly.JavaScript.ORDER_ATOMIC);
+    var shape_list = Blockly.JavaScript.valueToCode(block, 'shape_list', Blockly.JavaScript.ORDER_ATOMIC) || '[]';
     var xpos = Blockly.JavaScript.valueToCode(block, 'xpos', Blockly.JavaScript.ORDER_ATOMIC);
     var ypos = Blockly.JavaScript.valueToCode(block, 'ypos', Blockly.JavaScript.ORDER_ATOMIC);
     var angle = Blockly.JavaScript.valueToCode(block, 'angle', Blockly.JavaScript.ORDER_ATOMIC);
@@ -826,7 +883,6 @@ export default function() {
     const eventVariableList = [];
     const eventBlockNames = ['on_player_collide', 'on_arrow_collide', 'on_platform_collide', 'raycast'];
 
-    // it's not pretty, but at least it's better than the monstrosity that is injectIO
     for (const blockName of eventBlockNames) {
       for (const block of workspace.getBlocksByType(blockName)) {
         for (const varModel of block.getVarModels()) {
@@ -1015,8 +1071,8 @@ export default function() {
           Blockly.VARIABLE_CATEGORY_NAME);
       setCode += `gm.blockly.funcs.setVar('${args[i]}', gst, playerid, ${args[i]});`;
     }
-    let code = 'function ' + funcName + '(gst, playerid, ' + args.join(', ') + ') {' +
-        setCode + xfix1 + loopTrap + branch + xfix2 + returnValue + '}';
+    let code = 'function ' + funcName + '(gst, playerid, ' + args.join(', ') + ') {let loopIterations = 0;' +
+        setCode + xfix1 + branch + xfix2 + returnValue + '}';
     code = Blockly.JavaScript.scrub_(block, code);
     // Add % so as not to collide with helper functions in definitions list.
     Blockly.JavaScript.definitions_['%' + funcName] = code;
@@ -1792,6 +1848,30 @@ export default function() {
           direction + '))',
       Blockly.JavaScript.ORDER_FUNCTION_CALL,
     ];
+  };
+
+  Blockly.JavaScript['lists_split'] = function(block) {
+    // Block for splitting text into a list, or joining a list into text.
+    let input = Blockly.JavaScript.valueToCode(block, 'INPUT', Blockly.JavaScript.ORDER_MEMBER);
+    const delimiter =
+        Blockly.JavaScript.valueToCode(block, 'DELIM', Blockly.JavaScript.ORDER_NONE) || '\'\'';
+    const mode = block.getFieldValue('MODE');
+    let functionName;
+    if (mode === 'SPLIT') {
+      if (!input) {
+        input = '\'\'';
+      }
+      functionName = 'split';
+    } else if (mode === 'JOIN') {
+      if (!input) {
+        input = '[]';
+      }
+      functionName = 'join';
+    } else {
+      throw Error('Unknown mode: ' + mode);
+    }
+    const code = input + '?.' + functionName + '(' + delimiter + ') || ' + (mode === 'SPLIT' ? '[]' : '\'\'');
+    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
   };
 
   Blockly.JavaScript['lists_reverse'] = function(block) {

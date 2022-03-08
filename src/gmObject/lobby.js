@@ -20,12 +20,12 @@ export default {
     };
   },
   initSocketio: function() {
-    const io_OLD = io;
     io = function() {
       const socket = io_OLD(...arguments);
       gm.lobby.socket = socket;
       socket.on('disconnect', function() {
         gm.blockly.savedXml = null;
+        gm.blockly.savedSettings = null;
         gm.blockly.resetAll();
         gm.blockly.hideGMEWindow();
       });
@@ -38,6 +38,7 @@ export default {
           Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
 
           gm.blockly.savedXml = xml;
+          gm.blockly.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
           gm.blockly.resetAll();
           eval(gm.blockly.generateCode());
 
@@ -58,7 +59,6 @@ export default {
       return function() {
         const result = cached_bonklobby.apply(this, arguments); // use .apply() to call it
         smObj.bonkLobby = this;
-
 
         this.handleHostLeft_OLD = this.handleHostLeft;
         this.handleHostLeft = function(_oldHostName, newHostId) {
@@ -99,6 +99,7 @@ export default {
               Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
 
               gm.blockly.savedXml = xml;
+              gm.blockly.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
               gm.blockly.resetAll();
               try {
                 eval(gm.blockly.generateCode());
@@ -110,17 +111,48 @@ export default {
           return this.setGameSettings_OLD(gameSettings);
         };
 
+        this.updateGameSettings_OLD = this.updateGameSettings;
+        this.updateGameSettings = function() {
+          const result = this.updateGameSettings_OLD(...arguments);
+
+          const modeName = gm.blockly.savedSettings?.getAttribute('mode_name');
+
+          if (modeName && gm.blockly.savedXml?.getElementsByTagName('block').length > 0) {
+            const modeText = document.getElementById('newbonklobby_modetext');
+            const baseModeText = document.createElement('div');
+            baseModeText.id = 'gm_basemodetext';
+            baseModeText.innerText = `(${modeText.innerText})`;
+            modeText.innerText = modeName;
+            modeText.appendChild(baseModeText);
+          }
+
+          return result;
+        };
+
+        this.show_OLD = this.show;
+        this.show = function() {
+          gm.lobby.gameCrashed = false;
+          gm.lobby.haltCausedByLoop = false;
+          gm.blockly.varInspectorContainer.style.display = 'none';
+          return this.show_OLD();
+        };
+
         return result;
       };
     })();
+
+    document.getElementById('newbonklobby_modetext').addEventListener('mousemove', function() {
+      const modeDesc = gm.blockly.savedXml?.getElementsByTagName('gmsettings')[0]?.getAttribute('mode_description');
+
+      if (modeDesc && gm.blockly.savedXml?.getElementsByTagName('block').length > 0) {
+        document.getElementById('newbonklobby_tooltip').innerText = modeDesc;
+      }
+    });
   },
   initNetworkEngine: function() {
     const networkengine_OLD = NetworkEngine;
     NetworkEngine = function(mpSession, data) {
       const networkEngine = new networkengine_OLD(...arguments);
-      networkEngine.on('scheduleGameStart', () => {
-        gm.blockly.resetVars(); gm.lobby.roundStarting = true;
-      });
 
       networkEngine.createRoom_OLD = networkEngine.createRoom;
       networkEngine.createRoom = function() {
@@ -162,11 +194,11 @@ export default {
   initJoinHandlers: function() {
     const smObj = this;
 
-    JoinLeaveHandlers = (function() {
-      const cached_JoinLeaveHandlers = JoinLeaveHandlers;
+    GenericGameSessionHandler = (function() {
+      const cached_GenericGameSessionHandler = GenericGameSessionHandler;
 
       return function() {
-        const result = cached_JoinLeaveHandlers.apply(this, arguments);
+        const result = cached_GenericGameSessionHandler.apply(this, arguments);
 
         this.goInProgress_OLD = this.goInProgress;
         this.goInProgress = function() {
@@ -180,6 +212,7 @@ export default {
             Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
 
             gm.blockly.savedXml = xml;
+            gm.blockly.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
             gm.blockly.resetAll();
 
             try {
@@ -192,7 +225,7 @@ export default {
           return this.goInProgress_OLD(...arguments);
         };
 
-        smObj.JoinLeaveHandlers = this;
+        smObj.GenericGameSessionHandler = this;
         return result;
       };
     })();
@@ -201,9 +234,14 @@ export default {
   mpSession: null,
   networkEngine: null,
   roundStarting: false,
+  gameCrashed: false,
+  haltCausedByLoop: false,
   gameHalt: function() {
-    gm.lobby.bonkLobby?.showStatusMessage('* [GMMaker] Game was halted because an unexpected error ocurred. This may or may not have been caused by GMMaker. Please open the browser\'s dev tools (Ctrl+Shift+I), go to the Console tab, and send SneezingCactus a full screenshot of the console.', '#cc3333');
-    gm.lobby.gameCrashed = false;
+    if (gm.lobby.haltCausedByLoop) {
+      gm.lobby.bonkLobby?.showStatusMessage('* [GMMaker] Game was halted due to a very large loop (likely an infinite loop). Loop iteration limit (total loop iterations inside an event) is 10000000. Check your code.', '#cc3333');
+    } else {
+      gm.lobby.bonkLobby?.showStatusMessage('* [GMMaker] Game was halted because an unexpected error ocurred. This may or may not have been caused by GMMaker. If you think GMMaker caused this, please open the browser\'s dev tools (Ctrl+Shift+I), go to the Console tab, and send SneezingCactus a full screenshot of the console so that the error can be diagnosed.', '#cc3333');
+    }
 
     // kinda lazy, i know
     if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {

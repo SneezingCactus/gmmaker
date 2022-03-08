@@ -33,7 +33,12 @@ export default {
   initGameState: function() {
     const step_OLD = PhysicsClass.prototype.step;
     PhysicsClass.prototype.step = function() {
+      // I know, it's kinda dumb to put everything into a try catch,
+      // but it works well here
       try {
+        // eslint-disable-next-line no-throw-literal
+        if (gm.lobby.gameCrashed) throw 'gmAlreadyCrashed';
+
         gm.inputs.allPlayerInputs = JSON.parse(JSON.stringify(arguments[1]));
 
         // override inputs
@@ -56,6 +61,8 @@ export default {
 
         gm.physics.collisionsThisStep = [];
 
+        gmReplaceAccessors.disableDeathBarrier = !!arguments[0].physics.bodies[0]?.cf.disableDeathBarrier;
+
         let gst = step_OLD(...arguments);
 
         gm.graphics.onPhysStep(gst);
@@ -66,12 +73,12 @@ export default {
 
         // make seed based on scene element positions and game state seed
         let randomSeed = 0;
-        for (let i = 0; i != gst.physics.bodies.length; i++) {
+        for (let i = 0; i < gst.physics.bodies.length; i++) {
           if (gst.physics.bodies[i]) {
             randomSeed = randomSeed + gst.physics.bodies[i].p[0] + gst.physics.bodies[i].p[1] + gst.physics.bodies[i].a;
           }
         }
-        for (let i = 0; i != gst.discs.length; i++) {
+        for (let i = 0; i < gst.discs.length; i++) {
           if (gst.discs[i]) {
             randomSeed = randomSeed + gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
           }
@@ -80,10 +87,8 @@ export default {
         randomSeed /= gst.seed;
         gm.physics.pseudoRandom = new seedrandom(randomSeed);
 
-        gm.physics.gameState = gst;
-
-        if (!gm.physics.gameState.physics.bodies[0]) {
-          gm.physics.gameState.physics.bodies[0] = {
+        if (!gst.physics.bodies[0]) {
+          gst.physics.bodies[0] = {
             'type': 's',
             'p': [0, 0],
             'a': 0,
@@ -108,159 +113,200 @@ export default {
           };
         }
 
+        if (!gst.physics.bodies[0].cf.variables) {
+          gst.physics.bodies[0].cf.variables = {global: {}};
+          for (let i = 0; i < gst.discs.length; i++) {
+            if (!gst.discs[i]) continue;
+
+            gst.physics.bodies[0].cf.variables[i] = {};
+          }
+
+          gst.physics.bodies[0].cf.cameras = [];
+          for (let i = 0; i < gst.discs.length; i++) {
+            if (!gst.discs[i]) continue;
+
+            gst.physics.bodies[0].cf.cameras[i] = {
+              xpos: 365 / gst.physics.ppm,
+              ypos: 250 / gst.physics.ppm,
+              angle: 0,
+              xscal: 1,
+              yscal: 1,
+              xskew: 0,
+              yskew: 0,
+              doLerp: true,
+            };
+          }
+
+          gst.physics.bodies[0].cf.enableDeathBarrier = true;
+        }
+
+        gm.physics.gameState = gst;
+
         // collision handling
         for (let i = 0; i !== gm.physics.collisionsThisStep.length; i++) {
-          const fixtureA = gm.physics.collisionsThisStep[i].fixtureABodyData;
-          const fixtureB = gm.physics.collisionsThisStep[i].fixtureBBodyData;
+          const bodyA = gm.physics.collisionsThisStep[i].fixtureABodyData;
+          const bodyB = gm.physics.collisionsThisStep[i].fixtureBBodyData;
+          const fixtureA = gm.physics.collisionsThisStep[i].fixtureAData;
+          const fixtureB = gm.physics.collisionsThisStep[i].fixtureBData;
           const normal = gm.physics.collisionsThisStep[i].normal;
           const projs = gm.physics.gameState.projectiles;
 
           // disc collision
-          let discFixture;
+          let discBody;
+          let collisionBody;
           let collisionFixture;
           let isFixtureA = false;
 
-          if (fixtureA.type === 'disc') {
+          if (bodyA.type === 'disc') {
             isFixtureA = true;
-            discFixture = fixtureA;
+            discBody = bodyA;
+            collisionBody = bodyB;
             collisionFixture = fixtureB;
-          } else if (fixtureB.type === 'disc') {
+          } else if (bodyB.type === 'disc') {
             isFixtureA = false;
-            discFixture = fixtureB;
+            discBody = bodyB;
+            collisionBody = bodyA;
             collisionFixture = fixtureA;
           }
 
-          if (discFixture && gst.discs[discFixture.arrayID]) { // check if self element exists
-            switch (collisionFixture.type) {
+          if (discBody && gst.discs[discBody.arrayID]) { // check if self element exists
+            switch (collisionBody.type) {
               case 'disc':
-                if (discFixture.team === 1 || discFixture.team !== collisionFixture.team && // check for self and team collisions
-                    gst.discs[collisionFixture.arrayID]) { // check if collided element exists
-                  gm.physics.onPlayerPlayerCollision(discFixture.arrayID, collisionFixture.arrayID);
-                  gm.physics.onPlayerPlayerCollision(collisionFixture.arrayID, discFixture.arrayID);
+                if (discBody.team === 1 || discBody.team !== collisionBody.team && // check for self and team collisions
+                    gst.discs[collisionBody.arrayID]) { // check if collided element exists
+                  gm.physics.onPlayerPlayerCollision(discBody.arrayID, collisionBody.arrayID);
+                  gm.physics.onPlayerPlayerCollision(collisionBody.arrayID, discBody.arrayID);
                 }
                 break;
               case 'arrow':
                 let arrowNumber = 0;
                 let accum = 1;
                 for (let a = 0; a !== projs.length; a++) {
-                  if (collisionFixture && collisionFixture.arrayID === a) {
+                  if (collisionBody && collisionBody.arrayID === a) {
                     arrowNumber = accum;
-                  } else if (collisionFixture && projs[a] && collisionFixture.discID === projs[a].did) {
+                  } else if (collisionBody && projs[a] && collisionBody.discID === projs[a].did) {
                     accum++;
                   }
                 }
 
                 if (arrowNumber === 0) break;
 
-                if (discFixture.arrayID !== collisionFixture.discID && (discFixture.team === 1 || discFixture.team !== collisionFixture.team) && // check for self and team collisions
-                    gst.projectiles[collisionFixture.arrayID]) { // check if collided element exists
-                  gm.physics.onPlayerArrowCollision(discFixture.arrayID, collisionFixture.discID, arrowNumber);
+                if (discBody.arrayID !== collisionBody.discID && (discBody.team === 1 || discBody.team !== collisionBody.team) && // check for self and team collisions
+                    gst.projectiles[collisionBody.arrayID]) { // check if collided element exists
+                  gm.physics.onPlayerArrowCollision(discBody.arrayID, collisionBody.discID, arrowNumber);
                 }
                 break;
               case 'phys':
-                if (gst.physics.bodies[collisionFixture.arrayID]?.fx.length > 0) { // check if collided element exists
-                  gm.physics.onPlayerPlatformCollision(discFixture.arrayID, collisionFixture.arrayID, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
+                if (gst.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
+                  gm.physics.onPlayerPlatformCollision(discBody.arrayID, collisionBody.arrayID, gst.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
                 }
                 break;
             }
           }
 
           // arrow collision
-          let arrowFixture;
+          let arrowBody;
           let arrowNumberA = 0;
           let arrowNumberB = 0;
 
-          if (fixtureA.type === 'arrow') {
+          if (bodyA.type === 'arrow') {
             isFixtureA = true;
-            arrowFixture = fixtureA;
+            arrowBody = bodyA;
+            collisionBody = bodyB;
             collisionFixture = fixtureB;
-          } else if (fixtureB.type === 'arrow') {
+          } else if (bodyB.type === 'arrow') {
             isFixtureA = false;
-            arrowFixture = fixtureB;
+            arrowBody = bodyB;
+            collisionBody = bodyA;
             collisionFixture = fixtureA;
           }
 
           let accumA = 1;
           let accumB = 1;
           for (let a = 0; a !== projs.length; a++) {
-            if (arrowFixture && arrowFixture.arrayID === a) {
+            if (arrowBody && arrowBody.arrayID === a) {
               arrowNumberA = accumA;
-            } else if (arrowFixture && projs[a] && arrowFixture.discID === projs[a].did) {
+            } else if (arrowBody && projs[a] && arrowBody.discID === projs[a].did) {
               accumA++;
             }
 
-            if (collisionFixture && collisionFixture.arrayID && collisionFixture.arrayID === a) {
+            if (collisionBody && collisionBody.arrayID && collisionBody.arrayID === a) {
               arrowNumberB = accumB;
-            } else if (collisionFixture && collisionFixture.discID && projs[a] && collisionFixture.discID === projs[a].did) {
+            } else if (collisionBody && collisionBody.discID && projs[a] && collisionBody.discID === projs[a].did) {
               accumB++;
             }
           }
 
-          if (arrowFixture && gst.projectiles[arrowFixture.arrayID] && gst.discs[arrowFixture.discID]) { // check if self element exists
-            switch (collisionFixture.type) {
+          if (arrowBody && gst.projectiles[arrowBody.arrayID] && gst.discs[arrowBody.discID]) { // check if self element exists
+            switch (collisionBody.type) {
               case 'disc':
-                if (arrowFixture.discID !== collisionFixture.arrayID && (collisionFixture.team === 1 || arrowFixture.team !== collisionFixture.team) && // check for self and team collisions
-                  gst.discs[collisionFixture.arrayID]) { // check if collided element exists
-                  gm.physics.onArrowPlayerCollision(arrowFixture.discID, arrowNumberA, collisionFixture.arrayID);
+                if (arrowBody.discID !== collisionBody.arrayID && (collisionBody.team === 1 || arrowBody.team !== collisionBody.team) && // check for self and team collisions
+                  gst.discs[collisionBody.arrayID]) { // check if collided element exists
+                  gm.physics.onArrowPlayerCollision(arrowBody.discID, arrowNumberA, collisionBody.arrayID);
                 }
                 break;
               case 'arrow':
-                if (gst.projectiles[collisionFixture.arrayID] && gst.discs[collisionFixture.discID]) { // check if collided element exists
-                  gm.physics.onArrowArrowCollision(arrowFixture.discID, arrowNumberA, collisionFixture.discID, arrowNumberB);
-                  gm.physics.onArrowArrowCollision(collisionFixture.discID, arrowNumberB, arrowFixture.discID, arrowNumberA);
+                if (gst.projectiles[collisionBody.arrayID] && gst.discs[collisionBody.discID]) { // check if collided element exists
+                  gm.physics.onArrowArrowCollision(arrowBody.discID, arrowNumberA, collisionBody.discID, arrowNumberB);
+                  gm.physics.onArrowArrowCollision(collisionBody.discID, arrowNumberB, arrowBody.discID, arrowNumberA);
                 }
                 break;
               case 'phys':
-                if (gst.physics.bodies[collisionFixture.arrayID]?.fx.length > 0) { // check if collided element exists
-                  gm.physics.onArrowPlatformCollision(arrowFixture.discID, arrowNumberA, collisionFixture.arrayID, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
+                if (gst.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
+                  gm.physics.onArrowPlatformCollision(arrowBody.discID, arrowNumberA, collisionBody.arrayID, gst.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
                 }
                 break;
             }
           }
 
           // platform collision
+          let platBody;
           let platFixture;
 
-          if (fixtureA.type === 'phys') {
+          if (bodyA.type === 'phys') {
             isFixtureA = true;
+            platBody = bodyA;
+            collisionBody = bodyB;
             platFixture = fixtureA;
             collisionFixture = fixtureB;
-          } else if (fixtureB.type === 'phys') {
+          } else if (bodyB.type === 'phys') {
             isFixtureA = false;
+            platBody = bodyB;
+            collisionBody = bodyA;
             platFixture = fixtureB;
             collisionFixture = fixtureA;
           }
 
-          if (platFixture && gst.physics.bodies[platFixture.arrayID]?.fx.length > 0) { // check if self element exists
-            for (let i = 0; i != gst.discs.length; i++) {
+          if (platBody && gst.physics.bodies[platBody.arrayID]?.fx.length > 0) { // check if self element exists
+            for (let i = 0; i < gst.discs.length; i++) {
               if (gst.discs[i]) {
-                switch (collisionFixture.type) {
+                switch (collisionBody.type) {
                   case 'disc':
-                    if (gst.discs[collisionFixture.arrayID]) { // check if collided element exists
-                      gm.physics.onPlatformPlayerCollision(i, platFixture.arrayID, collisionFixture.arrayID);
+                    if (gst.discs[collisionBody.arrayID]) { // check if collided element exists
+                      gm.physics.onPlatformPlayerCollision(i, platBody.arrayID, platFixture.arrayID, collisionBody.arrayID);
                     }
                     break;
                   case 'arrow':
                     let arrowNumber = 0;
                     let accum = 1;
                     for (let a = 0; a !== projs.length; a++) {
-                      if (collisionFixture && collisionFixture.arrayID === a) {
+                      if (collisionBody && collisionBody.arrayID === a) {
                         arrowNumber = accum;
-                      } else if (collisionFixture && projs[a] && collisionFixture.discID === projs[a].did) {
+                      } else if (collisionBody && projs[a] && collisionBody.discID === projs[a].did) {
                         accum++;
                       }
                     }
 
                     if (arrowNumber === 0) break;
 
-                    if (gst.discs[collisionFixture.discID] && gst.projectiles[collisionFixture.arrayID]) { // check if collided element exists
-                      gm.physics.onPlatformArrowCollision(i, platFixture.arrayID, collisionFixture.discID, arrowNumber);
+                    if (gst.discs[collisionBody.discID] && gst.projectiles[collisionBody.arrayID]) { // check if collided element exists
+                      gm.physics.onPlatformArrowCollision(i, platBody.arrayID, platFixture.arrayID, collisionBody.discID, arrowNumber);
                     }
                     break;
                   case 'phys':
-                    if (gst.physics.bodies[collisionFixture.arrayID]?.fx.length > 0) { // check if collided element exists
-                      gm.physics.onPlatformPlatformCollision(i, platFixture.arrayID, collisionFixture.arrayID, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
-                      gm.physics.onPlatformPlatformCollision(i, collisionFixture.arrayID, platFixture.arrayID, isFixtureA ? normal : {x: -normal.x, y: -normal.y});
+                    if (gst.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
+                      gm.physics.onPlatformPlatformCollision(i, platBody.arrayID, platFixture.arrayID, collisionBody.arrayID, gst.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
+                      gm.physics.onPlatformPlatformCollision(i, collisionBody.arrayID, collisionFixture.arrayID, platBody.arrayID, gst.physics.bodies[platBody.arrayID].fx.indexOf(platFixture.arrayID) + 1, isFixtureA ? normal : {x: -normal.x, y: -normal.y});
                     }
                     break;
                 }
@@ -277,7 +323,7 @@ export default {
 
         gm.physics.gameState = gst;
 
-        for (let i = 0; i != arguments[0].discs.length; i++) {
+        for (let i = 0; i < arguments[0].discs.length; i++) {
           if ((arguments[0].discs[i] && !gst.discs[i]) || // no-respawn player deaths and disconnects
               (gst.discDeaths[gst.discDeaths.length - 1]?.i == i && gst.discDeaths[gst.discDeaths.length - 1]?.f == 0)) { // respawn player deaths
             const currentDisc = gm.physics.gameState.discs[i];
@@ -293,22 +339,23 @@ export default {
           gm.blockly.funcs.clearGraphics();
 
           for (let i = 0; i !== gm.physics.gameState.discs.length; i++) {
-            if (gm.physics.gameState.discs[i]) {
-              if (!gm.inputs.allPlayerInputs[i]) {
-                gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
-              }
+            if (!gm.physics.gameState.discs[i]) continue;
 
-              gm.physics.onFirstStep(i);
+            if (!gm.inputs.allPlayerInputs[i]) {
+              gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
             }
+
+            gm.physics.onFirstStep(i);
           }
         } else if (!gm.physics.forceGameState && gm.physics.gameState.ftu === -1) {
           for (let i = 0; i !== gm.physics.gameState.discs.length; i++) {
-            if (gm.physics.gameState.discs[i]) {
-              if (!gm.inputs.allPlayerInputs[i]) {
-                gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
-              }
-              gm.physics.onStep(i);
+            if (!gm.physics.gameState.discs[i]) continue;
+
+            if (!gm.inputs.allPlayerInputs[i]) {
+              gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
             }
+
+            gm.physics.onStep(i);
           }
         }
 
@@ -321,7 +368,17 @@ export default {
 
         gm.physics.gameState = gst;
 
-        gm.graphics.doRenderUpdates(gst);
+        // The renderer class isn't built at the same time as the first game step gets executed,
+        // so this checks if the renderer has been built, and executes all the previous render updates
+        gst.physics.bodies[0].cf.rendererExists = !!gm.graphics.rendererClass;
+        if (!!gm.graphics.rendererClass && !arguments[0].physics.bodies[0].cf.rendererExists) {
+          for (let i = 0; i < gst.rl; i++) {
+            if (!window.gmReplaceAccessors.gameStateList || !window.gmReplaceAccessors.gameStateList[i]) continue;
+            gm.graphics.doRenderUpdates(window.gmReplaceAccessors.gameStateList[i]);
+          }
+        } else if (!!gm.graphics.rendererClass) {
+          gm.graphics.doRenderUpdates(gst);
+        }
 
         gm.physics.collisionsThisStep = [];
 
@@ -329,8 +386,12 @@ export default {
 
         return gst;
       } catch (e) {
-        if (gm.lobby.gameCrashed) {
-          console.error(e);
+        if (!gm.lobby.gameCrashed) {
+          if (e === 'gmInfiniteLoop') {
+            gm.lobby.haltCausedByLoop = true;
+          } else {
+            console.error(e);
+          }
           gm.lobby.gameCrashed = true;
           setTimeout(gm.lobby.gameHalt, 500); // gotta make sure we're out of the step function!
         }

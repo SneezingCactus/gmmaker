@@ -1561,10 +1561,26 @@ module.exports = [{
 },
 {
   'type': 'get_own_id',
-  'message0': 'get own player id',
+  'message0': 'get %1 player id',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'host\'s',
+          'host',
+        ],
+      ],
+    },
+  ],
   'output': 'Number',
   'colour': 230,
-  'tooltip': 'Get your player\'s id.',
+  'tooltip': 'Get your player\'s id, or the host\'s player id.',
   'helpUrl': '',
 },
 {
@@ -2986,9 +3002,34 @@ module.exports = [{
 },
 {
   'type': 'set_camera_prop',
-  'lastDummyAlign0': 'RIGHT',
-  'message0': 'set camera\'s %1 to %2 only change your camera %3',
+  'message0': 'set %1 %2 %3 camera\'s %4 to %5',
   'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'everyone\'s',
+          'all',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
     {
       'type': 'field_dropdown',
       'name': 'camera_prop',
@@ -3028,13 +3069,8 @@ module.exports = [{
       'name': 'set_number',
       'check': 'Number',
     },
-    {
-      'type': 'field_checkbox',
-      'name': 'only_player',
-      'checked': true,
-    },
   ],
-  'inputsInline': false,
+  'inputsInline': true,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 0,
@@ -3043,9 +3079,34 @@ module.exports = [{
 },
 {
   'type': 'change_camera_prop',
-  'lastDummyAlign0': 'RIGHT',
-  'message0': 'change camera\'s %1 by %2 only change your camera %3',
+  'message0': 'change %1 %2 %3 camera\'s %4 by %5',
   'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'everyone\'s',
+          'all',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
     {
       'type': 'field_dropdown',
       'name': 'camera_prop',
@@ -3085,13 +3146,8 @@ module.exports = [{
       'name': 'change_number',
       'check': 'Number',
     },
-    {
-      'type': 'field_checkbox',
-      'name': 'only_player',
-      'checked': true,
-    },
   ],
-  'inputsInline': false,
+  'inputsInline': true,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 0,
@@ -3168,7 +3224,7 @@ module.exports = [{
 },
 {
   'type': 'change_camera_lerp',
-  'message0': '%1 camera interpolation',
+  'message0': '%1 camera interpolation for %2 %3 %4',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -3184,7 +3240,34 @@ module.exports = [{
         ],
       ],
     },
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'everyone',
+          'all',
+        ],
+        [
+          'yourself',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
   ],
+  'inputsInline': true,
   'previousStatement': null,
   'nextStatement': null,
   'colour': 0,

@@ -18,6 +18,6 @@ const content = `// ==UserScript==
 */
 
 
-${fs.readFileSync('./dist/js/injector.js')}`;
+${fs.readFileSync('./dist/js/injector.js')}\n${fs.readFileSync('./dist/js/gmLoader.js')}`;
 
 fs.writeFileSync(`./web-ext-artifacts/gmmaker-${manifest.version}.user.js`, content);

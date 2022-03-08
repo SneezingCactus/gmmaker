@@ -8,18 +8,65 @@ export default {
     this.initBonkGraphics();
   },
   initBonkGraphics: function() {
-    GameRendererClass.prototype.render = (function() {
-      GameRendererClass.prototype.render_OLD = GameRendererClass.prototype.render;
+    BonkGraphics.prototype.render = (function() {
+      BonkGraphics.prototype.render_OLD = BonkGraphics.prototype.render;
       return function() {
+        const gmStateA = arguments[0].physics.bodies[0]?.cf;
+        const gmStateB = arguments[1].physics.bodies[0]?.cf;
         if (arguments[0].physics.shapes.length != arguments[1].physics.shapes.length) {
-          for (let i = 0; i != arguments[1].physics.shapes.length; i++) {
+          for (let i = 0; i < arguments[1].physics.shapes.length; i++) {
             if (!arguments[0].physics.shapes[i]) arguments[0].physics.shapes[i] = arguments[1].physics.shapes[i];
           }
-          for (let i = 0; i != arguments[1].physics.bodies.length; i++) {
+          for (let i = 0; i < arguments[1].physics.bodies.length; i++) {
             if (!arguments[0].physics.bodies[i]) arguments[0].physics.bodies[i] = arguments[1].physics.bodies[i];
           }
-          for (let i = 0; i != arguments[1].physics.fixtures.length; i++) {
+          for (let i = 0; i < arguments[1].physics.fixtures.length; i++) {
             if (!arguments[0].physics.fixtures[i]) arguments[0].physics.fixtures[i] = arguments[1].physics.fixtures[i];
+          }
+        }
+
+        // modify offscreen function of discs
+        if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen_OLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
+          const discGraphic = this.discGraphics?.[this.discGraphics?.length - 1];
+          discGraphic.__proto__.doOffScreen_OLD = discGraphic.__proto__.doOffScreen;
+          discGraphic.__proto__.doOffScreen = function() {
+            this.offScreenContainer.visible = false;
+            if (!gm.physics.gameState.physics.bodies[0].cf.cameraChanged) {
+              return this.doOffScreen_OLD.apply(this, arguments);
+            }
+            return;
+          };
+        }
+
+        // camera movement
+        if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed && gm.lobby.networkEngine && gmStateA.cameras?.[gm.lobby.networkEngine.getLSID()] && gmStateB.cameras?.[gm.lobby.networkEngine.getLSID()]) {
+          const cameraObjA = gmStateA.cameras[gm.lobby.networkEngine.getLSID()];
+          const cameraObjB = gmStateB.cameras[gm.lobby.networkEngine.getLSID()];
+          const scaleMultiplier = arguments[0].physics.ppm * gm.graphics.rendererClass.scaleRatio;
+
+          if (cameraObjA.doLerp || cameraObjB.doLerp) {
+            const anglePointA = [Math.sin(cameraObjA.angle), Math.cos(cameraObjA.angle)];
+            const anglePointB = [Math.sin(cameraObjB.angle), Math.cos(cameraObjB.angle)];
+            const lerpedAnglePoint = [
+              (1 - arguments[2]) * anglePointA[0] + arguments[2] * anglePointB[0],
+              (1 - arguments[2]) * anglePointA[1] + arguments[2] * anglePointB[1],
+            ];
+
+            gm.graphics.cameraContainer.pivot.x = (1 - arguments[2]) * cameraObjA.xpos * scaleMultiplier + arguments[2] * cameraObjB.xpos * scaleMultiplier;
+            gm.graphics.cameraContainer.pivot.y = (1 - arguments[2]) * cameraObjA.ypos * scaleMultiplier + arguments[2] * cameraObjB.ypos * scaleMultiplier;
+            gm.graphics.cameraContainer.rotation = Math.atan2(lerpedAnglePoint[0], lerpedAnglePoint[1]);
+            gm.graphics.cameraContainer.scale.x = (1 - arguments[2]) * cameraObjA.xscal + arguments[2] * cameraObjB.xscal;
+            gm.graphics.cameraContainer.scale.y = (1 - arguments[2]) * cameraObjA.yscal + arguments[2] * cameraObjB.yscal;
+            gm.graphics.cameraContainer.skew.x = (1 - arguments[2]) * cameraObjA.xskew + arguments[2] * cameraObjB.xskew;
+            gm.graphics.cameraContainer.skew.y = (1 - arguments[2]) * cameraObjA.yskew + arguments[2] * cameraObjB.yskew;
+          } else {
+            gm.graphics.cameraContainer.pivot.x = cameraObjB.xpos * scaleMultiplier;
+            gm.graphics.cameraContainer.pivot.y = cameraObjB.ypos * scaleMultiplier;
+            gm.graphics.cameraContainer.angle = cameraObjB.angle;
+            gm.graphics.cameraContainer.scale.x = cameraObjB.xscal;
+            gm.graphics.cameraContainer.scale.y = cameraObjB.yscal;
+            gm.graphics.cameraContainer.skew.x = cameraObjB.xskew;
+            gm.graphics.cameraContainer.skew.y = cameraObjB.yskew;
           }
         }
 
@@ -66,22 +113,31 @@ export default {
           }
         }
 
-        // world and disc drawing objects add to stage
+        // world and disc drawing objects add to stages
         if (gm.graphics.rendererClass) {
-          for (let i = 0; i != gm.graphics.rendererClass.discGraphics.length; i++) {
+          for (let i = 0; i < gm.graphics.rendererClass.discGraphics.length; i++) {
             if (gm.graphics.additionalWorldGraphics[i] && !gm.graphics.additionalWorldGraphics[i]._destroyed && !gm.graphics.rendererClass.discGraphics[i]) {
               gm.graphics.additionalWorldGraphics[i].clear();
               gm.graphics.additionalWorldGraphics[i].removeChildren();
+              gm.graphics.additionalScreenGraphics[i].clear();
+              gm.graphics.additionalScreenGraphics[i].removeChildren();
             }
             if (arguments[0].discs[i] && gm.graphics.rendererClass.discGraphics[i] && gm.graphics.additionalDiscGraphics[i] && !gm.graphics.rendererClass.discGraphics[i].container.children.includes(gm.graphics.additionalDiscGraphics[i])) {
               gm.graphics.additionalDiscGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
               gm.graphics.additionalDiscGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
               gm.graphics.rendererClass.discGraphics[i].container.addChild(gm.graphics.additionalDiscGraphics[i]);
             }
-            if (arguments[0].discs[i] && gm.graphics.rendererClass.blurContainer && gm.graphics.additionalWorldGraphics[i] && gm.lobby.roundStarting && !gm.graphics.cameraContainer.children.includes(gm.graphics.additionalWorldGraphics[i])) {
+            if (arguments[0].discs[i] && gm.graphics.rendererClass.blurContainer && gm.graphics.additionalWorldGraphics[i] && !gm.graphics.cameraContainer.children.includes(gm.graphics.additionalWorldGraphics[i])) {
               gm.graphics.additionalWorldGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
               gm.graphics.additionalWorldGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
               gm.graphics.cameraContainer.addChild(gm.graphics.additionalWorldGraphics[i]);
+            }
+            if (arguments[0].discs[i] && gm.graphics.rendererClass.blurContainer && gm.graphics.additionalScreenGraphics[i] && !gm.graphics.rendererClass.blurContainer.children.includes(gm.graphics.additionalScreenGraphics[i])) {
+              gm.graphics.additionalScreenGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
+              gm.graphics.additionalScreenGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
+              gm.graphics.additionalScreenGraphics[i].pivot.x = 365;
+              gm.graphics.additionalScreenGraphics[i].pivot.y = 250;
+              gm.graphics.rendererClass.blurContainer.addChild(gm.graphics.additionalScreenGraphics[i]);
             }
           }
         }
@@ -89,12 +145,12 @@ export default {
         // make seed based on scene element positions and game state seed
         const gst = gm.physics.gameState;
         let randomSeed = 0;
-        for (let i = 0; i != gst.physics.bodies.length; i++) {
+        for (let i = 0; i < gst.physics.bodies.length; i++) {
           if (gst.physics.bodies[i]) {
             randomSeed = randomSeed + gst.physics.bodies[i].p[0] + gst.physics.bodies[i].p[1] + gst.physics.bodies[i].a;
           }
         }
-        for (let i = 0; i != gst.discs.length; i++) {
+        for (let i = 0; i < gst.discs.length; i++) {
           if (gst.discs[i]) {
             randomSeed = randomSeed + gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
           }
@@ -104,12 +160,24 @@ export default {
         gm.physics.pseudoRandom = new seedrandom(randomSeed);
 
         if (gm.physics.gameState && gm.physics.gameState.discs) {
-          for (let i = 0; i != gm.physics.gameState.discs.length; i++) {
+          for (let i = 0; i < gm.physics.gameState.discs.length; i++) {
             if (gm.physics.gameState.discs[i]) {
               if (!gm.inputs.allPlayerInputs[i]) {
                 gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
               }
-              gm.graphics.onRender(i);
+              try {
+                gm.graphics.onRender(i);
+              } catch (e) {
+                if (!gm.lobby.gameCrashed) {
+                  if (e === 'gmInfiniteLoop') {
+                    gm.lobby.haltCausedByLoop = true;
+                  } else {
+                    console.error(e);
+                  }
+                  gm.lobby.gameCrashed = true;
+                  setTimeout(gm.lobby.gameHalt, 500); // gotta make sure we're out of the step function!
+                }
+              }
             }
           }
         }
@@ -118,15 +186,26 @@ export default {
         return result;
       };
     })();
-    GameRendererClass.prototype.destroy = (function() {
-      GameRendererClass.prototype.destroy_OLD = GameRendererClass.prototype.destroy;
+    BonkGraphics.prototype.build = (function() {
+      BonkGraphics.prototype.build_OLD = BonkGraphics.prototype.build;
       return function() {
+        const result = this.build_OLD.apply(this, arguments);
+        gm.blockly.varInspector.innerHTML = '';
+        return result;
+      };
+    })();
+    BonkGraphics.prototype.destroy = (function() {
+      BonkGraphics.prototype.destroy_OLD = BonkGraphics.prototype.destroy;
+      return function() {
+        gm.blockly.varInspector.innerHTML = '';
+
         if (gm.graphics.rendererClass) {
           for (let a = 0; a != gm.graphics.rendererClass.discGraphics.length; a++) {
             if (!gm.graphics.rendererClass.discGraphics[a]) continue;
 
             gm.graphics.additionalDiscGraphics[a]?.removeChildren();
             gm.graphics.additionalWorldGraphics[a]?.removeChildren();
+            gm.graphics.additionalScreenGraphics[a]?.removeChildren();
 
             const discObject = gm.graphics.rendererClass.discGraphics[a].container;
             while (discObject.children[0]) {
@@ -134,7 +213,7 @@ export default {
             }
           }
 
-          const worldObject = gm.graphics.cameraContainer;
+          const worldObject = gm.graphics.rendererClass.blurContainer;
           while (worldObject.children[0]) {
             worldObject.removeChild(worldObject.children[0]);
           }
@@ -143,37 +222,45 @@ export default {
 
           gm.graphics.additionalDiscGraphics = [];
           gm.graphics.additionalWorldGraphics = [];
+          gm.graphics.additionalScreenGraphics = [];
         }
         const result = this.destroy_OLD.apply(this, arguments);
         gm.graphics.renderUpdates = [];
         return result;
       };
     })();
-    GameRendererClass.prototype.resizeRenderer = (function() {
-      GameRendererClass.prototype.resizeRenderer_OLD = GameRendererClass.prototype.resizeRenderer;
+    BonkGraphics.prototype.resizeRenderer = (function() {
+      BonkGraphics.prototype.resizeRenderer_OLD = BonkGraphics.prototype.resizeRenderer;
       return function() {
-        for (let i = 0; i != gm.graphics.additionalDiscGraphics.length; i++) {
+        for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
           if (!gm.graphics.additionalDiscGraphics[i]) continue;
           gm.graphics.rendererClass?.discGraphics[i]?.container.removeChild(gm.graphics.additionalDiscGraphics[i]);
         }
-        for (let i = 0; i != gm.graphics.additionalWorldGraphics.length; i++) {
+        for (let i = 0; i < gm.graphics.additionalWorldGraphics.length; i++) {
           if (!gm.graphics.additionalWorldGraphics[i]) continue;
           gm.graphics.cameraContainer?.removeChild(gm.graphics.additionalWorldGraphics[i]);
         }
+        for (let i = 0; i < gm.graphics.additionalScreenGraphics.length; i++) {
+          if (!gm.graphics.additionalScreenGraphics[i]) continue;
+          gm.graphics.rendererClass.blurContainer?.removeChild(gm.graphics.additionalScreenGraphics[i]);
+        }
         const result = this.resizeRenderer_OLD.apply(this, arguments);
-        for (let i = 0; i != gm.graphics.additionalDiscGraphics.length; i++) {
+        for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
           if (!gm.graphics.additionalDiscGraphics[i]) continue;
 
           gm.graphics.additionalDiscGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
           gm.graphics.additionalDiscGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
           gm.graphics.rendererClass?.discGraphics[i]?.container.addChild(gm.graphics.additionalDiscGraphics[i]);
-        }
-        for (let i = 0; i != gm.graphics.additionalWorldGraphics.length; i++) {
-          if (!gm.graphics.additionalWorldGraphics[i]) continue;
 
           gm.graphics.additionalWorldGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
           gm.graphics.additionalWorldGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
           gm.graphics.cameraContainer?.addChild(gm.graphics.additionalWorldGraphics[i]);
+
+          gm.graphics.additionalScreenGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
+          gm.graphics.additionalScreenGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
+          gm.graphics.additionalScreenGraphics[i].pivot.x = 365;
+          gm.graphics.additionalScreenGraphics[i].pivot.y = 250;
+          gm.graphics.rendererClass?.blurContainer.addChild(gm.graphics.additionalScreenGraphics[i]);
         }
 
         if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed) {
@@ -185,13 +272,30 @@ export default {
     })();
   },
   onPhysStep: function(gameState) {
+    if (gameState.fte == 0) gm.blockly.varInspector.innerHTML = '';
+
+    const shouldShowVarInsp = gm.blockly.savedSettings?.getAttribute('show_var_insp') === 'true';
+
+    if (shouldShowVarInsp && gm.blockly.varInspectorContainer.style.display !== 'block') {
+      gm.blockly.varInspectorContainer.style.display = 'block';
+    } else if (!shouldShowVarInsp && gm.blockly.varInspectorContainer.style.display !== 'none') {
+      gm.blockly.varInspectorContainer.style.display = 'none';
+    }
+
+    if (gm.graphics.rendererClass?.playerArray && shouldShowVarInsp) gm.blockly.updateVarInspector(gameState);
+
     // world and disc drawing objects creation
-    for (let i = 0; i != gameState.discs.length; i++) {
-      if (gameState.discs[i] && (!gm.graphics.additionalDiscGraphics[i] || gm.graphics.additionalDiscGraphics[i]._destroyed)) {
+    for (let i = 0; i < gameState.discs.length; i++) {
+      if (!gameState.discs[i]) continue;
+
+      if (!gm.graphics.additionalDiscGraphics[i] || gm.graphics.additionalDiscGraphics[i]._destroyed) {
         gm.graphics.additionalDiscGraphics[i] = new PIXI.Graphics();
       }
-      if (gameState.discs[i] && (!gm.graphics.additionalWorldGraphics[i] || gm.graphics.additionalWorldGraphics[i]._destroyed)) {
+      if (!gm.graphics.additionalWorldGraphics[i] || gm.graphics.additionalWorldGraphics[i]._destroyed) {
         gm.graphics.additionalWorldGraphics[i] = new PIXI.Graphics();
+      }
+      if (!gm.graphics.additionalScreenGraphics[i] || gm.graphics.additionalScreenGraphics[i]._destroyed) {
+        gm.graphics.additionalScreenGraphics[i] = new PIXI.Graphics();
       }
     }
   },
@@ -222,10 +326,13 @@ export default {
 
               this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-              if (this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[update.id - 1]]) {
-                const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[update.id - 1]]);
-                this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
+              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[previousGameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+
+              if (bodyBehind) {
+                const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+
                 if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
+                this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
               } else {
                 if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
                 this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
@@ -235,7 +342,8 @@ export default {
             }
             case 'update': {
               if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
-                this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.displayObject[update.id]);
+                this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
+                this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
                 this.rendererClass.roundGraphics.bodyGraphics[update.id]?.destroy();
               }
 
@@ -243,10 +351,13 @@ export default {
 
               this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-              if (this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[update.id - 1]]) {
-                const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[update.id - 1]]);
-                this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
+              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[previousGameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+
+              if (bodyBehind) {
+                const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+
                 if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
+                this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
               } else {
                 if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
                 this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
@@ -267,7 +378,7 @@ export default {
     if (gm.graphics.renderUpdates[gameState.rl]) {
       const alreadyDone = [];
 
-      for (let i = 0; i != gm.graphics.renderUpdates[gameState.rl].length; i++) {
+      for (let i = 0; i < gm.graphics.renderUpdates[gameState.rl].length; i++) {
         const update = gm.graphics.renderUpdates[gameState.rl][i];
 
         if (alreadyDone.includes(update)) continue;
@@ -279,10 +390,13 @@ export default {
 
             this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-            if (this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[update.id - 1]]) {
-              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[update.id - 1]]);
-              this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
+            const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+
+            if (bodyBehind) {
+              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+
               if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
+              this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
             } else {
               if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
               this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
@@ -301,16 +415,22 @@ export default {
           }
           case 'update': {
             if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
-              this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.displayObject[update.id]);
+              this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
+              this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
               this.rendererClass.roundGraphics.bodyGraphics[update.id]?.destroy();
             }
 
             const newBodyGraphics = new gm.graphics.bodyGraphicsClass(gameState, update.id, this.rendererClass.scaleRatio, this.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), this.rendererClass.playerArray);
 
-            if (this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[update.id - 1]]) {
-              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[update.id - 1]]);
-              this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
+            this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
+
+            const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+
+            if (bodyBehind) {
+              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+
               if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
+              this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
             } else {
               if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
               this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
@@ -333,6 +453,7 @@ export default {
   renderUpdates: [],
   additionalDiscGraphics: [],
   additionalWorldGraphics: [],
+  additionalScreenGraphics: [],
   availableText: [],
   usedText: [],
   onRender: function() { },

@@ -2,29 +2,75 @@
     <div id="gmeditorwindow">
         <div class="windowTopBar windowTopBar_classic">Game Mode Editor</div>
         <div id="gmeditor_buttoncontainer">
-            <div id="gmeditor_filebutton" class="brownButton brownButton_classic gmeditor_button">
-                File
-                <div id="gmeditor_filedropdown" class="gm_dropdowncontainer" style="left: 0px">
-                    <div id="gmeditor_newbutton" class="brownButton brownButton_classic">New</div>
-                    <div id="gmeditor_importbutton" class="brownButton brownButton_classic">Import</div>
-                    <div id="gmeditor_exportbutton" class="brownButton brownButton_classic">Export</div>
-                    <div id="gmeditor_savebutton" class="brownButton brownButton_classic">Save & Close</div>
-                    <div id="gmeditor_closebutton" class="brownButton brownButton_classic">Close</div>
-                </div>
+            <div id="gmeditor_leftbuttons">
+                <div id="gmeditor_newbutton" title="New" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_importbutton" title="Import" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_exportbutton" title="Export" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_backupsbutton" title="Load backup" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
             </div>
-            <div id="gmeditor_settingsbutton" class="brownButton brownButton_classic gmeditor_button">Settings</div>
-            <div id="gmeditor_helpbutton" class="brownButton brownButton_classic gmeditor_button">Help</div>
+            <div id="gmeditor_helptext">
+                Feeling lost? Hover over a block to get a brief description of what it does.
+            </div>
+            <div id="gmeditor_rightbuttons">
+                <div id="gmeditor_settingsbutton" title="Mode settings" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_closebutton" title="Close" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_savebutton" title="Apply and close" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                
+            </div>
         </div>
         <div id="gmblocklydiv"></div>
     </div>
 </div>
+<div id="gm_backupswindowcontainer" class="gm_dialogwindowcontainer">
+    <div class="gm_behindblocker"></div>
+    <div class="gm_dialogwindow" class="windowShadow">
+        <div class="gm_dialogtopbar">Mode Backups</div>
+        <div class="gm_dialogoptions">
+            <label for="gmbackups_backupselect">Backup to load:</label>
+            <select id="gmbackups_backupselect">
+            </select>
+        </div>
+
+        <div class="gm_dialogbuttoncontainer">
+            <div id="gmbackups_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
+            <div id="gmbackups_load" class="brownButton brownButton_classic buttonShadow">LOAD</div>
+        </div>
+    </div>
+</div>
+<div id="gm_settingswindowcontainer" class="gm_dialogwindowcontainer">
+    <div class="gm_behindblocker"></div>
+    <div class="gm_dialogwindow" class="windowShadow">
+        <div class="gm_dialogtopbar">Mode Settings</div>
+        <div class="gm_dialogoptions">
+            Mode name (12 characters max.)<br>
+            <input type="text" id="gmsettings_modename" class="whiteInputField windowShadow gm_dialogtextfield"
+                spellcheck="false">
+            <br><br>
+            Mode description (500 characters max.)<br>
+            <textarea id="gmsettings_modedescription" style="height: 100px;" class="whiteInputField windowShadow gm_dialogtextfield"
+                spellcheck="false"></textarea>
+            <br><br>
+            <label for="gmsettings_basemode">Base mode:</label>
+            <select id="gmsettings_basemode">
+                <option value="any">Any</option>
+            </select>
+            <br><br>
+            <input type="checkbox" id="gmsettings_showvarinsp"><label for="gmsettings_showvarinsp">Show variable inspector (for debugging)</label>
+        </div>
+
+        <div class="gm_dialogbuttoncontainer">
+            <div id="gmsettings_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
+            <div id="gmsettings_save" class="brownButton brownButton_classic buttonShadow">SAVE</div>
+        </div>
+    </div>
+</div>
 <div id="gm_exportwindowcontainer" class="gm_dialogwindowcontainer">
-    <div id="behindblocker"></div>
+    <div class="gm_behindblocker"></div>
     <div class="gm_dialogwindow" class="windowShadow">
         <div class="gm_dialogtopbar">Mode Export</div>
-        <div class="gm_exportoptions">
+        <div class="gm_dialogoptions">
             File name<br>
-            <input type="text" id="gmexport_name" value="export" class="whiteInputField windowShadow"
+            <input type="text" id="gmexport_name" value="export" class="whiteInputField windowShadow gm_dialogtextfield"
                 spellcheck="false">
             <br><br>
             <input type="checkbox" id="gmexport_attachmap"><label for="gmexport_attachmap">Attach current map</label>
@@ -37,7 +83,7 @@
     </div>
 </div>
 <div id="gm_importdialogwindowcontainer" class="gm_dialogwindowcontainer">
-    <div id="behindblocker"></div>
+    <div class="gm_behindblocker"></div>
     <div class="gm_dialogwindow" class="windowShadow">
         <div class="gm_dialogtopbar">Change map?</div>
         <div class="gm_dialogtext">

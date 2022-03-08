@@ -493,7 +493,52 @@ export default function() {
     });
   };
 
+  Blockly.Blocks['set_camera_prop'].validatorInit = function() {
+    this.mixin(playerIdMixin);
+
+    this.moveIdInputs = function(movePlayerId) {
+      if (movePlayerId) this.moveInputBefore('player_id', 'set_number');
+    };
+
+    const playerDropdown = this.getField('player');
+
+    playerDropdown.setValidator(function(newValue) {
+      const showPlayerId = (newValue === 'id');
+      this.getSourceBlock().updateShape_(showPlayerId);
+    });
+  };
+
+  Blockly.Blocks['change_camera_prop'].validatorInit = function() {
+    this.mixin(playerIdMixin);
+
+    this.moveIdInputs = function(movePlayerId) {
+      if (movePlayerId) this.moveInputBefore('player_id', 'change_number');
+    };
+
+    const playerDropdown = this.getField('player');
+
+    playerDropdown.setValidator(function(newValue) {
+      const showPlayerId = (newValue === 'id');
+      this.getSourceBlock().updateShape_(showPlayerId);
+    });
+  };
+
   Blockly.Blocks['get_camera_prop'].validatorInit = function() {
+    this.mixin(playerIdMixin);
+
+    this.moveIdInputs = function(movePlayerId) {
+      if (movePlayerId) this.moveNumberedInputBefore(this.inputList.length - 1, 1);
+    };
+
+    const playerDropdown = this.getField('player');
+
+    playerDropdown.setValidator(function(newValue) {
+      const showPlayerId = (newValue === 'id');
+      this.getSourceBlock().updateShape_(showPlayerId);
+    });
+  };
+
+  Blockly.Blocks['change_camera_lerp'].validatorInit = function() {
     this.mixin(playerIdMixin);
 
     this.moveIdInputs = function(movePlayerId) {

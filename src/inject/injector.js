@@ -1,37 +1,44 @@
-/* eslint-disable camelcase */
-/* eslint-disable prefer-spread */
-/* eslint-disable new-cap */
 /* eslint-disable no-tabs */
-
-import '../gmWindow/style.css';
-
-import gmPhysics from '../gmObject/physics.js';
-import gmGraphics from '../gmObject/graphics.js';
-import gmInput from '../gmObject/inputs.js';
-import gmLobby from '../gmObject/lobby.js';
-import gmAudio from '../gmObject/audio.js';
-import gmBlockly from '../gmObject/blockly.js';
-
+/* eslint-disable no-throw-literal */
 window.gmInjectBonkScript = function(bonkSrc) {
   console.log('[Game Mode Maker] Injecting alpha2s.js...');
 
+  // All the regex used by gmmaker
   window.gmRegexes = {
     funcs: [
-      {name: 'io', regex: 'requirejs\\(\\[[^\\]]+\\],function\\(([^,]+)', isConstructor: false},
+      // SocketIO library, used by Bonk to communicate with the room server.
+      // in gmmaker, it's used to detect when the host has sent a new mode and when you have left the room so that the mode can be reset.
+      {name: 'io', regex: '=\\(1,(...[^\\)]+)\\).{0,100}reconnection', isConstructor: false},
+      // Box2D library, used by Bonk to simulate physics.
+      // in gmmaker, it's used to create a world manifold to get the normal of a collision, and modifying killsThisStep (since that can't be done after the full step is over).
       {name: 'Box2D', regex: 'requirejs\\(\\[[^\\]]+\\],function\\([^,]+,[^,]+,([^\\)]+)', isConstructor: true},
-      {name: 'BonkGraphics', regex: 'shrinkPerFrame:0\\.016.*?\\*=(.)\\[', isConstructor: true},
+      // This class takes care of all in-game graphics.
+      // In gmmaker, it's used to add player's drawings into the scene, manipulate the camera, and rerender the scene when a platform gets added/deleted or a shape gets modified.
+      {name: 'BonkGraphics', regex: 'null;[A-Za-z0-9\\[\\]]+\\(true\\);[A-Za-z0-9\\[\\]]+=null;}};([A-Za-z0-9\\[\\]]+)=class', isConstructor: true},
+      // This class contains some useful functions (XP to level, hueify, etc) and data (your avatars, the server to use when hosting a room, your country, etc) used within Bonk.
+      // It's used by gmmaker to give sounds to the editor buttons using the 'setButtonSounds' function.
+      {name: 'BonkUtils', regex: '(...\\[[^\\]]+\\]).{10,20}=function\\((...,){4}...\\).{0,1400}0\\.62', isConstructor: true},
+      // This class takes care of communicating with the room's server.
+      // It's used by gmmaker to give new players the game mode data.
       {name: 'NetworkEngine', regex: 'function ([^\\)]*)\\([^\\)]{11}\\).{0,5000}reconnection:false', isConstructor: true},
+      // This class takes care of updating the lobby and reacting to the player's interactions with the lobby.
+      // It's used by gmmaker to update the custom mode when a change is sent by the host and to enable/disable the gmeditor button when a new player gets host.
       {name: 'NewBonkLobby', regex: 'function (..)\\(.{15}\\).{0,10000}newbonklobby', isConstructor: true},
+      // There's no singular way to describe this class since it's used many different purposes which have nothing to do with each other, except for handling something in the game session.
+      // gmmaker uses its 'goInProgress' function (which takes care of calculating all the steps when you join mid-game) to load the custom mode before any steps get calculated.
+      {name: 'GenericGameSessionHandler', regex: 'new (..)\\(null\\)', isConstructor: true},
+      // This class contains the functions used by Bonk to compress/decompress maps.
+      // It's used by gmmaker to compress and decompress maps attached to custom modes.
       {name: 'MapEncoder', regex: '{try{.{3,6}=(.{1,2})\\[', isConstructor: true},
-      {name: 'GameRendererClass', regex: 'null;[A-Za-z0-9\\[\\]]+\\(true\\);[A-Za-z0-9\\[\\]]+=null;}};([A-Za-z0-9\\[\\]]+)=class', isConstructor: true},
+      // 
       {name: 'PhysicsClass', regex: ';([A-Za-z])\\[.{0,100}]={discs', isConstructor: true},
       {name: 'LocalInputs', regex: 'Date.{0,200}new (.{2}).{0,100}\\$\\(document\\)', isConstructor: true},
-      {name: 'JoinLeaveHandlers', regex: 'new (..)\\(null\\)', isConstructor: true},
+      {name: 'ModeList', regex: ';([A-Za-z0-9]{3}\\[[0-9]{0,10}\\]).{0,50}={lobbyName', isConstructor: true},
     ],
     replace: [
       // make step function not delete the world's bodies and instead put that code into a global function
       {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Z]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.gmReplaceAccessors.endStep = () => {$1};'},
-      // fix fixtures and ppm being a reference to a single fixtures and ppm shared by all game states
+      // Fixes 'fixtures' and 'ppm' being a reference to a single 'fixtures' and 'ppm' shared by all game states
       {regex: '(shapes:JSON[^,]{0,100},fixtures:)([^,]{0,100})(.{0,400}ppm:)([^}]{0,100})', to: '$1JSON.parse(JSON.stringify($2))$3JSON.parse(JSON.stringify($4))'},
       // make game state list globally accessible
       {regex: '( < 100\\).{0,100}\\+ 1.{0,200}\\+\\+;)([^\\]]+\\])', to: '$1window.gmReplaceAccessors.gameStateList = $2;$2'},
@@ -41,7 +48,6 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
     ],
     inject: {
-      vars: 'var\\s(...)=\\[arguments\\]',
       regex: ';}\\);}}\\);',
       wrap: {
         left: ';});',
@@ -58,7 +64,6 @@ window.gmInjectBonkScript = function(bonkSrc) {
 
     if (!match) {
       console.error(`[Game Mode Maker] Regex failed!`, func);
-      // eslint-disable-next-line no-throw-literal
       throw 'Game Mode Maker injection error';
     }
     const funcInBonk = match[1];
@@ -67,15 +72,29 @@ window.gmInjectBonkScript = function(bonkSrc) {
   }));
 
   console.log('[Game Mode Maker] Using hooks:', funcNames);
-  newBonkSrc = newBonkSrc.replace(new RegExp(gmRegexes.inject.regex), `${gmRegexes.inject.wrap.left}${funcHooks}window.initGM();${gmRegexes.inject.wrap.right}`);
-  newBonkSrc = newBonkSrc.replace(new RegExp(gmRegexes.inject.vars, 'g'), 'var $1 = [arguments]; window.gmBonkVars.$1 = () => $1;');
-  window.gmBonkVars = {};
+
+  // Finish initiating gmmaker. If initGM doesn't exist yet, wait for it to exist, and then execute it.
+  newBonkSrc = newBonkSrc.replace(
+      new RegExp(gmRegexes.inject.regex),
+      `${gmRegexes.inject.wrap.left}${funcHooks}\n
+if(window.initGM) {
+  window.initGM(); 
+} else {
+  window.waitForGM = setInterval(()=>{
+    if(window.initGM){
+      window.initGM();
+      clearInterval(window.waitForGM);
+    }
+  }, 500);
+}
+${gmRegexes.inject.wrap.right}`,
+  );
+
   window.gmReplaceAccessors = {};
 
   gmRegexes.replace.map((function(replace) {
     if (!bonkSrc.match(replace.regex)) {
       console.error(`[Game Mode Maker] Regex failed!`, replace);
-      // eslint-disable-next-line no-throw-literal
       throw 'Game Mode Maker injection error';
     }
 
@@ -109,46 +128,4 @@ a bonk.io update.`);
 
 window.bonkCodeInjectors.push((bonkSrc) => bonkSrc);
 
-/**
-*   so ugly
-*/
-window.gmInjectIO = function() {
-  for (let i = 0, vars = Object.keys(window.gmBonkVars); i != vars.length; i++) {
-    for (let i2 = 0, varChildren = window.gmBonkVars[vars[i]](); i2 != varChildren.length; i2++) {
-      if (!varChildren[i2] || !varChildren[i2].length) continue;
-      for (let i3 = 0; i3 != varChildren[i2].length; i3++) {
-        if (!varChildren[i2][i3] || !varChildren[i2][i3].connect) continue;
-        window.io = varChildren[i2][i3];
-        window.io_OLD = varChildren[i2][i3];
-        varChildren[i2][i3] = function() {
-          return window.io(...arguments);
-        };
-      }
-    }
-  }
-};
-
-window.initGM = function() {
-  if (window.gmStyles) {
-    document.querySelector('head').appendChild(window.gmStyles);
-  }
-
-  window.gmInjectIO();
-
-  // make the gm object
-  window.gm = {
-    audio: gmAudio,
-    physics: gmPhysics,
-    graphics: gmGraphics,
-    lobby: gmLobby,
-    inputs: gmInput,
-    blockly: gmBlockly,
-  };
-
-  // init the things inside gm
-  for (let i = 0; i != Object.keys(gm).length; i++) {
-    gm[Object.keys(gm)[i]].init();
-  }
-
-  console.log('[Game Mode Maker] The extension has been successfully loaded!');
-};
+console.log('[Game Mode Maker] Injector loaded');

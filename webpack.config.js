@@ -8,7 +8,7 @@ module.exports = {
     maxAssetSize: 1e10,
   },
   optimization: {
-    minimize: false,
+    minimize: true,
     minimizer: [
       new TerserPlugin({
         terserOptions: {
@@ -20,12 +20,17 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.(png|jpe?g|gif)$/i,
-        loader: 'file-loader',
-        options: {
-          outputPath: './images/',
-          name: '[name].[ext]?[hash]',
-        },
+        test: /\.(png|jpg|gif)$/i,
+        use: [
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192,
+            },
+          },
+        ],
+
+        type: 'javascript/auto',
       },
       {
         test: /\.css$/i,
@@ -69,6 +74,7 @@ module.exports = {
   },
   entry: {
     'js/injector': './src/inject/injector.js',
+    'js/gmLoader': './src/inject/gmLoader.js',
     'background': './src/background.js',
     'css/style': './src/gmWindow/style.css',
     'js/loadInjector': './src/inject/loadInjector.js',
@@ -76,6 +82,7 @@ module.exports = {
   },
   output: {
     hashFunction: 'xxhash64',
+    chunkFormat: 'array-push',
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist'),
   },

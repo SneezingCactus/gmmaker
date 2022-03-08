@@ -916,7 +916,7 @@
     <block type="get_player_id_list"></block>
     <block type="player_on_team">
       <field name="player">self</field>
-      <field name="team">1</field>
+      <field name="team">2</field>
     </block>
     <block type="pressing_key">
       <field name="player">self</field>
@@ -1190,8 +1190,8 @@
       </value>
     </block>
     <block type="set_camera_prop">
+      <field name="player">self</field>
       <field name="camera_prop">xpos</field>
-      <field name="only_player">FALSE</field>
       <value name="set_number">
         <shadow type="math_number">
           <field name="NUM">0</field>
@@ -1199,8 +1199,8 @@
       </value>
     </block>
     <block type="change_camera_prop">
-      <field name="camera_prop">x</field>
-      <field name="only_player">FALSE</field>
+      <field name="player">self</field>
+      <field name="camera_prop">xpos</field>
       <value name="change_number">
         <shadow type="math_number">
           <field name="NUM">10</field>
@@ -1209,9 +1209,10 @@
     </block>
     <block type="get_camera_prop">
       <field name="player">self</field>
-      <field name="camera_prop">x</field>
+      <field name="camera_prop">xpos</field>
     </block>
     <block type="change_camera_lerp">
+      <field name="player">self</field>
       <field name="enable">false</field>
     </block>
   </category>
