@@ -657,6 +657,47 @@
       <field name="colc">TRUE</field>
       <field name="cold">TRUE</field>
       <value name="shape_list">
+        <block type="lists_create_with">
+          <mutation items="1"></mutation>
+          <value name="ADD0">
+            <shadow type="rectangle_shape">
+              <field name="nophys">FALSE</field>
+              <field name="nograp">FALSE</field>
+              <field name="ingrap">FALSE</field>
+              <field name="death">FALSE</field>
+              <value name="color">
+                <shadow type="colour_picker">
+                  <field name="COLOUR">#ff0000</field>
+                </shadow>
+              </value>
+              <value name="xpos">
+                <shadow type="math_number">
+                  <field name="NUM">0</field>
+                </shadow>
+              </value>
+              <value name="ypos">
+                <shadow type="math_number">
+                  <field name="NUM">0</field>
+                </shadow>
+              </value>
+              <value name="width">
+                <shadow type="math_number">
+                  <field name="NUM">5</field>
+                </shadow>
+              </value>
+              <value name="height">
+                <shadow type="math_number">
+                  <field name="NUM">2</field>
+                </shadow>
+              </value>
+              <value name="angle">
+                <shadow type="math_number">
+                  <field name="NUM">0</field>
+                </shadow>
+              </value>
+            </shadow>
+          </value>
+        </block>
         <shadow type="lists_create_with">
           <mutation items="1"></mutation>
           <value name="ADD0">
@@ -912,12 +953,6 @@
       <field name="arrow">last</field>
       <field name="property">x</field>
     </block>
-    <block type="get_own_id"></block>
-    <block type="get_player_id_list"></block>
-    <block type="player_on_team">
-      <field name="player">self</field>
-      <field name="team">2</field>
-    </block>
     <block type="pressing_key">
       <field name="player">self</field>
       <field name="key">up</field>
@@ -967,6 +1002,12 @@
         </shadow>
       </value>
     </block>
+    <block type="get_own_id"></block>
+    <block type="get_player_id_list"></block>
+    <block type="player_on_team">
+      <field name="player">self</field>
+      <field name="team">2</field>
+    </block>
     <block type="get_arrow_amount">
       <field name="player">self</field>
     </block>
@@ -974,15 +1015,15 @@
       <field name="player">self</field>
       <field name="arrow">all</field>
     </block>
-    <block type="change_death_barrier">
-      <field name="enable">false</field>
-    </block>
     <block type="player_die">
       <field name="player">self</field>
     </block>
   </category>
   <category name="Drawing" colour="#5ba58c">
     <block type="draw_clear"></block>
+    <block type="get_screen_prop">
+      <field name="screen_prop">width</field>
+    </block>
     <block type="get_player_color">
       <field name="player">self</field>
     </block>
@@ -1180,13 +1221,31 @@
     <block type="play_sound">
       <value name="sound_volume">
         <shadow type="math_number">
-          <field name="NUM">1</field>
+          <field name="NUM">0.5</field>
         </shadow>
       </value>
+      <field name="pan_type">const</field>
       <value name="sound_pan">
         <shadow type="math_number">
           <field name="NUM">0</field>
         </shadow>
+      </value>
+    </block>
+    <block type="play_sound">
+      <value name="sound_volume">
+        <shadow type="math_number">
+          <field name="NUM">0.5</field>
+        </shadow>
+      </value>
+      <field name="pan_type">world</field>
+      <value name="sound_pan">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+        <block type="get_player_prop">
+          <field name="player">self</field>
+          <field name="property">x</field>
+        </block>
       </value>
     </block>
     <block type="set_camera_prop">
@@ -1213,6 +1272,9 @@
     </block>
     <block type="change_camera_lerp">
       <field name="player">self</field>
+      <field name="enable">false</field>
+    </block>
+    <block type="change_death_barrier">
       <field name="enable">false</field>
     </block>
   </category>

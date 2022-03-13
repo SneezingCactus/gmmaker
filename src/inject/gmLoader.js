@@ -9,7 +9,6 @@ import gmPhysics from '../gmObject/physics.js';
 import gmGraphics from '../gmObject/graphics.js';
 import gmInput from '../gmObject/inputs.js';
 import gmLobby from '../gmObject/lobby.js';
-import gmAudio from '../gmObject/audio.js';
 import gmBlockly from '../gmObject/blockly.js';
 
 window.initGM = function() {
@@ -21,7 +20,6 @@ window.initGM = function() {
 
   // make the gm object
   window.gm = {
-    audio: gmAudio,
     physics: gmPhysics,
     graphics: gmGraphics,
     lobby: gmLobby,

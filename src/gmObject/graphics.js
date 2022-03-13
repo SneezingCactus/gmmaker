@@ -31,7 +31,7 @@ export default {
           discGraphic.__proto__.doOffScreen_OLD = discGraphic.__proto__.doOffScreen;
           discGraphic.__proto__.doOffScreen = function() {
             this.offScreenContainer.visible = false;
-            if (!gm.physics.gameState.physics.bodies[0].cf.cameraChanged) {
+            if (!gm.physics.gameState?.physics.bodies[0].cf.cameraChanged) {
               return this.doOffScreen_OLD.apply(this, arguments);
             }
             return;
@@ -39,7 +39,7 @@ export default {
         }
 
         // camera movement
-        if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed && gm.lobby.networkEngine && gmStateA.cameras?.[gm.lobby.networkEngine.getLSID()] && gmStateB.cameras?.[gm.lobby.networkEngine.getLSID()]) {
+        if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed && gm.lobby.networkEngine && gmStateA?.cameras?.[gm.lobby.networkEngine.getLSID()] && gmStateB?.cameras?.[gm.lobby.networkEngine.getLSID()]) {
           const cameraObjA = gmStateA.cameras[gm.lobby.networkEngine.getLSID()];
           const cameraObjB = gmStateB.cameras[gm.lobby.networkEngine.getLSID()];
           const scaleMultiplier = arguments[0].physics.ppm * gm.graphics.rendererClass.scaleRatio;
@@ -68,6 +68,8 @@ export default {
             gm.graphics.cameraContainer.skew.x = cameraObjB.xskew;
             gm.graphics.cameraContainer.skew.y = cameraObjB.yskew;
           }
+
+          window.gmReplaceAccessors.addToStereo = ((-gm.graphics.cameraContainer.pivot.x + 730 * this.scaleRatio) * gm.graphics.cameraContainer.scale.x) / (365 * this.scaleRatio) - 1;
         }
 
         // remove arrows from camera container
@@ -116,12 +118,6 @@ export default {
         // world and disc drawing objects add to stages
         if (gm.graphics.rendererClass) {
           for (let i = 0; i < gm.graphics.rendererClass.discGraphics.length; i++) {
-            if (gm.graphics.additionalWorldGraphics[i] && !gm.graphics.additionalWorldGraphics[i]._destroyed && !gm.graphics.rendererClass.discGraphics[i]) {
-              gm.graphics.additionalWorldGraphics[i].clear();
-              gm.graphics.additionalWorldGraphics[i].removeChildren();
-              gm.graphics.additionalScreenGraphics[i].clear();
-              gm.graphics.additionalScreenGraphics[i].removeChildren();
-            }
             if (arguments[0].discs[i] && gm.graphics.rendererClass.discGraphics[i] && gm.graphics.additionalDiscGraphics[i] && !gm.graphics.rendererClass.discGraphics[i].container.children.includes(gm.graphics.additionalDiscGraphics[i])) {
               gm.graphics.additionalDiscGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
               gm.graphics.additionalDiscGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
@@ -284,20 +280,22 @@ export default {
 
     if (gm.graphics.rendererClass?.playerArray && shouldShowVarInsp) gm.blockly.updateVarInspector(gameState);
 
-    // world and disc drawing objects creation
-    for (let i = 0; i < gameState.discs.length; i++) {
-      if (!gameState.discs[i]) continue;
+    // world and disc drawing objects creation, as well as cleaning graphics on the end of a round
+    for (let i = 0; i < gameState.physics.bodies[0]?.cf.initialPlayers?.length; i++) {
+      const id = gameState.physics.bodies[0].cf.initialPlayers[i];
 
-      if (!gm.graphics.additionalDiscGraphics[i] || gm.graphics.additionalDiscGraphics[i]._destroyed) {
-        gm.graphics.additionalDiscGraphics[i] = new PIXI.Graphics();
+      if (!gm.graphics.additionalDiscGraphics[id] || gm.graphics.additionalDiscGraphics[id]._destroyed) {
+        gm.graphics.additionalDiscGraphics[id] = new PIXI.Graphics();
       }
-      if (!gm.graphics.additionalWorldGraphics[i] || gm.graphics.additionalWorldGraphics[i]._destroyed) {
-        gm.graphics.additionalWorldGraphics[i] = new PIXI.Graphics();
+      if (!gm.graphics.additionalWorldGraphics[id] || gm.graphics.additionalWorldGraphics[id]._destroyed) {
+        gm.graphics.additionalWorldGraphics[id] = new PIXI.Graphics();
       }
-      if (!gm.graphics.additionalScreenGraphics[i] || gm.graphics.additionalScreenGraphics[i]._destroyed) {
-        gm.graphics.additionalScreenGraphics[i] = new PIXI.Graphics();
+      if (!gm.graphics.additionalScreenGraphics[id] || gm.graphics.additionalScreenGraphics[id]._destroyed) {
+        gm.graphics.additionalScreenGraphics[id] = new PIXI.Graphics();
       }
     }
+
+    if (gameState.rl === 1) gm.blockly.funcs.clearGraphics();
   },
   doRollback: function(fromStepCount, toStepCount) {
     for (let i = fromStepCount; i > toStepCount; i--) {

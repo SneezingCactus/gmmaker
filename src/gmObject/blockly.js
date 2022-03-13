@@ -250,7 +250,7 @@ export default {
       db.onerror = console.error;
     });
 
-    window.Blockly = Blockly;
+    window.blockly = Blockly;
   },
   makeDraggable: function(elmnt, dragBar) {
     // code from https://www.w3schools.com/howto/howto_js_draggable.asp
@@ -840,11 +840,15 @@ export default {
       if (typeof discID !== 'undefined') {
         const discGraphics = gm.graphics.additionalDiscGraphics[discID];
         const worldGraphics = gm.graphics.additionalWorldGraphics[discID];
-        if (worldGraphics && !worldGraphics._destroyed) worldGraphics.clear();
-        if (discGraphics && !discGraphics._destroyed) discGraphics.clear();
+        const screenGraphics = gm.graphics.additionalScreenGraphics[discID];
 
-        if (discGraphics) gm.graphics.additionalDiscGraphics[discID].removeChildren();
-        if (worldGraphics) gm.graphics.additionalWorldGraphics[discID].removeChildren();
+        if (discGraphics && !discGraphics._destroyed) discGraphics.clear();
+        if (worldGraphics && !worldGraphics._destroyed) worldGraphics.clear();
+        if (screenGraphics && !screenGraphics._destroyed) screenGraphics.clear();
+
+        if (discGraphics) discGraphics.removeChildren();
+        if (worldGraphics) worldGraphics.removeChildren();
+        if (screenGraphics) screenGraphics.removeChildren();
 
         for (let i = 0; i < gm.graphics.usedText.length; i++) {
           if (gm.graphics.usedText[i]?.usedBy === discID) {
@@ -856,11 +860,15 @@ export default {
         for (let i = 0; i !== gm.graphics.additionalDiscGraphics.length; i++) {
           const discGraphics = gm.graphics.additionalDiscGraphics[i];
           const worldGraphics = gm.graphics.additionalWorldGraphics[i];
-          if (worldGraphics && !worldGraphics._destroyed) worldGraphics.clear();
-          if (discGraphics && !discGraphics._destroyed) discGraphics.clear();
+          const screenGraphics = gm.graphics.additionalScreenGraphics[i];
 
-          if (discGraphics) gm.graphics.additionalDiscGraphics[i].removeChildren();
-          if (worldGraphics) gm.graphics.additionalWorldGraphics[i].removeChildren();
+          if (discGraphics && !discGraphics._destroyed) discGraphics.clear();
+          if (worldGraphics && !worldGraphics._destroyed) worldGraphics.clear();
+          if (screenGraphics && !screenGraphics._destroyed) screenGraphics.clear();
+
+          if (discGraphics) discGraphics.removeChildren();
+          if (worldGraphics) worldGraphics.removeChildren();
+          if (screenGraphics) screenGraphics.removeChildren();
 
           while (gm.graphics.usedText.length > 0) {
             gm.graphics.availableText.push(gm.graphics.usedText.pop());
@@ -873,7 +881,7 @@ export default {
     },
     setPlayerProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] = value;
       }
@@ -881,7 +889,7 @@ export default {
     },
     changePlayerProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] += value;
       }
@@ -896,7 +904,7 @@ export default {
     },
     setArrowProperty: function(gameState, discID, arrowID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
 
       const projs = gameState.projectiles;
       let accum = 1;
@@ -914,7 +922,7 @@ export default {
     },
     setAllArrowsProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
 
       const projs = gameState.projectiles;
 
@@ -927,7 +935,7 @@ export default {
     },
     changeArrowProperty: function(gameState, discID, arrowID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
       const projs = gameState.projectiles;
       let accum = 1;
 
@@ -944,7 +952,7 @@ export default {
     },
     changeAllArrowsProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
 
       const projs = gameState.projectiles;
 
@@ -1042,7 +1050,7 @@ export default {
     },
     setCameraProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
 
       const cameras = gameState.physics.bodies[0].cf.cameras;
 
@@ -1050,7 +1058,7 @@ export default {
       if (property === 'angle') value *= (Math.PI / 180);
       if (property === 'xskew' || property === 'yskew') value *= (Math.PI / -180);
 
-      if (discID !== null) {
+      if (discID !== null && cameras[discID]) {
         cameras[discID][property] = value;
       } else {
         for (let i = 0; i < cameras.length; i++) {
@@ -1067,7 +1075,7 @@ export default {
     },
     changeCameraProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
 
       const cameras = gameState.physics.bodies[0].cf.cameras;
 
@@ -1075,7 +1083,7 @@ export default {
       if (property === 'angle') value *= (Math.PI / 180);
       if (property === 'xskew' || property === 'yskew') value *= (Math.PI / -180);
 
-      if (discID !== null) {
+      if (discID !== null && cameras[discID]) {
         cameras[discID][property] += value;
       } else {
         for (let i = 0; i < cameras.length; i++) {
@@ -1189,38 +1197,58 @@ export default {
 
       gameState.physics.bodies[0].cf.overrides[discID][input] = value;
     },
-    killPlayer: function(gameState, discID) {
+    killPlayer: function(gameState, discID, allowRespawn) {
       if (gm.graphics.rendering) return;
       if (gameState.physics.bodies[0].cf.kills && !gameState.physics.bodies[0].cf.kills.includes(discID)) {
-        gameState.physics.bodies[0].cf.kills.push(discID);
+        gameState.physics.bodies[0].cf.kills.push({id: discID, allowRespawn: allowRespawn});
       } else if (!gameState.physics.bodies[0].cf.kills) {
         gameState.physics.bodies[0].cf.kills = [];
-        gameState.physics.bodies[0].cf.kills.push(discID);
+        gameState.physics.bodies[0].cf.kills.push({id: discID, allowRespawn: allowRespawn});
       }
     },
     createRectShape: function(color, xpos, ypos, width, height, angle, noPhys, noGrap, inGrap, death) {
       color = parseInt(color.slice(1), 16);
 
-      if (xpos > 99999 || ypos > 99999 || width > 99999 || height > 99999) return;
+      if (!Number.isFinite(xpos) || Number.isNaN(xpos) || xpos === undefined || xpos === null) return;
+      if (!Number.isFinite(ypos) || Number.isNaN(ypos) || ypos === undefined || ypos === null) return;
+      if (!Number.isFinite(width) || Number.isNaN(width) || width === undefined || width === null) return;
+      if (!Number.isFinite(height) || Number.isNaN(height) || height === undefined || height === null) return;
+      if (!Number.isFinite(angle) || Number.isNaN(angle) || angle === undefined || angle === null) return;
 
       return {shape: {'type': 'bx', 'w': width, 'h': height, 'c': [xpos, ypos], 'a': angle, 'sk': false}, fixture: {'sh': -1, 'n': 'gmmaker', 'fr': null, 'fp': null, 're': null, 'de': null, 'f': color, 'd': death, 'np': noPhys, 'ng': noGrap, 'ig': inGrap}};
     },
     createCircleShape: function(color, xpos, ypos, radius, noPhys, noGrap, inGrap, death) {
       color = parseInt(color.slice(1), 16);
 
-      if (xpos > 99999 || ypos > 99999 || radius > 99999) return;
+      if (!Number.isFinite(xpos) || Number.isNaN(xpos) || xpos === undefined || xpos === null) return;
+      if (!Number.isFinite(ypos) || Number.isNaN(ypos) || ypos === undefined || ypos === null) return;
+      if (!Number.isFinite(radius) || Number.isNaN(radius) || radius === undefined || radius === null) return;
 
       return {shape: {'type': 'ci', 'r': radius, 'c': [xpos, ypos], 'sk': false}, fixture: {'sh': -1, 'n': 'gmmaker', 'fr': null, 'fp': null, 're': null, 'de': null, 'f': color, 'd': death, 'np': noPhys, 'ng': noGrap, 'ig': inGrap}};
     },
     createPolyShape: function(color, xpos, ypos, vertexList, angle, scale, noPhys, noGrap, inGrap, death) {
       color = parseInt(color.slice(1), 16);
 
-      if (xpos > 99999 || ypos > 99999 || angle > 99999 || scale > 99999) return;
+      if (!Number.isFinite(xpos) || Number.isNaN(xpos) || xpos === undefined || xpos === null) return;
+      if (!Number.isFinite(ypos) || Number.isNaN(ypos) || ypos === undefined || ypos === null) return;
+      if (!Number.isFinite(angle) || Number.isNaN(angle) || angle === undefined || angle === null) return;
+      if (!Number.isFinite(scale) || Number.isNaN(scale) || scale === undefined || scale === null) return;
 
       const actualVertexList = [];
       for (let i = 0; i < vertexList.length; i += 2) {
-        if (vertexList[i] > 99999 || vertexList[i+1] > 99999) return;
-        actualVertexList.push([vertexList[i] ?? 0, vertexList[i+1] ?? 0]);
+        let vertXPos = vertexList[i];
+        let vertYPos = vertexList[i + 1];
+
+        if (!Number.isFinite(vertXPos) || Number.isNaN(vertXPos) || vertXPos === undefined || vertXPos === null) return;
+        if (!Number.isFinite(vertYPos) || Number.isNaN(vertYPos) || vertYPos === undefined || vertYPos === null) return;
+
+        vertXPos = vertexList[i] * Math.cos(angle) - vertexList[i + 1] * Math.sin(angle);
+        vertYPos = vertexList[i] * Math.sin(angle) + vertexList[i + 1] * Math.cos(angle);
+
+        vertXPos = vertXPos * scale + xpos;
+        vertYPos = vertYPos * scale + ypos;
+
+        actualVertexList.push([vertXPos, vertYPos]);
       }
 
       return {shape: {'type': 'po', 'v': actualVertexList, 's': scale, 'a': angle, 'c': [0, 0]}, fixture: {'sh': -1, 'n': 'gmmaker', 'fr': null, 'fp': null, 're': null, 'de': null, 'f': color, 'd': death, 'np': noPhys, 'ng': noGrap, 'ig': inGrap}};
@@ -1268,7 +1296,6 @@ export default {
 
       gameState.physics.bodies.push(body);
       gameState.physics.bro.unshift(gameState.physics.bodies.length - 1);
-
 
       if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
       gm.graphics.renderUpdates[gameState.rl].push({action: 'create', id: gameState.physics.bodies.length - 1});
@@ -1319,29 +1346,29 @@ export default {
     },
     setPlatformProperty: function(gameState, platID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
 
       const body = gameState.physics.bodies[platID];
       const boolProps = ['fricp', 'f_p', 'f_a', 'f_b', 'f_c', 'f_d'];
       if (gameState.physics.bodies[platID]) {
         switch (property) {
           case 'p_x':
-            body.p[0] = parseFloat(value) === NaN ? body.p[0] : parseFloat(value);
+            body.p[0] = Number.isNaN(parseFloat(value)) ? body.p[0] : parseFloat(value);
             break;
           case 'p_y':
-            body.p[1] = parseFloat(value) === NaN ? body.p[1] : parseFloat(value);
+            body.p[1] = Number.isNaN(parseFloat(value)) ? body.p[1] : parseFloat(value);
             break;
           case 'lv_x':
-            body.lv[0] = parseFloat(value) === NaN ? body.lv[0] : parseFloat(value);
+            body.lv[0] = Number.isNaN(parseFloat(value)) ? body.lv[0] : parseFloat(value);
             break;
           case 'lv_y':
-            body.lv[1] = parseFloat(value) === NaN ? body.lv[1] : parseFloat(value);
+            body.lv[1] = Number.isNaN(parseFloat(value)) ? body.lv[1] : parseFloat(value);
             break;
         }
         if (boolProps.includes(property)) {
           body[property] = value === true;
         } else if (body[property] !== undefined) {
-          body[property] = parseFloat(value) === NaN ? body[property] : parseFloat(value);
+          body[property] = Number.isNaN(parseFloat(value)) ? body[property] : parseFloat(value);
         }
         gameState.physics.bodies[platID] = body;
       }
@@ -1349,26 +1376,26 @@ export default {
     },
     changePlatformProperty: function(gameState, platID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
 
       const body = gameState.physics.bodies[platID];
       if (gameState.physics.bodies[platID]) {
         switch (property) {
           case 'p_x':
-            body.p[0] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+            body.p[0] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
             break;
           case 'p_y':
-            body.p[1] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+            body.p[1] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
             break;
           case 'lv_x':
-            body.lv[0] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+            body.lv[0] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
             break;
           case 'lv_y':
-            body.lv[1] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+            body.lv[1] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
             break;
         }
         if (body[property] !== undefined) {
-          body[property] += parseFloat(value) === NaN ? 0 : parseFloat(value);
+          body[property] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
         }
         gameState.physics.bodies[platID] = body;
       }
@@ -1395,7 +1422,7 @@ export default {
     },
     setShapeProperty: function(gameState, platID, shapeID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
 
       const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
       const shape = gameState.physics.shapes[fixture?.sh];
@@ -1442,7 +1469,7 @@ export default {
     },
     changeShapeProperty: function(gameState, platID, shapeID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || value === Infinity || value === NaN) return gameState;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
 
       const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
       const shape = gameState.physics.shapes[fixture?.sh];
@@ -1547,6 +1574,28 @@ export default {
       }
       return gameState;
     },
+    playSound: function(gameState, panType, soundName, volume, panning) {
+      panning = Number(panning);
+      volume = Number(volume);
+
+      if (!Number.isFinite(volume) || volume === null || Number.isNaN(volume)) return;
+      if (!Number.isFinite(panning) || panning === null || Number.isNaN(panning)) return;
+
+      if (soundName == 'discDeath') soundName += Math.floor(gm.physics.pseudoRandom() * 2.999);
+
+      if (panType === 'world') {
+        const cameraObj = gameState.physics.bodies[0]?.cf.cameras[gm.lobby.networkEngine?.getLSID()];
+        const ppm = gameState.physics.ppm;
+        if (!cameraObj) return;
+
+        panning = panning / (365 / ppm) - 1;
+        panning += ((-cameraObj.xpos + 730 / ppm) * cameraObj.xscal) / (365 / ppm) - 1;
+      }
+
+      panning = Math.max(Math.min(panning, 1), -1);
+
+      window.BonkUtils.soundManager.playSound(soundName, panning, volume);
+    },
     setVar: function(varName, gameState, discID, value) {
       if (value === null || value === undefined) return gameState;
 
@@ -1562,6 +1611,7 @@ export default {
       if (value === null || value === undefined) return gameState;
 
       if (varName.startsWith('GLOBAL_')) {
+        if (!gameState.physics.bodies[0].cf.global[varName]) gameState.physics.bodies[0].cf.global[varName] = 0;
         gameState.physics.bodies[0].cf.variables.global[varName] += value;
       } else if (gameState.physics.bodies[0].cf.variables[discID]) {
         if (!gameState.physics.bodies[0].cf.variables[discID][varName]) gameState.physics.bodies[0].cf.variables[discID][varName] = 0;
@@ -1569,6 +1619,11 @@ export default {
       }
 
       return gameState;
+    },
+    keepVar: function(varName, gameState) {
+      if (!gameState.physics.bodies[0].cf.keepVariables.includes(varName)) {
+        gameState.physics.bodies[0].cf.keepVariables.push(varName);
+      }
     },
     getVar: function(varName, gameState, discID) {
       if (varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf.variables.global?.[varName] != null) {

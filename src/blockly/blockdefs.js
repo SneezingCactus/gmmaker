@@ -51,7 +51,7 @@ module.exports = [{
 },
 {
   'type': 'player_die',
-  'message0': 'kill %1 %2 %3',
+  'message0': 'kill %1 %2 %3 , %4 respawn',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -75,11 +75,25 @@ module.exports = [{
       'name': 'player_id',
       'check': 'Number',
     },
+    {
+      'type': 'field_dropdown',
+      'name': 'allow_respawn',
+      'options': [
+        [
+          'allow',
+          'true',
+        ],
+        [
+          'don\'t allow',
+          'false',
+        ],
+      ],
+    },
   ],
   'inputsInline': true,
   'previousStatement': null,
   'colour': 230,
-  'tooltip': 'Kill a player.',
+  'tooltip': 'Kill a player. Not allowing a player to respawn makes the player stay killed until the round ends, even when respawn on death is activated.',
   'helpUrl': '',
 },
 {
@@ -2839,7 +2853,7 @@ module.exports = [{
 },
 {
   'type': 'play_sound',
-  'message0': 'play sound %1 %2 with volume (0.0 to 1.0) %3 with balance (-1.0 to 1.0) %4',
+  'message0': 'play sound %1 %2 with volume (0.0 to 1.0) %3 panning type %4 %5 %6 %7',
   'args0': [
     {
       'type': 'field_dropdown',
@@ -2917,6 +2931,29 @@ module.exports = [{
       'align': 'RIGHT',
     },
     {
+      'type': 'field_dropdown',
+      'name': 'pan_type',
+      'options': [
+        [
+          'constant',
+          'const',
+        ],
+        [
+          'world position',
+          'world',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+      'align': 'RIGHT',
+    },
+    {
+      'type': 'field_label_serializable',
+      'name': 'sound_pan_name',
+      'text': 'with panning (-1.0 to 1.0)',
+    },
+    {
       'type': 'input_value',
       'name': 'sound_pan',
       'check': 'Number',
@@ -2927,7 +2964,7 @@ module.exports = [{
   'previousStatement': null,
   'nextStatement': null,
   'colour': 0,
-  'tooltip': 'Plays a sound with a specified amount of volume and balance (panning).',
+  'tooltip': 'Plays a sound with a specified amount of volume and panning. Panning type \'constant\' means the "location" of the sound is always the same, while panning type \'world position\' means the "position" of the sound is affected by where in the world the camera is.',
   'helpUrl': '',
 },
 {
@@ -3295,8 +3332,48 @@ module.exports = [{
   ],
   'previousStatement': null,
   'nextStatement': null,
-  'colour': 230,
+  'colour': 0,
   'tooltip': 'Enables or disables the vanilla death barrier that kills players when they touch the map\'s ground or go too far from the screen.',
+  'helpUrl': '',
+},
+{
+  'type': 'variables_retain_value',
+  'message0': 'keep value of %1 on next round',
+  'args0': [
+    {
+      'type': 'field_variable',
+      'name': 'VAR',
+      'variable': 'item',
+    },
+  ],
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 330,
+  'tooltip': 'Mantain the value of this variable to the next round. Normally, variables get wiped up when a new round starts. When you execute this block, the variable is set to keep its value when moving on to the next round.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_screen_prop',
+  'message0': '%1 of screen',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'screen_prop',
+      'options': [
+        [
+          'width',
+          'width',
+        ],
+        [
+          'height',
+          'height',
+        ],
+      ],
+    },
+  ],
+  'output': 'Number',
+  'colour': 160,
+  'tooltip': 'Get width or height of screen (in gmmaker units, not in pixels).',
   'helpUrl': '',
 },
 {

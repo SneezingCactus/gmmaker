@@ -19,10 +19,8 @@ export default {
 
         if (kills) {
           for (let i = 0; i !== kills.length; i++) {
-            const discID = kills[i];
-
-            if (PhysicsClass.globalStepVars.discs[discID]) {
-              PhysicsClass.globalStepVars.discs[discID].diedThisStep = 3;
+            if (PhysicsClass.globalStepVars.discs[kills[i].id]) {
+              PhysicsClass.globalStepVars.discs[kills[i].id].diedThisStep = kills[i].allowRespawn ? 1 : 3;
             }
           }
         }
@@ -63,9 +61,9 @@ export default {
 
         gmReplaceAccessors.disableDeathBarrier = !!arguments[0].physics.bodies[0]?.cf.disableDeathBarrier;
 
-        let gst = step_OLD(...arguments);
+        if (arguments[0].rl === 0 && arguments[4].GMMode) gmReplaceAccessors.disableDeathBarrier = true;
 
-        gm.graphics.onPhysStep(gst);
+        let gst = step_OLD(...arguments);
 
         if (gst.ftu == 0) {
           gm.graphics.renderUpdates = [];
@@ -113,12 +111,36 @@ export default {
           };
         }
 
+        if (!gst.physics.bodies[0].cf.initialPlayers) gst.physics.bodies[0].cf.initialPlayers = gm.blockly.funcs.getAllPlayerIds(gst);
+
         if (!gst.physics.bodies[0].cf.variables) {
           gst.physics.bodies[0].cf.variables = {global: {}};
+          gst.physics.bodies[0].cf.keepVariables = [];
+
+          const keepVariables = arguments[0].physics.bodies[0]?.cf.keepVariables;
+
+          if (keepVariables) {
+            for (let v = 0; v < keepVariables.length; v++) {
+              const varName = keepVariables[v];
+              if (!arguments[0].physics.bodies[0]?.cf.variables?.global[varName]) continue;
+
+              gst.physics.bodies[0].cf.variables.global[varName] = arguments[0].physics.bodies[0].cf.variables.global[varName];
+            }
+          }
+
           for (let i = 0; i < gst.discs.length; i++) {
             if (!gst.discs[i]) continue;
 
             gst.physics.bodies[0].cf.variables[i] = {};
+
+            if (!keepVariables) continue;
+
+            for (let v = 0; v < keepVariables.length; v++) {
+              const varName = keepVariables[v];
+              if (!arguments[0].physics.bodies[0].cf.variables[i][varName]) continue;
+
+              gst.physics.bodies[0].cf.variables[i][varName] = arguments[0].physics.bodies[0].cf.variables[i][varName];
+            }
           }
 
           gst.physics.bodies[0].cf.cameras = [];
@@ -137,8 +159,14 @@ export default {
             };
           }
 
-          gst.physics.bodies[0].cf.enableDeathBarrier = true;
+          gst.physics.bodies[0].cf.disableDeathBarrier = false;
         }
+
+        // graphics phys step update
+        gm.graphics.onPhysStep(gst);
+
+        // clean kills list
+        gst.physics.bodies[0].cf.kills = [];
 
         gm.physics.gameState = gst;
 
@@ -324,12 +352,13 @@ export default {
         gm.physics.gameState = gst;
 
         for (let i = 0; i < arguments[0].discs.length; i++) {
-          if ((arguments[0].discs[i] && !gst.discs[i]) || // no-respawn player deaths and disconnects
-              (gst.discDeaths[gst.discDeaths.length - 1]?.i == i && gst.discDeaths[gst.discDeaths.length - 1]?.f == 0)) { // respawn player deaths
+          if (arguments[0].discs[i] && !gst.discs[i]) {
             const currentDisc = gm.physics.gameState.discs[i];
             gm.physics.gameState.discs[i] = arguments[0].discs[i];
             gm.physics.onPlayerDie(i);
             gm.physics.gameState.discs[i] = currentDisc;
+          } else if (gst.discDeaths[gst.discDeaths.length - 1]?.i == i && gst.discDeaths[gst.discDeaths.length - 1]?.f == 0) {
+            gm.physics.onPlayerDie(i);
           }
         }
 
@@ -338,24 +367,24 @@ export default {
 
           gm.blockly.funcs.clearGraphics();
 
-          for (let i = 0; i !== gm.physics.gameState.discs.length; i++) {
-            if (!gm.physics.gameState.discs[i]) continue;
+          for (let i = 0; i !== gst.physics.bodies[0].cf.initialPlayers.length; i++) {
+            const id = gst.physics.bodies[0].cf.initialPlayers[i];
 
-            if (!gm.inputs.allPlayerInputs[i]) {
-              gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
+            if (!gm.inputs.allPlayerInputs[id]) {
+              gm.inputs.allPlayerInputs[id] = {left: false, right: false, up: false, down: false, action: false, action2: false};
             }
 
-            gm.physics.onFirstStep(i);
+            gm.physics.onFirstStep(id);
           }
         } else if (!gm.physics.forceGameState && gm.physics.gameState.ftu === -1) {
-          for (let i = 0; i !== gm.physics.gameState.discs.length; i++) {
-            if (!gm.physics.gameState.discs[i]) continue;
+          for (let i = 0; i !== gst.physics.bodies[0].cf.initialPlayers.length; i++) {
+            const id = gst.physics.bodies[0].cf.initialPlayers[i];
 
-            if (!gm.inputs.allPlayerInputs[i]) {
-              gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
+            if (!gm.inputs.allPlayerInputs[id]) {
+              gm.inputs.allPlayerInputs[id] = {left: false, right: false, up: false, down: false, action: false, action2: false};
             }
 
-            gm.physics.onStep(i);
+            gm.physics.onStep(id);
           }
         }
 
@@ -371,7 +400,7 @@ export default {
         // The renderer class isn't built at the same time as the first game step gets executed,
         // so this checks if the renderer has been built, and executes all the previous render updates
         gst.physics.bodies[0].cf.rendererExists = !!gm.graphics.rendererClass;
-        if (!!gm.graphics.rendererClass && !arguments[0].physics.bodies[0].cf.rendererExists) {
+        if (!!gm.graphics.rendererClass && !arguments[0].physics.bodies[0]?.cf.rendererExists) {
           for (let i = 0; i < gst.rl; i++) {
             if (!window.gmReplaceAccessors.gameStateList || !window.gmReplaceAccessors.gameStateList[i]) continue;
             gm.graphics.doRenderUpdates(window.gmReplaceAccessors.gameStateList[i]);

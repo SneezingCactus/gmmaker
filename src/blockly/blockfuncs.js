@@ -284,8 +284,8 @@ export default function() {
     var point_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('point_y'), Blockly.VARIABLE_CATEGORY_NAME);
     var normal_x = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_x'), Blockly.VARIABLE_CATEGORY_NAME);
     var normal_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_y'), Blockly.VARIABLE_CATEGORY_NAME);
-    var object_type = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('object_type'), Blockly.Variables.NAME_TYPE);
-    var object_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('object_id'), Blockly.Variables.NAME_TYPE);
+    var object_type = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('object_type'), Blockly.VARIABLE_CATEGORY_NAME);
+    var object_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('object_id'), Blockly.VARIABLE_CATEGORY_NAME);
 
     var code = `gm.blockly.funcs.rayCast(gst, playerid, ${a_x}, ${a_y}, ${b_x}, ${b_y}, ${collide_a}, ${collide_b}, ${collide_c}, ${collide_d}, ${collide_player}, "${point_x}", "${point_y}", "${normal_x}", "${normal_y}", "${object_type}", "${object_id}")`;
 
@@ -300,8 +300,9 @@ export default function() {
   Blockly.JavaScript['player_die'] = function(block) {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
+    const allow_respawn = block.getFieldValue('allow_respawn') === 'true';
 
-    const code = `gm.blockly.funcs.killPlayer(gst, ${player === 'self' ? 'playerid' : player_id});`;
+    const code = `gm.blockly.funcs.killPlayer(gst, ${player === 'self' ? 'playerid' : player_id}, ${allow_respawn});`;
     return code;
   };
 
@@ -707,8 +708,9 @@ export default function() {
     var sound_name = block.getFieldValue('sound_name');
     var sound_volume = Blockly.JavaScript.valueToCode(block, 'sound_volume', Blockly.JavaScript.ORDER_ATOMIC);
     var sound_pan = Blockly.JavaScript.valueToCode(block, 'sound_pan', Blockly.JavaScript.ORDER_ATOMIC);
+    var pan_type = block.getFieldValue('pan_type');
 
-    var code = `gm.audio.playSound("${sound_name}", ${sound_volume}, ${sound_pan});`;
+    var code = `gm.blockly.funcs.playSound(gst, "${pan_type}", "${sound_name}", ${sound_volume}, ${sound_pan});`;
     return code;
   };
 
@@ -716,6 +718,22 @@ export default function() {
     var hex_code = Blockly.JavaScript.valueToCode(block, 'hex_code', Blockly.JavaScript.ORDER_ATOMIC);
 
     var code = `gm.blockly.funcs.parseColour(${hex_code})`;
+
+    return [code, Blockly.JavaScript.ORDER_NONE];
+  };
+
+  Blockly.JavaScript['variables_retain_value'] = function(block) {
+    const variable = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+
+    var code = `gm.blockly.funcs.keepVar("${variable}", gst);`;
+
+    return code;
+  };
+
+  Blockly.JavaScript['get_screen_prop'] = function(block) {
+    var screen_prop = block.getFieldValue('screen_prop');
+
+    var code = `${screen_prop == 'width' ? '730' : '500'} / gst.physics.ppm`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -923,6 +941,12 @@ export default function() {
             '</shadow>' +
             '</value>'));
         xmlList.push(changeBlock);
+
+        const retainBlock = Blockly.utils.xml.createElement('block');
+        retainBlock.setAttribute('type', 'variables_retain_value');
+        retainBlock.appendChild(Blockly.Variables.generateVariableFieldDom(mostRecentVariable));
+
+        xmlList.push(retainBlock);
       }
 
       if (Blockly.Blocks['variables_get']) {

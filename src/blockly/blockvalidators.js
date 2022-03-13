@@ -13,6 +13,7 @@ export default function() {
       const container = Blockly.utils.xml.createElement('mutation');
       const showPlayerId = (this.getFieldValue('player') === 'id');
       container.setAttribute('playerid_input', showPlayerId);
+      this.updateShape_(showPlayerId);
       return container;
     },
     domToMutation: function(xmlElement) {
@@ -40,6 +41,7 @@ export default function() {
       const showArrowId = (this.getFieldValue('arrow') === 'id');
       container.setAttribute('playerid_input', showPlayerId);
       container.setAttribute('arrowid_input', showArrowId);
+      this.updateShape_(showPlayerId, showArrowId);
       return container;
     },
     domToMutation: function(xmlElement) {
@@ -234,7 +236,9 @@ export default function() {
   Blockly.Blocks['player_die'].validatorInit = function() {
     this.mixin(playerIdMixin);
 
-    this.moveIdInputs = function(movePlayerId) { };
+    this.moveIdInputs = function(movePlayerId) {
+      if (movePlayerId) this.moveNumberedInputBefore(this.inputList.length - 1, 1);
+    };
 
     const playerDropdown = this.getField('player');
 
@@ -553,6 +557,18 @@ export default function() {
     });
   };
 
+  Blockly.Blocks['play_sound'].validatorInit = function() {
+    const panTypeDropdown = this.getField('pan_type');
+
+    panTypeDropdown.setValidator(function(newValue) {
+      if (newValue === 'world') {
+        this.getSourceBlock().getField('sound_pan_name').setValue('x sound position');
+      } else {
+        this.getSourceBlock().getField('sound_pan_name').setValue('panning (-1.0 to 1.0)');
+      }
+    });
+  };
+
   const variableMixin = {
     mutationToDom: function() {
       const container = Blockly.utils.xml.createElement('mutation');
@@ -560,6 +576,7 @@ export default function() {
       const showDropdown = !(this.getField('VAR').variable_.name).startsWith('GLOBAL_');
       container.setAttribute('playerid_input', showPlayerId);
       container.setAttribute('show_dropdown', showDropdown);
+      this.updateShape_(showPlayerId, showDropdown);
       return container;
     },
     domToMutation: function(xmlElement) {
@@ -721,3 +738,32 @@ export default function() {
     });
   };
 }
+
+// blockly built-in
+
+Blockly.Xml.applyInputTagNodes_ = function(xmlChildren, workspace, block, prototypeName) {
+  for (let i = 0; i < xmlChildren.length; i++) {
+    const xmlChild = xmlChildren[i];
+    const nodeName = xmlChild.getAttribute('name');
+    const input = block.getInput(nodeName);
+    if (!input) {
+      console.warn(
+          'Ignoring non-existent input ' + nodeName + ' in block ' +
+        prototypeName);
+      // this was break and that made it so that no other input values would load which is bad
+      continue;
+    }
+    const childBlockInfo = Blockly.Xml.findChildBlocks_(xmlChild);
+    if (childBlockInfo.childBlockElement) {
+      if (!input.connection) {
+        throw TypeError('Input connection does not exist.');
+      }
+      Blockly.Xml.domToBlockHeadless_(
+          childBlockInfo.childBlockElement, workspace, input.connection, false);
+    }
+    // Set shadow after so we don't create a shadow we delete immediately.
+    if (childBlockInfo.childShadowElement) {
+      input.connection.setShadowDom(childBlockInfo.childShadowElement);
+    }
+  }
+};
