@@ -61,7 +61,9 @@ export default {
 
         gmReplaceAccessors.disableDeathBarrier = !!arguments[0].physics.bodies[0]?.cf.disableDeathBarrier;
 
-        if (arguments[0].rl === 0 && arguments[4].GMMode) gmReplaceAccessors.disableDeathBarrier = true;
+        if (arguments[0].rl === 0 && arguments[4].GMMode) {
+          gmReplaceAccessors.disableDeathBarrier = true;
+        }
 
         let gst = step_OLD(...arguments);
 

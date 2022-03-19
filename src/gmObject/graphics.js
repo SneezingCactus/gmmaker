@@ -31,7 +31,7 @@ export default {
           discGraphic.__proto__.doOffScreen_OLD = discGraphic.__proto__.doOffScreen;
           discGraphic.__proto__.doOffScreen = function() {
             this.offScreenContainer.visible = false;
-            if (!gm.physics.gameState?.physics.bodies[0].cf.cameraChanged) {
+            if (!gm.physics.gameState?.physics.bodies[0].cf.cameraChanged && gm.physics.gameState?.rl > 1) {
               return this.doOffScreen_OLD.apply(this, arguments);
             }
             return;
@@ -99,6 +99,7 @@ export default {
 
           gm.graphics.cameraContainer.pivot.x = 365 * gm.graphics.rendererClass.scaleRatio;
           gm.graphics.cameraContainer.pivot.y = 250 * gm.graphics.rendererClass.scaleRatio;
+          gm.graphics.cameraContainer.sortableChildren = true;
         }
 
         if (!gm.graphics.cameraContainer.children.includes(this.particleManager.container)) gm.graphics.cameraContainer.addChild(this.particleManager.container);
@@ -228,42 +229,46 @@ export default {
     BonkGraphics.prototype.resizeRenderer = (function() {
       BonkGraphics.prototype.resizeRenderer_OLD = BonkGraphics.prototype.resizeRenderer;
       return function() {
-        for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
-          if (!gm.graphics.additionalDiscGraphics[i]) continue;
-          gm.graphics.rendererClass?.discGraphics[i]?.container.removeChild(gm.graphics.additionalDiscGraphics[i]);
-        }
-        for (let i = 0; i < gm.graphics.additionalWorldGraphics.length; i++) {
-          if (!gm.graphics.additionalWorldGraphics[i]) continue;
-          gm.graphics.cameraContainer?.removeChild(gm.graphics.additionalWorldGraphics[i]);
-        }
-        for (let i = 0; i < gm.graphics.additionalScreenGraphics.length; i++) {
-          if (!gm.graphics.additionalScreenGraphics[i]) continue;
-          gm.graphics.rendererClass.blurContainer?.removeChild(gm.graphics.additionalScreenGraphics[i]);
-        }
-        const result = this.resizeRenderer_OLD.apply(this, arguments);
-        for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
-          if (!gm.graphics.additionalDiscGraphics[i]) continue;
+        if (gm.graphics.rendererClass) {
+          for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
+            if (!gm.graphics.additionalDiscGraphics[i]) continue;
+            gm.graphics.rendererClass.discGraphics[i]?.container.removeChild(gm.graphics.additionalDiscGraphics[i]);
+          }
+          for (let i = 0; i < gm.graphics.additionalWorldGraphics.length; i++) {
+            if (!gm.graphics.additionalWorldGraphics[i]) continue;
+            gm.graphics.cameraContainer?.removeChild(gm.graphics.additionalWorldGraphics[i]);
+          }
+          for (let i = 0; i < gm.graphics.additionalScreenGraphics.length; i++) {
+            if (!gm.graphics.additionalScreenGraphics[i]) continue;
+            gm.graphics.rendererClass.blurContainer?.removeChild(gm.graphics.additionalScreenGraphics[i]);
+          }
+          const result = this.resizeRenderer_OLD.apply(this, arguments);
+          for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
+            if (!gm.graphics.additionalDiscGraphics[i]) continue;
 
-          gm.graphics.additionalDiscGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
-          gm.graphics.additionalDiscGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
-          gm.graphics.rendererClass?.discGraphics[i]?.container.addChild(gm.graphics.additionalDiscGraphics[i]);
+            gm.graphics.additionalDiscGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
+            gm.graphics.additionalDiscGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
+            gm.graphics.rendererClass.discGraphics[i]?.container.addChild(gm.graphics.additionalDiscGraphics[i]);
 
-          gm.graphics.additionalWorldGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
-          gm.graphics.additionalWorldGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
-          gm.graphics.cameraContainer?.addChild(gm.graphics.additionalWorldGraphics[i]);
+            gm.graphics.additionalWorldGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
+            gm.graphics.additionalWorldGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
+            gm.graphics.cameraContainer?.addChild(gm.graphics.additionalWorldGraphics[i]);
 
-          gm.graphics.additionalScreenGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
-          gm.graphics.additionalScreenGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
-          gm.graphics.additionalScreenGraphics[i].pivot.x = 365;
-          gm.graphics.additionalScreenGraphics[i].pivot.y = 250;
-          gm.graphics.rendererClass?.blurContainer.addChild(gm.graphics.additionalScreenGraphics[i]);
+            gm.graphics.additionalScreenGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
+            gm.graphics.additionalScreenGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
+            gm.graphics.additionalScreenGraphics[i].pivot.x = 365;
+            gm.graphics.additionalScreenGraphics[i].pivot.y = 250;
+            gm.graphics.rendererClass.blurContainer?.addChild(gm.graphics.additionalScreenGraphics[i]);
+          }
+
+          if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed) {
+            gm.graphics.cameraContainer.pivot.x = 365 * gm.graphics.rendererClass.scaleRatio;
+            gm.graphics.cameraContainer.pivot.y = 250 * gm.graphics.rendererClass.scaleRatio;
+          }
+          return result;
+        } else {
+          return this.resizeRenderer_OLD.apply(this, arguments);
         }
-
-        if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed) {
-          gm.graphics.cameraContainer.pivot.x = 365 * gm.graphics.rendererClass.scaleRatio;
-          gm.graphics.cameraContainer.pivot.y = 250 * gm.graphics.rendererClass.scaleRatio;
-        }
-        return result;
       };
     })();
   },
@@ -289,9 +294,11 @@ export default {
       }
       if (!gm.graphics.additionalWorldGraphics[id] || gm.graphics.additionalWorldGraphics[id]._destroyed) {
         gm.graphics.additionalWorldGraphics[id] = new PIXI.Graphics();
+        gm.graphics.additionalWorldGraphics[id].zIndex = 9999;
       }
       if (!gm.graphics.additionalScreenGraphics[id] || gm.graphics.additionalScreenGraphics[id]._destroyed) {
         gm.graphics.additionalScreenGraphics[id] = new PIXI.Graphics();
+        gm.graphics.additionalScreenGraphics[id].zIndex = 9999;
       }
     }
 
@@ -373,75 +380,76 @@ export default {
     }
   },
   doRenderUpdates: function(gameState) {
-    if (gm.graphics.renderUpdates[gameState.rl]) {
-      const alreadyDone = [];
+    if (!gm.graphics.renderUpdates[gameState.rl]) return;
+    if (!this.rendererClass.roundGraphics) return;
 
-      for (let i = 0; i < gm.graphics.renderUpdates[gameState.rl].length; i++) {
-        const update = gm.graphics.renderUpdates[gameState.rl][i];
+    const alreadyDone = [];
 
-        if (alreadyDone.includes(update)) continue;
-        if (update.done) continue;
+    for (let i = 0; i < gm.graphics.renderUpdates[gameState.rl].length; i++) {
+      const update = gm.graphics.renderUpdates[gameState.rl][i];
 
-        switch (update.action) {
-          case 'create': {
-            const newBodyGraphics = new gm.graphics.bodyGraphicsClass(gameState, update.id, this.rendererClass.scaleRatio, this.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), this.rendererClass.playerArray);
+      if (alreadyDone.includes(update)) continue;
+      if (update.done) continue;
 
-            this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
+      switch (update.action) {
+        case 'create': {
+          const newBodyGraphics = new gm.graphics.bodyGraphicsClass(gameState, update.id, this.rendererClass.scaleRatio, this.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), this.rendererClass.playerArray);
 
-            const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+          this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-            if (bodyBehind) {
-              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
 
-              if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
-              this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
-            } else {
-              if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
-              this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
-            }
+          if (bodyBehind) {
+            const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
 
-            break;
+            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
+            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
+          } else {
+            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
+            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
           }
-          case 'delete': {
-            if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
-              this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
-              this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
-              this.rendererClass.roundGraphics.bodyGraphics[update.id].destroy();
-              delete this.rendererClass.roundGraphics.bodyGraphics[update.id];
-            }
-            break;
-          }
-          case 'update': {
-            if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
-              this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
-              this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
-              this.rendererClass.roundGraphics.bodyGraphics[update.id]?.destroy();
-            }
 
-            const newBodyGraphics = new gm.graphics.bodyGraphicsClass(gameState, update.id, this.rendererClass.scaleRatio, this.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), this.rendererClass.playerArray);
-
-            this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
-
-            const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
-
-            if (bodyBehind) {
-              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
-
-              if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
-              this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
-            } else {
-              if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
-              this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
-            }
-
-            break;
-          }
+          break;
         }
+        case 'delete': {
+          if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
+            this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
+            this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
+            this.rendererClass.roundGraphics.bodyGraphics[update.id].destroy();
+            delete this.rendererClass.roundGraphics.bodyGraphics[update.id];
+          }
+          break;
+        }
+        case 'update': {
+          if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
+            this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
+            this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
+            this.rendererClass.roundGraphics.bodyGraphics[update.id]?.destroy();
+          }
 
-        gm.graphics.renderUpdates[gameState.rl][i].done = true;
-        update.done = true;
-        alreadyDone.push(update);
+          const newBodyGraphics = new gm.graphics.bodyGraphicsClass(gameState, update.id, this.rendererClass.scaleRatio, this.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), this.rendererClass.playerArray);
+
+          this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
+
+          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+
+          if (bodyBehind) {
+            const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+
+            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
+            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
+          } else {
+            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
+            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
+          }
+
+          break;
+        }
       }
+
+      gm.graphics.renderUpdates[gameState.rl][i].done = true;
+      update.done = true;
+      alreadyDone.push(update);
     }
   },
   rendererClass: null,

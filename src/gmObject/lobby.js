@@ -34,8 +34,8 @@ export default {
           const xml = document.createElement('xml');
           xml.innerHTML = gm.blockly.decompressXml(data.replace('!!!GMMODE!!!', ''));
 
-          gm.blockly.workspace.clear();
-          Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
+          gm.blockly.headlessWorkspace.clear();
+          Blockly.Xml.domToWorkspace(xml, gm.blockly.headlessWorkspace);
 
           gm.blockly.savedXml = xml;
           gm.blockly.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
@@ -64,6 +64,9 @@ export default {
         this.handleHostLeft = function(_oldHostName, newHostId) {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
+
+            gm.blockly.workspace.clear();
+            Blockly.Xml.domToWorkspace(gm.blockly.savedXml, gm.blockly.workspace);
           } else {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
@@ -75,6 +78,9 @@ export default {
         this.handleHostChange = function(_oldHostName, newHostId) {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
+
+            gm.blockly.workspace.clear();
+            Blockly.Xml.domToWorkspace(gm.blockly.savedXml, gm.blockly.workspace);
           } else {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
@@ -90,13 +96,13 @@ export default {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
 
-          if (gameSettings.GMMode && gm.lobby.networkEngine.getLSID() != gm.lobby.networkEngine.hostID) {
-            if (gameSettings.GMMode !== '') {
-              const xml = document.createElement('xml');
-              xml.innerHTML = gm.blockly.decompressXml(gameSettings.GMMode);
+          if (gameSettings.GMMode !== null && gameSettings.GMMode !== '' && gm.lobby.networkEngine.getLSID() != gm.lobby.networkEngine.hostID) {
+            const xml = document.createElement('xml');
+            xml.innerHTML = gm.blockly.decompressXml(gameSettings.GMMode);
 
-              gm.blockly.workspace.clear();
-              Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
+            if (gm.blockly.savedXml?.innerHTML !== xml.innerHTML) {
+              gm.blockly.headlessWorkspace.clear();
+              Blockly.Xml.domToWorkspace(xml, gm.blockly.headlessWorkspace);
 
               gm.blockly.savedXml = xml;
               gm.blockly.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
@@ -208,8 +214,8 @@ export default {
             const xml = document.createElement('xml');
             xml.innerHTML = gm.blockly.decompressXml(gameSettings.GMMode);
 
-            gm.blockly.workspace.clear();
-            Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
+            gm.blockly.headlessWorkspace.clear();
+            Blockly.Xml.domToWorkspace(xml, gm.blockly.headlessWorkspace);
 
             gm.blockly.savedXml = xml;
             gm.blockly.savedSettings = xml?.getElementsByTagName('gmsettings')[0];

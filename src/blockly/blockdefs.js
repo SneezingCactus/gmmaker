@@ -2162,19 +2162,19 @@ module.exports = [{
         ],
         [
           'collide with A',
-          'f_a',
+          'f_1',
         ],
         [
           'collide with B',
-          'f_b',
+          'f_2',
         ],
         [
           'collide with C',
-          'f_c',
+          'f_3',
         ],
         [
           'collide with D',
-          'f_d',
+          'f_4',
         ],
         [
           'linear drag',
@@ -2333,19 +2333,19 @@ module.exports = [{
         ],
         [
           'collide with A',
-          'f_a',
+          'f_1',
         ],
         [
           'collide with B',
-          'f_b',
+          'f_2',
         ],
         [
           'collide with C',
-          'f_c',
+          'f_3',
         ],
         [
           'collide with D',
-          'f_d',
+          'f_4',
         ],
         [
           'linear drag',

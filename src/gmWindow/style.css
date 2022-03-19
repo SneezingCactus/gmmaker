@@ -104,11 +104,17 @@
     background-image: url(images/gmeclose.png);
 }
 
-#gmblocklydiv {
+#gmblocklyarea {
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
     flex-grow: 1;
+}
+
+#gmblocklydiv {
+    position: absolute;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
 /* LOBBY MODS */

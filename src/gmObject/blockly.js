@@ -152,6 +152,19 @@ export default {
     document.head.appendChild(blocklyToolbox);
     blocklyToolbox.outerHTML = toolbox;
 
+    // create blockly div
+    const blocklyDiv = document.createElement('div');
+    blocklyDiv.id = 'gmblocklydiv';
+
+    const bounds = document.getElementById('gmblocklyarea').getBoundingClientRect();
+
+    blocklyDiv.style.top = bounds.top;
+    blocklyDiv.style.left = bounds.left;
+    blocklyDiv.style.width = bounds.width;
+    blocklyDiv.style.height = bounds.height;
+
+    document.getElementById('pagecontainer').appendChild(blocklyDiv);
+
     // create gmmaker theme
     gm.blockly.theme = Blockly.Theme.defineTheme('gmmaker', {
       'base': Blockly.Themes.Classic,
@@ -161,26 +174,30 @@ export default {
       },
     }),
 
-    // create blockly workspace
+    // create blockly workspaces
     gm.blockly.workspace = Blockly.inject('gmblocklydiv', {
       toolbox: document.getElementById('toolbox'),
       zoom: {
         controls: true,
         wheel: true,
-        startScale: 1.0,
-        maxScale: 3,
-        minScale: 0.3,
-        scaleSpeed: 1.2,
         pinch: true,
       },
       theme: gm.blockly.theme,
     });
+    gm.blockly.headlessWorkspace = new Blockly.Workspace();
 
     // add loop trap
     Blockly.JavaScript.INFINITE_LOOP_TRAP = 'if (++loopIterations > 10000000) throw \'gmInfiniteLoop\';';
 
     window.addEventListener('resize', () => {
-      setTimeout(() => Blockly.svgResize(gm.blockly.workspace), 500);
+      const bounds = document.getElementById('gmblocklyarea').getBoundingClientRect();
+
+      blocklyDiv.style.top = bounds.top;
+      blocklyDiv.style.left = bounds.left;
+      blocklyDiv.style.width = bounds.width;
+      blocklyDiv.style.height = bounds.height;
+
+      Blockly.svgResize(gm.blockly.workspace);
     }, false);
 
     this.hideGMEWindow();
@@ -249,6 +266,12 @@ export default {
       transaction.objectStore('backups').put(gm.blockly.modeBackups, 1);
       db.onerror = console.error;
     });
+
+    gm.blockly.headlessWorkspace.fireChangeListener_OLD = gm.blockly.headlessWorkspace.fireChangeListener;
+    gm.blockly.headlessWorkspace.fireChangeListener = function() {
+      if (gm.lobby.networkEngine.getLSID() !== gm.lobby.networkEngine.hostID) return;
+      return gm.blockly.headlessWorkspace.fireChangeListener_OLD(...arguments);
+    };
 
     window.blockly = Blockly;
   },
@@ -570,43 +593,53 @@ export default {
     document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
   },
   GMESave: function() {
-    if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
-      gm.blockly.resetAll();
+    if (gm.lobby.networkEngine.getLSID() !== gm.lobby.networkEngine.hostID) return;
 
-      try {
-        eval(gm.blockly.generateCode());
-      } catch (e) {
-        alert(`An error ocurred while trying to save. Please send SneezingCactus a full screenshot of the console (Ctrl+Shift+I, go to the Console tab) so this error can be diagnosed.`);
-        throw (e);
-      }
-      const xml = Blockly.Xml.workspaceToDom(gm.blockly.workspace, true);
+    gm.blockly.resetAll();
 
-      const settingsObj = Blockly.utils.xml.createElement('gmsettings');
-      settingsObj.setAttribute('mode_name', gm.blockly.modeName);
-      settingsObj.setAttribute('mode_description', gm.blockly.modeDescription);
-      settingsObj.setAttribute('show_var_insp', gm.blockly.showVarInspector);
-      settingsObj.setAttribute('base_mode', gm.blockly.baseMode);
-
-      xml.appendChild(settingsObj);
-
-      gm.blockly.savedXml = xml;
-      gm.blockly.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
-      const compressedXml = gm.blockly.compressXml(xml.innerHTML);
-      gm.lobby.socket.emit(23, {'m': `!!!GMMODE!!!${compressedXml}`});
-      gm.lobby.mpSession.getGameSettings().GMMode = compressedXml;
-
-      if (gm.blockly.baseMode && gm.blockly.baseMode !== 'any') {
-        gm.lobby.networkEngine.sendGAMO('b', gm.blockly.baseMode);
-        gm.lobby.mpSession.getGameSettings().ga = 'b';
-        gm.lobby.mpSession.getGameSettings().mo = gm.blockly.baseMode;
-      }
-
-      gm.lobby.bonkLobby.updateGameSettings();
-      gm.blockly.hideGMEWindow();
+    try {
+      eval(gm.blockly.generateCode());
+    } catch (e) {
+      alert(`An error ocurred while trying to save. Please send SneezingCactus a full screenshot of the console (Ctrl+Shift+I, go to the Console tab) so this error can be diagnosed.`);
+      throw (e);
     }
+    const xml = Blockly.Xml.workspaceToDom(gm.blockly.workspace, true);
+
+    const settingsObj = Blockly.utils.xml.createElement('gmsettings');
+    settingsObj.setAttribute('mode_name', gm.blockly.modeName);
+    settingsObj.setAttribute('mode_description', gm.blockly.modeDescription);
+    settingsObj.setAttribute('show_var_insp', gm.blockly.showVarInspector);
+    settingsObj.setAttribute('base_mode', gm.blockly.baseMode);
+
+    xml.appendChild(settingsObj);
+
+    gm.blockly.savedXml = xml;
+    gm.blockly.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
+    const compressedXml = gm.blockly.compressXml(xml.innerHTML);
+    gm.lobby.socket.emit(23, {'m': `!!!GMMODE!!!${compressedXml}`});
+    gm.lobby.mpSession.getGameSettings().GMMode = compressedXml;
+
+    if (gm.blockly.baseMode && gm.blockly.baseMode !== 'any') {
+      gm.lobby.networkEngine.sendGAMO('b', gm.blockly.baseMode);
+      gm.lobby.mpSession.getGameSettings().ga = 'b';
+      gm.lobby.mpSession.getGameSettings().mo = gm.blockly.baseMode;
+    }
+
+    gm.lobby.bonkLobby.updateGameSettings();
+    gm.blockly.hideGMEWindow();
   },
   showGMEWindow: function() {
     document.getElementById('gmeditor').style.transform = 'scale(1)';
+
+    const blocklyDiv = document.getElementById('gmblocklydiv');
+    const bounds = document.getElementById('gmblocklyarea').getBoundingClientRect();
+
+    blocklyDiv.style.transform = 'scale(1)';
+    blocklyDiv.style.top = bounds.top;
+    blocklyDiv.style.left = bounds.left;
+    blocklyDiv.style.width = bounds.width;
+    blocklyDiv.style.height = bounds.height;
+
     gm.blockly.workspace.setVisible(true);
     Blockly.svgResize(gm.blockly.workspace);
 
@@ -619,13 +652,15 @@ export default {
   },
   hideGMEWindow: function() {
     gm.blockly.workspace.setVisible(false);
+    document.getElementById('gmblocklydiv').style.transform = 'scale(0)';
     document.getElementById('gmeditor').style.transform = 'scale(0)';
   },
   generateCode: function() {
-    const topBlocks = gm.blockly.workspace.getTopBlocks();
+    const workspace = gm.lobby.networkEngine.getLSID() === gm.lobby.networkEngine.hostID ? gm.blockly.workspace : gm.blockly.headlessWorkspace;
+    const topBlocks = workspace.getTopBlocks();
     let code = '';
 
-    Blockly.JavaScript.init(gm.blockly.workspace);
+    Blockly.JavaScript.init(workspace);
 
     for (let i = 0; i != topBlocks.length; i++) {
       if (!topBlocks[i].type.startsWith('on_') && !topBlocks[i].type.startsWith('procedures_def')) continue;
@@ -1346,7 +1381,7 @@ export default {
     },
     setPlatformProperty: function(gameState, platID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return gameState;
 
       const body = gameState.physics.bodies[platID];
       const boolProps = ['fricp', 'f_p', 'f_a', 'f_b', 'f_c', 'f_d'];
@@ -1376,7 +1411,7 @@ export default {
     },
     changePlatformProperty: function(gameState, platID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return gameState;
 
       const body = gameState.physics.bodies[platID];
       if (gameState.physics.bodies[platID]) {
@@ -1422,7 +1457,7 @@ export default {
     },
     setShapeProperty: function(gameState, platID, shapeID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return gameState;
 
       const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
       const shape = gameState.physics.shapes[fixture?.sh];
@@ -1469,7 +1504,7 @@ export default {
     },
     changeShapeProperty: function(gameState, platID, shapeID, property, value) {
       if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return gameState;
 
       const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
       const shape = gameState.physics.shapes[fixture?.sh];
@@ -1611,7 +1646,7 @@ export default {
       if (value === null || value === undefined) return gameState;
 
       if (varName.startsWith('GLOBAL_')) {
-        if (!gameState.physics.bodies[0].cf.global[varName]) gameState.physics.bodies[0].cf.global[varName] = 0;
+        if (!gameState.physics.bodies[0].cf.variables.global[varName]) gameState.physics.bodies[0].cf.variables.global[varName] = 0;
         gameState.physics.bodies[0].cf.variables.global[varName] += value;
       } else if (gameState.physics.bodies[0].cf.variables[discID]) {
         if (!gameState.physics.bodies[0].cf.variables[discID][varName]) gameState.physics.bodies[0].cf.variables[discID][varName] = 0;
