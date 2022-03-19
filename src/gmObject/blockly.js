@@ -329,6 +329,8 @@ export default {
   modeBackups: [],
   canBackup: true,
   compressXml: function(xml) {
+    if (!xml) return xml;
+
     for (let i = 0; i < this.xmlDict.length; i++) {
       xml = xml.replace(new RegExp(`<(\/|)${this.xmlDict[i]}([ >])`, 'g'), `<$1${i}$2`);
       xml = xml.replace(new RegExp(` ${this.xmlDict[i]}="`, 'g'), ` ${i}="`);
@@ -336,6 +338,8 @@ export default {
     return xml;
   },
   decompressXml: function(xml) {
+    if (!xml) return xml;
+
     for (let i = 0; i < this.xmlDict.length; i++) {
       xml = xml.replace(new RegExp(`<(\/|)${i}([ >])`, 'g'), `<$1${this.xmlDict[i]}$2`);
       xml = xml.replace(new RegExp(` ${i}="`, 'g'), ` ${this.xmlDict[i]}="`);

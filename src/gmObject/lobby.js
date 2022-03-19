@@ -96,7 +96,7 @@ export default {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
 
-          if (gameSettings.GMMode !== null && gameSettings.GMMode !== '' && gm.lobby.networkEngine.getLSID() != gm.lobby.networkEngine.hostID) {
+          if (gameSettings.GMMode && gameSettings.GMMode !== '' && gm.lobby.networkEngine.getLSID() != gm.lobby.networkEngine.hostID) {
             const xml = document.createElement('xml');
             xml.innerHTML = gm.blockly.decompressXml(gameSettings.GMMode);
 
