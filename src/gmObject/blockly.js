@@ -1342,7 +1342,7 @@ export default {
       return gameState.physics.bodies.length - 1;
     },
     clonePlatform: function(gameState, platID) {
-      if (gameState.physics.bodies[platID]) {
+      if (gameState.physics.bodies[platID] && !gameState.physics.bodies[platID].cf.deleted) {
         const newBody = JSON.parse(JSON.stringify(gameState.physics.bodies[platID]));
 
         const newFixtureIds = [];
@@ -1389,7 +1389,7 @@ export default {
 
       const body = gameState.physics.bodies[platID];
       const boolProps = ['fricp', 'f_p', 'f_a', 'f_b', 'f_c', 'f_d'];
-      if (gameState.physics.bodies[platID]) {
+      if (body && !body.cf.deleted) {
         switch (property) {
           case 'p_x':
             body.p[0] = Number.isNaN(parseFloat(value)) ? body.p[0] : parseFloat(value);
@@ -1418,7 +1418,7 @@ export default {
       if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return gameState;
 
       const body = gameState.physics.bodies[platID];
-      if (gameState.physics.bodies[platID]) {
+      if (body && !body.cf.deleted) {
         switch (property) {
           case 'p_x':
             body.p[0] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
@@ -1442,7 +1442,7 @@ export default {
     },
     getPlatformProperty: function(gameState, platID, property) {
       const body = gameState.physics.bodies[platID];
-      if (gameState.physics.bodies[platID]) {
+      if (body && !body.cf.deleted) {
         switch (property) {
           case 'p_x':
             return body.p[0];
@@ -1576,9 +1576,10 @@ export default {
     },
     deletePlatform: function(gameState, platID) {
       if (gm.graphics.rendering) return gameState;
-      if (gameState.physics.bodies[platID] && gameState.physics.bodies[platID].fx !== 0) {
+      if (gameState.physics.bodies[platID] && gameState.physics.bodies[platID].fx !== 0 && !gameState.physics.bodies[platID].cf.gmDeleted) {
         gameState.physics.bodies[platID].fx = [];
         gameState.physics.bodies[platID].type = 's';
+        gameState.physics.bodies[platID].cf.deleted = true;
 
 
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
@@ -1597,21 +1598,20 @@ export default {
     },
     addShape: function(gameState, platID, shape) {
       if (gm.graphics.rendering) return gameState;
-      if (gameState.physics.bodies[platID] && shape.shape.type) {
-        const shIndex = gameState.physics.shapes.length;
-        gameState.physics.shapes.push(shape.shape);
-        const fxIndex = gameState.physics.fixtures.length;
-        gameState.physics.fixtures.push(shape.fixture);
+      if (!gameState.physics.bodies[platID] || !shape || !shape.shape.type) return gameState;
 
-        gameState.physics.fixtures[fxIndex].sh = shIndex;
+      const shIndex = gameState.physics.shapes.length;
+      gameState.physics.shapes.push(shape.shape);
+      const fxIndex = gameState.physics.fixtures.length;
+      gameState.physics.fixtures.push(shape.fixture);
 
-        gameState.physics.bodies[platID].fx.push(fxIndex);
+      gameState.physics.fixtures[fxIndex].sh = shIndex;
+
+      gameState.physics.bodies[platID].fx.push(fxIndex);
 
 
-        if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
-        gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
-      }
-      return gameState;
+      if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
+      gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
     },
     playSound: function(gameState, panType, soundName, volume, panning) {
       panning = Number(panning);

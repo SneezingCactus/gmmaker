@@ -1138,10 +1138,10 @@
       <field name="poly_anchored">FALSE</field>
       <value name="poly_vertex">
         <shadow type="lists_create_with">
-          <mutation items="6"></mutation>
+          <mutation items="8"></mutation>
           <value name="ADD0">
             <shadow type="math_number">
-              <field name="NUM">0</field>
+              <field name="NUM">5</field>
             </shadow>
           </value>
           <value name="ADD1">
@@ -1161,12 +1161,22 @@
           </value>
           <value name="ADD4">
             <shadow type="math_number">
-              <field name="NUM">0</field>
+              <field name="NUM">5</field>
             </shadow>
           </value>
           <value name="ADD5">
             <shadow type="math_number">
-              <field name="NUM">10</field>
+              <field name="NUM">3</field>
+            </shadow>
+          </value>
+          <value name="ADD6">
+            <shadow type="math_number">
+              <field name="NUM">0</field>
+            </shadow>
+          </value>
+          <value name="ADD7">
+            <shadow type="math_number">
+              <field name="NUM">3</field>
             </shadow>
           </value>
         </shadow>

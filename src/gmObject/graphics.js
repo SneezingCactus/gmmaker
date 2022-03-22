@@ -331,11 +331,11 @@ export default {
 
               this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[previousGameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[Math.min(previousGameState.physics.bro.indexOf(update.id), 0)]]?.displayObject;
 
-              if (bodyBehind) {
-                const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind);
 
+              if (bodyBehind && index !== -1) {
                 if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
                 this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
               } else {
@@ -356,11 +356,11 @@ export default {
 
               this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[previousGameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[Math.min(previousGameState.physics.bro.indexOf(update.id), 0)]]?.displayObject;
 
-              if (bodyBehind) {
-                const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind);
 
+              if (bodyBehind && index !== -1) {
                 if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
                 this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
               } else {
@@ -381,7 +381,7 @@ export default {
   },
   doRenderUpdates: function(gameState) {
     if (!gm.graphics.renderUpdates[gameState.rl]) return;
-    if (!this.rendererClass.roundGraphics) return;
+    if (!gm.graphics.rendererClass.roundGraphics) return;
 
     const alreadyDone = [];
 
@@ -397,16 +397,16 @@ export default {
 
           this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[Math.min(gameState.physics.bro.indexOf(update.id), 0)]]?.displayObject;
 
-          if (bodyBehind) {
-            const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+          const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind);
 
+          if (bodyBehind && index !== -1) {
             if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
             this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
           } else {
             if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
-            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
+            this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.displayObject);
           }
 
           break;
@@ -431,16 +431,16 @@ export default {
 
           this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
+          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[Math.min(gameState.physics.bro.indexOf(update.id), 0)]]?.displayObject;
 
-          if (bodyBehind) {
-            const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
+          const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind);
 
+          if (bodyBehind && index !== -1) {
             if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
             this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
           } else {
             if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
-            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
+            this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.displayObject);
           }
 
           break;

@@ -740,6 +740,23 @@ export default function() {
 
   // blockly built-in
 
+  // temporary fix to the disappearing blocks problem
+  Blockly.WorkspaceSvg.prototype.setCachedParentSvgSize = function(width, height) {
+    const svg = this.getParentSvg();
+    if (width != null) {
+      this.cachedParentSvgSize_.width = width;
+      // This is set to support the public (but deprecated) Blockly.svgSize
+      // method.
+      svg.cachedWidth_ = width;
+    }
+    if (height != null) {
+      this.cachedParentSvgSize_.height = height;
+      // This is set to support the public (but deprecated) Blockly.svgSize
+      // method.
+      svg.cachedHeight_ = height;
+    }
+  };
+
   // fix variable context menu thing
   const CUSTOM_CONTEXT_MENU_VARIABLE_GETTER_SETTER_MIXIN = {
     /**

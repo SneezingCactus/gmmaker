@@ -2610,7 +2610,7 @@ module.exports = [{
   'previousStatement': null,
   'nextStatement': null,
   'colour': 195,
-  'tooltip': 'Delete a platform. Note that this doesn\'t truly delete the platform, it only erases its shapes. Be aware that this may lag the game if done too often.',
+  'tooltip': 'Delete a platform. Be aware that this may lag the game if done too often.',
   'helpUrl': '',
 },
 {
