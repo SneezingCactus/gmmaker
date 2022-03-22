@@ -4,11 +4,25 @@ A [bonk.io](https://bonk.io/) mod that lets you create your own game modes using
 
 This mod uses the [Google Blockly](https://developers.google.com/blockly) library.
 
-[Join the Discord server](https://discord.gg/dnBM3N6H8a)
+[Wiki (Unfinished)](https://github.com/SneezingCactus/gmmaker/wiki)
 
-## Installing
+[Game Mode Maker's Discord server](https://discord.gg/dnBM3N6H8a)
 
-Download the latest game\_mode\_maker-(version).zip file from [Releases](https://github.com/SneezingCactus/gmmaker/releases), and then:
+[Bonk.io Modding Discord server](https://discord.gg/PHtG6qN3qj)
+
+## Installing as a userscript
+
+Userscripts require a userscript manager such as Violentmonkey or Tampermonkey,
+and [Excigma's code injector userscript](https://greasyfork.org/en/scripts/433861-code-injector-bonk-io).
+
+The userscript is available in [Releases](https://github.com/SneezingCactus/gmmaker/releases)
+as gmmaker-(version)**_.user.js_**.
+
+## Installing as an extension
+**The extension version of gmmaker on Chrome will stop working on June 2023. It is recommended you use the userscript version instead.**
+
+Download the latest game-mode-maker-(version)**_.zip_** file from
+[Releases](https://github.com/SneezingCactus/gmmaker/releases).
 
 <details>
 <summary>In Firefox</summary>
