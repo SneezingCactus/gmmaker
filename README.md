@@ -7,6 +7,7 @@ This mod uses the [Google Blockly](https://developers.google.com/blockly) librar
 [Wiki (Unfinished)](https://github.com/SneezingCactus/gmmaker/wiki)
 
 [Game Mode Maker's Discord server](https://discord.gg/dnBM3N6H8a)
+
 [Bonk.io Modding Discord server](https://discord.gg/PHtG6qN3qj)
 
 ## Installing as a userscript
