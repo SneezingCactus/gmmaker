@@ -1561,13 +1561,13 @@ export default function() {
         code = 'Math.log(' + arg + ') / Math.log(10)';
         break;
       case 'ASIN':
-        code = 'Math.sin(' + arg + ') / Math.PI * 180';
+        code = 'SafeTrig.safeASin(' + arg + ') / Math.PI * 180';
         break;
       case 'ACOS':
-        code = 'Math.acos(' + arg + ') / Math.PI * 180';
+        code = 'SafeTrig.safeACos(' + arg + ') / Math.PI * 180';
         break;
       case 'ATAN':
-        code = 'Math.atan(' + arg + ') / Math.PI * 180';
+        code = 'SafeTrig.safeATan(' + arg + ') / Math.PI * 180';
         break;
       default:
         throw Error('Unknown math operator: ' + operator);
