@@ -102,7 +102,7 @@ export default function() {
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     const player_prop = block.getFieldValue('player_prop');
     const set_number = Blockly.JavaScript.valueToCode(block, 'set_number', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `gst = gm.blockly.funcs.setPlayerProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${player_prop}", ${set_number}${player_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+    const code = `gm.blockly.funcs.setPlayerProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${player_prop}", ${set_number}${player_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -111,7 +111,7 @@ export default function() {
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     const player_prop = block.getFieldValue('player_prop');
     const change_number = Blockly.JavaScript.valueToCode(block, 'change_number', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `gst = gm.blockly.funcs.changePlayerProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${player_prop}", ${change_number}${player_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+    const code = `gm.blockly.funcs.changePlayerProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${player_prop}", ${change_number}${player_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -125,9 +125,9 @@ export default function() {
 
     let code = '';
     if (arrow === 'all') {
-      code = `gst = gm.blockly.funcs.setAllArrowsProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${arrow_prop}", ${set_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+      code = `gm.blockly.funcs.setAllArrowsProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${arrow_prop}", ${set_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     } else {
-      code = `gst = gm.blockly.funcs.setArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${set_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+      code = `gm.blockly.funcs.setArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${set_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     }
     return code;
   };
@@ -142,9 +142,9 @@ export default function() {
 
     let code = '';
     if (arrow === 'all') {
-      code = `gst = gm.blockly.funcs.changeAllArrowsProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${arrow_prop}", ${change_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+      code = `gm.blockly.funcs.changeAllArrowsProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${arrow_prop}", ${change_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     } else {
-      code = `gst = gm.blockly.funcs.changeArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${change_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+      code = `gm.blockly.funcs.changeArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${change_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     }
     return code;
   };
@@ -238,7 +238,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    const code = `gst = gm.blockly.funcs.setCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${set_number});`;
+    const code = `gm.blockly.funcs.setCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${set_number});`;
     return code;
   };
 
@@ -248,7 +248,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    const code = `gst = gm.blockly.funcs.changeCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${change_number});`;
+    const code = `gm.blockly.funcs.changeCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${change_number});`;
     return code;
   };
 
@@ -266,7 +266,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gst = gm.blockly.funcs.enableCameraLerp(gst, ${enable}, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'});`;
+    var code = `gm.blockly.funcs.enableCameraLerp(gst, ${enable}, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'});`;
     return code;
   };
 
@@ -551,7 +551,7 @@ export default function() {
     var platform_prop = block.getFieldValue('platform_prop');
     var set_value = Blockly.JavaScript.valueToCode(block, 'set_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gst = gm.blockly.funcs.setPlatformProperty(gst, ${platform_id}, '${platform_prop}', ${set_value}${platform_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+    var code = `gm.blockly.funcs.setPlatformProperty(gst, ${platform_id}, '${platform_prop}', ${set_value}${platform_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -560,7 +560,7 @@ export default function() {
     var platform_prop = block.getFieldValue('platform_prop');
     var change_value = Blockly.JavaScript.valueToCode(block, 'change_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gst = gm.blockly.funcs.changePlatformProperty(gst, ${platform_id}, '${platform_prop}', ${change_value}${platform_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+    var code = `gm.blockly.funcs.changePlatformProperty(gst, ${platform_id}, '${platform_prop}', ${change_value}${platform_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -578,7 +578,7 @@ export default function() {
     var shape_prop = block.getFieldValue('shape_prop');
     var set_value = Blockly.JavaScript.valueToCode(block, 'set_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gst = gm.blockly.funcs.setShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}', ${set_value}${shape_prop == 's_a' ? '*(Math.PI/180)' : ''});`;
+    var code = `gm.blockly.funcs.setShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}', ${set_value}${shape_prop == 's_a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -588,7 +588,7 @@ export default function() {
     var shape_prop = block.getFieldValue('shape_prop');
     var change_value = Blockly.JavaScript.valueToCode(block, 'change_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gst = gm.blockly.funcs.changeShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}', ${change_value}${shape_prop == 's_a' ? '*(Math.PI/180)' : ''});`;
+    var code = `gm.blockly.funcs.changeShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}', ${change_value}${shape_prop == 's_a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -632,7 +632,7 @@ export default function() {
   Blockly.JavaScript['delete_platform'] = function(block) {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gst = gm.blockly.funcs.deletePlatform(gst, ${platform_id});`;
+    var code = `gm.blockly.funcs.deletePlatform(gst, ${platform_id});`;
     return code;
   };
 
@@ -640,7 +640,7 @@ export default function() {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
     var shape_id = Blockly.JavaScript.valueToCode(block, 'shape_id', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gst = gm.blockly.funcs.deleteShape(gst, ${platform_id}, ${shape_id});`;
+    var code = `gm.blockly.funcs.deleteShape(gst, ${platform_id}, ${shape_id});`;
     return code;
   };
 
@@ -648,7 +648,7 @@ export default function() {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
     var shape = Blockly.JavaScript.valueToCode(block, 'shape', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gst = gm.blockly.funcs.addShape(gst, ${platform_id}, ${shape});`;
+    var code = `gm.blockly.funcs.addShape(gst, ${platform_id}, ${shape});`;
     return code;
   };
 
@@ -888,7 +888,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    return 'gst = gm.blockly.funcs.changeVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
+    return 'gm.blockly.funcs.changeVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
   };
 
   Blockly.JavaScript['variables_set'] = function(block) {
@@ -900,7 +900,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    return 'gst = gm.blockly.funcs.setVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
+    return 'gm.blockly.funcs.setVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
   };
 
   Blockly.JavaScript['variables_get'] = function(block) {
@@ -1574,6 +1574,9 @@ export default function() {
     }
     return [code, Blockly.JavaScript.ORDER_DIVISION];
   };
+
+  Blockly.JavaScript['math_round'] = Blockly.JavaScript['math_single'];
+  Blockly.JavaScript['math_trig'] = Blockly.JavaScript['math_single'];
 
   // fix lists
 

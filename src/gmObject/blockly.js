@@ -2,6 +2,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
 import Blockly from 'blockly';
+import {WorkspaceSearch} from '@blockly/plugin-workspace-search';
 import toolbox from '../blockly/toolbox.xml';
 import windowHtml from '../gmWindow/window.html';
 import blockDefs from '../blockly/blockdefs.js';
@@ -185,6 +186,14 @@ export default {
       theme: gm.blockly.theme,
     });
     gm.blockly.headlessWorkspace = new Blockly.Workspace();
+
+    // workspace plugins
+    const workspaceSearch = new WorkspaceSearch(gm.blockly.workspace);
+    workspaceSearch.init();
+    workspaceSearch.next = function() {
+      workspaceSearch.setCurrentBlock_(workspaceSearch.currentBlockIndex_ + 1);
+      setTimeout(() => workspaceSearch.inputElement_.focus(), 2);
+    };
 
     // add loop trap
     Blockly.JavaScript.INFINITE_LOOP_TRAP = 'if (++loopIterations > 10000000) throw \'gmInfiniteLoop\';';
@@ -919,20 +928,18 @@ export default {
       return value * gm.physics.gameState.physics.ppm;
     },
     setPlayerProperty: function(gameState, discID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] = value;
       }
-      return gameState;
     },
     changePlayerProperty: function(gameState, discID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
       if (gameState.discs[discID]) {
         gameState.discs[discID][property] += value;
       }
-      return gameState;
     },
     getPlayerProperty: function(gameState, discID, property) {
       if (gameState.discs[discID] && !(!gameState.discs[discID][property] && gameState.discs[discID][property] !== 0)) {
@@ -942,8 +949,8 @@ export default {
       }
     },
     setArrowProperty: function(gameState, discID, arrowID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
 
       const projs = gameState.projectiles;
       let accum = 1;
@@ -957,11 +964,10 @@ export default {
           accum++;
         }
       }
-      return gameState;
     },
     setAllArrowsProperty: function(gameState, discID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
 
       const projs = gameState.projectiles;
 
@@ -970,11 +976,10 @@ export default {
           gameState.projectiles[i][property] = value;
         }
       }
-      return gameState;
     },
     changeArrowProperty: function(gameState, discID, arrowID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
       const projs = gameState.projectiles;
       let accum = 1;
 
@@ -987,11 +992,10 @@ export default {
           accum++;
         }
       }
-      return gameState;
     },
     changeAllArrowsProperty: function(gameState, discID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
 
       const projs = gameState.projectiles;
 
@@ -1000,7 +1004,6 @@ export default {
           gameState.projectiles[i][property] += value;
         }
       }
-      return gameState;
     },
     getArrowProperty: function(gameState, discID, arrowID, property) {
       const projs = gameState.projectiles;
@@ -1030,7 +1033,7 @@ export default {
       return accum;
     },
     deletePlayerArrow: function(gameState, discID, arrowID) {
-      if (gm.graphics.rendering) return gameState;
+      if (gm.graphics.rendering) return;
       const projs = gameState.projectiles;
       let accum = 1;
 
@@ -1045,7 +1048,7 @@ export default {
       }
     },
     deleteAllPlayerArrows: function(gameState, discID) {
-      if (gm.graphics.rendering) return gameState;
+      if (gm.graphics.rendering) return;
       const projs = gameState.projectiles;
       for (let i = 0; i !== projs.length; i++) {
         if (projs[i] && projs[i].did === discID) {
@@ -1088,8 +1091,8 @@ export default {
       return '#000000';
     },
     setCameraProperty: function(gameState, discID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
 
       const cameras = gameState.physics.bodies[0].cf.cameras;
 
@@ -1109,12 +1112,10 @@ export default {
 
       gameState.physics.bodies[0].cf.cameras = cameras;
       gameState.physics.bodies[0].cf.cameraChanged = true;
-
-      return gameState;
     },
     changeCameraProperty: function(gameState, discID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
 
       const cameras = gameState.physics.bodies[0].cf.cameras;
 
@@ -1134,8 +1135,6 @@ export default {
 
       gameState.physics.bodies[0].cf.cameras = cameras;
       gameState.physics.bodies[0].cf.cameraChanged = true;
-
-      return gameState;
     },
     getCameraProperty: function(gameState, discID, property) {
       if (!gameState.physics.bodies[0].cf.cameras[discID]) return Infinity;
@@ -1147,19 +1146,15 @@ export default {
       return gameState.physics.bodies[0].cf.cameras[discID][property];
     },
     enableCameraLerp: function(gameState, enable, discID) {
-      if (gm.graphics.rendering) return gameState;
-      if (!gameState.physics.bodies[0].cf.cameras[discID]) return gameState;
+      if (gm.graphics.rendering) return;
+      if (!gameState.physics.bodies[0].cf.cameras[discID]) return;
 
       gameState.physics.bodies[0].cf.cameras[discID].doLerp = enable;
-
-      return gameState;
     },
     enableDeathBarrier: function(gameState, enable) {
-      if (gm.graphics.rendering) return gameState;
+      if (gm.graphics.rendering) return;
 
       gameState.physics.bodies[0].cf.disableDeathBarrier = !enable;
-
-      return gameState;
     },
     rayCast: function(gameState, discID, x1, y1, x2, y2, colA, colB, colC, colD, colP, pointXVar, pointYVar, normalXVar, normalYVar, objectTypeVar, objectIdVar) {
       let maskBits = 65535;
@@ -1195,15 +1190,15 @@ export default {
       window.PhysicsClass.world.RayCast(rayCastCallback, vectorA, vectorB);
 
       if (objectFound) {
-        gameState = gm.blockly.funcs.setVar(pointXVar, gameState, discID, theChosenOne.point.x);
-        gameState = gm.blockly.funcs.setVar(pointYVar, gameState, discID, theChosenOne.point.y);
-        gameState = gm.blockly.funcs.setVar(normalXVar, gameState, discID, theChosenOne.normal.x);
-        gameState = gm.blockly.funcs.setVar(normalYVar, gameState, discID, theChosenOne.normal.y);
+        gm.blockly.funcs.setVar(pointXVar, gameState, discID, theChosenOne.point.x);
+        gm.blockly.funcs.setVar(pointYVar, gameState, discID, theChosenOne.point.y);
+        gm.blockly.funcs.setVar(normalXVar, gameState, discID, theChosenOne.normal.x);
+        gm.blockly.funcs.setVar(normalYVar, gameState, discID, theChosenOne.normal.y);
 
         const fixtureData = theChosenOne.fixture.GetBody().GetUserData();
 
-        gameState = gm.blockly.funcs.setVar(objectTypeVar, gameState, discID, fixtureData.type == 'phys' ? 'platform' : 'player');
-        gameState = gm.blockly.funcs.setVar(objectIdVar, gameState, discID, fixtureData.discID ?? fixtureData.arrayID);
+        gm.blockly.funcs.setVar(objectTypeVar, gameState, discID, fixtureData.type == 'phys' ? 'platform' : 'player');
+        gm.blockly.funcs.setVar(objectIdVar, gameState, discID, fixtureData.discID ?? fixtureData.arrayID);
       }
 
       return objectFound;
@@ -1384,8 +1379,8 @@ export default {
       return '';
     },
     setPlatformProperty: function(gameState, platID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return;
 
       const body = gameState.physics.bodies[platID];
       const boolProps = ['fricp', 'f_p', 'f_a', 'f_b', 'f_c', 'f_d'];
@@ -1411,11 +1406,10 @@ export default {
         }
         gameState.physics.bodies[platID] = body;
       }
-      return gameState;
     },
     changePlatformProperty: function(gameState, platID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return;
 
       const body = gameState.physics.bodies[platID];
       if (body && !body.cf.deleted) {
@@ -1438,7 +1432,6 @@ export default {
         }
         gameState.physics.bodies[platID] = body;
       }
-      return gameState;
     },
     getPlatformProperty: function(gameState, platID, property) {
       const body = gameState.physics.bodies[platID];
@@ -1460,8 +1453,8 @@ export default {
       return Infinity;
     },
     setShapeProperty: function(gameState, platID, shapeID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return;
 
       const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
       const shape = gameState.physics.shapes[fixture?.sh];
@@ -1503,12 +1496,10 @@ export default {
       }
 
       if (boolProps.includes(property) && property !== 'f_np') gm.graphics.needRerender = false;
-
-      return gameState;
     },
     changeShapeProperty: function(gameState, platID, shapeID, property, value) {
-      if (gm.graphics.rendering) return gameState;
-      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return gameState;
+      if (gm.graphics.rendering) return;
+      if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return;
 
       const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
       const shape = gameState.physics.shapes[fixture?.sh];
@@ -1542,8 +1533,6 @@ export default {
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
       }
-
-      return gameState;
     },
     getShapeProperty: function(gameState, platID, shapeID, property) {
       const fixture = gameState.physics.fixtures[gameState.physics.bodies[platID]?.fx[shapeID - 1]];
@@ -1575,7 +1564,7 @@ export default {
       return gameState.physics.bodies[platID]?.fx.length ?? Infinity;
     },
     deletePlatform: function(gameState, platID) {
-      if (gm.graphics.rendering) return gameState;
+      if (gm.graphics.rendering) return;
       if (gameState.physics.bodies[platID] && gameState.physics.bodies[platID].fx !== 0 && !gameState.physics.bodies[platID].cf.gmDeleted) {
         gameState.physics.bodies[platID].fx = [];
         gameState.physics.bodies[platID].type = 's';
@@ -1585,20 +1574,18 @@ export default {
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'delete', id: platID});
       }
-      return gameState;
     },
     deleteShape: function(gameState, platID, shapeID) {
-      if (gm.graphics.rendering) return gameState;
+      if (gm.graphics.rendering) return;
       if (gameState.physics.bodies[platID] && gameState.physics.bodies[platID].fx[shapeID - 1] !== undefined) {
         if (!gm.graphics.renderUpdates[gameState.rl]) gm.graphics.renderUpdates[gameState.rl] = [];
         gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
         gameState.physics.bodies[platID].fx.splice(shapeID - 1, 1);
       }
-      return gameState;
     },
     addShape: function(gameState, platID, shape) {
-      if (gm.graphics.rendering) return gameState;
-      if (!gameState.physics.bodies[platID] || !shape || !shape.shape.type) return gameState;
+      if (gm.graphics.rendering) return;
+      if (!gameState.physics.bodies[platID] || !shape || !shape.shape.type) return;
 
       const shIndex = gameState.physics.shapes.length;
       gameState.physics.shapes.push(shape.shape);
@@ -1636,18 +1623,16 @@ export default {
       window.BonkUtils.soundManager.playSound(soundName, panning, volume);
     },
     setVar: function(varName, gameState, discID, value) {
-      if (value === null || value === undefined) return gameState;
+      if (value === null || value === undefined) return;
 
       if (varName.startsWith('GLOBAL_')) {
         gameState.physics.bodies[0].cf.variables.global[varName] = value;
       } else if (gameState.physics.bodies[0].cf.variables[discID]) {
         gameState.physics.bodies[0].cf.variables[discID][varName] = value;
       }
-
-      return gameState;
     },
     changeVar: function(varName, gameState, discID, value) {
-      if (value === null || value === undefined) return gameState;
+      if (value === null || value === undefined) return;
 
       if (varName.startsWith('GLOBAL_')) {
         if (!gameState.physics.bodies[0].cf.variables.global[varName]) gameState.physics.bodies[0].cf.variables.global[varName] = 0;
@@ -1656,8 +1641,6 @@ export default {
         if (!gameState.physics.bodies[0].cf.variables[discID][varName]) gameState.physics.bodies[0].cf.variables[discID][varName] = 0;
         gameState.physics.bodies[0].cf.variables[discID][varName] += value;
       }
-
-      return gameState;
     },
     keepVar: function(varName, gameState) {
       if (!gameState.physics.bodies[0].cf.keepVariables.includes(varName)) {
