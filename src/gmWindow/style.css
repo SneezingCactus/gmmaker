@@ -117,6 +117,10 @@
     box-sizing: border-box;
 }
 
+.blockly-ws-search button {
+    width: 20px;
+}
+
 /* LOBBY MODS */
 
 .modebuttoncontainer {
