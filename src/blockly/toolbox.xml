@@ -928,7 +928,7 @@
       <field name="player">self</field>
       <field name="property">x</field>
     </block>
-    <block type="set_last_arrow_prop">
+    <block type="set_arrow_prop">
       <field name="player">self</field>
       <field name="arrow">last</field>
       <field name="arrow_prop">x</field>
@@ -938,7 +938,7 @@
         </shadow>
       </value>
     </block>
-    <block type="change_last_arrow_prop">
+    <block type="change_arrow_prop">
       <field name="player">self</field>
       <field name="arrow">last</field>
       <field name="arrow_prop">x</field>
@@ -948,7 +948,7 @@
         </shadow>
       </value>
     </block>
-    <block type="get_last_arrow_prop">
+    <block type="get_arrow_prop">
       <field name="player">self</field>
       <field name="arrow">last</field>
       <field name="property">x</field>

@@ -50,6 +50,9 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
       // modify position of sound with camera position
       {regex: '(=Math.{0,30}Math.{0,30}\\(1[^,]{0,10},)([^,]{0,10},-1)', flags: 'gm', to: '$1(window.gmReplaceAccessors.addToStereo ?? 0) + $2'},
+      // remove pixi render function at the end of BonkGraphics render function to allow for gmm to do stuff before rendering
+      {regex: '(this.renderer.render\\(this.stage\\);)', to: '/*$1*/'},
+      {regex: 'JSON\\[...\\[[^\\]]+\\]\\[[^\\]]+\\]\\]\\(JSON\\[...\\[[^\\]]+\\]\\[[^\\]]+\\]\\]\\(([^\\)]+)\\)\\)', to: '{...$1}'},
     ],
     inject: {
       regex: ';}\\);}}\\);',

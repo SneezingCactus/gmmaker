@@ -8,6 +8,56 @@ import Blockly from 'blockly';
 * Sets up the blocks' functionality
 */
 export default function() {
+  Blockly.JavaScript['on_round_start'] = function(block) {
+    const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
+    const code = `this.onRoundStart = function() {\n${Blockly.JavaScript.INDENT}for (playerId of game.state.gmExtra.initialPlayers) {\n${inside_code}${Blockly.JavaScript.INDENT}}\n}\n`;
+    return code;
+  };
+
+  Blockly.JavaScript['on_player_die'] = function(block) {
+    const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
+    const code = `this.onPlayerDie = function() {\n${inside_code}}\n`;
+    return code;
+  };
+
+  Blockly.JavaScript['on_each_phys_frame'] = function(block) {
+    const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
+    const code = `this.onPhysStep = function() {\n${Blockly.JavaScript.INDENT}for (playerId of game.state.gmExtra.initialPlayers) {\n${inside_code}${Blockly.JavaScript.INDENT}}\n}\n`;
+    return code;
+  };
+
+  Blockly.JavaScript['on_each_render_frame'] = function(block) {
+    const code = ``;
+    return code;
+  };
+
+  Blockly.JavaScript['set_player_prop'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
+    const player_prop = block.getFieldValue('player_prop');
+    const set_number = Blockly.JavaScript.valueToCode(block, 'set_number', Blockly.JavaScript.ORDER_ATOMIC);
+    const code = `game.state.discs[${player === 'self' ? 'playerId' : player_id}].${player_prop} = ${set_number};\n`;
+    return code;
+  };
+
+  Blockly.JavaScript['change_player_prop'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
+    const player_prop = block.getFieldValue('player_prop');
+    const change_number = Blockly.JavaScript.valueToCode(block, 'change_number', Blockly.JavaScript.ORDER_ATOMIC);
+    const code = `game.state.discs[${player === 'self' ? 'playerId' : player_id}].${player_prop} += ${set_number};\n`;
+    return code;
+  };
+
+  Blockly.JavaScript['get_player_prop'] = function(block) {
+    const player = block.getFieldValue('player');
+    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
+    const player_prop = block.getFieldValue('property');
+    const code = `game.state.discs[${player === 'self' ? 'playerId' : player_id}].${player_prop}`;
+
+    return [code, Blockly.JavaScrip.ORDER_FUNCTION_CALL];
+  };
+
   Blockly.JavaScript['draw_line'] = function(block) {
     const x1 = Blockly.JavaScript.valueToCode(block, 'line_x1', Blockly.JavaScript.ORDER_ATOMIC);
     const y1 = Blockly.JavaScript.valueToCode(block, 'line_y1', Blockly.JavaScript.ORDER_ATOMIC);
@@ -20,7 +70,7 @@ export default function() {
     const anchored = block.getFieldValue('line_anchored') === 'TRUE';
     const onlyplayer = block.getFieldValue('line_onlyplayer') === 'TRUE';
     const nocameramove = block.getFieldValue('line_nocameramove') === 'TRUE';
-    const code = `gm.blockly.funcs.createLine(playerid,${x1},${y1},${x2},${y2},${color},${alpha},${width},${anchored},${onlyplayer},${nocameramove});`;
+    const code = `gm.editor.funcs.createLine(playerid,${x1},${y1},${x2},${y2},${color},${alpha},${width},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
@@ -36,7 +86,7 @@ export default function() {
     const anchored = block.getFieldValue('rect_anchored') === 'TRUE';
     const onlyplayer = block.getFieldValue('rect_onlyplayer') === 'TRUE';
     const nocameramove = block.getFieldValue('rect_nocameramove') === 'TRUE';
-    const code = `gm.blockly.funcs.createRect(playerid,${x1},${y1},${x2},${y2},${angle},${color},${alpha},${anchored},${onlyplayer},${nocameramove});`;
+    const code = `gm.editor.funcs.createRect(playerid,${x1},${y1},${x2},${y2},${angle},${color},${alpha},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
@@ -50,7 +100,7 @@ export default function() {
     const anchored = block.getFieldValue('circ_anchored') === 'TRUE';
     const onlyplayer = block.getFieldValue('circ_onlyplayer') === 'TRUE';
     const nocameramove = block.getFieldValue('circ_nocameramove') === 'TRUE';
-    const code = `gm.blockly.funcs.createCircle(playerid,${x},${y},${radius},${color},${alpha},${anchored},${onlyplayer},${nocameramove});`;
+    const code = `gm.editor.funcs.createCircle(playerid,${x},${y},${radius},${color},${alpha},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
@@ -63,7 +113,7 @@ export default function() {
     const onlyplayer = block.getFieldValue('poly_onlyplayer') === 'TRUE';
     const nocameramove = block.getFieldValue('poly_nocameramove') === 'TRUE';
 
-    const code = `gm.blockly.funcs.createPoly(playerid,${vertex},${color},${alpha},${anchored},${onlyplayer},${nocameramove});`;
+    const code = `gm.editor.funcs.createPoly(playerid,${vertex},${color},${alpha},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
@@ -80,42 +130,24 @@ export default function() {
     const onlyplayer = block.getFieldValue('text_onlyplayer') === 'TRUE';
     const nocameramove = block.getFieldValue('text_nocameramove') === 'TRUE';
 
-    const code = `gm.blockly.funcs.createText(playerid,${x},${y},${color},${alpha},${string},${size},${centered},${anchored},${onlyplayer},${nocameramove});`;
+    const code = `gm.editor.funcs.createText(playerid,${x},${y},${color},${alpha},${string},${size},${centered},${anchored},${onlyplayer},${nocameramove});`;
     return code;
   };
 
   Blockly.JavaScript['draw_clear'] = function(block) {
-    const code = `gm.blockly.funcs.clearGraphics(playerid);`;
+    const code = `gm.editor.funcs.clearGraphics(playerid);`;
     return code;
   };
 
   Blockly.JavaScript['get_player_color'] = function(block) {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
-    const code = `gm.blockly.funcs.getPlayerColor(gst, ${player === 'self' ? 'playerid' : player_id})`;
+    const code = `gm.editor.funcs.getPlayerColor(gst, ${player === 'self' ? 'playerid' : player_id})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
-  Blockly.JavaScript['set_player_prop'] = function(block) {
-    const player = block.getFieldValue('player');
-    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
-    const player_prop = block.getFieldValue('player_prop');
-    const set_number = Blockly.JavaScript.valueToCode(block, 'set_number', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `gm.blockly.funcs.setPlayerProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${player_prop}", ${set_number}${player_prop == 'a' ? '*(Math.PI/180)' : ''});`;
-    return code;
-  };
-
-  Blockly.JavaScript['change_player_prop'] = function(block) {
-    const player = block.getFieldValue('player');
-    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
-    const player_prop = block.getFieldValue('player_prop');
-    const change_number = Blockly.JavaScript.valueToCode(block, 'change_number', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `gm.blockly.funcs.changePlayerProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${player_prop}", ${change_number}${player_prop == 'a' ? '*(Math.PI/180)' : ''});`;
-    return code;
-  };
-
-  Blockly.JavaScript['set_last_arrow_prop'] = function(block) {
+  Blockly.JavaScript['set_arrow_prop'] = function(block) {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     const arrow = block.getFieldValue('arrow');
@@ -125,14 +157,14 @@ export default function() {
 
     let code = '';
     if (arrow === 'all') {
-      code = `gm.blockly.funcs.setAllArrowsProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${arrow_prop}", ${set_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+      code = `gm.editor.funcs.setAllArrowsProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${arrow_prop}", ${set_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     } else {
-      code = `gm.blockly.funcs.setArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${set_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+      code = `gm.editor.funcs.setArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.editor.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${set_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     }
     return code;
   };
 
-  Blockly.JavaScript['change_last_arrow_prop'] = function(block) {
+  Blockly.JavaScript['change_arrow_prop'] = function(block) {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     const arrow = block.getFieldValue('arrow');
@@ -142,29 +174,20 @@ export default function() {
 
     let code = '';
     if (arrow === 'all') {
-      code = `gm.blockly.funcs.changeAllArrowsProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${arrow_prop}", ${change_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+      code = `gm.editor.funcs.changeAllArrowsProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${arrow_prop}", ${change_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     } else {
-      code = `gm.blockly.funcs.changeArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${change_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+      code = `gm.editor.funcs.changeArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.editor.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}", ${change_number}${arrow_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     }
     return code;
   };
 
-  Blockly.JavaScript['get_player_prop'] = function(block) {
-    const player = block.getFieldValue('player');
-    const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
-    const player_prop = block.getFieldValue('property');
-    const code = player_prop === 'size' ? `gm.blockly.funcs.getPlayerSize(playerid)` : `gm.blockly.funcs.getPlayerProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${player_prop}")${player_prop == 'a' ? '*(180/Math.PI)' : ''}`;
-
-    return [code, Blockly.JavaScript.ORDER_NONE];
-  };
-
-  Blockly.JavaScript['get_last_arrow_prop'] = function(block) {
+  Blockly.JavaScript['get_arrow_prop'] = function(block) {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     const arrow = block.getFieldValue('arrow');
     const arrow_id = Blockly.JavaScript.valueToCode(block, 'arrow_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     const arrow_prop = block.getFieldValue('property');
-    const code = `gm.blockly.funcs.getArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}")${arrow_prop == 'a' ? '*(180/Math.PI)' : ''}`;
+    const code = `gm.editor.funcs.getArrowProperty(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.editor.funcs.getArrowAmount(gst, playerid)' : arrow_id}, "${arrow_prop}")${arrow_prop == 'a' ? '*(180/Math.PI)' : ''}`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -172,7 +195,7 @@ export default function() {
   Blockly.JavaScript['get_arrow_amount'] = function(block) {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
-    const code = `gm.blockly.funcs.getArrowAmount(gst, ${player === 'self' ? 'playerid' : player_id})`;
+    const code = `gm.editor.funcs.getArrowAmount(gst, ${player === 'self' ? 'playerid' : player_id})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -184,7 +207,7 @@ export default function() {
     const arrow_yvel = Blockly.JavaScript.valueToCode(block, 'arrow_yvel', Blockly.JavaScript.ORDER_ATOMIC);
     const arrow_angle = Blockly.JavaScript.valueToCode(block, 'arrow_angle', Blockly.JavaScript.ORDER_ATOMIC);
     const arrow_time = Blockly.JavaScript.valueToCode(block, 'arrow_time', Blockly.JavaScript.ORDER_ATOMIC);
-    const code = `gm.blockly.funcs.createArrow(gst, playerid, ${arrow_xpos}, ${arrow_ypos}, ${arrow_xvel}, ${arrow_yvel}, ${arrow_angle}*(Math.PI/180), ${arrow_time !== '' ? arrow_time : 150});`;
+    const code = `gm.editor.funcs.createArrow(gst, playerid, ${arrow_xpos}, ${arrow_ypos}, ${arrow_xvel}, ${arrow_yvel}, ${arrow_angle}*(Math.PI/180), ${arrow_time !== '' ? arrow_time : 150});`;
     return code;
   };
 
@@ -196,9 +219,9 @@ export default function() {
 
     let code = '';
     if (arrow === 'all') {
-      code = `gm.blockly.funcs.deleteAllPlayerArrows(gst, ${player === 'self' ? 'playerid' : player_id});`;
+      code = `gm.editor.funcs.deleteAllPlayerArrows(gst, ${player === 'self' ? 'playerid' : player_id});`;
     } else {
-      code = `gm.blockly.funcs.deletePlayerArrow(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.blockly.funcs.getArrowAmount(gst, playerid)' : arrow_id});`;
+      code = `gm.editor.funcs.deletePlayerArrow(gst, ${player === 'self' ? 'playerid' : player_id}, ${arrow === 'last' ? 'gm.editor.funcs.getArrowAmount(gst, playerid)' : arrow_id});`;
     }
     return code;
   };
@@ -212,7 +235,7 @@ export default function() {
   };
 
   Blockly.JavaScript['get_player_id_list'] = function(block) {
-    const code = `gm.blockly.funcs.getAllPlayerIds(gst)`;
+    const code = `gm.editor.funcs.getAllPlayerIds(gst)`;
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
@@ -228,7 +251,7 @@ export default function() {
   Blockly.JavaScript['change_death_barrier'] = function(block) {
     const enable = block.getFieldValue('enable');
 
-    var code = `gm.blockly.funcs.enableDeathBarrier(gst, ${enable});`;
+    var code = `gm.editor.funcs.enableDeathBarrier(gst, ${enable});`;
     return code;
   };
 
@@ -238,7 +261,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    const code = `gm.blockly.funcs.setCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${set_number});`;
+    const code = `gm.editor.funcs.setCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${set_number});`;
     return code;
   };
 
@@ -248,7 +271,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    const code = `gm.blockly.funcs.changeCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${change_number});`;
+    const code = `gm.editor.funcs.changeCameraProperty(gst, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'}, "${camera_prop}", ${change_number});`;
     return code;
   };
 
@@ -257,7 +280,7 @@ export default function() {
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     const camera_prop = block.getFieldValue('camera_prop');
 
-    const code = `gm.blockly.funcs.getCameraProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${camera_prop}")`;
+    const code = `gm.editor.funcs.getCameraProperty(gst, ${player === 'self' ? 'playerid' : player_id}, "${camera_prop}")`;
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
@@ -266,7 +289,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.enableCameraLerp(gst, ${enable}, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'});`;
+    var code = `gm.editor.funcs.enableCameraLerp(gst, ${enable}, ${player !== 'all' ? (player === 'self' ? 'playerid' : player_id) : 'null'});`;
     return code;
   };
 
@@ -287,13 +310,13 @@ export default function() {
     var object_type = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('object_type'), Blockly.VARIABLE_CATEGORY_NAME);
     var object_id = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('object_id'), Blockly.VARIABLE_CATEGORY_NAME);
 
-    var code = `gm.blockly.funcs.rayCast(gst, playerid, ${a_x}, ${a_y}, ${b_x}, ${b_y}, ${collide_a}, ${collide_b}, ${collide_c}, ${collide_d}, ${collide_player}, "${point_x}", "${point_y}", "${normal_x}", "${normal_y}", "${object_type}", "${object_id}")`;
+    var code = `gm.editor.funcs.rayCast(gst, playerid, ${a_x}, ${a_y}, ${b_x}, ${b_y}, ${collide_a}, ${collide_b}, ${collide_c}, ${collide_d}, ${collide_player}, "${point_x}", "${point_y}", "${normal_x}", "${normal_y}", "${object_type}", "${object_id}")`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
   Blockly.JavaScript['get_map_size'] = function(block) {
-    const code = 'gm.physics.gameState.physics.ppm';
+    const code = 'gm.state.gameState.physics.ppm';
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
@@ -302,7 +325,7 @@ export default function() {
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     const allow_respawn = block.getFieldValue('allow_respawn') === 'true';
 
-    const code = `gm.blockly.funcs.killPlayer(gst, ${player === 'self' ? 'playerid' : player_id}, ${allow_respawn});`;
+    const code = `gm.editor.funcs.killPlayer(gst, ${player === 'self' ? 'playerid' : player_id}, ${allow_respawn});`;
     return code;
   };
 
@@ -322,7 +345,7 @@ export default function() {
     var key = block.getFieldValue('key');
     var override_value = Blockly.JavaScript.valueToCode(block, 'override_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.overrideInput(gst, ${player === 'self' ? 'playerid' : player_id}, '${key}', ${override_value});`;
+    var code = `gm.editor.funcs.overrideInput(gst, ${player === 'self' ? 'playerid' : player_id}, '${key}', ${override_value});`;
     return code;
   };
 
@@ -331,31 +354,7 @@ export default function() {
     var player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
     var key = block.getFieldValue('key');
 
-    var code = `gm.blockly.funcs.overrideInput(gst, ${player === 'self' ? 'playerid' : player_id}, '${key}', null);`;
-    return code;
-  };
-
-  Blockly.JavaScript['on_round_start'] = function(block) {
-    const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
-    const code = `gm.physics.onFirstStep = function(playerid){let gst = gm.physics.gameState;let loopIterations = 0;${inside_code}gm.physics.setGameState(gst);}`;
-    return code;
-  };
-
-  Blockly.JavaScript['on_player_die'] = function(block) {
-    const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
-    const code = `gm.physics.onPlayerDie = function(playerid){let gst = gm.physics.gameState;let loopIterations = 0;${inside_code}gm.physics.setGameState(gst);}`;
-    return code;
-  };
-
-  Blockly.JavaScript['on_each_phys_frame'] = function(block) {
-    const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
-    const code = `gm.physics.onStep = function(playerid){let gst = gm.physics.gameState;let loopIterations = 0;${inside_code}gm.physics.setGameState(gst);}`;
-    return code;
-  };
-
-  Blockly.JavaScript['on_each_render_frame'] = function(block) {
-    const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
-    const code = `gm.graphics.onRender = function(playerid){let gst = gm.physics.gameState;let loopIterations = 0;${inside_code}gm.physics.setGameState(gst);}`;
+    var code = `gm.editor.funcs.overrideInput(gst, ${player === 'self' ? 'playerid' : player_id}, '${key}', null);`;
     return code;
   };
 
@@ -373,16 +372,16 @@ export default function() {
     let setCode = '';
     switch (collide_type) {
       case 'collide_player':
-        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
-        code = `gm.physics.onPlayerPlayerCollision = function(playerid, colid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.editor.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
+        code = `gm.state.onPlayerPlayerCollision = function(playerid, colid){let gst = gm.state.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.state.setGameState(gst);}`;
         break;
       case 'collide_arrow':
-        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
-        code = `gm.physics.onPlayerArrowCollision = function(playerid, colid, colarrowid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.editor.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.editor.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
+        code = `gm.state.onPlayerArrowCollision = function(playerid, colid, colarrowid){let gst = gm.state.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.state.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        setCode = `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
-        code = `gm.physics.onPlayerPlatformCollision = function(playerid, colid, colshapeid, normal){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.editor.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.editor.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.editor.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.editor.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        code = `gm.state.onPlayerPlatformCollision = function(playerid, colid, colshapeid, normal){let gst = gm.state.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.state.setGameState(gst);}`;
         break;
     }
     return code;
@@ -409,19 +408,19 @@ export default function() {
     const hit_normal_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_y'), Blockly.VARIABLE_CATEGORY_NAME);
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
     let code = '';
-    let setCode = `gm.blockly.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);`;
+    let setCode = `gm.editor.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);`;
     switch (collide_type) {
       case 'collide_player':
-        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
-        code = `gm.physics.onArrowPlayerCollision = function(playerid, arrowid, colid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.editor.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
+        code = `gm.state.onArrowPlayerCollision = function(playerid, arrowid, colid){let gst = gm.state.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.state.setGameState(gst);}`;
         break;
       case 'collide_arrow':
-        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
-        code = `gm.physics.onArrowArrowCollision = function(playerid, arrowid, colid, colarrowid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.editor.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.editor.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
+        code = `gm.state.onArrowArrowCollision = function(playerid, arrowid, colid, colarrowid){let gst = gm.state.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.state.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        setCode = `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
-        code = `gm.physics.onArrowPlatformCollision = function(playerid, arrowid, colid, colshapeid, normal){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode = `gm.editor.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.editor.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.editor.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.editor.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        code = `gm.state.onArrowPlatformCollision = function(playerid, arrowid, colid, colshapeid, normal){let gst = gm.state.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.state.setGameState(gst);}`;
         break;
     }
     return code;
@@ -440,19 +439,19 @@ export default function() {
     const hit_normal_y = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('normal_y'), Blockly.VARIABLE_CATEGORY_NAME);
     const inside_code = Blockly.JavaScript.statementToCode(block, 'code');
     let code = '';
-    let setCode = `gm.blockly.funcs.setVar("${self_platform_id}", gst, playerid, platid);gm.blockly.funcs.setVar("${self_shape_id}", gst, playerid, shapeid);`;
+    let setCode = `gm.editor.funcs.setVar("${self_platform_id}", gst, playerid, platid);gm.editor.funcs.setVar("${self_shape_id}", gst, playerid, shapeid);`;
     switch (collide_type) {
       case 'collide_player':
-        setCode += `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
-        code = `gm.physics.onPlatformPlayerCollision = function(playerid, platid, shapeid, colid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode += `gm.editor.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
+        code = `gm.state.onPlatformPlayerCollision = function(playerid, platid, shapeid, colid){let gst = gm.state.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.state.setGameState(gst);}`;
         break;
       case 'collide_arrow':
-        setCode += `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
-        code = `gm.physics.onPlatformArrowCollision = function(playerid, platid, shapeid, colid, colarrowid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode += `gm.editor.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.editor.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
+        code = `gm.state.onPlatformArrowCollision = function(playerid, platid, shapeid, colid, colarrowid){let gst = gm.state.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.state.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        setCode += `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
-        code = `gm.physics.onPlatformPlatformCollision = function(playerid, platid, shapeid, colid, colshapeid, normal){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
+        setCode += `gm.editor.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.editor.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.editor.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.editor.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        code = `gm.state.onPlatformPlatformCollision = function(playerid, platid, shapeid, colid, colshapeid, normal){let gst = gm.state.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.state.setGameState(gst);}`;
         break;
     }
     return code;
@@ -470,7 +469,7 @@ export default function() {
     var ingrap = block.getFieldValue('ingrap') === 'TRUE';
     var death = block.getFieldValue('death') === 'TRUE';
 
-    var code = `gm.blockly.funcs.createRectShape(${color}, ${xpos}, ${ypos}, ${width}, ${height}, ${angle}*(Math.PI/180), ${nophys}, ${nograp}, ${ingrap}, ${death})`;
+    var code = `gm.editor.funcs.createRectShape(${color}, ${xpos}, ${ypos}, ${width}, ${height}, ${angle}*(Math.PI/180), ${nophys}, ${nograp}, ${ingrap}, ${death})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -485,7 +484,7 @@ export default function() {
     var ingrap = block.getFieldValue('ingrap') === 'TRUE';
     var death = block.getFieldValue('death') === 'TRUE';
 
-    var code = `gm.blockly.funcs.createCircleShape(${color}, ${xpos}, ${ypos}, ${radius}, ${nophys}, ${nograp}, ${ingrap}, ${death})`;
+    var code = `gm.editor.funcs.createCircleShape(${color}, ${xpos}, ${ypos}, ${radius}, ${nophys}, ${nograp}, ${ingrap}, ${death})`;
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
@@ -501,7 +500,7 @@ export default function() {
     var ingrap = block.getFieldValue('ingrap') === 'TRUE';
     var death = block.getFieldValue('death') === 'TRUE';
 
-    var code = `gm.blockly.funcs.createPolyShape(${color}, ${xpos}, ${ypos}, ${vertex}, ${angle}*(Math.PI/180), ${scale}, ${nophys}, ${nograp}, ${ingrap}, ${death})`;
+    var code = `gm.editor.funcs.createPolyShape(${color}, ${xpos}, ${ypos}, ${vertex}, ${angle}*(Math.PI/180), ${scale}, ${nophys}, ${nograp}, ${ingrap}, ${death})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -525,10 +524,10 @@ export default function() {
     var return_id = block.getFieldValue('return_id') === 'TRUE';
 
     if (return_id) {
-      var code = `gm.blockly.funcs.createPlatform(gst, '${type}', ${xpos}, ${ypos}, ${angle}*(Math.PI/180), ${shape_list}, ${bounciness}, ${density}, ${friction}, ${fricp}, ${colgroup}, ${colplayers}, ${cola}, ${colb}, ${colc}, ${cold})`;
+      var code = `gm.editor.funcs.createPlatform(gst, '${type}', ${xpos}, ${ypos}, ${angle}*(Math.PI/180), ${shape_list}, ${bounciness}, ${density}, ${friction}, ${fricp}, ${colgroup}, ${colplayers}, ${cola}, ${colb}, ${colc}, ${cold})`;
       return [code, Blockly.JavaScript.ORDER_NONE];
     } else {
-      var code = `gm.blockly.funcs.createPlatform(gst, '${type}', ${xpos}, ${ypos}, ${angle}*(Math.PI/180), ${shape_list}, ${bounciness}, ${density}, ${friction}, ${fricp}, ${colgroup}, ${colplayers}, ${cola}, ${colb}, ${colc}, ${cold});`;
+      var code = `gm.editor.funcs.createPlatform(gst, '${type}', ${xpos}, ${ypos}, ${angle}*(Math.PI/180), ${shape_list}, ${bounciness}, ${density}, ${friction}, ${fricp}, ${colgroup}, ${colplayers}, ${cola}, ${colb}, ${colc}, ${cold});`;
       return code;
     }
   };
@@ -538,10 +537,10 @@ export default function() {
     var return_id = block.getFieldValue('return_id') === 'TRUE';
 
     if (return_id) {
-      var code = `gm.blockly.funcs.clonePlatform(gst, ${platform_id})`;
+      var code = `gm.editor.funcs.clonePlatform(gst, ${platform_id})`;
       return [code, Blockly.JavaScript.ORDER_NONE];
     } else {
-      var code = `gm.blockly.funcs.clonePlatform(gst, ${platform_id});`;
+      var code = `gm.editor.funcs.clonePlatform(gst, ${platform_id});`;
       return code;
     }
   };
@@ -551,7 +550,7 @@ export default function() {
     var platform_prop = block.getFieldValue('platform_prop');
     var set_value = Blockly.JavaScript.valueToCode(block, 'set_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.setPlatformProperty(gst, ${platform_id}, '${platform_prop}', ${set_value}${platform_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+    var code = `gm.editor.funcs.setPlatformProperty(gst, ${platform_id}, '${platform_prop}', ${set_value}${platform_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -560,7 +559,7 @@ export default function() {
     var platform_prop = block.getFieldValue('platform_prop');
     var change_value = Blockly.JavaScript.valueToCode(block, 'change_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.changePlatformProperty(gst, ${platform_id}, '${platform_prop}', ${change_value}${platform_prop == 'a' ? '*(Math.PI/180)' : ''});`;
+    var code = `gm.editor.funcs.changePlatformProperty(gst, ${platform_id}, '${platform_prop}', ${change_value}${platform_prop == 'a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -568,7 +567,7 @@ export default function() {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
     var platform_prop = block.getFieldValue('platform_prop');
 
-    var code = `gm.blockly.funcs.getPlatformProperty(gst, ${platform_id}, '${platform_prop}')${platform_prop == 'a' ? '*(180/Math.PI)' : ''}`;
+    var code = `gm.editor.funcs.getPlatformProperty(gst, ${platform_id}, '${platform_prop}')${platform_prop == 'a' ? '*(180/Math.PI)' : ''}`;
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
@@ -578,7 +577,7 @@ export default function() {
     var shape_prop = block.getFieldValue('shape_prop');
     var set_value = Blockly.JavaScript.valueToCode(block, 'set_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.setShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}', ${set_value}${shape_prop == 's_a' ? '*(Math.PI/180)' : ''});`;
+    var code = `gm.editor.funcs.setShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}', ${set_value}${shape_prop == 's_a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -588,7 +587,7 @@ export default function() {
     var shape_prop = block.getFieldValue('shape_prop');
     var change_value = Blockly.JavaScript.valueToCode(block, 'change_value', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.changeShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}', ${change_value}${shape_prop == 's_a' ? '*(Math.PI/180)' : ''});`;
+    var code = `gm.editor.funcs.changeShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}', ${change_value}${shape_prop == 's_a' ? '*(Math.PI/180)' : ''});`;
     return code;
   };
 
@@ -597,14 +596,14 @@ export default function() {
     var shape_id = Blockly.JavaScript.valueToCode(block, 'shape_id', Blockly.JavaScript.ORDER_ATOMIC);
     var shape_prop = block.getFieldValue('shape_prop');
 
-    var code = `gm.blockly.funcs.getShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}')${shape_prop == 's_a' ? '*(180/Math.PI)' : ''}`;
+    var code = `gm.editor.funcs.getShapeProperty(gst, ${platform_id}, ${shape_id}, '${shape_prop}')${shape_prop == 's_a' ? '*(180/Math.PI)' : ''}`;
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
   Blockly.JavaScript['get_shape_amount'] = function(block) {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.getShapeAmount(gst, ${platform_id})`;
+    var code = `gm.editor.funcs.getShapeAmount(gst, ${platform_id})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -617,14 +616,14 @@ export default function() {
 
   Blockly.JavaScript['get_platform_by_name'] = function(block) {
     var platform_name = Blockly.JavaScript.valueToCode(block, 'platform_name', Blockly.JavaScript.ORDER_ATOMIC);
-    var code = `gm.blockly.funcs.getPlatformByName(${platform_name})`;
+    var code = `gm.editor.funcs.getPlatformByName(${platform_name})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
 
   Blockly.JavaScript['get_platform_name'] = function(block) {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
-    var code = `gm.blockly.funcs.getPlatformName(${platform_id})`;
+    var code = `gm.editor.funcs.getPlatformName(${platform_id})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -632,7 +631,7 @@ export default function() {
   Blockly.JavaScript['delete_platform'] = function(block) {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.deletePlatform(gst, ${platform_id});`;
+    var code = `gm.editor.funcs.deletePlatform(gst, ${platform_id});`;
     return code;
   };
 
@@ -640,7 +639,7 @@ export default function() {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
     var shape_id = Blockly.JavaScript.valueToCode(block, 'shape_id', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.deleteShape(gst, ${platform_id}, ${shape_id});`;
+    var code = `gm.editor.funcs.deleteShape(gst, ${platform_id}, ${shape_id});`;
     return code;
   };
 
@@ -648,7 +647,7 @@ export default function() {
     var platform_id = Blockly.JavaScript.valueToCode(block, 'platform_id', Blockly.JavaScript.ORDER_ATOMIC);
     var shape = Blockly.JavaScript.valueToCode(block, 'shape', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.addShape(gst, ${platform_id}, ${shape});`;
+    var code = `gm.editor.funcs.addShape(gst, ${platform_id}, ${shape});`;
     return code;
   };
 
@@ -699,7 +698,7 @@ export default function() {
     const point_b_x = Blockly.JavaScript.valueToCode(block, 'b_x', Blockly.JavaScript.ORDER_ATOMIC);
     const point_b_y = Blockly.JavaScript.valueToCode(block, 'b_y', Blockly.JavaScript.ORDER_ATOMIC);
 
-    const code = `gm.blockly.funcs.getDistance(${point_a_x}, ${point_a_y}, ${point_b_x}, ${point_b_y})`;
+    const code = `gm.editor.funcs.getDistance(${point_a_x}, ${point_a_y}, ${point_b_x}, ${point_b_y})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -710,14 +709,14 @@ export default function() {
     var sound_pan = Blockly.JavaScript.valueToCode(block, 'sound_pan', Blockly.JavaScript.ORDER_ATOMIC);
     var pan_type = block.getFieldValue('pan_type');
 
-    var code = `gm.blockly.funcs.playSound(gst, "${pan_type}", "${sound_name}", ${sound_volume}, ${sound_pan});`;
+    var code = `gm.editor.funcs.playSound(gst, "${pan_type}", "${sound_name}", ${sound_volume}, ${sound_pan});`;
     return code;
   };
 
   Blockly.JavaScript['colour_hex'] = function(block) {
     var hex_code = Blockly.JavaScript.valueToCode(block, 'hex_code', Blockly.JavaScript.ORDER_ATOMIC);
 
-    var code = `gm.blockly.funcs.parseColour(${hex_code})`;
+    var code = `gm.editor.funcs.parseColour(${hex_code})`;
 
     return [code, Blockly.JavaScript.ORDER_NONE];
   };
@@ -725,7 +724,7 @@ export default function() {
   Blockly.JavaScript['variables_retain_value'] = function(block) {
     const variable = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
 
-    var code = `gm.blockly.funcs.keepVar("${variable}", gst);`;
+    var code = `gm.editor.funcs.keepVar("${variable}", gst);`;
 
     return code;
   };
@@ -888,7 +887,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    return 'gm.blockly.funcs.changeVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
+    return 'gm.editor.funcs.changeVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
   };
 
   Blockly.JavaScript['variables_set'] = function(block) {
@@ -900,7 +899,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    return 'gm.blockly.funcs.setVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
+    return 'gm.editor.funcs.setVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ', ' + argument0 + ');';
   };
 
   Blockly.JavaScript['variables_get'] = function(block) {
@@ -910,7 +909,7 @@ export default function() {
     const player = block.getFieldValue('player');
     const player_id = Blockly.JavaScript.valueToCode(block, 'player_id', Blockly.JavaScript.ORDER_ATOMIC) || null;
 
-    return ['gm.blockly.funcs.getVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ')', Blockly.JavaScript.ORDER_ATOMIC];
+    return ['gm.editor.funcs.getVar("' + varName + '", gst, ' + (player === 'self' ? 'playerid' : player_id) + ')', Blockly.JavaScript.ORDER_ATOMIC];
   };
 
   Blockly.Variables.flyoutCategoryBlocks = function(workspace) {
@@ -1110,7 +1109,7 @@ export default function() {
     for (let i = 0; i < variables.length; i++) {
       args[i] = Blockly.JavaScript.nameDB_.getName(variables[i],
           Blockly.VARIABLE_CATEGORY_NAME);
-      setCode += `gm.blockly.funcs.setVar('${args[i]}', gst, playerid, ${args[i]});`;
+      setCode += `gm.editor.funcs.setVar('${args[i]}', gst, playerid, ${args[i]});`;
     }
     let code = 'function ' + funcName + '(gst, playerid, ' + args.join(', ') + ') {let loopIterations = 0;' +
         setCode + xfix1 + branch + xfix2 + returnValue + '}';
@@ -1152,7 +1151,7 @@ export default function() {
         '    a = b;',
         '    b = c;',
         '  }',
-        '  return Math.floor(gm.physics.pseudoRandom() * (b - a + 1) + a);',
+        '  return Math.floor(gm.state.pseudoRandom() * (b - a + 1) + a);',
         '}']);
     const code = functionName + '(' + argument0 + ', ' + argument1 + ')';
     return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
@@ -1160,14 +1159,14 @@ export default function() {
 
   Blockly.JavaScript['math_random_float'] = function(block) {
     // Random fraction between 0 and 1.
-    return ['gm.physics.pseudoRandom()', Blockly.JavaScript.ORDER_FUNCTION_CALL];
+    return ['gm.state.pseudoRandom()', Blockly.JavaScript.ORDER_FUNCTION_CALL];
   };
 
   Blockly.JavaScript['colour_random'] = function(block) {
     // Generate a random colour.
     const functionName = Blockly.JavaScript.provideFunction_('colourRandom', [
       'function ' + Blockly.JavaScript.FUNCTION_NAME_PLACEHOLDER_ + '() {',
-      '  var num = Math.floor(gm.physics.pseudoRandom() * Math.pow(2, 24));',
+      '  var num = Math.floor(gm.state.pseudoRandom() * Math.pow(2, 24));',
       '  return \'#\' + (\'00000\' + num.toString(16)).substr(-6);', '}',
     ]);
     const code = functionName + '()';
@@ -1187,7 +1186,7 @@ export default function() {
         block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
     const value = Blockly.JavaScript.valueToCode(block, 'TEXT',
         Blockly.JavaScript.ORDER_NONE) || '\'\'';
-    const code = 'gm.blockly.funcs.changeVar("' + varName + '", gst, playerid, ' +
+    const code = 'gm.editor.funcs.changeVar("' + varName + '", gst, playerid, ' +
         forceString(value)[0] + ');\n';
     return code;
   };
@@ -1225,7 +1224,7 @@ export default function() {
             'textRandomLetter',
             ['function ' + Blockly.JavaScript.FUNCTION_NAME_PLACEHOLDER_ +
                 '(text) {',
-            '  var x = Math.floor(gm.physics.pseudoRandom() * text.length);',
+            '  var x = Math.floor(gm.state.pseudoRandom() * text.length);',
             '  return text[x];',
             '}']);
         const code = functionName + '(' + text + ')';
@@ -1427,7 +1426,7 @@ export default function() {
       } else {
         code += (up ? ' += ' : ' -= ') + step;
       }
-      code += ') {' + `gm.blockly.funcs.setVar("${variable0}", gst, playerid, ${variable0});` + branch + '}\n';
+      code += ') {' + `gm.editor.funcs.setVar("${variable0}", gst, playerid, ${variable0});` + branch + '}\n';
     } else {
       code = '';
       // Cache non-trivial values to variables to prevent repeated look-ups.
@@ -1461,7 +1460,7 @@ export default function() {
           variable0 + ' <= ' + endVar + ' : ' +
           variable0 + ' >= ' + endVar + '; ' +
           variable0 + ' += ' + incVar + ') {' +
-          `gm.blockly.funcs.setVar("${variable0}", gst, playerid, ${variable0});` +
+          `gm.editor.funcs.setVar("${variable0}", gst, playerid, ${variable0});` +
           branch + '}';
     }
     return code;
@@ -1485,7 +1484,7 @@ export default function() {
     }
     const indexVar = Blockly.JavaScript.nameDB_.getDistinctName(
         variable0 + '_index', Blockly.VARIABLE_CATEGORY_NAME);
-    branch = `gm.blockly.funcs.setVar("${variable0}", gst, playerid, ${listVar}[${indexVar}]);${branch}`;
+    branch = `gm.editor.funcs.setVar("${variable0}", gst, playerid, ${listVar}[${indexVar}]);${branch}`;
     code += 'for (let ' + indexVar + ' in ' + listVar + ') {' + branch + '}\n';
     return code;
   };
@@ -1679,7 +1678,7 @@ export default function() {
         const functionName =Blockly.JavaScript.provideFunction_('listsGetRandomItem', [
           'function ' +Blockly.JavaScript.FUNCTION_NAME_PLACEHOLDER_ +
               '(list, remove) {',
-          '  var x = Math.floor(gm.physics.pseudoRandom() * list.length);', '  if (remove) {',
+          '  var x = Math.floor(gm.state.pseudoRandom() * list.length);', '  if (remove) {',
           '    list.splice(x, 1)[0]; return list;', '  } else {', '    return list[x];',
           '  }', '}',
         ]);
@@ -1708,7 +1707,7 @@ export default function() {
     switch (where) {
       case ('FIRST'):
         if (mode === 'SET') {
-          const code = 'gm.blockly.funcs.setInArray(' + list + ', 0, ' + value + ')';
+          const code = 'gm.editor.funcs.setInArray(' + list + ', 0, ' + value + ')';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'INSERT') {
           const code = '[' + value + ', ...' + list + ']';
@@ -1717,7 +1716,7 @@ export default function() {
         break;
       case ('LAST'):
         if (mode === 'SET') {
-          const code = 'gm.blockly.funcs.setInArray(' + list + ', ' + list + '.length - 1, ' + value + ')';
+          const code = 'gm.editor.funcs.setInArray(' + list + ', ' + list + '.length - 1, ' + value + ')';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'INSERT') {
           const code = '[...' + list + ', ' + value + ']';
@@ -1727,10 +1726,10 @@ export default function() {
       case ('FROM_START'): {
         const at =Blockly.JavaScript.getAdjusted(block, 'AT');
         if (mode === 'SET') {
-          const code = 'gm.blockly.funcs.setInArray(' + list + ', ' + at + ', ' + value + ')';
+          const code = 'gm.editor.funcs.setInArray(' + list + ', ' + at + ', ' + value + ')';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'INSERT') {
-          const code = 'gm.blockly.funcs.insertInArray(' + list + ', ' + at + ', ' + value + ')';
+          const code = 'gm.editor.funcs.insertInArray(' + list + ', ' + at + ', ' + value + ')';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         }
         break;
@@ -1739,10 +1738,10 @@ export default function() {
         const at =Blockly.JavaScript.getAdjusted(
             block, 'AT', 1, false, Blockly.JavaScript.ORDER_SUBTRACTION);
         if (mode === 'SET') {
-          const code = 'gm.blockly.funcs.setInArray(' + list + ', ' + list + '.length - ' + at + ', ' + value + ')';
+          const code = 'gm.editor.funcs.setInArray(' + list + ', ' + list + '.length - ' + at + ', ' + value + ')';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'INSERT') {
-          const code = 'gm.blockly.funcs.insertInArray(' + list + ', ' + list + '.length - ' + at + ', ' + value + ')';
+          const code = 'gm.editor.funcs.insertInArray(' + list + ', ' + list + '.length - ' + at + ', ' + value + ')';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         }
         break;
@@ -1750,11 +1749,11 @@ export default function() {
       case ('RANDOM'): {
         let code = '';
         if (mode === 'SET') {
-          code += 'gm.blockly.funcs.setInArray(' + list + ', ' + 'Math.floor(gm.physics.pseudoRandom() * ' + list +
+          code += 'gm.editor.funcs.setInArray(' + list + ', ' + 'Math.floor(gm.state.pseudoRandom() * ' + list +
           '.length)' + ', ' + value + ')';
           return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
         } else if (mode === 'INSERT') {
-          code += 'gm.blockly.funcs.insertInArray(' + list + ', ' + 'Math.floor(gm.physics.pseudoRandom() * ' + list +
+          code += 'gm.editor.funcs.insertInArray(' + list + ', ' + 'Math.floor(gm.state.pseudoRandom() * ' + list +
           '.length)' + ', ' + value + ')';
           return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
         }

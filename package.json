@@ -1,6 +1,8 @@
 {
   "name": "gmmaker",
   "dependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "@babel/standalone": "^7.17.8",
     "@blockly/plugin-workspace-search": "^5.0.7",
     "blockly": "^7.20211209.4",
     "css-loader": "^5.2.7",
@@ -8,16 +10,21 @@
     "eslint-config-google": "^0.14.0",
     "file-loader": "^6.2.0",
     "file-saver": "^2.0.5",
+    "monaco-editor": "^0.33.0",
+    "monaco-editor-webpack-plugin": "^7.0.1",
     "pixi.js-legacy": "^6.2.2",
     "raw-loader": "^4.0.2",
-    "scriptjs": "^2.5.9",
+    "request": "^2.79.0",
     "seedrandom": "^3.0.5",
     "style-loader": "^3.1.0",
     "url-loader": "^4.1.1",
-    "web-ext": "^6.7.0",
+    "web-ext": "^6.8.0",
     "webextension-polyfill": "^0.8.0"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.17.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.2.4",
     "webpack": "^5.40.0",
     "webpack-cli": "^4.7.2"
   },
