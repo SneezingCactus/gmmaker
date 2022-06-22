@@ -190,7 +190,8 @@
     right: 0;
     top: 0;
     bottom: 0;
-    width: 400px;
+    width: fit-content;
+    max-width: 400px;
     height: fit-content;
     background-color: var(--gm_primary_background);
     margin: auto;
@@ -228,12 +229,14 @@
     display: flex;
     align-content: stretch;
     width: 90%;
-    justify-content: space-evenly;
+    justify-content: space-around;
 }
 
 .gm_dialogbuttoncontainer div {
     padding: 5px;
     margin: 10px;
+    max-width: 150px;
+    min-width: 100px;
     flex-grow: 1;
 }
 
@@ -243,9 +246,8 @@
     left: 0;
     right: 0;
     top: 53px;
-    margin-top: 20px;
-    margin-bottom: 10px;
-    width: 80%;
+    width: fit-content;
+    margin: 20px 20px 10px 20px;
 }
 
 .gm_dialogtextfield {
@@ -256,10 +258,18 @@
     border: 1px solid #bdbdbd;
     color: #4e4e4e;
     width: 100%;
+    min-width: 300px;
     height: 30px;
     padding-right: 4px;
     margin-top: 3px;
     resize: vertical;
+}
+
+/* WORKSPACE SEARCH COLOUR FIX */
+
+path.blocklyPath.blockly-ws-search-highlight {
+    fill: black;
+    fill-opacity: 1;
 }
 
 /* VAR INSPECTOR */

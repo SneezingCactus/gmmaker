@@ -66,6 +66,7 @@ export default {
     // adding button sounds
     const buttons = [
       'gmeditor_newbutton', 'gmeditor_importbutton', 'gmeditor_exportbutton', 'gmeditor_savebutton', 'gmeditor_closebutton', 'gmeditor_settingsbutton', 'gmeditor_backupsbutton',
+      'gmblockly_cancel', 'gmblockly_ok',
       'gmexport_cancel', 'gmexport_ok',
       'gmimportdialog_cancel', 'gmimportdialog_no', 'gmimportdialog_yes',
       'gmsettings_cancel', 'gmsettings_save',
@@ -87,6 +88,15 @@ export default {
 
       baseModeSelect.appendChild(option);
     }
+
+    // hook into chatbox focus method to enable/disable chatbox input
+    const chatbox = document.getElementById('newbonklobby_chat_input');
+    chatbox.focus_OLD = chatbox.focus;
+    chatbox.focus = function() {
+      if (!gm.blockly.disableLobbyChatbox) {
+        chatbox.focus_OLD();
+      }
+    };
 
     // create var inspector
     this.varInspectorContainer = document.createElement('div');
@@ -187,13 +197,23 @@ export default {
     });
     gm.blockly.headlessWorkspace = new Blockly.Workspace();
 
+    // drag surface makes the workspace lag a LOT while dragging on a really big project
+    gm.blockly.workspace.useWorkspaceDragSurface_ = false;
+
     // workspace plugins
     const workspaceSearch = new WorkspaceSearch(gm.blockly.workspace);
     workspaceSearch.init();
-    workspaceSearch.next = function() {
-      workspaceSearch.setCurrentBlock_(workspaceSearch.currentBlockIndex_ + 1);
-      setTimeout(() => workspaceSearch.inputElement_.focus(), 2);
-    };
+
+    // workspace dialogs
+    Blockly.dialog.setAlert(function(message, callback) {
+      gm.blockly.genericDialog(message, callback, false);
+    });
+    Blockly.dialog.setConfirm(function(message, callback) {
+      gm.blockly.genericDialog(message, callback, true);
+    });
+    Blockly.dialog.setPrompt(function(message, defaultValue, callback) {
+      gm.blockly.genericDialog(message, callback, true, true, defaultValue);
+    });
 
     // add loop trap
     Blockly.JavaScript.INFINITE_LOOP_TRAP = 'if (++loopIterations > 10000000) throw \'gmInfiniteLoop\';';
@@ -444,17 +464,91 @@ export default {
       }
     }
   },
-  GMENew: function() {
-    const confirmed = confirm('Are you sure you want to delete all blocks and reset mode settings?');
+  showGMEWindow: function() {
+    document.getElementById('gmeditor').style.transform = 'scale(1)';
+    document.getElementById('newbonklobby').style.transform = 'scale(0)';
 
-    if (confirmed) {
+    gm.blockly.disableLobbyChatbox = true;
+
+    const blocklyDiv = document.getElementById('gmblocklydiv');
+    const bounds = document.getElementById('gmblocklyarea').getBoundingClientRect();
+
+    // blocklyDiv.style.transform = 'scale(1)';
+    blocklyDiv.style.visibility = 'visible';
+    blocklyDiv.style.top = bounds.top;
+    blocklyDiv.style.left = bounds.left;
+    blocklyDiv.style.width = bounds.width;
+    blocklyDiv.style.height = bounds.height;
+
+    gm.blockly.workspace.setVisible(true);
+    Blockly.svgResize(gm.blockly.workspace);
+
+    const gmSettings = gm.blockly.savedXml?.getElementsByTagName('gmsettings')[0];
+
+    gm.blockly.modeName = gmSettings?.getAttribute('mode_name') || 'Custom';
+    gm.blockly.modeDescription = gmSettings?.getAttribute('mode_description') || 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).';
+    gm.blockly.showVarInspector = gmSettings?.getAttribute('show_var_insp') === 'true' || false;
+    gm.blockly.baseMode = gmSettings?.getAttribute('base_mode') || 'any';
+  },
+  hideGMEWindow: function() {
+    gm.blockly.disableLobbyChatbox = false;
+
+    gm.blockly.workspace.setVisible(false);
+    // document.getElementById('gmblocklydiv').style.transform = 'scale(0)';
+    document.getElementById('gmblocklydiv').style.visibility = 'hidden';
+    document.getElementById('gmeditor').style.transform = 'scale(0)';
+    document.getElementById('newbonklobby').style.transform = 'scale(1)';
+  },
+  genericDialog: function(message = '', callback = ()=>{}, showCancel = false, showInput = false, inputValue = '') {
+    document.getElementById('gm_blocklydialogcontainer').style.visibility = 'visible';
+
+    document.getElementById('gmblockly_message').innerText = message;
+    document.getElementById('gmblockly_promptcontainer').style.display = showInput ? 'block' : 'none';
+    if (showInput) document.getElementById('gmblockly_prompt').focus();
+    document.getElementById('gmblockly_prompt').value = inputValue;
+    document.getElementById('gmblockly_cancel').style.display = showCancel ? 'block' : 'none';
+
+    // it's weird but it works and it looks neat
+    // eslint-disable-next-line prefer-const
+    let closeDialog;
+
+    const okListener = function() {
+      callback(showInput ? document.getElementById('gmblockly_prompt').value : true);
+      closeDialog();
+    };
+    const okInputListener = function(event) {
+      if (event.key === 'Enter') {
+        callback(showInput ? document.getElementById('gmblockly_prompt').value : true);
+        closeDialog();
+      }
+    };
+    const cancelListener = function() {
+      callback(showInput ? null : false);
+      closeDialog();
+    };
+
+    closeDialog = function() {
+      document.getElementById('gm_blocklydialogcontainer').style.visibility = 'hidden';
+      document.getElementById('gmblockly_ok').removeEventListener('click', okListener);
+      document.getElementById('gmblockly_prompt').removeEventListener('keydown', okInputListener);
+      document.getElementById('gmblockly_cancel').removeEventListener('click', cancelListener);
+    };
+
+    document.getElementById('gmblockly_ok').addEventListener('click', okListener);
+    document.getElementById('gmblockly_prompt').addEventListener('keydown', okInputListener);
+    document.getElementById('gmblockly_cancel').addEventListener('click', cancelListener);
+  },
+  GMENew: function() {
+    gm.blockly.genericDialog('Are you sure you want to delete all blocks and reset mode settings?', function(confirmed) {
+      if (!confirmed) return;
+
       gm.blockly.workspace.clear();
 
       gm.blockly.modeName = 'Custom';
       gm.blockly.modeDescription = 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).';
       gm.blockly.showVarInspector = false;
       gm.blockly.baseMode = 'any';
-    }
+    }, true);
   },
   GMEImport: function() {
     const input = document.createElement('input');
@@ -640,33 +734,6 @@ export default {
 
     gm.lobby.bonkLobby.updateGameSettings();
     gm.blockly.hideGMEWindow();
-  },
-  showGMEWindow: function() {
-    document.getElementById('gmeditor').style.transform = 'scale(1)';
-
-    const blocklyDiv = document.getElementById('gmblocklydiv');
-    const bounds = document.getElementById('gmblocklyarea').getBoundingClientRect();
-
-    blocklyDiv.style.transform = 'scale(1)';
-    blocklyDiv.style.top = bounds.top;
-    blocklyDiv.style.left = bounds.left;
-    blocklyDiv.style.width = bounds.width;
-    blocklyDiv.style.height = bounds.height;
-
-    gm.blockly.workspace.setVisible(true);
-    Blockly.svgResize(gm.blockly.workspace);
-
-    const gmSettings = gm.blockly.savedXml?.getElementsByTagName('gmsettings')[0];
-
-    gm.blockly.modeName = gmSettings?.getAttribute('mode_name') || 'Custom';
-    gm.blockly.modeDescription = gmSettings?.getAttribute('mode_description') || 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).';
-    gm.blockly.showVarInspector = gmSettings?.getAttribute('show_var_insp') === 'true' || false;
-    gm.blockly.baseMode = gmSettings?.getAttribute('base_mode') || 'any';
-  },
-  hideGMEWindow: function() {
-    gm.blockly.workspace.setVisible(false);
-    document.getElementById('gmblocklydiv').style.transform = 'scale(0)';
-    document.getElementById('gmeditor').style.transform = 'scale(0)';
   },
   generateCode: function() {
     const workspace = gm.lobby.networkEngine.getLSID() === gm.lobby.networkEngine.hostID ? gm.blockly.workspace : gm.blockly.headlessWorkspace;
@@ -1383,7 +1450,7 @@ export default {
       if (value === null || value === undefined || (!Number.isFinite(value) && typeof value === 'number') || Number.isNaN(value)) return;
 
       const body = gameState.physics.bodies[platID];
-      const boolProps = ['fricp', 'f_p', 'f_a', 'f_b', 'f_c', 'f_d'];
+      const boolProps = ['fricp', 'f_p', 'f_1', 'f_2', 'f_3', 'f_4'];
       if (body && !body.cf.deleted) {
         switch (property) {
           case 'p_x':
@@ -1638,7 +1705,8 @@ export default {
         if (!gameState.physics.bodies[0].cf.variables.global[varName]) gameState.physics.bodies[0].cf.variables.global[varName] = 0;
         gameState.physics.bodies[0].cf.variables.global[varName] += value;
       } else if (gameState.physics.bodies[0].cf.variables[discID]) {
-        if (!gameState.physics.bodies[0].cf.variables[discID][varName]) gameState.physics.bodies[0].cf.variables[discID][varName] = 0;
+        const theVar = gameState.physics.bodies[0].cf.variables[discID][varName];
+        if (theVar === null || theVar === undefined) gameState.physics.bodies[0].cf.variables[discID][varName] = 0;
         gameState.physics.bodies[0].cf.variables[discID][varName] += value;
       }
     },

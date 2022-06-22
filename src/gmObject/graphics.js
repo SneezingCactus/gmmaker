@@ -13,17 +13,6 @@ export default {
       return function() {
         const gmStateA = arguments[0].physics.bodies[0]?.cf;
         const gmStateB = arguments[1].physics.bodies[0]?.cf;
-        if (arguments[0].physics.shapes.length != arguments[1].physics.shapes.length) {
-          for (let i = 0; i < arguments[1].physics.shapes.length; i++) {
-            if (!arguments[0].physics.shapes[i]) arguments[0].physics.shapes[i] = arguments[1].physics.shapes[i];
-          }
-          for (let i = 0; i < arguments[1].physics.bodies.length; i++) {
-            if (!arguments[0].physics.bodies[i]) arguments[0].physics.bodies[i] = arguments[1].physics.bodies[i];
-          }
-          for (let i = 0; i < arguments[1].physics.fixtures.length; i++) {
-            if (!arguments[0].physics.fixtures[i]) arguments[0].physics.fixtures[i] = arguments[1].physics.fixtures[i];
-          }
-        }
 
         // modify offscreen function of discs
         if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen_OLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
@@ -80,7 +69,47 @@ export default {
           }
         }
 
+        // bonk crashes if it tries to move something that doesn't exist in the previous frame
+        const newBodies = [];
+        const newFixtures = [];
+        const newShapes = [];
+
+        if (arguments[0].physics.shapes.length != arguments[1].physics.shapes.length) {
+          for (let i = 0; i < arguments[1].physics.shapes.length; i++) {
+            if (!arguments[1].physics.shapes[i]) continue;
+            if (arguments[0].physics.shapes[i]) continue;
+            newShapes.push(i);
+            arguments[0].physics.shapes[i] = arguments[1].physics.shapes[i];
+          }
+          for (let i = 0; i < arguments[1].physics.bodies.length; i++) {
+            if (!arguments[1].physics.bodies[i]) continue;
+            if (arguments[0].physics.bodies[i]) continue;
+            newBodies.push(i);
+            arguments[0].physics.bodies[i] = arguments[1].physics.bodies[i];
+          }
+          for (let i = 0; i < arguments[1].physics.fixtures.length; i++) {
+            if (!arguments[1].physics.fixtures[i]) continue;
+            if (arguments[0].physics.fixtures[i]) continue;
+            newFixtures.push(i);
+            arguments[0].physics.fixtures[i] = arguments[1].physics.fixtures[i];
+          }
+        }
+
         const result = this.render_OLD.apply(this, arguments);
+
+        // revert the last game state changes
+        for (let i = 0; i < newBodies.length; i++) {
+          delete arguments[0].physics.bodies[newBodies[i]];
+          arguments[0].physics.bodies.length--;
+        }
+        for (let i = 0; i < newFixtures.length; i++) {
+          delete arguments[0].physics.fixtures[newFixtures[i]];
+          arguments[0].physics.fixtures.length--;
+        }
+        for (let i = 0; i < newShapes.length; i++) {
+          delete arguments[0].physics.shapes[newShapes[i]];
+          arguments[0].physics.shapes.length--;
+        }
 
         if (!gm.graphics.bodyGraphicsClass) gm.graphics.bodyGraphicsClass = this.roundGraphics.bodyGraphics[0]?.constructor;
 
@@ -180,6 +209,9 @@ export default {
         }
         gm.graphics.rendering = false;
 
+        // render
+        gm.graphics.rendererClass.renderer.render(gm.graphics.rendererClass.stage);
+
         return result;
       };
     })();
@@ -275,7 +307,8 @@ export default {
   onPhysStep: function(gameState) {
     if (gameState.fte == 0) gm.blockly.varInspector.innerHTML = '';
 
-    const shouldShowVarInsp = gm.blockly.savedSettings?.getAttribute('show_var_insp') === 'true';
+    const shouldShowVarInsp = gm.blockly.savedSettings?.getAttribute('show_var_insp') === 'true' &&// mode has var inspector enabled
+      gm.graphics.rendererClass.domContainer.style.visibility !== 'hidden';// we're in-game (to prevent it from popping up in the editor)
 
     if (shouldShowVarInsp && gm.blockly.varInspectorContainer.style.display !== 'block') {
       gm.blockly.varInspectorContainer.style.display = 'block';
@@ -305,6 +338,7 @@ export default {
     if (gameState.rl === 1) gm.blockly.funcs.clearGraphics();
   },
   doRollback: function(fromStepCount, toStepCount) {
+    // if (toStepCount == 0) return;
     for (let i = fromStepCount; i > toStepCount; i--) {
       const previousGameState = window.gmReplaceAccessors.gameStateList[i - 1];
       const gameState = window.gmReplaceAccessors.gameStateList[i];
@@ -331,15 +365,15 @@ export default {
 
               this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[Math.min(previousGameState.physics.bro.indexOf(update.id), 0)]]?.displayObject;
+              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[previousGameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
 
-              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind);
+              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
 
               if (bodyBehind && index !== -1) {
                 if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
                 this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
               } else {
-                if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
+                if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, 0);
                 this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
               }
 
@@ -356,15 +390,15 @@ export default {
 
               this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[Math.min(previousGameState.physics.bro.indexOf(update.id), 0)]]?.displayObject;
+              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[previousGameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
 
-              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind);
+              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
 
               if (bodyBehind && index !== -1) {
                 if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
                 this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
               } else {
-                if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
+                if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, 0);
                 this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
               }
 
@@ -397,16 +431,16 @@ export default {
 
           this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[Math.min(gameState.physics.bro.indexOf(update.id), 0)]]?.displayObject;
+          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
 
-          const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind);
+          const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
 
           if (bodyBehind && index !== -1) {
             if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
             this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
           } else {
-            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
-            this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.displayObject);
+            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, 0);
+            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
           }
 
           break;
@@ -431,16 +465,17 @@ export default {
 
           this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
 
-          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[Math.min(gameState.physics.bro.indexOf(update.id), 0)]]?.displayObject;
+          // the bro part is getting the id of the body behind the updated body
+          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
 
-          const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind);
+          const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
 
           if (bodyBehind && index !== -1) {
             if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
             this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
           } else {
-            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
-            this.rendererClass.roundGraphics.displayObject.addChild(newBodyGraphics.displayObject);
+            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, 0);
+            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
           }
 
           break;

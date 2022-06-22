@@ -373,15 +373,15 @@ export default function() {
     let setCode = '';
     switch (collide_type) {
       case 'collide_player':
-        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
+        setCode += `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
         code = `gm.physics.onPlayerPlayerCollision = function(playerid, colid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_arrow':
-        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
+        setCode += `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
         code = `gm.physics.onPlayerArrowCollision = function(playerid, colid, colarrowid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        setCode = `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        setCode += `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
         code = `gm.physics.onPlayerPlatformCollision = function(playerid, colid, colshapeid, normal){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
     }
@@ -412,15 +412,15 @@ export default function() {
     let setCode = `gm.blockly.funcs.setVar("${self_arrow_id}", gst, playerid, arrowid);`;
     switch (collide_type) {
       case 'collide_player':
-        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
+        setCode += `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);`;
         code = `gm.physics.onArrowPlayerCollision = function(playerid, arrowid, colid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_arrow':
-        setCode = `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
+        setCode += `gm.blockly.funcs.setVar("${hit_player_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_arrow_id}", gst, playerid, colarrowid);`;
         code = `gm.physics.onArrowArrowCollision = function(playerid, arrowid, colid, colarrowid){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
       case 'collide_platform':
-        setCode = `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
+        setCode += `gm.blockly.funcs.setVar("${hit_platform_id}", gst, playerid, colid);gm.blockly.funcs.setVar("${hit_shape_id}", gst, playerid, colshapeid);gm.blockly.funcs.setVar("${hit_normal_x}", gst, playerid, normal.x);gm.blockly.funcs.setVar("${hit_normal_y}", gst, playerid, normal.y);`;
         code = `gm.physics.onArrowPlatformCollision = function(playerid, arrowid, colid, colshapeid, normal){let gst = gm.physics.gameState;let loopIterations = 0;${return_info ? setCode : ''}${inside_code}gm.physics.setGameState(gst);}`;
         break;
     }
@@ -723,7 +723,7 @@ export default function() {
   };
 
   Blockly.JavaScript['variables_retain_value'] = function(block) {
-    const variable = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
+    const variable = Blockly.JavaScript.nameDB_.getName(block.getFieldValue('VAR'), Blockly.VARIABLE_CATEGORY_NAME);
 
     var code = `gm.blockly.funcs.keepVar("${variable}", gst);`;
 
@@ -740,7 +740,30 @@ export default function() {
 
   // blockly built-in
 
-  // temporary fix to the disappearing blocks problem
+  // little hack to fix the immense lag when dragging around the workspace
+
+  Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
+    if (this.useWorkspaceDragSurface_ && this.isDragSurfaceActive_) {
+      this.workspaceDragSurface_.translateSurface(x, y);
+    } else {
+      const translation = 'translate(' + x + ',' + y + ') ' +
+          'scale(' + this.scale + ')';
+      this.svgBlockCanvas_.setAttribute('transform', translation);
+      this.svgBubbleCanvas_.setAttribute('transform', translation);
+    }
+    // Now update the block drag surface if we're using one.
+    if (this.blockDragSurface_) {
+      this.blockDragSurface_.translateAndScaleGroup(x, y, this.scale);
+    }
+    // And update the grid if we're using one.
+    if (this.grid_) {
+      this.grid_.moveTo(x, y);
+    }
+
+    // this.maybeFireViewportChangeEvent();
+  };
+
+  // (not) temporary fix to the disappearing blocks problem
   Blockly.WorkspaceSvg.prototype.setCachedParentSvgSize = function(width, height) {
     const svg = this.getParentSvg();
     if (width != null) {
@@ -755,6 +778,52 @@ export default function() {
       // method.
       svg.cachedHeight_ = height;
     }
+  };
+
+  // htiadg
+  Blockly.Variables.nameUsedWithOtherType = function(name, type, workspace) {
+    const allVariables = workspace.getVariableMap().getAllVariables();
+
+    name = name.toLowerCase();
+    for (let i = 0, variable; (variable = allVariables[i]); i++) {
+      if (variable.name.toLowerCase() === name && variable.type !== type) {
+        return variable;
+      }
+    }
+    return null;
+  };
+
+  Blockly.Variables.renameVariable = function(workspace, variable, opt_callback) {
+    // This function needs to be named so it can be called recursively.
+    const promptAndCheckWithAlert = function(defaultName) {
+      const promptText =
+          Blockly.Msg['RENAME_VARIABLE_TITLE'].replace('%1', variable.name);
+      Blockly.Variables.promptName(promptText, defaultName, function(newName) {
+        if (newName) {
+          const existing =
+            Blockly.Variables.nameUsedWithOtherType(newName, variable.type, workspace);
+          if (existing) {
+            const msg = Blockly.Msg['VARIABLE_ALREADY_EXISTS_FOR_ANOTHER_TYPE']
+                .replace('%1', existing.name)
+                .replace('%2', existing.type);
+            Blockly.dialog.alert(msg, function() {
+              promptAndCheckWithAlert(newName); // Recurse
+            });
+          } else {
+            workspace.renameVariableById(variable.getId(), newName);
+            if (opt_callback) {
+              opt_callback(newName);
+            }
+          }
+        } else {
+          // User canceled prompt.
+          if (opt_callback) {
+            opt_callback(null);
+          }
+        }
+      });
+    };
+    promptAndCheckWithAlert(variable.name);
   };
 
   // fix variable context menu thing
@@ -1028,6 +1097,7 @@ export default function() {
     const eventVariableList = [];
     const eventBlockNames = ['on_player_collide', 'on_arrow_collide', 'on_platform_collide', 'raycast'];
 
+    // hell
     for (const blockName of eventBlockNames) {
       for (const block of this.sourceBlock_.workspace.getBlocksByType(blockName)) {
         for (const varModel of block.getVarModels()) {
@@ -1037,8 +1107,11 @@ export default function() {
     }
 
     const options = [];
+
     for (let i = 0; i < variableModelList.length; i++) {
-      if (eventVariableList.includes(variableModelList[i]) && !eventBlockNames.includes(this.sourceBlock_.type)) continue;
+      if (eventVariableList.includes(variableModelList[i]) &&
+       !eventBlockNames.includes(this.sourceBlock_.type) &&
+       !eventVariableList.includes(this.variable_)) continue;
 
       // Set the UUID as the internal representation of the variable.
       options.push([variableModelList[i].name, variableModelList[i].getId()]);
