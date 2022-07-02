@@ -24,7 +24,7 @@ export default {
       const socket = io_OLD(...arguments);
       gm.lobby.socket = socket;
       socket.on('disconnect', function() {
-        gm.blockly.savedXml = document.createElement('x');
+        gm.blockly.savedXml = document.createElement('xml');
         gm.blockly.savedSettings = null;
         gm.blockly.resetAll();
         gm.blockly.hideGMEWindow();
