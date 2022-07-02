@@ -308,38 +308,41 @@ export default {
           }
 
           if (platBody && gst.physics.bodies[platBody.arrayID]?.fx.length > 0) { // check if self element exists
+            const ownShapeId = gst.physics.bodies[platBody.arrayID].fx.indexOf(platFixture.arrayID) + 1;
+
             for (let i = 0; i < gst.discs.length; i++) {
-              if (gst.discs[i]) {
-                switch (collisionBody.type) {
-                  case 'disc':
-                    if (gst.discs[collisionBody.arrayID]) { // check if collided element exists
-                      gm.physics.onPlatformPlayerCollision(i, platBody.arrayID, platFixture.arrayID, collisionBody.arrayID);
-                    }
-                    break;
-                  case 'arrow':
-                    let arrowNumber = 0;
-                    let accum = 1;
-                    for (let a = 0; a !== projs.length; a++) {
-                      if (collisionBody && collisionBody.arrayID === a) {
-                        arrowNumber = accum;
-                      } else if (collisionBody && projs[a] && collisionBody.discID === projs[a].did) {
-                        accum++;
-                      }
-                    }
+              if (!gst.discs[i]) continue;
+              switch (collisionBody.type) {
+                case 'disc':
+                  if (!gst.discs[collisionBody.arrayID]) break; // check if collided element exists
 
-                    if (arrowNumber === 0) break;
+                  gm.physics.onPlatformPlayerCollision(i, platBody.arrayID, ownShapeId, collisionBody.arrayID);
+                  break;
+                case 'arrow':
+                  let arrowNumber = 0;
+                  let accum = 1;
+                  for (let a = 0; a !== projs.length; a++) {
+                    if (collisionBody && collisionBody.arrayID === a) {
+                      arrowNumber = accum;
+                    } else if (collisionBody && projs[a] && collisionBody.discID === projs[a].did) {
+                      accum++;
+                    }
+                  }
 
-                    if (gst.discs[collisionBody.discID] && gst.projectiles[collisionBody.arrayID]) { // check if collided element exists
-                      gm.physics.onPlatformArrowCollision(i, platBody.arrayID, platFixture.arrayID, collisionBody.discID, arrowNumber);
-                    }
-                    break;
-                  case 'phys':
-                    if (gst.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
-                      gm.physics.onPlatformPlatformCollision(i, platBody.arrayID, platFixture.arrayID, collisionBody.arrayID, gst.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
-                      gm.physics.onPlatformPlatformCollision(i, collisionBody.arrayID, collisionFixture.arrayID, platBody.arrayID, gst.physics.bodies[platBody.arrayID].fx.indexOf(platFixture.arrayID) + 1, isFixtureA ? normal : {x: -normal.x, y: -normal.y});
-                    }
-                    break;
-                }
+                  if (arrowNumber === 0) break;
+
+                  if (!gst.discs[collisionBody.discID] || !gst.projectiles[collisionBody.arrayID]) break; // check if collided element exists
+
+                  gm.physics.onPlatformArrowCollision(i, platBody.arrayID, ownShapeId, collisionBody.discID, arrowNumber);
+                  break;
+                case 'phys':
+                  if (gst.physics.bodies[collisionBody.arrayID]?.fx.length == 0) break; // check if collided element exists
+
+                  const colShapeId = gst.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1;
+
+                  gm.physics.onPlatformPlatformCollision(i, platBody.arrayID, ownShapeId, collisionBody.arrayID, colShapeId, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
+                  gm.physics.onPlatformPlatformCollision(i, collisionBody.arrayID, colShapeId, platBody.arrayID, ownShapeId, isFixtureA ? normal : {x: -normal.x, y: -normal.y});
+                  break;
               }
             }
           }

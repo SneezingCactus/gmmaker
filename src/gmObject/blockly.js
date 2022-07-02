@@ -1747,6 +1747,7 @@ export default {
   resetMode: function() {
     gm.physics.onFirstStep = function() {};
     gm.physics.onStep = function() {};
+    gm.physics.onPlayerDie = function() {};
     gm.physics.onPlayerPlayerCollision = function() {};
     gm.physics.onPlayerArrowCollision = function() {};
     gm.physics.onPlayerPlatformCollision = function() {};

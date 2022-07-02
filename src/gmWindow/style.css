@@ -181,7 +181,7 @@
     height: 100%;
     position: absolute;
     visibility: hidden;
-    z-index: 99999;
+    z-index: 999999;
 }
 
 .gm_dialogwindow {

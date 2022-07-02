@@ -24,7 +24,7 @@ export default {
       const socket = io_OLD(...arguments);
       gm.lobby.socket = socket;
       socket.on('disconnect', function() {
-        gm.blockly.savedXml = null;
+        gm.blockly.savedXml = document.createElement('x');
         gm.blockly.savedSettings = null;
         gm.blockly.resetAll();
         gm.blockly.hideGMEWindow();
@@ -192,6 +192,15 @@ export default {
         b.gs = gameSettings;
 
         return networkEngine.informInGame_OLD(a, b);
+      };
+
+      networkEngine.sendReturnToLobby_OLD = networkEngine.sendReturnToLobby;
+
+      networkEngine.sendReturnToLobby = function() {
+        gm.lobby.gameCrashed = false;
+        gm.lobby.haltCausedByLoop = false;
+        gm.blockly.varInspectorContainer.style.display = 'none';
+        return networkEngine.sendReturnToLobby_OLD();
       };
 
       return gm.lobby.data = data, gm.lobby.mpSession = mpSession, gm.lobby.networkEngine = networkEngine, networkEngine;

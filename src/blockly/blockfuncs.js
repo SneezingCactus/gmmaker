@@ -1698,38 +1698,38 @@ export default function() {
     switch (where) {
       case ('FIRST'):
         if (mode === 'GET') {
-          const code = list + '[0]';
+          const code = list + '?.[0]';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'GET_REMOVE') {
-          const code = list + '.shift()';
+          const code = list + '?.shift()';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'REMOVE') {
-          const code = list + '.slice(1)';
+          const code = list + '?.slice(1)';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         }
         break;
       case ('LAST'):
         if (mode === 'GET') {
-          const code = list + '.slice(-1)[0]';
+          const code = list + '?.slice(-1)[0]';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'GET_REMOVE') {
-          const code = list + '.pop()';
+          const code = list + '?.pop()';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'REMOVE') {
-          const code = list + '.splice(-1)';
+          const code = list + '?.splice(-1)';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         }
         break;
       case ('FROM_START'): {
         const at =Blockly.JavaScript.getAdjusted(block, 'AT');
         if (mode === 'GET') {
-          const code = list + '[' + at + ']';
+          const code = list + '?.[' + at + ']';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'GET_REMOVE') {
-          const code = list + '.splice(' + at + ', 1)[0]';
+          const code = list + '?.splice(' + at + ', 1)[0]';
           return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
         } else if (mode === 'REMOVE') {
-          const code = list + '.splice(' + at + ', 1)';
+          const code = list + '?.splice(' + at + ', 1)';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         }
         break;
@@ -1737,13 +1737,13 @@ export default function() {
       case ('FROM_END'): {
         const at = Blockly.JavaScript.getAdjusted(block, 'AT', 1, true);
         if (mode === 'GET') {
-          const code = list + '.slice(' + at + ')[0]';
+          const code = list + '?.slice(' + at + ')[0]';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         } else if (mode === 'GET_REMOVE') {
-          const code = list + '.splice(' + at + ', 1)[0]';
+          const code = list + '?.splice(' + at + ', 1)[0]';
           return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
         } else if (mode === 'REMOVE') {
-          const code = list + '.splice(' + at + ', 1)';
+          const code = list + '?.splice(' + at + ', 1)';
           return [code, Blockly.JavaScript.ORDER_MEMBER];
         }
         break;
@@ -1751,7 +1751,7 @@ export default function() {
       case ('RANDOM'): {
         const functionName =Blockly.JavaScript.provideFunction_('listsGetRandomItem', [
           'function ' +Blockly.JavaScript.FUNCTION_NAME_PLACEHOLDER_ +
-              '(list, remove) {',
+              '(list, remove) {', 'if (!list) return null;',
           '  var x = Math.floor(gm.physics.pseudoRandom() * list.length);', '  if (remove) {',
           '    list.splice(x, 1)[0]; return list;', '  } else {', '    return list[x];',
           '  }', '}',
