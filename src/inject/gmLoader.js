@@ -5,11 +5,11 @@
 
 import '../gmWindow/style.css';
 
-import gmPhysics from '../gmObject/physics.js';
+import gmState from '../gmObject/state.js';
 import gmGraphics from '../gmObject/graphics.js';
 import gmInput from '../gmObject/inputs.js';
 import gmLobby from '../gmObject/lobby.js';
-import gmBlockly from '../gmObject/blockly.js';
+import gmEditor from '../gmObject/editor.js';
 
 window.initGM = function() {
   if (window.gm) return;
@@ -20,11 +20,11 @@ window.initGM = function() {
 
   // make the gm object
   window.gm = {
-    physics: gmPhysics,
+    state: gmState,
     graphics: gmGraphics,
     lobby: gmLobby,
     inputs: gmInput,
-    blockly: gmBlockly,
+    editor: gmEditor,
   };
 
   // init the things inside gm

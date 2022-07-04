@@ -449,8 +449,7 @@ module.exports = [{
       'name': 'code',
     },
   ],
-  'colour': 20,
-  'tooltip': 'Executes every time the game is rendered (varies depending on your FPS). Game modifying blocks such as "set player\'s x position" do not work here.',
+  'tooltip': '[NOT WORKING ANYMORE] Executes every time the game is rendered (varies depending on your FPS). Game modifying blocks such as "set player\'s x position" do not work here.',
   'helpUrl': '',
 },
 {
@@ -573,23 +572,43 @@ module.exports = [{
       'options': [
         [
           'x position',
-          'x',
+          'XPos',
         ],
         [
           'y position',
-          'y',
+          'YPos',
         ],
         [
           'x velocity',
-          'xv',
+          'XVel',
         ],
         [
           'y velocity',
-          'yv',
+          'YVel',
         ],
         [
           'angle',
-          'a',
+          'Angle',
+        ],
+        [
+          'heavy/arrows/grapple cooldown',
+          'Cooldown',
+        ],
+        [
+          'arrow launch force',
+          'ArrowLaunchForce',
+        ],
+        [
+          'grapple point x',
+          'XGrapPoint',
+        ],
+        [
+          'grapple point y',
+          'YGrapPoint',
+        ],
+        [
+          'grappled platform id',
+          'GrapPlatId',
         ],
       ],
     },
@@ -634,31 +653,51 @@ module.exports = [{
     },
     {
       'type': 'field_dropdown',
-      'name': 'property',
+      'name': 'player_prop',
       'options': [
         [
           'x position',
-          'x',
+          'XPos',
         ],
         [
           'y position',
-          'y',
+          'YPos',
         ],
         [
           'x velocity',
-          'xv',
+          'XVel',
         ],
         [
           'y velocity',
-          'yv',
+          'YVel',
         ],
         [
           'angle',
-          'a',
+          'Angle',
         ],
         [
           'size',
-          'size',
+          'Size',
+        ],
+        [
+          'heavy/arrows/grapple cooldown',
+          'Cooldown',
+        ],
+        [
+          'arrow launch force',
+          'ArrowLaunchForce',
+        ],
+        [
+          'grapple point x',
+          'XGrapPoint',
+        ],
+        [
+          'grapple point y',
+          'YGrapPoint',
+        ],
+        [
+          'grappled platform id',
+          'GrapPlatId',
         ],
       ],
     },
@@ -667,101 +706,6 @@ module.exports = [{
   'output': 'Number',
   'colour': 230,
   'tooltip': 'Get a player\'s property. If the player doesn\'t exist, it will return 0.',
-  'helpUrl': '',
-},
-{
-  'type': 'set_last_arrow_prop',
-  'message0': 'set %1 %2 %3 %4 %5 %6 %7 to %8',
-  'args0': [
-    {
-      'type': 'field_dropdown',
-      'name': 'player',
-      'options': [
-        [
-          'your',
-          'self',
-        ],
-        [
-          'player with id',
-          'id',
-        ],
-      ],
-    },
-    {
-      'type': 'input_dummy',
-    },
-    {
-      'type': 'input_value',
-      'name': 'player_id',
-      'check': 'Number',
-    },
-    {
-      'type': 'field_dropdown',
-      'name': 'arrow',
-      'options': [
-        [
-          'last arrow',
-          'last',
-        ],
-        [
-          'arrow number',
-          'id',
-        ],
-        [
-          'arrows',
-          'all',
-        ],
-      ],
-    },
-    {
-      'type': 'input_dummy',
-    },
-    {
-      'type': 'input_value',
-      'name': 'arrow_id',
-      'check': 'Number',
-    },
-    {
-      'type': 'field_dropdown',
-      'name': 'arrow_prop',
-      'options': [
-        [
-          'x position',
-          'x',
-        ],
-        [
-          'y position',
-          'y',
-        ],
-        [
-          'x velocity',
-          'xv',
-        ],
-        [
-          'y velocity',
-          'yv',
-        ],
-        [
-          'angle',
-          'a',
-        ],
-        [
-          'amount of steps until despawn',
-          'fte',
-        ],
-      ],
-    },
-    {
-      'type': 'input_value',
-      'name': 'set_number',
-      'check': 'Number',
-    },
-  ],
-  'inputsInline': true,
-  'previousStatement': null,
-  'nextStatement': null,
-  'colour': 230,
-  'tooltip': 'Set a player\'s arrow\'s property to a specified value.',
   'helpUrl': '',
 },
 {
@@ -1288,186 +1232,6 @@ module.exports = [{
   'helpUrl': '',
 },
 {
-  'type': 'change_last_arrow_prop',
-  'message0': 'change %1 %2 %3 %4 %5 %6 %7 by %8',
-  'args0': [
-    {
-      'type': 'field_dropdown',
-      'name': 'player',
-      'options': [
-        [
-          'your',
-          'self',
-        ],
-        [
-          'player with id',
-          'id',
-        ],
-      ],
-    },
-    {
-      'type': 'input_dummy',
-    },
-    {
-      'type': 'input_value',
-      'name': 'player_id',
-      'check': 'Number',
-    },
-    {
-      'type': 'field_dropdown',
-      'name': 'arrow',
-      'options': [
-        [
-          'last arrow',
-          'last',
-        ],
-        [
-          'arrow number',
-          'id',
-        ],
-        [
-          'arrows',
-          'all',
-        ],
-      ],
-    },
-    {
-      'type': 'input_dummy',
-    },
-    {
-      'type': 'input_value',
-      'name': 'arrow_id',
-      'check': 'Number',
-    },
-    {
-      'type': 'field_dropdown',
-      'name': 'arrow_prop',
-      'options': [
-        [
-          'x position',
-          'x',
-        ],
-        [
-          'y position',
-          'y',
-        ],
-        [
-          'x velocity',
-          'xv',
-        ],
-        [
-          'y velocity',
-          'yv',
-        ],
-        [
-          'angle',
-          'a',
-        ],
-        [
-          'steps until despawn',
-          'fte',
-        ],
-      ],
-    },
-    {
-      'type': 'input_value',
-      'name': 'change_number',
-      'check': 'Number',
-    },
-  ],
-  'inputsInline': true,
-  'previousStatement': null,
-  'nextStatement': null,
-  'colour': 230,
-  'tooltip': 'Change a player\'s arrow\'s property by a specified value.',
-  'helpUrl': '',
-},
-{
-  'type': 'get_last_arrow_prop',
-  'message0': 'get %1 %2 %3 %4 %5 %6 \'s %7',
-  'args0': [
-    {
-      'type': 'field_dropdown',
-      'name': 'player',
-      'options': [
-        [
-          'your',
-          'self',
-        ],
-        [
-          'player with id',
-          'id',
-        ],
-      ],
-    },
-    {
-      'type': 'input_dummy',
-    },
-    {
-      'type': 'input_value',
-      'name': 'player_id',
-      'check': 'Number',
-    },
-    {
-      'type': 'field_dropdown',
-      'name': 'arrow',
-      'options': [
-        [
-          'last arrow',
-          'last',
-        ],
-        [
-          'arrow number',
-          'id',
-        ],
-      ],
-    },
-    {
-      'type': 'input_dummy',
-    },
-    {
-      'type': 'input_value',
-      'name': 'arrow_id',
-      'check': 'Number',
-    },
-    {
-      'type': 'field_dropdown',
-      'name': 'property',
-      'options': [
-        [
-          'x position',
-          'x',
-        ],
-        [
-          'y position',
-          'y',
-        ],
-        [
-          'x velocity',
-          'xv',
-        ],
-        [
-          'y velocity',
-          'yv',
-        ],
-        [
-          'angle',
-          'a',
-        ],
-        [
-          'steps until despawn',
-          'fte',
-        ],
-      ],
-    },
-  ],
-  'inputsInline': true,
-  'output': 'Number',
-  'colour': 230,
-  'tooltip': 'Get a player\'s arrow\'s property.',
-  'helpUrl': '',
-},
-{
   'type': 'change_player_prop',
   'message0': 'change %1 %2 %3 %4 by %5',
   'args0': [
@@ -1499,23 +1263,43 @@ module.exports = [{
       'options': [
         [
           'x position',
-          'x',
+          'XPos',
         ],
         [
           'y position',
-          'y',
+          'YPos',
         ],
         [
           'x velocity',
-          'xv',
+          'XVel',
         ],
         [
           'y velocity',
-          'yv',
+          'YVel',
         ],
         [
           'angle',
-          'a',
+          'Angle',
+        ],
+        [
+          'heavy/arrows/grapple cooldown',
+          'Cooldown',
+        ],
+        [
+          'arrow launch force',
+          'ArrowLaunchForce',
+        ],
+        [
+          'grapple point x',
+          'XGrapPoint',
+        ],
+        [
+          'grapple point y',
+          'YGrapPoint',
+        ],
+        [
+          'grappled platform id',
+          'GrapPlatId',
         ],
       ],
     },
@@ -2118,71 +1902,71 @@ module.exports = [{
       'options': [
         [
           'x position',
-          'p_x',
+          'XPos',
         ],
         [
           'y position',
-          'p_y',
+          'YPos',
         ],
         [
           'x velocity',
-          'lv_x',
+          'XVel',
         ],
         [
           'y velocity',
-          'lv_y',
+          'YVel',
         ],
         [
           'angle',
-          'a',
+          'Angle',
         ],
         [
           'angular velocity',
-          'av',
+          'AngularVel',
         ],
         [
           'bounciness',
-          're',
+          'Bounce',
         ],
         [
           'density',
-          'de',
+          'Density',
         ],
         [
           'friction',
-          'fric',
+          'Friction',
         ],
         [
           'fric players',
-          'fricp',
+          'FricPlayers',
         ],
         [
           'collide with players',
-          'f_p',
+          'CollideWithPlayers',
         ],
         [
           'collide with A',
-          'f_1',
+          'CollideWithA',
         ],
         [
           'collide with B',
-          'f_2',
+          'CollideWithB',
         ],
         [
           'collide with C',
-          'f_3',
+          'CollideWithC',
         ],
         [
           'collide with D',
-          'f_4',
+          'CollideWithD',
         ],
         [
           'linear drag',
-          'ld',
+          'LinearDrag',
         ],
         [
           'spin drag',
-          'ad',
+          'SpinDrag',
         ],
       ],
     },
@@ -2217,47 +2001,47 @@ module.exports = [{
       'options': [
         [
           'x position',
-          'p_x',
+          'XPos',
         ],
         [
           'y position',
-          'p_y',
+          'YPos',
         ],
         [
           'x velocity',
-          'lv_x',
+          'XVel',
         ],
         [
           'y velocity',
-          'lv_y',
+          'YVel',
         ],
         [
           'angle',
-          'a',
+          'Angle',
         ],
         [
           'angular velocity',
-          'av',
+          'AngularVel',
         ],
         [
           'bounciness',
-          're',
+          'Bounce',
         ],
         [
           'density',
-          'de',
+          'Density',
         ],
         [
           'friction',
-          'fric',
+          'Friction',
         ],
         [
           'linear drag',
-          'ld',
+          'LinearDrag',
         ],
         [
           'spin drag',
-          'ad',
+          'SpinDrag',
         ],
       ],
     },
@@ -2289,71 +2073,71 @@ module.exports = [{
       'options': [
         [
           'x position',
-          'p_x',
+          'XPos',
         ],
         [
           'y position',
-          'p_y',
+          'YPos',
         ],
         [
           'x velocity',
-          'lv_x',
+          'XVel',
         ],
         [
           'y velocity',
-          'lv_y',
+          'YVel',
         ],
         [
           'angle',
-          'a',
+          'Angle',
         ],
         [
           'angular velocity',
-          'av',
+          'AngularVel',
         ],
         [
           'bounciness',
-          're',
+          'Bounce',
         ],
         [
           'density',
-          'de',
+          'Density',
         ],
         [
           'friction',
-          'fric',
+          'Friction',
         ],
         [
           'fric players',
-          'fricp',
+          'FricPlayers',
         ],
         [
           'collide with players',
-          'f_p',
+          'CollideWithPlayers',
         ],
         [
           'collide with A',
-          'f_1',
+          'CollideWithA',
         ],
         [
           'collide with B',
-          'f_2',
+          'CollideWithB',
         ],
         [
           'collide with C',
-          'f_3',
+          'CollideWithC',
         ],
         [
           'collide with D',
-          'f_4',
+          'CollideWithD',
         ],
         [
           'linear drag',
-          'ld',
+          'LinearDrag',
         ],
         [
           'spin drag',
-          'ad',
+          'SpinDrag',
         ],
       ],
     },
@@ -2387,47 +2171,51 @@ module.exports = [{
       'options': [
         [
           'colour',
-          'f_f',
+          'Colour',
         ],
         [
           'x offset',
-          's_c_x',
+          'XOffset',
         ],
         [
           'y offset',
-          's_c_y',
+          'YOffset',
         ],
         [
           'angle (only rectangle)',
-          's_a',
+          'Angle',
         ],
         [
           'width (only rectangle)',
-          's_w',
+          'Width',
         ],
         [
           'height (only rectangle)',
-          's_h',
+          'Height',
         ],
         [
           'radius (only circle)',
-          's_r',
+          'Radius',
+        ],
+        [
+          'vertices (only polygon)',
+          'Vertices',
         ],
         [
           'no physics',
-          'f_np',
+          'NoPhys',
         ],
         [
           'no grapple',
-          'f_ng',
+          'NoGrap',
         ],
         [
           'inner grapple',
-          'f_ig',
+          'InnerGrap',
         ],
         [
           'death',
-          'f_d',
+          'Death',
         ],
       ],
     },
@@ -2468,27 +2256,27 @@ module.exports = [{
       'options': [
         [
           'x offset',
-          's_c_x',
+          'XOffset',
         ],
         [
           'y offset',
-          's_c_y',
+          'YOffset',
         ],
         [
           'angle (only rectangle)',
-          's_a',
+          'Angle',
         ],
         [
           'width (only rectangle)',
-          's_w',
+          'Width',
         ],
         [
           'height (only rectangle)',
-          's_h',
+          'Height',
         ],
         [
           'radius (only circle)',
-          's_r',
+          'Radius',
         ],
       ],
     },
@@ -2524,48 +2312,56 @@ module.exports = [{
       'name': 'shape_prop',
       'options': [
         [
+          'type',
+          'Type',
+        ],
+        [
           'colour',
-          'f_f',
+          'Colour',
         ],
         [
           'x offset',
-          's_c_x',
+          'XOffset',
         ],
         [
           'y offset',
-          's_c_y',
+          'YOffset',
         ],
         [
           'angle (only rectangle)',
-          's_a',
+          'Angle',
         ],
         [
           'width (only rectangle)',
-          's_w',
+          'Width',
         ],
         [
           'height (only rectangle)',
-          's_h',
+          'Height',
         ],
         [
           'radius (only circle)',
-          's_r',
+          'Radius',
+        ],
+        [
+          'vertices (only polygon)',
+          'Vertices',
         ],
         [
           'no physics',
-          'f_np',
+          'NoPhys',
         ],
         [
           'no grapple',
-          'f_ng',
+          'NoGrap',
         ],
         [
           'inner grapple',
-          'f_ig',
+          'InnerGrap',
         ],
         [
           'death',
-          'f_d',
+          'Death',
         ],
       ],
     },
@@ -2610,7 +2406,7 @@ module.exports = [{
   'previousStatement': null,
   'nextStatement': null,
   'colour': 195,
-  'tooltip': 'Delete a platform. Be aware that this may lag the game if done too often.',
+  'tooltip': 'Delete a platform. Note that this doesn\'t truly delete the platform, it only erases its shapes. Be aware that this may lag the game if done too often.',
   'helpUrl': '',
 },
 {
@@ -3374,6 +3170,305 @@ module.exports = [{
   'output': 'Number',
   'colour': 160,
   'tooltip': 'Get width or height of screen (in gmmaker units, not in pixels).',
+  'helpUrl': '',
+},
+{
+  'type': 'on_seconds_do',
+  'message0': 'on %1 seconds do %2 %3',
+  'args0': [
+    {
+      'type': 'input_value',
+      'name': 'seconds',
+      'check': 'Number',
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_statement',
+      'name': 'code',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 20,
+  'tooltip': '',
+  'helpUrl': '',
+},
+{
+  'type': 'set_arrow_prop',
+  'message0': 'set %1 %2 %3 %4 %5 %6 %7 to %8',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow',
+      'options': [
+        [
+          'last arrow',
+          'last',
+        ],
+        [
+          'arrow number',
+          'id',
+        ],
+        [
+          'arrows',
+          'all',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'arrow_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow_prop',
+      'options': [
+        [
+          'x position',
+          'XPos',
+        ],
+        [
+          'y position',
+          'YPos',
+        ],
+        [
+          'x velocity',
+          'XVel',
+        ],
+        [
+          'y velocity',
+          'YVel',
+        ],
+        [
+          'angle',
+          'Angle',
+        ],
+        [
+          'amount of steps until despawn',
+          'StepsUntilDespawn',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'set_number',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 230,
+  'tooltip': 'Set a player\'s arrow\'s property to a specified value.',
+  'helpUrl': '',
+},
+{
+  'type': 'change_arrow_prop',
+  'message0': 'change %1 %2 %3 %4 %5 %6 %7 by %8',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow',
+      'options': [
+        [
+          'last arrow',
+          'last',
+        ],
+        [
+          'arrow number',
+          'id',
+        ],
+        [
+          'arrows',
+          'all',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'arrow_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow_prop',
+      'options': [
+        [
+          'x position',
+          'XPos',
+        ],
+        [
+          'y position',
+          'YPos',
+        ],
+        [
+          'x velocity',
+          'XVel',
+        ],
+        [
+          'y velocity',
+          'YVel',
+        ],
+        [
+          'angle',
+          'Angle',
+        ],
+        [
+          'amount of steps until despawn',
+          'StepsUntilDespawn',
+        ],
+      ],
+    },
+    {
+      'type': 'input_value',
+      'name': 'change_number',
+      'check': 'Number',
+    },
+  ],
+  'inputsInline': true,
+  'previousStatement': null,
+  'nextStatement': null,
+  'colour': 230,
+  'tooltip': 'Change a player\'s arrow\'s property by a specified value.',
+  'helpUrl': '',
+},
+{
+  'type': 'get_arrow_prop',
+  'message0': 'get %1 %2 %3 %4 %5 %6 \'s %7',
+  'args0': [
+    {
+      'type': 'field_dropdown',
+      'name': 'player',
+      'options': [
+        [
+          'your',
+          'self',
+        ],
+        [
+          'player with id',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'player_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow',
+      'options': [
+        [
+          'last arrow',
+          'last',
+        ],
+        [
+          'arrow number',
+          'id',
+        ],
+      ],
+    },
+    {
+      'type': 'input_dummy',
+    },
+    {
+      'type': 'input_value',
+      'name': 'arrow_id',
+      'check': 'Number',
+    },
+    {
+      'type': 'field_dropdown',
+      'name': 'arrow_prop',
+      'options': [
+        [
+          'x position',
+          'XPos',
+        ],
+        [
+          'y position',
+          'YPos',
+        ],
+        [
+          'x velocity',
+          'XVel',
+        ],
+        [
+          'y velocity',
+          'YVel',
+        ],
+        [
+          'angle',
+          'Angle',
+        ],
+        [
+          'amount of steps until despawn',
+          'StepsUntilDespawn',
+        ],
+      ],
+    },
+  ],
+  'inputsInline': true,
+  'output': 'Number',
+  'colour': 230,
+  'tooltip': 'Get a player\'s arrow\'s property.',
   'helpUrl': '',
 },
 {

@@ -11,8 +11,8 @@ export default {
     BonkGraphics.prototype.render = (function() {
       BonkGraphics.prototype.render_OLD = BonkGraphics.prototype.render;
       return function() {
-        const gmStateA = arguments[0].physics.bodies[0]?.cf;
-        const gmStateB = arguments[1].physics.bodies[0]?.cf;
+        const gmExtraA = arguments[0].gmExtra;
+        const gmExtraB = arguments[1].gmExtra;
 
         // modify offscreen function of discs
         if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen_OLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
@@ -20,7 +20,7 @@ export default {
           discGraphic.__proto__.doOffScreen_OLD = discGraphic.__proto__.doOffScreen;
           discGraphic.__proto__.doOffScreen = function() {
             this.offScreenContainer.visible = false;
-            if (!gm.physics.gameState?.physics.bodies[0].cf.cameraChanged && gm.physics.gameState?.rl > 1) {
+            if (!gm.state.gameState?.gmExtra.cameraChanged && gm.state.gameState?.rl > 1) {
               return this.doOffScreen_OLD.apply(this, arguments);
             }
             return;
@@ -28,9 +28,9 @@ export default {
         }
 
         // camera movement
-        if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed && gm.lobby.networkEngine && gmStateA?.cameras?.[gm.lobby.networkEngine.getLSID()] && gmStateB?.cameras?.[gm.lobby.networkEngine.getLSID()]) {
-          const cameraObjA = gmStateA.cameras[gm.lobby.networkEngine.getLSID()];
-          const cameraObjB = gmStateB.cameras[gm.lobby.networkEngine.getLSID()];
+        if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed && gm.lobby.networkEngine && gmExtraA?.cameras?.[gm.lobby.networkEngine.getLSID()] && gmExtraB?.cameras?.[gm.lobby.networkEngine.getLSID()]) {
+          const cameraObjA = gmExtraA.cameras[gm.lobby.networkEngine.getLSID()];
+          const cameraObjB = gmExtraB.cameras[gm.lobby.networkEngine.getLSID()];
           const scaleMultiplier = arguments[0].physics.ppm * gm.graphics.rendererClass.scaleRatio;
 
           if (cameraObjA.doLerp || cameraObjB.doLerp) {
@@ -73,6 +73,7 @@ export default {
         const newBodies = [];
         const newFixtures = [];
         const newShapes = [];
+        const newDiscs = [];
 
         if (arguments[0].physics.shapes.length != arguments[1].physics.shapes.length) {
           for (let i = 0; i < arguments[1].physics.shapes.length; i++) {
@@ -93,6 +94,12 @@ export default {
             newFixtures.push(i);
             arguments[0].physics.fixtures[i] = arguments[1].physics.fixtures[i];
           }
+          for (let i = 0; i < arguments[1].discs.length; i++) {
+            if (!arguments[1].discs[i]) continue;
+            if (arguments[0].discs[i]) continue;
+            newDiscs.push(i);
+            arguments[0].discs[i] = arguments[1].discs[i];
+          }
         }
 
         const result = this.render_OLD.apply(this, arguments);
@@ -110,12 +117,14 @@ export default {
           delete arguments[0].physics.shapes[newShapes[i]];
           arguments[0].physics.shapes.length--;
         }
+        for (let i = 0; i < newDiscs.length; i++) {
+          delete arguments[0].discs[newDiscs[i]];
+          arguments[0].discs.length--;
+        }
 
         if (!gm.graphics.bodyGraphicsClass) gm.graphics.bodyGraphicsClass = this.roundGraphics.bodyGraphics[0]?.constructor;
 
         gm.graphics.rendererClass = this;
-
-        gm.graphics.rendering = true;
 
         // camera container creation
         if (!gm.graphics.cameraContainer || gm.graphics.cameraContainer._destroyed || !this.blurContainer.children.includes(gm.graphics.cameraContainer)) {
@@ -169,7 +178,7 @@ export default {
         }
 
         // make seed based on scene element positions and game state seed
-        const gst = gm.physics.gameState;
+        const gst = gm.state.gameState;
         let randomSeed = 0;
         for (let i = 0; i < gst.physics.bodies.length; i++) {
           if (gst.physics.bodies[i]) {
@@ -183,11 +192,11 @@ export default {
         }
         randomSeed += gst.rl;
         randomSeed /= gst.seed;
-        gm.physics.pseudoRandom = new seedrandom(randomSeed);
+        gm.state.pseudoRandom = new seedrandom(randomSeed);
 
-        if (gm.physics.gameState && gm.physics.gameState.discs) {
-          for (let i = 0; i < gm.physics.gameState.discs.length; i++) {
-            if (gm.physics.gameState.discs[i]) {
+        if (gm.state.gameState && gm.state.gameState.discs) {
+          for (let i = 0; i < gm.state.gameState.discs.length; i++) {
+            if (gm.state.gameState.discs[i]) {
               if (!gm.inputs.allPlayerInputs[i]) {
                 gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
               }
@@ -207,7 +216,6 @@ export default {
             }
           }
         }
-        gm.graphics.rendering = false;
 
         // render
         gm.graphics.rendererClass.renderer.render(gm.graphics.rendererClass.stage);
@@ -219,14 +227,14 @@ export default {
       BonkGraphics.prototype.build_OLD = BonkGraphics.prototype.build;
       return function() {
         const result = this.build_OLD.apply(this, arguments);
-        gm.blockly.varInspector.innerHTML = '';
+        gm.editor.varInspector.innerHTML = '';
         return result;
       };
     })();
     BonkGraphics.prototype.destroy = (function() {
       BonkGraphics.prototype.destroy_OLD = BonkGraphics.prototype.destroy;
       return function() {
-        gm.blockly.varInspector.innerHTML = '';
+        gm.editor.varInspector.innerHTML = '';
 
         if (gm.graphics.rendererClass) {
           for (let a = 0; a != gm.graphics.rendererClass.discGraphics.length; a++) {
@@ -305,22 +313,22 @@ export default {
     })();
   },
   onPhysStep: function(gameState) {
-    if (gameState.fte == 0) gm.blockly.varInspector.innerHTML = '';
+    if (gameState.fte == 0) gm.editor.varInspector.innerHTML = '';
 
-    const shouldShowVarInsp = gm.blockly.savedSettings?.getAttribute('show_var_insp') === 'true' &&// mode has var inspector enabled
+    const shouldShowVarInsp = gm.editor.savedSettings?.getAttribute('show_var_insp') === 'true' &&// mode has var inspector enabled
       gm.graphics.rendererClass.domContainer.style.visibility !== 'hidden';// we're in-game (to prevent it from popping up in the editor)
 
-    if (shouldShowVarInsp && gm.blockly.varInspectorContainer.style.display !== 'block') {
-      gm.blockly.varInspectorContainer.style.display = 'block';
-    } else if (!shouldShowVarInsp && gm.blockly.varInspectorContainer.style.display !== 'none') {
-      gm.blockly.varInspectorContainer.style.display = 'none';
+    if (shouldShowVarInsp && gm.editor.varInspectorContainer.style.display !== 'block') {
+      gm.editor.varInspectorContainer.style.display = 'block';
+    } else if (!shouldShowVarInsp && gm.editor.varInspectorContainer.style.display !== 'none') {
+      gm.editor.varInspectorContainer.style.display = 'none';
     }
 
-    if (gm.graphics.rendererClass?.playerArray && shouldShowVarInsp) gm.blockly.updateVarInspector(gameState);
+    if (gm.graphics.rendererClass?.playerArray && shouldShowVarInsp) gm.editor.updateVarInspector(gameState);
 
     // world and disc drawing objects creation, as well as cleaning graphics on the end of a round
-    for (let i = 0; i < gameState.physics.bodies[0]?.cf.initialPlayers?.length; i++) {
-      const id = gameState.physics.bodies[0].cf.initialPlayers[i];
+    for (let i = 0; i < gameState.gmExtra?.initialPlayers?.length; i++) {
+      const id = gameState.gmExtra.initialPlayers[i];
 
       if (!gm.graphics.additionalDiscGraphics[id] || gm.graphics.additionalDiscGraphics[id]._destroyed) {
         gm.graphics.additionalDiscGraphics[id] = new PIXI.Graphics();
@@ -335,7 +343,7 @@ export default {
       }
     }
 
-    if (gameState.rl === 1) gm.blockly.funcs.clearGraphics();
+    if (gameState.rl === 1) gm.editor.funcs.clearGraphics();
   },
   doRollback: function(fromStepCount, toStepCount) {
     // if (toStepCount == 0) return;

@@ -92,6 +92,14 @@
     background-image: url(images/gmebackups.png);
 }
 
+#gmeditor_changebasebutton.jsIcon {
+    background-image: url(images/gmejavascript.png);
+}
+
+#gmeditor_changebasebutton.blockIcon {
+    background-image: url(images/gmeblockly.png);
+}
+
 #gmeditor_settingsbutton {
     background-image: url(images/gmesettings.png);
 }
@@ -104,7 +112,7 @@
     background-image: url(images/gmeclose.png);
 }
 
-#gmblocklyarea {
+#gmworkspacearea {
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
@@ -112,6 +120,13 @@
 }
 
 #gmblocklydiv {
+    position: absolute;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+#gmmonacodiv {
+    z-index: 999;
     position: absolute;
     padding: 10px;
     box-sizing: border-box;
