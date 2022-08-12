@@ -1,4 +1,6 @@
-// eslint-disable-next-line require-jsdoc
+/* eslint-disable require-jsdoc */
+import * as monaco from 'monaco-editor';
+
 export default function() {
   monaco.languages.registerCompletionItemProvider('javascript', {
     provideCompletionItems: () => {

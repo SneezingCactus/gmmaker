@@ -8,7 +8,7 @@ const content = `// ==UserScript==
 // @namespace    https://github.com/SneezingCactus
 // @description  ${manifest.description}
 // @homepage     ${manifest.homepage_url}
-// @match        *.bonk.io/gameframe-release.html
+// @match        https://*.bonk.io/gameframe-release.html
 // @run-at       document-start
 // @grant        none
 // ==/UserScript==

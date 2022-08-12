@@ -4,6 +4,7 @@
 import seedrandom from 'seedrandom';
 import declareMeths from '!raw-loader!../ses/declareMeths.js';
 import declareGameObject from '!raw-loader!../ses/declareGameObject.js';
+import sesCode from '!raw-loader!../ses/ses.umd.js';
 
 export default {
   init: function() {
@@ -11,24 +12,19 @@ export default {
     const compContainer = document.createElement('iframe');
     document.head.appendChild(compContainer);
 
-    const sesScript = document.createElement('script');
-    sesScript.src = 'https://unpkg.com/ses@0.15.17/dist/ses.umd.min.js';
-    compContainer.contentDocument.head.appendChild(sesScript);
+    compContainer.contentWindow.eval(sesCode);
+    compContainer.contentWindow.lockdown({errorTaming: 'unsafe'});
 
-    sesScript.addEventListener('load', function() {
-      compContainer.contentWindow.lockdown({errorTaming: 'unsafe'});
+    // mr whiter whee is my 50002 km/h of methé
+    // (meth is short for method here)
 
-      // mr whiter whee is my 50002 km/h of methé
-      // (meth is short for method here)
+    gm.state.sesMethNames = compContainer.contentWindow.eval(declareMeths);
+    gm.state.safeEvalWindow = compContainer.contentWindow;
 
-      gm.state.sesMethNames = compContainer.contentWindow.eval(declareMeths);
-      gm.state.safeEvalWindow = compContainer.contentWindow;
-
-      gm.state.resetSES();
-      gm.state.initb2Step();
-      gm.state.initGameState();
-      gm.state.initCreateState();
-    });
+    gm.state.resetSES();
+    gm.state.initb2Step();
+    gm.state.initGameState();
+    gm.state.initCreateState();
   },
   resetSES: function() {
     const meths = {};

@@ -8,7 +8,7 @@ module.exports = {
     maxAssetSize: 1e10,
   },
   optimization: {
-    minimize: false,
+    minimize: true,
   },
   module: {
     rules: [
