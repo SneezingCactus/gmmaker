@@ -15,6 +15,7 @@
     "seedrandom": "^3.0.5",
     "style-loader": "^3.1.0",
     "url-loader": "^4.1.1",
+    "web-ext": "^7.1.1",
     "webextension-polyfill": "^0.9.0"
   },
   "devDependencies": {
