@@ -1,6 +1,6 @@
+/* eslint-disable require-jsdoc */
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
-import seedrandom from 'seedrandom';
 import * as PIXI from 'pixi.js-legacy';
 
 export default {
@@ -10,500 +10,622 @@ export default {
   initBonkGraphics: function() {
     BonkGraphics.prototype.render = (function() {
       BonkGraphics.prototype.render_OLD = BonkGraphics.prototype.render;
-      return function() {
-        const gmExtraA = arguments[0].gmExtra;
-        const gmExtraB = arguments[1].gmExtra;
+      return function(stateA, stateB, weight) {
+        this.render_OLD(...arguments);
 
-        // modify offscreen function of discs
+        // if no mode loaded, no gmm stuff
+        if (!stateA.gmExtra) return this.renderer.render(this.stage);
+
+        /* #region DISC GRAPHICS PROTO MODIFY */
         if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen_OLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
           const discGraphic = this.discGraphics?.[this.discGraphics?.length - 1];
           discGraphic.__proto__.doOffScreen_OLD = discGraphic.__proto__.doOffScreen;
           discGraphic.__proto__.doOffScreen = function() {
             this.offScreenContainer.visible = false;
-            if (!gm.state.gameState?.gmExtra.cameraChanged && gm.state.gameState?.rl > 1) {
+            if (!gm.state.gameState.gmExtra?.cameraChanged && gm.state.gameState?.rl > 1) {
               return this.doOffScreen_OLD.apply(this, arguments);
             }
             return;
           };
         }
+        /* #endregion DISC GRAPHICS PROTO MODIFY */
 
-        // camera movement
-        if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed && gm.lobby.networkEngine && gmExtraA?.cameras?.[gm.lobby.networkEngine.getLSID()] && gmExtraB?.cameras?.[gm.lobby.networkEngine.getLSID()]) {
-          const cameraObjA = gmExtraA.cameras[gm.lobby.networkEngine.getLSID()];
-          const cameraObjB = gmExtraB.cameras[gm.lobby.networkEngine.getLSID()];
-          const scaleMultiplier = arguments[0].physics.ppm * gm.graphics.rendererClass.scaleRatio;
+        /* #region UPDATE CAMERA */
+        // this.blurContainer.pivot.x = -365 * this.scaleRatio;
+        // this.blurContainer.pivot.y = -250 * this.scaleRatio;
 
-          if (cameraObjA.doLerp || cameraObjB.doLerp) {
-            const anglePointA = [Math.sin(cameraObjA.angle), Math.cos(cameraObjA.angle)];
-            const anglePointB = [Math.sin(cameraObjB.angle), Math.cos(cameraObjB.angle)];
-            const lerpedAnglePoint = [
-              (1 - arguments[2]) * anglePointA[0] + arguments[2] * anglePointB[0],
-              (1 - arguments[2]) * anglePointA[1] + arguments[2] * anglePointB[1],
-            ];
+        const cameraObjA = stateA.gmExtra.camera;
+        const cameraObjB = stateB.gmExtra.camera;
+        const camera = gm.graphics.camera;
+        const scaleMultiplier = stateB.physics.ppm * this.scaleRatio;
 
-            gm.graphics.cameraContainer.pivot.x = (1 - arguments[2]) * cameraObjA.xpos * scaleMultiplier + arguments[2] * cameraObjB.xpos * scaleMultiplier;
-            gm.graphics.cameraContainer.pivot.y = (1 - arguments[2]) * cameraObjA.ypos * scaleMultiplier + arguments[2] * cameraObjB.ypos * scaleMultiplier;
-            gm.graphics.cameraContainer.rotation = Math.atan2(lerpedAnglePoint[0], lerpedAnglePoint[1]);
-            gm.graphics.cameraContainer.scale.x = (1 - arguments[2]) * cameraObjA.xscal + arguments[2] * cameraObjB.xscal;
-            gm.graphics.cameraContainer.scale.y = (1 - arguments[2]) * cameraObjA.yscal + arguments[2] * cameraObjB.yscal;
-            gm.graphics.cameraContainer.skew.x = (1 - arguments[2]) * cameraObjA.xskew + arguments[2] * cameraObjB.xskew;
-            gm.graphics.cameraContainer.skew.y = (1 - arguments[2]) * cameraObjA.yskew + arguments[2] * cameraObjB.yskew;
-          } else {
-            gm.graphics.cameraContainer.pivot.x = cameraObjB.xpos * scaleMultiplier;
-            gm.graphics.cameraContainer.pivot.y = cameraObjB.ypos * scaleMultiplier;
-            gm.graphics.cameraContainer.angle = cameraObjB.angle;
-            gm.graphics.cameraContainer.scale.x = cameraObjB.xscal;
-            gm.graphics.cameraContainer.scale.y = cameraObjB.yscal;
-            gm.graphics.cameraContainer.skew.x = cameraObjB.xskew;
-            gm.graphics.cameraContainer.skew.y = cameraObjB.yskew;
+        camera.x = 365 * this.scaleRatio;
+        camera.y = 250 * this.scaleRatio;
+
+        if (cameraObjB.noLerp) {
+          camera.pivot.x = cameraObjB.xPos * scaleMultiplier;
+          camera.pivot.y = cameraObjB.yPos * scaleMultiplier;
+          camera.angle = cameraObjB.angle;
+          camera.scale.x = cameraObjB.xScale;
+          camera.scale.y = cameraObjB.yScale;
+        } else {
+          const anglePointA = [Math.sin(cameraObjA.angle), Math.cos(cameraObjA.angle)];
+          const anglePointB = [Math.sin(cameraObjB.angle), Math.cos(cameraObjB.angle)];
+          const lerpedAnglePoint = [
+            (1 - arguments[2]) * anglePointA[0] + arguments[2] * anglePointB[0],
+            (1 - arguments[2]) * anglePointA[1] + arguments[2] * anglePointB[1],
+          ];
+
+          camera.pivot.x = (1 - arguments[2]) * cameraObjA.xPos * scaleMultiplier + arguments[2] * cameraObjB.xPos * scaleMultiplier;
+          camera.pivot.y = (1 - arguments[2]) * cameraObjA.yPos * scaleMultiplier + arguments[2] * cameraObjB.yPos * scaleMultiplier;
+          camera.rotation = Math.atan2(lerpedAnglePoint[0], lerpedAnglePoint[1]);
+          camera.scale.x = (1 - arguments[2]) * cameraObjA.xScale + arguments[2] * cameraObjB.xScale;
+          camera.scale.y = (1 - arguments[2]) * cameraObjA.yScale + arguments[2] * cameraObjB.yScale;
+        }
+        /* #endregion UPDATE CAMERA */
+
+        /* #region UPDATE DRAWINGS */
+        for (let i = 0; i < stateB.gmExtra.drawings.length; i++) {
+          const drawingA = stateA.gmExtra.drawings[i];
+          const drawingB = stateB.gmExtra.drawings[i];
+          const drawingList = gm.graphics.drawings;
+
+          // deletion of shapes that suddenly disappear
+          if (!drawingB && drawingList[i]) {
+            drawingList[i].destroy();
+            drawingList[i] = null;
           }
 
-          window.gmReplaceAccessors.addToStereo = ((-gm.graphics.cameraContainer.pivot.x + 730 * this.scaleRatio) * gm.graphics.cameraContainer.scale.x) / (365 * this.scaleRatio) - 1;
-        }
+          // new shape creation
+          if (drawingB && !drawingList[i]) {
+            drawingList[i] = new Drawing();
 
-        // remove arrows from camera container
-        for (let i = 0; i < this.arrowGraphics.length; i++) {
-          if (this.arrowGraphics[i] && gm.graphics.cameraContainer.children.includes(this.arrowGraphics[i].graphic) &&
-            ((!arguments[0].projectiles[i] || !arguments[1].projectiles[i] || arguments[1].projectiles[i].did != this.arrowGraphics[i].ownerID))) {
-            gm.graphics.cameraContainer.removeChild(this.arrowGraphics[i].graphic);
-          }
-        }
-
-        // bonk crashes if it tries to move something that doesn't exist in the previous frame
-        const newBodies = [];
-        const newFixtures = [];
-        const newShapes = [];
-        const newDiscs = [];
-
-        if (arguments[0].physics.shapes.length != arguments[1].physics.shapes.length) {
-          for (let i = 0; i < arguments[1].physics.shapes.length; i++) {
-            if (!arguments[1].physics.shapes[i]) continue;
-            if (arguments[0].physics.shapes[i]) continue;
-            newShapes.push(i);
-            arguments[0].physics.shapes[i] = arguments[1].physics.shapes[i];
-          }
-          for (let i = 0; i < arguments[1].physics.bodies.length; i++) {
-            if (!arguments[1].physics.bodies[i]) continue;
-            if (arguments[0].physics.bodies[i]) continue;
-            newBodies.push(i);
-            arguments[0].physics.bodies[i] = arguments[1].physics.bodies[i];
-          }
-          for (let i = 0; i < arguments[1].physics.fixtures.length; i++) {
-            if (!arguments[1].physics.fixtures[i]) continue;
-            if (arguments[0].physics.fixtures[i]) continue;
-            newFixtures.push(i);
-            arguments[0].physics.fixtures[i] = arguments[1].physics.fixtures[i];
-          }
-          for (let i = 0; i < arguments[1].discs.length; i++) {
-            if (!arguments[1].discs[i]) continue;
-            if (arguments[0].discs[i]) continue;
-            newDiscs.push(i);
-            arguments[0].discs[i] = arguments[1].discs[i];
-          }
-        }
-
-        const result = this.render_OLD.apply(this, arguments);
-
-        // revert the last game state changes
-        for (let i = 0; i < newBodies.length; i++) {
-          delete arguments[0].physics.bodies[newBodies[i]];
-          arguments[0].physics.bodies.length--;
-        }
-        for (let i = 0; i < newFixtures.length; i++) {
-          delete arguments[0].physics.fixtures[newFixtures[i]];
-          arguments[0].physics.fixtures.length--;
-        }
-        for (let i = 0; i < newShapes.length; i++) {
-          delete arguments[0].physics.shapes[newShapes[i]];
-          arguments[0].physics.shapes.length--;
-        }
-        for (let i = 0; i < newDiscs.length; i++) {
-          delete arguments[0].discs[newDiscs[i]];
-          arguments[0].discs.length--;
-        }
-
-        if (!gm.graphics.bodyGraphicsClass) gm.graphics.bodyGraphicsClass = this.roundGraphics.bodyGraphics[0]?.constructor;
-
-        gm.graphics.rendererClass = this;
-
-        // camera container creation
-        if (!gm.graphics.cameraContainer || gm.graphics.cameraContainer._destroyed || !this.blurContainer.children.includes(gm.graphics.cameraContainer)) {
-          gm.graphics.cameraContainer = new PIXI.Container();
-
-          this.blurContainer.addChild(gm.graphics.cameraContainer);
-
-          gm.graphics.cameraContainer.addChild(this.environmentContainer);
-          gm.graphics.cameraContainer.addChild(this.discContainer);
-
-          gm.graphics.cameraContainer.pivot.x = 365 * gm.graphics.rendererClass.scaleRatio;
-          gm.graphics.cameraContainer.pivot.y = 250 * gm.graphics.rendererClass.scaleRatio;
-          gm.graphics.cameraContainer.sortableChildren = true;
-        }
-
-        if (!gm.graphics.cameraContainer.children.includes(this.particleManager.container)) gm.graphics.cameraContainer.addChild(this.particleManager.container);
-
-        if (this.blurContainer && (this.blurContainer.pivot.x != gm.graphics.rendererClass.domLastWidth / 2 || this.blurContainer.pivot.y != gm.graphics.rendererClass.domLastHeight / 2)) {
-          this.blurContainer.pivot.x = -365 * gm.graphics.rendererClass.scaleRatio;
-          this.blurContainer.pivot.y = -250 * gm.graphics.rendererClass.scaleRatio;
-        }
-
-        // move arrows to camera container
-        for (let i = 0; i < this.arrowGraphics.length; i++) {
-          if (this.arrowGraphics[i] && !gm.graphics.cameraContainer.children.includes(this.arrowGraphics[i].graphic)) {
-            gm.graphics.cameraContainer.addChild(this.arrowGraphics[i].graphic);
-          }
-        }
-
-        // world and disc drawing objects add to stages
-        if (gm.graphics.rendererClass) {
-          for (let i = 0; i < gm.graphics.rendererClass.discGraphics.length; i++) {
-            if (arguments[0].discs[i] && gm.graphics.rendererClass.discGraphics[i] && gm.graphics.additionalDiscGraphics[i] && !gm.graphics.rendererClass.discGraphics[i].container.children.includes(gm.graphics.additionalDiscGraphics[i])) {
-              gm.graphics.additionalDiscGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
-              gm.graphics.additionalDiscGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
-              gm.graphics.rendererClass.discGraphics[i].container.addChild(gm.graphics.additionalDiscGraphics[i]);
+            if (drawingB.isBehind) {
+              // come on, who's going to make that much drawings
+              drawingList[i].displayObject.zIndex = -10000000 + i;
+            } else {
+              drawingList[i].displayObject.zIndex = 10000000 + i;
             }
-            if (arguments[0].discs[i] && gm.graphics.rendererClass.blurContainer && gm.graphics.additionalWorldGraphics[i] && !gm.graphics.cameraContainer.children.includes(gm.graphics.additionalWorldGraphics[i])) {
-              gm.graphics.additionalWorldGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
-              gm.graphics.additionalWorldGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
-              gm.graphics.cameraContainer.addChild(gm.graphics.additionalWorldGraphics[i]);
-            }
-            if (arguments[0].discs[i] && gm.graphics.rendererClass.blurContainer && gm.graphics.additionalScreenGraphics[i] && !gm.graphics.rendererClass.blurContainer.children.includes(gm.graphics.additionalScreenGraphics[i])) {
-              gm.graphics.additionalScreenGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
-              gm.graphics.additionalScreenGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
-              gm.graphics.additionalScreenGraphics[i].pivot.x = 365;
-              gm.graphics.additionalScreenGraphics[i].pivot.y = 250;
-              gm.graphics.rendererClass.blurContainer.addChild(gm.graphics.additionalScreenGraphics[i]);
-            }
-          }
-        }
 
-        // make seed based on scene element positions and game state seed
-        const gst = gm.state.gameState;
-        let randomSeed = 0;
-        for (let i = 0; i < gst.physics.bodies.length; i++) {
-          if (gst.physics.bodies[i]) {
-            randomSeed = randomSeed + gst.physics.bodies[i].p[0] + gst.physics.bodies[i].p[1] + gst.physics.bodies[i].a;
+            switch (drawingB.attachTo) {
+              case 'screen':
+                // if it wasn't sortable, now it is
+                this.blurContainer.sortableChildren = true;
+                this.blurContainer.addChild_OLD(drawingList[i].displayObject);
+                break;
+              case 'world':
+                gm.graphics.camera.sortableChildren = true;
+                gm.graphics.camera.addChild(drawingList[i].displayObject);
+                break;
+              case 'disc':
+                const disc = this.discGraphics[drawingB.attachId];
+                if (!disc) break;
+                disc.container.sortableChildren = true;
+                disc.container.addChild(drawingList[i].displayObject);
+                break;
+              case 'body':
+                const body = this.roundGraphics.bodyGraphics[drawingB.attachId];
+                if (!body) break;
+                body.displayObject.sortableChildren = true;
+                body.displayObject.addChild(drawingList[i].displayObject);
+                break;
+            }
+            drawingList[i].update(drawingB, drawingB, 1, stateB.physics.ppm * this.scaleRatio, true);
           }
-        }
-        for (let i = 0; i < gst.discs.length; i++) {
-          if (gst.discs[i]) {
-            randomSeed = randomSeed + gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
-          }
-        }
-        randomSeed += gst.rl;
-        randomSeed /= gst.seed;
-        gm.state.pseudoRandom = new seedrandom(randomSeed);
 
-        if (gm.state.gameState && gm.state.gameState.discs) {
-          for (let i = 0; i < gm.state.gameState.discs.length; i++) {
-            if (gm.state.gameState.discs[i]) {
-              if (!gm.inputs.allPlayerInputs[i]) {
-                gm.inputs.allPlayerInputs[i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
-              }
-              try {
-                gm.graphics.onRender(i);
-              } catch (e) {
-                if (!gm.lobby.gameCrashed) {
-                  if (e === 'gmInfiniteLoop') {
-                    gm.lobby.haltCausedByLoop = true;
-                  } else {
-                    console.error(e);
-                  }
-                  gm.lobby.gameCrashed = true;
-                  setTimeout(gm.lobby.gameHalt, 500); // gotta make sure we're out of the step function!
-                }
+          // shape updating
+          if (drawingA && drawingB && drawingList[i]) {
+            if (drawingA.attachTo != drawingB.attachTo) {
+              drawingList[i].displayObject.parent.removeChild(drawingList[i]);
+
+              switch (drawingB.attachTo) {
+                case 'screen':
+                  // if it wasn't sortable, now it is
+                  this.blurContainer.sortableChildren = true;
+                  this.blurContainer.addChild_OLD(drawingList[i].displayObject);
+                  break;
+                case 'world':
+                  gm.graphics.camera.sortableChildren = true;
+                  gm.graphics.camera.addChild(drawingList[i].displayObject);
+                  break;
+                case 'disc':
+                  const disc = this.discGraphics[drawingB.attachId];
+                  if (!disc) break;
+                  disc.container.sortableChildren = true;
+                  disc.container.addChild(drawingList[i].displayObject);
+                  break;
+                case 'body':
+                  const body = this.roundGraphics.bodyGraphics[drawingB.attachId];
+                  if (!body) break;
+                  body.displayObject.sortableChildren = true;
+                  body.displayObject.addChild(drawingList[i].displayObject);
+                  break;
               }
             }
+
+            drawingList[i].update(drawingA, drawingB, weight, stateB.physics.ppm * this.scaleRatio);
           }
         }
+        /* #endregion UPDATE DRAWINGS */
 
         // render
-        gm.graphics.rendererClass.renderer.render(gm.graphics.rendererClass.stage);
+        this.renderer.render(this.stage);
 
-        return result;
+        return;
       };
     })();
     BonkGraphics.prototype.build = (function() {
       BonkGraphics.prototype.build_OLD = BonkGraphics.prototype.build;
       return function() {
+        if (!gm.graphics.camera) gm.graphics.camera = new PIXI.Container();
+
+        // gm.graphics.screenDrawings = new PIXI.Container();
+        // gm.graphics.worldDrawings = new PIXI.Container();
+
+
         const result = this.build_OLD.apply(this, arguments);
-        gm.editor.varInspector.innerHTML = '';
+        gm.graphics.rendererClass = this;
+
+        /* #region CAMERA CONTAINER HANDLING */
+        // if (this.blurContainer.gmModified) return result;
+
+        if (this.blurContainer.gmModified) {
+          const childAmount = this.blurContainer.children.length;
+          for (let i = 0; i < childAmount; i++) {
+            const child = this.blurContainer.children[this.blurContainer.children.length-1];
+
+            if (child == gm.graphics.camera) continue;
+
+            this.blurContainer.removeChild_OLD(child);
+            gm.graphics.camera.addChild(child);
+          }
+
+          return result;
+        }
+
+        while (gm.graphics.camera?.children.length > 0) {
+          const child = gm.graphics.camera?.children[0];
+
+          gm.graphics.camera.removeChild(child);
+        }
+
+        this.blurContainer.addChild_OLD = this.blurContainer.addChild;
+        this.blurContainer.addChild = gm.graphics.camera.addChild;
+        this.blurContainer.removeChild_OLD = this.blurContainer.removeChild;
+        this.blurContainer.removeChild = gm.graphics.camera.removeChild;
+
+        while (this.blurContainer.children.length > 0) {
+          const child = this.blurContainer.children[0];
+
+          this.blurContainer.removeChild_OLD(child);
+          gm.graphics.camera.addChild(child);
+        }
+        this.blurContainer.addChild(gm.graphics.camera);
+
+        this.blurContainer.gmModified = true;
+        /* #endregion CAMERA CONTAINER HANDLING */
+
         return result;
       };
     })();
+
     BonkGraphics.prototype.destroy = (function() {
       BonkGraphics.prototype.destroy_OLD = BonkGraphics.prototype.destroy;
       return function() {
-        gm.editor.varInspector.innerHTML = '';
-
-        if (gm.graphics.rendererClass) {
-          for (let a = 0; a != gm.graphics.rendererClass.discGraphics.length; a++) {
-            if (!gm.graphics.rendererClass.discGraphics[a]) continue;
-
-            gm.graphics.additionalDiscGraphics[a]?.removeChildren();
-            gm.graphics.additionalWorldGraphics[a]?.removeChildren();
-            gm.graphics.additionalScreenGraphics[a]?.removeChildren();
-
-            const discObject = gm.graphics.rendererClass.discGraphics[a].container;
-            while (discObject.children[0]) {
-              discObject.removeChild(discObject.children[0]);
-            }
-          }
-
-          const worldObject = gm.graphics.rendererClass.blurContainer;
-          while (worldObject.children[0]) {
-            worldObject.removeChild(worldObject.children[0]);
-          }
-
-          gm.graphics.cameraContainer?.destroy();
-
-          gm.graphics.additionalDiscGraphics = [];
-          gm.graphics.additionalWorldGraphics = [];
-          gm.graphics.additionalScreenGraphics = [];
+        // gm.graphics.screenDrawings?.destroy();
+        // gm.graphics.worldDrawings?.destroy();
+        for (let i = 0; i < gm.graphics.drawings.length; i++) {
+          gm.graphics.drawings[i]?.destroy();
         }
-        const result = this.destroy_OLD.apply(this, arguments);
-        gm.graphics.renderUpdates = [];
-        return result;
+        gm.graphics.drawings = [];
+
+        while (gm.graphics.camera?.children.length > 0) {
+          const child = gm.graphics.camera?.children[0];
+
+          gm.graphics.camera.removeChild(child);
+        }
+
+        return this.destroy_OLD(...arguments);
       };
     })();
-    BonkGraphics.prototype.resizeRenderer = (function() {
-      BonkGraphics.prototype.resizeRenderer_OLD = BonkGraphics.prototype.resizeRenderer;
-      return function() {
-        if (gm.graphics.rendererClass) {
-          for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
-            if (!gm.graphics.additionalDiscGraphics[i]) continue;
-            gm.graphics.rendererClass.discGraphics[i]?.container.removeChild(gm.graphics.additionalDiscGraphics[i]);
-          }
-          for (let i = 0; i < gm.graphics.additionalWorldGraphics.length; i++) {
-            if (!gm.graphics.additionalWorldGraphics[i]) continue;
-            gm.graphics.cameraContainer?.removeChild(gm.graphics.additionalWorldGraphics[i]);
-          }
-          for (let i = 0; i < gm.graphics.additionalScreenGraphics.length; i++) {
-            if (!gm.graphics.additionalScreenGraphics[i]) continue;
-            gm.graphics.rendererClass.blurContainer?.removeChild(gm.graphics.additionalScreenGraphics[i]);
-          }
-          const result = this.resizeRenderer_OLD.apply(this, arguments);
-          for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
-            if (!gm.graphics.additionalDiscGraphics[i]) continue;
-
-            gm.graphics.additionalDiscGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
-            gm.graphics.additionalDiscGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
-            gm.graphics.rendererClass.discGraphics[i]?.container.addChild(gm.graphics.additionalDiscGraphics[i]);
-
-            gm.graphics.additionalWorldGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
-            gm.graphics.additionalWorldGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
-            gm.graphics.cameraContainer?.addChild(gm.graphics.additionalWorldGraphics[i]);
-
-            gm.graphics.additionalScreenGraphics[i].scale.x = gm.graphics.rendererClass.scaleRatio;
-            gm.graphics.additionalScreenGraphics[i].scale.y = gm.graphics.rendererClass.scaleRatio;
-            gm.graphics.additionalScreenGraphics[i].pivot.x = 365;
-            gm.graphics.additionalScreenGraphics[i].pivot.y = 250;
-            gm.graphics.rendererClass.blurContainer?.addChild(gm.graphics.additionalScreenGraphics[i]);
-          }
-
-          if (gm.graphics.cameraContainer && !gm.graphics.cameraContainer._destroyed) {
-            gm.graphics.cameraContainer.pivot.x = 365 * gm.graphics.rendererClass.scaleRatio;
-            gm.graphics.cameraContainer.pivot.y = 250 * gm.graphics.rendererClass.scaleRatio;
-          }
-          return result;
-        } else {
-          return this.resizeRenderer_OLD.apply(this, arguments);
-        }
-      };
-    })();
-  },
-  onPhysStep: function(gameState) {
-    if (gameState.fte == 0) gm.editor.varInspector.innerHTML = '';
-
-    const shouldShowVarInsp = gm.editor.savedSettings?.getAttribute('show_var_insp') === 'true' &&// mode has var inspector enabled
-      gm.graphics.rendererClass.domContainer.style.visibility !== 'hidden';// we're in-game (to prevent it from popping up in the editor)
-
-    if (shouldShowVarInsp && gm.editor.varInspectorContainer.style.display !== 'block') {
-      gm.editor.varInspectorContainer.style.display = 'block';
-    } else if (!shouldShowVarInsp && gm.editor.varInspectorContainer.style.display !== 'none') {
-      gm.editor.varInspectorContainer.style.display = 'none';
-    }
-
-    if (gm.graphics.rendererClass?.playerArray && shouldShowVarInsp) gm.editor.updateVarInspector(gameState);
-
-    // world and disc drawing objects creation, as well as cleaning graphics on the end of a round
-    for (let i = 0; i < gameState.gmExtra?.initialPlayers?.length; i++) {
-      const id = gameState.gmExtra.initialPlayers[i];
-
-      if (!gm.graphics.additionalDiscGraphics[id] || gm.graphics.additionalDiscGraphics[id]._destroyed) {
-        gm.graphics.additionalDiscGraphics[id] = new PIXI.Graphics();
-      }
-      if (!gm.graphics.additionalWorldGraphics[id] || gm.graphics.additionalWorldGraphics[id]._destroyed) {
-        gm.graphics.additionalWorldGraphics[id] = new PIXI.Graphics();
-        gm.graphics.additionalWorldGraphics[id].zIndex = 9999;
-      }
-      if (!gm.graphics.additionalScreenGraphics[id] || gm.graphics.additionalScreenGraphics[id]._destroyed) {
-        gm.graphics.additionalScreenGraphics[id] = new PIXI.Graphics();
-        gm.graphics.additionalScreenGraphics[id].zIndex = 9999;
-      }
-    }
-
-    if (gameState.rl === 1) gm.editor.funcs.clearGraphics();
-  },
-  doRollback: function(fromStepCount, toStepCount) {
-    // if (toStepCount == 0) return;
-    for (let i = fromStepCount; i > toStepCount; i--) {
-      const previousGameState = window.gmReplaceAccessors.gameStateList[i - 1];
-      const gameState = window.gmReplaceAccessors.gameStateList[i];
-      if (gm.graphics.renderUpdates[gameState.rl] && previousGameState) {
-        const alreadyDone = [];
-
-        for (let a = 0; a != gm.graphics.renderUpdates[gameState.rl].length; a++) {
-          const update = gm.graphics.renderUpdates[gameState.rl][a];
-
-          if (alreadyDone.includes(update)) continue;
-
-          switch (update.action) {
-            case 'create': {
-              if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
-                this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
-                this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
-                this.rendererClass.roundGraphics.bodyGraphics[update.id].destroy();
-                delete this.rendererClass.roundGraphics.bodyGraphics[update.id];
-              }
-              break;
-            }
-            case 'delete': {
-              const newBodyGraphics = new gm.graphics.bodyGraphicsClass(previousGameState, update.id, this.rendererClass.scaleRatio, this.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), this.rendererClass.playerArray);
-
-              this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
-
-              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[previousGameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
-
-              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
-
-              if (bodyBehind && index !== -1) {
-                if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
-                this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
-              } else {
-                if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, 0);
-                this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
-              }
-
-              break;
-            }
-            case 'update': {
-              if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
-                this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
-                this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
-                this.rendererClass.roundGraphics.bodyGraphics[update.id]?.destroy();
-              }
-
-              const newBodyGraphics = new gm.graphics.bodyGraphicsClass(previousGameState, update.id, this.rendererClass.scaleRatio, this.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), this.rendererClass.playerArray);
-
-              this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
-
-              const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[previousGameState.physics.bro[previousGameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
-
-              const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
-
-              if (bodyBehind && index !== -1) {
-                if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
-                this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
-              } else {
-                if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, 0);
-                this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
-              }
-
-              break;
-            }
-          }
-
-          alreadyDone.push(update);
-        }
-
-        delete gm.graphics.renderUpdates[gameState.rl];
-      }
-    }
-  },
-  doRenderUpdates: function(gameState) {
-    if (!gm.graphics.renderUpdates[gameState.rl]) return;
-    if (!gm.graphics.rendererClass.roundGraphics) return;
-
-    const alreadyDone = [];
-
-    for (let i = 0; i < gm.graphics.renderUpdates[gameState.rl].length; i++) {
-      const update = gm.graphics.renderUpdates[gameState.rl][i];
-
-      if (alreadyDone.includes(update)) continue;
-      if (update.done) continue;
-
-      switch (update.action) {
-        case 'create': {
-          const newBodyGraphics = new gm.graphics.bodyGraphicsClass(gameState, update.id, this.rendererClass.scaleRatio, this.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), this.rendererClass.playerArray);
-
-          this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
-
-          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
-
-          const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
-
-          if (bodyBehind && index !== -1) {
-            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
-            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
-          } else {
-            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, 0);
-            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
-          }
-
-          break;
-        }
-        case 'delete': {
-          if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
-            this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
-            this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
-            this.rendererClass.roundGraphics.bodyGraphics[update.id].destroy();
-            delete this.rendererClass.roundGraphics.bodyGraphics[update.id];
-          }
-          break;
-        }
-        case 'update': {
-          if (this.rendererClass.roundGraphics.bodyGraphics[update.id]) {
-            this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].jointContainer);
-            this.rendererClass.roundGraphics.displayObject.removeChild(this.rendererClass.roundGraphics.bodyGraphics[update.id].displayObject);
-            this.rendererClass.roundGraphics.bodyGraphics[update.id]?.destroy();
-          }
-
-          const newBodyGraphics = new gm.graphics.bodyGraphicsClass(gameState, update.id, this.rendererClass.scaleRatio, this.rendererClass.renderer, gm.lobby.mpSession.getGameSettings(), this.rendererClass.playerArray);
-
-          this.rendererClass.roundGraphics.bodyGraphics[update.id] = newBodyGraphics;
-
-          // the bro part is getting the id of the body behind the updated body
-          const bodyBehind = this.rendererClass.roundGraphics.bodyGraphics[gameState.physics.bro[gameState.physics.bro.indexOf(update.id) + 1]]?.displayObject;
-
-          const index = this.rendererClass.roundGraphics.displayObject.children.indexOf(bodyBehind) + 1;
-
-          if (bodyBehind && index !== -1) {
-            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
-            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
-          } else {
-            if (newBodyGraphics.jointContainer.children.length > 0) this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, 0);
-            this.rendererClass.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, 0);
-          }
-
-          break;
-        }
-      }
-
-      gm.graphics.renderUpdates[gameState.rl][i].done = true;
-      update.done = true;
-      alreadyDone.push(update);
-    }
   },
   rendererClass: null,
-  bodyGraphicsClass: null,
-  cameraContainer: null,
-  rendering: false,
-  renderUpdates: [],
-  additionalDiscGraphics: [],
-  additionalWorldGraphics: [],
-  additionalScreenGraphics: [],
-  availableText: [],
-  usedText: [],
-  onRender: function() { },
+  camera: null,
+  drawings: [],
+  screenDrawings: null,
+  worldDrawings: null,
+  discDrawings: null,
+  behindDiscDrawings: null,
+  bodyDrawings: null,
+  behindBodyDrawings: null,
 };
+
+/**
+ * A linear interpolator for hex colors.
+ *
+ * Taken from:
+ * https://gist.github.com/nikolas/b0cce2261f1382159b507dd492e1ceef
+ *
+ * @param {Number} a  (hex color start val)
+ * @param {Number} b  (hex color end val)
+ * @param {Number} amount  (the amount to fade from a to b)
+ *
+ * @example
+ * // returns 0x7f7f7f
+ * lerpColor(0x000000, 0xffffff, 0.5)
+ *
+ * @return {Number}
+ */
+const lerpColor = function(a, b, amount) {
+  const ar = a >> 16;
+  const ag = a >> 8 & 0xff;
+  const ab = a & 0xff;
+
+  const br = b >> 16;
+  const bg = b >> 8 & 0xff;
+  const bb = b & 0xff;
+
+  const rr = ar + amount * (br - ar);
+  const rg = ag + amount * (bg - ag);
+  const rb = ab + amount * (bb - ab);
+
+  return (rr << 16) + (rg << 8) + (rb | 0);
+};
+
+const lerpAngle = function(a, b, weight) {
+  const anglePointA = [Math.sin(a * (Math.PI/180)), Math.cos(a * (Math.PI/180))];
+  const anglePointB = [Math.sin(b * (Math.PI/180)), Math.cos(b * (Math.PI/180))];
+  const lerpedAnglePoint = [
+    (1 - weight) * anglePointA[0] + weight * anglePointB[0],
+    (1 - weight) * anglePointA[1] + weight * anglePointB[1],
+  ];
+
+  return Math.atan2(lerpedAnglePoint[0], lerpedAnglePoint[1]) * (180/Math.PI);
+};
+
+const lerpNumber = function(a, b, weight) {
+  return ((1 - weight) * a + weight * b);
+};
+
+/**
+ * Creates and manages a container for a drawing.
+ */
+class Drawing {
+  constructor() {
+    this.displayObject = new PIXI.Container();
+    this.displayObject.sortableChildren = true;
+    this.shapes = [];
+    this.transing = false;
+  }
+  update(drawDefA, drawDefB, weight, scaleRatio, forceUpdate) {
+    const forLength = Math.max(drawDefA.shapes.length, drawDefB.shapes.length);
+    for (let i = 0; i < forLength; i++) {
+      // deletion of shapes that suddenly change type
+      // these are later recreated in the new shape creation phase
+      if (drawDefB.shapes[i].type != drawDefA.shapes[i].type && this.shapes[i]) {
+        this.shapes[i].destroy();
+        this.shapes[i] = null;
+      }
+
+      // deletion of shapes that suddenly disappear
+      if (!drawDefB.shapes[i] && this.shapes[i]) {
+        this.shapes[i].destroy();
+        this.shapes[i] = null;
+      }
+
+      // new shape creation
+      if (drawDefB.shapes[i] && !this.shapes[i]) {
+        switch (drawDefB.shapes[i].type) {
+          case 'bx':
+            this.shapes[i] = new BoxShape();
+            break;
+          case 'ci':
+            this.shapes[i] = new CircleShape();
+            break;
+          case 'po':
+            this.shapes[i] = new PolyShape();
+            break;
+          case 'li':
+            this.shapes[i] = new LineShape();
+            break;
+          case 'tx':
+            this.shapes[i] = new TextShape();
+            break;
+        }
+
+        this.displayObject.addChild(this.shapes[i].displayObject);
+        this.shapes[i].displayObject.zIndex = 1000 + i;
+        this.shapes[i].update(drawDefB.shapes[i], drawDefB.shapes[i], 1, scaleRatio, true);
+      }
+
+      // shape updating
+      if (drawDefA.shapes[i] && drawDefB.shapes[i] && this.shapes[i]) {
+        this.shapes[i].update(drawDefA.shapes[i], drawDefB.shapes[i], weight, scaleRatio);
+      }
+    }
+
+    // property check
+    const propsNoChange = drawDefA.alpha == drawDefB.alpha &&
+      drawDefA.xPos == drawDefB.xPos &&
+      drawDefA.yPos == drawDefB.yPos &&
+      drawDefA.angle == drawDefB.angle &&
+      drawDefA.xScale == drawDefB.xScale &&
+      drawDefA.yScale == drawDefB.yScale;
+
+    if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.transing = !propsNoChange || forceUpdate;
+
+    if (drawDefB.noLerp) drawDefA = drawDefB;
+
+    this.displayObject.alpha = lerpNumber(drawDefA.alpha, drawDefB.alpha, weight);
+    this.displayObject.x = lerpNumber(drawDefA.xPos, drawDefB.xPos, weight) * scaleRatio;
+    this.displayObject.y = lerpNumber(drawDefA.yPos, drawDefB.yPos, weight) * scaleRatio;
+    this.displayObject.angle = lerpAngle(drawDefA.angle, drawDefB.angle, weight);
+    this.displayObject.scale.x = lerpNumber(drawDefA.xScale, drawDefB.xScale, weight);
+    this.displayObject.scale.y = lerpNumber(drawDefA.yScale, drawDefB.yScale, weight);
+  }
+  destroy() {
+    for (let i = 0; i < this.shapes.length; i++) {
+      this.shapes[i]?.destroy();
+    }
+    this.displayObject.destroy();
+  }
+}
+
+/**
+ * Creates and manages a Graphics object for a box shape.
+ */
+class BoxShape {
+  constructor() {
+    this.displayObject = new PIXI.Graphics();
+    this.transing = false;
+  }
+  update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
+    // property check
+    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
+    shapeDefA.alpha == shapeDefB.alpha &&
+    shapeDefA.xPos == shapeDefB.xPos &&
+    shapeDefA.yPos == shapeDefB.yPos &&
+    shapeDefA.angle == shapeDefB.angle &&
+    shapeDefA.width == shapeDefB.width &&
+    shapeDefA.height == shapeDefB.height;
+
+    if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.transing = !propsNoChange || forceUpdate;
+
+    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
+    this.displayObject.clear();
+    this.displayObject.beginFill(lerpColor(shapeDefA.colour, shapeDefB.colour, weight));
+
+    const width = lerpNumber(shapeDefA.width, shapeDefB.width, weight) * scaleRatio;
+    const height = lerpNumber(shapeDefA.height, shapeDefB.height, weight) * scaleRatio;
+    this.displayObject.drawRect(width / -2, height / -2, width, height);
+
+    this.displayObject.endFill();
+
+    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
+    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
+    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
+    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
+  }
+  destroy() {
+    this.displayObject.destroy();
+  }
+}
+
+/**
+ * Creates and manages a Graphics object for a circle shape.
+ */
+class CircleShape {
+  constructor() {
+    this.displayObject = new PIXI.Graphics();
+    this.transing = false;
+  }
+  update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
+    // property check
+    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
+        shapeDefA.alpha == shapeDefB.alpha &&
+        shapeDefA.xPos == shapeDefB.xPos &&
+        shapeDefA.yPos == shapeDefB.yPos &&
+        shapeDefA.angle == shapeDefB.angle &&
+        shapeDefA.width == shapeDefB.width &&
+        shapeDefA.height == shapeDefB.height;
+
+    if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.transing = !propsNoChange || forceUpdate;
+
+    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
+    this.displayObject.clear();
+    this.displayObject.beginFill(lerpColor(shapeDefA.colour, shapeDefB.colour, weight));
+
+    const width = lerpNumber(shapeDefA.width, shapeDefB.width, weight) * scaleRatio;
+    const height = lerpNumber(shapeDefA.height, shapeDefB.height, weight) * scaleRatio;
+    this.displayObject.drawEllipse(width / -2, height / -2, width, height);
+
+    this.displayObject.endFill();
+
+    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
+    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
+    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
+    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
+  }
+  destroy() {
+    this.displayObject.destroy();
+  }
+}
+
+/**
+ * Creates and manages a Graphics object for a polygon shape.
+ */
+class PolyShape {
+  constructor() {
+    this.displayObject = new PIXI.Graphics();
+    this.transing = false;
+  }
+  update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
+    // property check
+    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
+        shapeDefA.alpha == shapeDefB.alpha &&
+        shapeDefA.xPos == shapeDefB.xPos &&
+        shapeDefA.yPos == shapeDefB.yPos &&
+        shapeDefA.angle == shapeDefB.angle &&
+        shapeDefA.xScale == shapeDefB.xScale &&
+        shapeDefA.yScale == shapeDefB.yScale;
+
+    let vertsNoChange = true;
+    for (let i = 0; i < shapeDefB.vertices.length; i++) {
+      if (shapeDefA.vertices[i] != shapeDefB.vertices[i]) {
+        vertsNoChange = false;
+        break;
+      };
+    }
+
+    if (propsNoChange && vertsNoChange && !forceUpdate && !this.transing) return;
+
+    this.transing = !propsNoChange || !vertsNoChange || forceUpdate;
+
+    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
+    this.displayObject.clear();
+    this.displayObject.beginFill(lerpColor(shapeDefA.colour, shapeDefB.colour, weight));
+
+    const vertices = [];
+    for (let i = 0; i < shapeDefB.vertices.length; i++) {
+      vertices.push(lerpNumber(
+          shapeDefA.vertices[i]?.[0] ?? shapeDefB.vertices[i][0],
+          shapeDefB.vertices[i][0],
+          weight,
+      ) * scaleRatio);
+      vertices.push(lerpNumber(
+          shapeDefA.vertices[i]?.[1] ?? shapeDefB.vertices[i][1],
+          shapeDefB.vertices[i][1],
+          weight,
+      ) * scaleRatio);
+    }
+
+    this.displayObject.drawPolygon(vertices);
+    this.displayObject.endFill();
+
+    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
+    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
+    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
+    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
+    this.displayObject.scale.x = lerpNumber(shapeDefA.xScale, shapeDefB.xScale, weight);
+    this.displayObject.scale.y = lerpNumber(shapeDefA.yScale, shapeDefB.yScale, weight);
+  }
+  destroy() {
+    this.displayObject.destroy();
+  }
+}
+
+/**
+ * Creates and manages a Graphics object for a line shape.
+ */
+class LineShape {
+  constructor() {
+    this.displayObject = new PIXI.Graphics();
+    this.transing = false;
+  }
+  update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
+    // property check
+    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
+        shapeDefA.alpha == shapeDefB.alpha &&
+        shapeDefA.xPos == shapeDefB.xPos &&
+        shapeDefA.yPos == shapeDefB.yPos &&
+        shapeDefA.xEnd == shapeDefB.xEnd &&
+        shapeDefA.yEnd == shapeDefB.yEnd &&
+        shapeDefA.width == shapeDefB.width;
+
+    if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.transing = !propsNoChange || forceUpdate;
+
+    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
+    this.displayObject.clear();
+    this.displayObject.lineStyle(
+        lerpNumber(shapeDefA.width, shapeDefB.width, weight) * scaleRatio,
+        lerpColor(shapeDefA.colour, shapeDefB.colour, weight), 1);
+    this.displayObject.moveTo(
+        lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio,
+        lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio);
+    this.displayObject.lineTo(
+        lerpNumber(shapeDefA.xEnd, shapeDefB.xEnd, weight) * scaleRatio,
+        lerpNumber(shapeDefA.yEnd, shapeDefB.yEnd, weight) * scaleRatio);
+
+    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
+  }
+  destroy() {
+    this.displayObject.destroy();
+  }
+}
+
+/**
+ * Creates and manages a Text object for a text shape.
+ */
+class TextShape {
+  constructor() {
+    this.displayObject = new PIXI.Text();
+    this.displayObject.resolution = 2;
+    this.transing = false;
+  }
+  update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
+    // property check
+    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
+        shapeDefA.alpha == shapeDefB.alpha &&
+        shapeDefA.xPos == shapeDefB.xPos &&
+        shapeDefA.yPos == shapeDefB.yPos &&
+        shapeDefA.angle == shapeDefB.angle &&
+        shapeDefA.text == shapeDefB.text &&
+        shapeDefA.size == shapeDefB.size &&
+        shapeDefA.align == shapeDefB.align &&
+        shapeDefA.bold == shapeDefB.bold &&
+        shapeDefA.italic == shapeDefB.italic &&
+        shapeDefA.shadow == shapeDefB.shadow;
+
+    if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.transing = !propsNoChange || forceUpdate;
+
+    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
+    this.displayObject.text = shapeDefB.text;
+    this.displayObject.style = {
+      fontFamily: 'futurept_medium',
+      fontSize: lerpNumber(shapeDefA.size, shapeDefB.size, weight) * scaleRatio,
+      align: shapeDefB.align,
+      fill: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
+      fontStyle: shapeDefB.italic ? 'italic' : 'normal',
+      fontWeight: shapeDefB.bold ? 'bold' : 'normal',
+      dropShadow: shapeDefB.shadow,
+      dropShadowDistance: 3,
+      dropShadowAlpha: 0.30,
+      padding: 10,
+    };
+
+    switch (shapeDefB.align) {
+      case 'left':
+        this.displayObject.anchor.set(0, 0);
+        break;
+      case 'center':
+        this.displayObject.anchor.set(0.5, 0);
+        break;
+      case 'right':
+        this.displayObject.anchor.set(1, 0);
+        break;
+    }
+
+    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
+    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
+    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
+    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
+  }
+  destroy() {
+    this.displayObject.destroy();
+  }
+}

@@ -2,7 +2,8 @@
 /* eslint-disable new-cap */
 
 import seedrandom from 'seedrandom';
-import declareMeths from '!raw-loader!../ses/declareMeths';
+import declareMeths from '!raw-loader!../ses/declareMeths.js';
+import declareGameObject from '!raw-loader!../ses/declareGameObject.js';
 
 export default {
   init: function() {
@@ -11,7 +12,7 @@ export default {
     document.head.appendChild(compContainer);
 
     const sesScript = document.createElement('script');
-    sesScript.src = 'https://unpkg.com/ses@0.15.15/dist/ses.umd.min.js';
+    sesScript.src = 'https://unpkg.com/ses@0.15.17/dist/ses.umd.min.js';
     compContainer.contentDocument.head.appendChild(sesScript);
 
     sesScript.addEventListener('load', function() {
@@ -26,6 +27,7 @@ export default {
       gm.state.resetSES();
       gm.state.initb2Step();
       gm.state.initGameState();
+      gm.state.initCreateState();
     });
   },
   resetSES: function() {
@@ -36,7 +38,7 @@ export default {
     }
 
     this.safeEval = new this.safeEvalWindow.Compartment(meths);
-    this.safeEval.evaluate('this.game = {state: null, inputs: null, playerInfo: null, gameSettings: null, misc: null}');
+    this.safeEval.evaluate(declareGameObject);
   },
   initb2Step: function() {
     Box2D.Dynamics.b2World.prototype.Step_OLD = Box2D.Dynamics.b2World.prototype.Step;
@@ -60,337 +62,127 @@ export default {
   },
   initGameState: function() {
     const step_OLD = PhysicsClass.prototype.step;
-    PhysicsClass.prototype.step = function() {
-      // I know, it's kinda dumb to put everything into a try catch,
-      // but it works well here
-      try {
-        // eslint-disable-next-line no-throw-literal
-        if (gm.lobby.gameCrashed) throw 'gmAlreadyCrashed';
-
-        gm.inputs.allPlayerInputs = JSON.parse(JSON.stringify(arguments[1]));
-
-        // override inputs
-        if (arguments[0]?.gmExtra?.overrides) {
-          const overrides = arguments[0].gmExtra.overrides;
-
-          for (let i = 0; i !== arguments[0].discs.length; i++) {
-            if (!overrides[i] || !arguments[0].discs[i]) continue;
-
-            arguments[1][i] = {
-              up: overrides[i].up ?? arguments[1][i]?.up ?? false,
-              down: overrides[i].down ?? arguments[1][i]?.down ?? false,
-              left: overrides[i].left ?? arguments[1][i]?.left ?? false,
-              right: overrides[i].right ?? arguments[1][i]?.right ?? false,
-              action: overrides[i].action ?? arguments[1][i]?.action ?? false,
-              action2: overrides[i].action2 ?? arguments[1][i]?.action2 ?? false,
-            };
-          }
-        }
-
-        gm.state.collisionsThisStep = [];
-
-        gmReplaceAccessors.disableDeathBarrier = !!arguments[0].gmExtra?.disableDeathBarrier;
-
-        if (arguments[0].rl === 0 && arguments[4].GMMode) {
-          gmReplaceAccessors.disableDeathBarrier = true;
-        }
-
-        let gst = step_OLD(...arguments);
-
-        if (gst.ftu == 0) {
-          gm.graphics.renderUpdates = [];
-        }
-
-        // make seed based on scene element positions and game state seed
-        let randomSeed = 0;
-        for (let i = 0; i < gst.physics.bodies.length; i++) {
-          if (gst.physics.bodies[i]) {
-            randomSeed = randomSeed + gst.physics.bodies[i].p[0] + gst.physics.bodies[i].p[1] + gst.physics.bodies[i].a;
-          }
-        }
-        for (let i = 0; i < gst.discs.length; i++) {
-          if (gst.discs[i]) {
-            randomSeed = randomSeed + gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
-          }
-        }
-        randomSeed += gst.rl;
-        randomSeed /= gst.seed;
-        gm.state.pseudoRandom = new seedrandom(randomSeed);
-
-        // get or create gm state
-        if (!arguments[0].gmExtra || gst.rl === 0) {
-          gst.gmExtra = {};
-
-          gst.gmExtra.initialPlayers = gm.editor.funcs.getAllPlayerIds(gst);
-
-          gst.gmExtra.variables = {global: {}};
-          gst.gmExtra.keepVariables = [];
-
-          const keepVariables = arguments[0].gmExtra?.keepVariables;
-
-          if (keepVariables) {
-            for (let v = 0; v < keepVariables.length; v++) {
-              const varName = keepVariables[v];
-              if (!arguments[0].gmExtra?.variables?.global[varName]) continue;
-
-              gst.gmExtra.variables.global[varName] = arguments[0].gmExtra.variables.global[varName];
-            }
-          }
-
-          for (let i = 0; i < gst.discs.length; i++) {
-            if (!gst.discs[i]) continue;
-
-            gst.gmExtra.variables[i] = {};
-
-            if (!keepVariables) continue;
-
-            for (let v = 0; v < keepVariables.length; v++) {
-              const varName = keepVariables[v];
-              if (!arguments[0].gmExtra.variables[i][varName]) continue;
-
-              gst.gmExtra.variables[i][varName] = arguments[0].gmExtra.variables[i][varName];
-            }
-          }
-
-          gst.gmExtra.cameras = [];
-          for (let i = 0; i < gst.discs.length; i++) {
-            if (!gst.discs[i]) continue;
-
-            gst.gmExtra.cameras[i] = {
-              xpos: 365 / gst.physics.ppm,
-              ypos: 250 / gst.physics.ppm,
-              angle: 0,
-              xscal: 1,
-              yscal: 1,
-              xskew: 0,
-              yskew: 0,
-              doLerp: true,
-            };
-          }
-
-          gst.gmExtra.disableDeathBarrier = false;
-        } else {
-          gst.gmExtra = JSON.parse(JSON.stringify(arguments[0].gmExtra));
-        }
-
-        // clean kills list
-        gst.gmExtra.kills = [];
-
-        // graphics phys step update
-        gm.graphics.onPhysStep(gst);
-
-        // send info to SES
-        gm.state.gameState = gst;
-
-        for (let i = 0; i !== gst.discs.length; i++) {
-          if (!gst.discs[i]) continue;
-
-          if (!arguments[1][i]) {
-            arguments[1][i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
-          }
-
-          if (!gst.discs[i].swing) gst.discs[i].swing = false;
-        }
-
-        gm.state.currentInputs = arguments[1];
-
-        gm.state.safeEval.evaluate('const info = getDynamicInfo(); game.state = info.state; game.inputs = info.inputs;');
-
-        gm.state.gameState = gst;
-
-        // collision handling
-        for (let i = 0; i !== gm.state.collisionsThisStep.length; i++) {
-          const bodyA = gm.state.collisionsThisStep[i].fixtureABodyData;
-          const bodyB = gm.state.collisionsThisStep[i].fixtureBBodyData;
-          const fixtureA = gm.state.collisionsThisStep[i].fixtureAData;
-          const fixtureB = gm.state.collisionsThisStep[i].fixtureBData;
-          const normal = gm.state.collisionsThisStep[i].normal;
-
-          // disc collision
-          let discBody;
-          let collisionBody;
-          let collisionFixture;
-          let isFixtureA = false;
-
-          if (bodyA.type === 'disc') {
-            isFixtureA = true;
-            discBody = bodyA;
-            collisionBody = bodyB;
-            collisionFixture = fixtureB;
-          } else if (bodyB.type === 'disc') {
-            isFixtureA = false;
-            discBody = bodyB;
-            collisionBody = bodyA;
-            collisionFixture = fixtureA;
-          }
-
-          if (discBody && gst.discs[discBody.arrayID]) { // check if self element exists
-            switch (collisionBody.type) {
-              case 'disc':
-                if (discBody.team === 1 || discBody.team !== collisionBody.team && // check for self and team collisions
-                    gst.discs[collisionBody.arrayID]) { // check if collided element exists
-                  gm.state.events.onPlayerPlayerCollision(discBody.arrayID, collisionBody.arrayID);
-                  gm.state.events.onPlayerPlayerCollision(collisionBody.arrayID, discBody.arrayID);
-                }
-                break;
-              case 'arrow':
-                if (discBody.arrayID !== collisionBody.discID && (discBody.team === 1 || discBody.team !== collisionBody.team) && // check for self and team collisions
-                    gst.projectiles[collisionBody.arrayID]) { // check if collided element exists
-                  gm.state.events.onPlayerArrowCollision(discBody.arrayID, collisionBody.arrowID);
-                }
-                break;
-              case 'phys':
-                if (gst.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
-                  gm.state.events.onPlayerPlatformCollision(discBody.arrayID, collisionBody.arrayID, gst.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
-                }
-                break;
-            }
-          }
-
-          // arrow collision
-          let arrowBody;
-
-          if (bodyA.type === 'arrow') {
-            isFixtureA = true;
-            arrowBody = bodyA;
-            collisionBody = bodyB;
-            collisionFixture = fixtureB;
-          } else if (bodyB.type === 'arrow') {
-            isFixtureA = false;
-            arrowBody = bodyB;
-            collisionBody = bodyA;
-            collisionFixture = fixtureA;
-          }
-
-          if (arrowBody && gst.projectiles[arrowBody.arrayID] && gst.discs[arrowBody.discID]) { // check if self element exists
-            switch (collisionBody.type) {
-              case 'disc':
-                if (arrowBody.discID !== collisionBody.arrayID && (collisionBody.team === 1 || arrowBody.team !== collisionBody.team) && // check for self and team collisions
-                  gst.discs[collisionBody.arrayID]) { // check if collided element exists
-                  gm.state.events.onArrowPlayerCollision(arrowBody.arrayID, collisionBody.arrayID);
-                }
-                break;
-              case 'arrow':
-                if (gst.projectiles[collisionBody.arrayID] && gst.discs[collisionBody.discID]) { // check if collided element exists
-                  gm.state.events.onArrowArrowCollision(arrowBody.arrayID, collisionBody.arrayID);
-                  gm.state.events.onArrowArrowCollision(collisionBody.arrayID, arrowBody.arrayID);
-                }
-                break;
-              case 'phys':
-                if (gst.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
-                  gm.state.events.onArrowPlatformCollision(arrowBody.arrayID, collisionBody.arrayID, collisionFixture.arrayID, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
-                }
-                break;
-            }
-          }
-
-          // platform collision
-          let platBody;
-          let platFixture;
-
-          if (bodyA.type === 'phys') {
-            isFixtureA = true;
-            platBody = bodyA;
-            collisionBody = bodyB;
-            platFixture = fixtureA;
-            collisionFixture = fixtureB;
-          } else if (bodyB.type === 'phys') {
-            isFixtureA = false;
-            platBody = bodyB;
-            collisionBody = bodyA;
-            platFixture = fixtureB;
-            collisionFixture = fixtureA;
-          }
-
-          if (platBody && gst.physics.bodies[platBody.arrayID]?.fx.length > 0) { // check if self element exists
-            for (let i = 0; i < gst.discs.length; i++) {
-              if (!gst.discs[i]) continue;
-              switch (collisionBody.type) {
-                case 'disc':
-                  if (!gst.discs[collisionBody.arrayID]) break; // check if collided element exists
-
-                  gm.state.events.onPlatformPlayerCollision(i, platBody.arrayID, platFixture.arrayID, collisionBody.arrayID);
-                  break;
-                case 'arrow':
-                  if (!gst.discs[collisionBody.discID] || !gst.projectiles[collisionBody.arrayID]) break; // check if collided element exists
-
-                  gm.state.events.onPlatformArrowCollision(i, platBody.arrayID, platFixture.arrayID, collisionBody.arrayID);
-                  break;
-                case 'phys':
-                  if (gst.physics.bodies[collisionBody.arrayID]?.fx.length == 0) break; // check if collided element exists
-
-                  gm.state.events.onPlatformPlatformCollision(i, platBody.arrayID, platFixture.arrayID, collisionBody.arrayID, collisionFixture.arrayID, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
-                  gm.state.events.onPlatformPlatformCollision(i, collisionBody.arrayID, collisionFixture.arrayID, platBody.arrayID, platFixture.arrayID, isFixtureA ? normal : {x: -normal.x, y: -normal.y});
-                  break;
-              }
-            }
-          }
-        }
-
-        /*
-        gm.state.gameState = gst;
-
-        for (let i = 0; i < arguments[0].discs.length; i++) {
-          if (arguments[0].discs[i] && !gst.discs[i]) {
-            const currentDisc = gm.state.gameState.discs[i];
-            gm.state.gameState.discs[i] = arguments[0].discs[i];
-            gm.state.events.onPlayerDie(i);
-            gm.state.gameState.discs[i] = currentDisc;
-          } else if (gst.discDeaths[gst.discDeaths.length - 1]?.i == i && gst.discDeaths[gst.discDeaths.length - 1]?.f == 0) {
-            gm.state.events.onPlayerDie(i);
-          }
-        }*/
-
-        for (let i = 0; i !== gst.discs.length; i++) {
-          if (!gst.discs[i]) continue;
-
-          if (!arguments[1][i]) {
-            arguments[1][i] = {left: false, right: false, up: false, down: false, action: false, action2: false};
-          }
-
-          if (!gst.discs[i].swing) gst.discs[i].swing = false;
-        }
-
-        if (gm.state.gameState.rl === 1) {
-          gm.editor.funcs.clearGraphics();
-          gm.state.events.onFirstStep();
-        } else if (!gm.state.forceGameState) {
-          gm.state.events.onStep();
-        }
-
-        gst = gm.state.safeEval.globalThis.game.state;
-
-        gm.state.gameState = gst;
-
-        // The renderer class isn't built at the same time as the first game step gets executed,
-        // so this checks if the renderer has been built, and executes all the previous render updates
-        gst.gmExtra.rendererExists = !!gm.graphics.rendererClass;
-        if (!!gm.graphics.rendererClass && !arguments[0].gmExtra?.rendererExists) {
-          for (let i = 0; i < gst.rl; i++) {
-            if (!window.gmReplaceAccessors.gameStateList || !window.gmReplaceAccessors.gameStateList[i]) continue;
-            gm.graphics.doRenderUpdates(window.gmReplaceAccessors.gameStateList[i]);
-          }
-        } else if (!!gm.graphics.rendererClass) {
-          gm.graphics.doRenderUpdates(gst);
-        }
-
-        gm.state.collisionsThisStep = [];
-
-        if (window.gmReplaceAccessors.endStep) window.gmReplaceAccessors.endStep();
-
-        return gst;
-      } catch (e) {
-        if (!gm.lobby.gameCrashed) {
-          if (e === 'gmInfiniteLoop') {
-            gm.lobby.haltCausedByLoop = true;
-          } else {
-            console.error(e);
-          }
-          gm.lobby.gameCrashed = true;
-          setTimeout(gm.lobby.gameHalt, 500); // gotta make sure we're out of the step function!
-        }
-        return arguments[0];
+    PhysicsClass.prototype.step = function(oldState, inputs) {
+      // don't do gmm business when no mode is loaded
+      if (!oldState.gmExtra) {
+        const state = step_OLD(...arguments);
+        gm.state.gameState = state;
+        return state;
       }
+
+      /* #region OVERRIDE APPLY */
+      const overrides = oldState.gmExtra.overrides;
+
+      for (let i = 0; i !== oldState.discs.length; i++) {
+        if (!oldState.discs[i]) continue;
+
+        inputs[i] = {
+          up: overrides[i]?.up ?? inputs[i]?.up ?? false,
+          down: overrides[i]?.down ?? inputs[i]?.down ?? false,
+          left: overrides[i]?.left ?? inputs[i]?.left ?? false,
+          right: overrides[i]?.right ?? inputs[i]?.right ?? false,
+          action: overrides[i]?.action ?? inputs[i]?.action ?? false,
+          action2: overrides[i]?.action2 ?? inputs[i]?.action2 ?? false,
+        };
+      }
+      /* #endregion OVERRIDE APPLY */
+
+      let state = step_OLD(...arguments);
+
+      /* #region SEND STATIC INFO */
+      if (!gm.state.safeEval.globalThis.staticSetted) {
+        gm.state.staticInfo = oldState.gmInitial;
+        gm.state.staticInfo.lobby.clientId = gm.lobby.networkEngine.getLSID();
+        gm.state.safeEval.evaluate('this.setStaticInfo();');
+      }
+      /* #endregion SEND STATIC INFO */
+
+      /* #region SEND DYNAMIC INFO */
+      state.gmExtra = oldState.gmExtra;
+      gm.state.gameState = state;
+      gm.state.inputs = inputs;
+
+      gm.state.safeEval.evaluate('setDynamicInfo()');
+      state = gm.state.safeEval.globalThis.game.state;
+      /* #endregion SEND DYNAMIC INFO */
+
+      /* #region DISC NORMALIZING */
+      for (let i = 0; i !== state.discs.length; i++) {
+        if (!state.discs[i]) continue;
+
+        if (!inputs[i]) {
+          inputs[i] = inputs[i] || {left: false, right: false, up: false, down: false, action: false, action2: false};
+        }
+
+        if (!state.discs[i].swing) state.discs[i].swing = false;
+      }
+      /* #endregion DISC NORMALIZING */
+
+      /* #region NO LERP PROPERTY MANAGE */
+      for (let i = 0; i < state.physics.bodies.length; i++) {
+        if (!state.physics.bodies[i]) continue;
+        state.physics.bodies[i].ni = false;
+      }
+      for (let i = 0; i < state.projectiles.length; i++) {
+        if (!state.projectiles[i]) continue;
+        state.projectiles[i].ni = false;
+      }
+      for (let i = 0; i < state.gmExtra.drawings.length; i++) {
+        if (!state.gmExtra.drawings[i]) continue;
+        state.gmExtra.drawings[i].noLerp = false;
+      }
+      state.gmExtra.camera.noLerp = false;
+
+      // cameraChanged, used to determine if offscreen arrows should be rendered or not
+      if (oldState.gmExtra.camera.xPos != 0 ||
+          oldState.gmExtra.camera.yPos != 0 ||
+          oldState.gmExtra.camera.angle != 0 ||
+          oldState.gmExtra.camera.xScale != 0 ||
+          oldState.gmExtra.camera.yScale != 0) state.gmExtra.cameraChanged = true;
+      /* #endregion NO LERP PROPERTY MANAGE */
+
+      /* #region UPDATE RANDOM */
+      let randomSeed = 0;
+
+      // bring some more randomness to the mix!
+      for (let i = 0; i < state.discs.length; i++) {
+        if (!state.discs[i]) continue;
+        randomSeed = randomSeed + state.discs[i].x + state.discs[i].y + state.discs[i].xv + state.discs[i].yv;
+      }
+
+      randomSeed += state.rl;
+      randomSeed *= gm.state.staticInfo.lobby.seed;
+
+      gm.state.pseudoRandom = new seedrandom(randomSeed);
+      /* #endregion UPDATE RANDOM */
+
+      /* #region EVENT FIRING */
+
+      // fire collision events
+
+      // fire roundStart events
+      const playerIds = gm.state.staticInfo.lobby.allPlayerIds;
+
+      if (oldState.rl == 0) {
+        gm.state.fireEvent('roundStart', {runOnce: true}, []);
+        for (let i = 0; i < playerIds.length; i++) {
+          gm.state.fireEvent('roundStart', {runOnce: false}, [playerIds[i]]);
+        }
+      }
+
+      // fire step events
+      gm.state.fireEvent('step', {runOnce: true}, []);
+      for (let i = 0; i < playerIds.length; i++) {
+        gm.state.fireEvent('step', {runOnce: false}, [playerIds[i]]);
+      }
+      /* #endregion EVENT FIRING */
+
+      state = gm.state.safeEval.globalThis.game.state;
+      state.gmInitial = oldState.gmInitial;
+
+      gm.state.gameState = state;
+
+      return state;
     };
   },
   initContactListener: function() {
@@ -412,61 +204,100 @@ export default {
       return PhysicsClass.contactListener.PostSolve_OLD(...arguments);
     };
   },
-  gameState: null,
-  setGameState: function(newgst) {
-    this.forceGameState = true;
-    this.gameState = newgst;
+  initCreateState: function() {
+    PhysicsClass.createNewState_OLD = PhysicsClass.createNewState;
+
+    PhysicsClass.createNewState = function() {
+      const state = PhysicsClass.createNewState_OLD(...arguments);
+
+      if (!gm.lobby.networkEngine) return state;
+
+      /* #region gmInitial CREATION */
+      const gmInitial = {};
+
+      const playerInfo = [];
+      for (let i = 0; i < gm.lobby.playerArray.length; i++) {
+        const player = gm.lobby.playerArray[i];
+
+        if (!player) continue;
+
+        const playerInfoEntry = {
+          userName: player.userName,
+          guest: player.guest,
+          level: player.level,
+          team: player.team,
+          skinBg: player.avatar.bc,
+          skinColours: [],
+        };
+
+        for (let i = 0; i < player.avatar.layers.length; i++) {
+          if (playerInfoEntry.skinColours.includes(player.avatar.layers[i].color)) continue;
+          playerInfoEntry.skinColours.push(player.avatar.layers[i].color);
+        }
+
+        playerInfo[i] = playerInfoEntry;
+      }
+
+      gmInitial.lobby = {
+        clientId: gm.lobby.networkEngine.getLSID(),
+        hostId: gm.lobby.networkEngine.hostID,
+        allPlayerIds: [],
+        playerInfo: playerInfo,
+        settings: gm.lobby.mpSession.getGameSettings(),
+        seed: Math.round(Math.random() * 1000000),
+      };
+      for (let i = 0; i < gm.lobby.playerArray.length; i++) {
+        if (!gm.lobby.playerArray[i]) continue;
+        gmInitial.lobby.allPlayerIds.push(i);
+      }
+
+      state.gmInitial = JSON.parse(JSON.stringify(gmInitial));
+      /* #endregion gmInitial CREATION */
+
+      /* #region gmExtra CREATION */
+      const gmExtra = {
+        vars: {},
+        camera: {
+          xPos: 365 / state.physics.ppm,
+          yPos: 250 / state.physics.ppm,
+          angle: 0,
+          xScale: 1,
+          yScale: 1,
+          noLerp: false,
+        },
+        drawings: [],
+        overrides: [],
+      };
+
+      for (let i = 0; i < gmInitial.lobby.allPlayerIds.length; i++) {
+        gmExtra.overrides[gmInitial.lobby.allPlayerIds[i]] = {
+          up: null,
+          down: null,
+          left: null,
+          right: null,
+          action: null,
+          action2: null,
+        };
+      }
+      state.gmExtra = JSON.parse(JSON.stringify(gmExtra));
+      /* #endregion gmExtra CREATION */
+
+      return state;
+    };
   },
-  forceGameState: false,
+  gameState: null,
+  staticInfo: null,
   collisionsThisStep: [],
   pseudoRandom: null,
   generateEvents: function(code) {
     this.resetSES();
     this.safeEval.evaluate(code);
-    for (const name of this.eventNames) {
-      if (!this.safeEval.globalThis[name]) {
-        this.events[name] = function() {};
-      } else {
-        this.events[name] = function() {
-          gm.state.currentEventArgs = [...arguments];
-          return gm.state.safeEval.evaluate('this.' + name + '(...getEventArgs())');
-        };
-      }
-    }
   },
-  modeRunners: {},
-  eventNames: [
-    'onStep', 'onFirstStep', 'onPlayerDie',
-    'onPlayerPlayerCollision', 'onPlayerArrowCollision', 'onPlayerPlatformCollision',
-    'onArrowPlayerCollision', 'onArrowArrowCollision', 'onArrowPlatformCollision',
-    'onPlatformPlayerCollision', 'onPlatformArrowCollision', 'onPlatformPlatformCollision',
-  ],
-  eventArgs: {
-    'onStep': '',
-    'onFirstStep': '',
-    'onPlayerDie': 'playerId',
-    'onPlayerPlayerCollision': 'playerId, hitPlayerId',
-    'onPlayerArrowCollision': 'playerId, hitArrowId',
-    'onPlayerPlatformCollision': 'playerId, hitPlatformId, hitShapeId',
-    'onArrowPlayerCollision': 'arrowId, hitPlayerId',
-    'onArrowArrowCollision': 'arrowId, hitArrowId',
-    'onArrowPlatformCollision': 'arrowId, hitPlatformId, hitShapeId',
-    'onPlatformPlayerCollision': 'platformId, shapeId, hitPlayerId',
-    'onPlatformArrowCollision': 'platformId, shapeId, hitArrowId',
-    'onPlatformPlatformCollision': 'platformId, shapeId, hitPlatformId, hitShapeId',
+  fireEvent: function() {
+    gm.state.currentEventArgs = [...arguments];
+    gm.state.safeEval.evaluate('game.events.fireEvent(...getEventArgs())');
   },
-  events: {
-    onStep: function() { },
-    onFirstStep: function() { },
-    onPlayerDie: function() { },
-    onPlayerPlayerCollision: function() { },
-    onPlayerArrowCollision: function() { },
-    onPlayerPlatformCollision: function() { },
-    onArrowPlayerCollision: function() { },
-    onArrowArrowCollision: function() { },
-    onArrowPlatformCollision: function() { },
-    onPlatformPlayerCollision: function() { },
-    onPlatformArrowCollision: function() { },
-    onPlatformPlatformCollision: function() { },
+  resetStaticInfo: function() {
+    gm.state.safeEval.evaluate('this.resetStaticInfo();');
   },
 };

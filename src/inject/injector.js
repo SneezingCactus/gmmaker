@@ -45,7 +45,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // make game state list globally accessible
       {regex: '( < 100\\).{0,100}\\+ 1.{0,200}\\+\\+;)([^\\]]+\\])', to: '$1window.gmReplaceAccessors.gameStateList = $2;$2'},
       // call graphics rollback function
-      {regex: 'if\\(([^ ]+)( != Infinity\\){)(for[^<]+< )([^\\]]+\\])(.{0,400}=Infinity;)', to: 'if($1$2gm.graphics.doRollback($4, $1);$3$4$5'},
+      // {regex: 'if\\(([^ ]+)( != Infinity\\){)(for[^<]+< )([^\\]]+\\])(.{0,400}=Infinity;)', to: 'if($1$2gm.graphics.doRollback($4, $1);$3$4$5'},
       // allow for toggling of the death barrier
       {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
       // modify position of sound with camera position

@@ -626,7 +626,7 @@ export default function() {
     const varDropdown = this.getField('VAR');
 
     varDropdown.setValidator(function(newValue) {
-      const startsWithGlobal = Blockly.Variables.getVariable(gm.editor.workspace, newValue).name.startsWith('GLOBAL_');
+      const startsWithGlobal = Blockly.Variables.getVariable(gm.editor.blocklyWs, newValue).name.startsWith('GLOBAL_');
       const showPlayerId = !startsWithGlobal && this.getSourceBlock().getFieldValue('player') === 'id';
       this.getSourceBlock().updateShape_(showPlayerId, !startsWithGlobal);
     });
@@ -650,7 +650,7 @@ export default function() {
     const varDropdown = this.getField('VAR');
 
     varDropdown.setValidator(function(newValue) {
-      const startsWithGlobal = Blockly.Variables.getVariable(gm.editor.workspace, newValue).name.startsWith('GLOBAL_');
+      const startsWithGlobal = Blockly.Variables.getVariable(gm.editor.blocklyWs, newValue).name.startsWith('GLOBAL_');
       const showPlayerId = !startsWithGlobal && this.getSourceBlock().getFieldValue('player') === 'id';
       this.getSourceBlock().updateShape_(showPlayerId, !startsWithGlobal);
     });
@@ -674,7 +674,7 @@ export default function() {
     const varDropdown = this.getField('VAR');
 
     varDropdown.setValidator(function(newValue) {
-      const startsWithGlobal = Blockly.Variables.getVariable(gm.editor.workspace, newValue).name.startsWith('GLOBAL_');
+      const startsWithGlobal = Blockly.Variables.getVariable(gm.editor.blocklyWs, newValue).name.startsWith('GLOBAL_');
       const showPlayerId = !startsWithGlobal && this.getSourceBlock().getFieldValue('player') === 'id';
       this.getSourceBlock().updateShape_(showPlayerId, !startsWithGlobal);
     });

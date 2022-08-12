@@ -34,13 +34,7 @@ export default {
           const xml = document.createElement('xml');
           xml.innerHTML = gm.editor.decompressXml(data.replace('!!!GMMODE!!!', ''));
 
-          gm.editor.headlessWorkspace.clear();
-          Blockly.Xml.domToWorkspace(xml, gm.editor.headlessWorkspace);
-
-          gm.editor.savedXml = xml;
-          gm.editor.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
-          gm.editor.resetAll();
-          eval(gm.editor.generateCode());
+          gm.lobby.processModeXml(xml);
 
           gm.lobby.mpSession.getGameSettings().GMMode = data.replace('!!!GMMODE!!!', '');
 
@@ -58,6 +52,7 @@ export default {
 
       return function() {
         const result = cached_bonklobby.apply(this, arguments); // use .apply() to call it
+        smObj.playerArray = arguments[1];
         smObj.bonkLobby = this;
 
         this.handleHostLeft_OLD = this.handleHostLeft;
@@ -65,8 +60,16 @@ export default {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
 
-            gm.editor.workspace.clear();
-            Blockly.Xml.domToWorkspace(gm.editor.savedXml, gm.editor.workspace);
+            if (gm.editor.savedSettings?.getAttribute('is_text_mode') === 'true') {
+              const modeContent = gm.editor.savedXml.getElementsByTagName('content')[0];
+
+              gm.editor.changingToTextEditor = true;
+              gm.editor.monacoWs.setValue(modeContent.innerText);
+            } else {
+              gm.editor.GMEChangeEditor(false);
+              gm.editor.blocklyWs.clear();
+              Blockly.Xml.domToWorkspace(gm.editor.savedXml, gm.editor.blocklyWs);
+            }
           } else {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
@@ -79,8 +82,16 @@ export default {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
 
-            gm.editor.workspace.clear();
-            Blockly.Xml.domToWorkspace(gm.editor.savedXml, gm.editor.workspace);
+            if (gm.editor.savedSettings?.getAttribute('is_text_mode') === 'true') {
+              const modeContent = gm.editor.savedXml.getElementsByTagName('content')[0];
+
+              gm.editor.changingToTextEditor = true;
+              gm.editor.monacoWs.setValue(modeContent.innerText);
+            } else {
+              gm.editor.GMEChangeEditor(false);
+              gm.editor.blocklyWs.clear();
+              Blockly.Xml.domToWorkspace(gm.editor.savedXml, gm.editor.blocklyWs);
+            }
           } else {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
@@ -100,19 +111,7 @@ export default {
             const xml = document.createElement('xml');
             xml.innerHTML = gm.editor.decompressXml(gameSettings.GMMode);
 
-            if (gm.editor.savedXml?.innerHTML !== xml.innerHTML) {
-              gm.editor.headlessWorkspace.clear();
-              Blockly.Xml.domToWorkspace(xml, gm.editor.headlessWorkspace);
-
-              gm.editor.savedXml = xml;
-              gm.editor.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
-              gm.editor.resetAll();
-              try {
-                eval(gm.editor.generateCode());
-              } catch (e) {
-                console.log(e);
-              }
-            }
+            gm.lobby.processModeXml(xml);
           }
           return this.setGameSettings_OLD(gameSettings);
         };
@@ -123,7 +122,9 @@ export default {
 
           const modeName = gm.editor.savedSettings?.getAttribute('mode_name');
 
-          if (modeName && gm.editor.savedXml?.getElementsByTagName('block').length > 0) {
+          if (modeName && (
+            gm.editor.savedSettings?.getAttribute('is_text_mode') === 'true' && gm.editor.savedXml?.getElementsByTagName('content')[0].innerHTML !== '' ||
+            gm.editor.savedXml?.getElementsByTagName('block').length > 0)) {
             const modeText = document.getElementById('newbonklobby_modetext');
             const baseModeText = document.createElement('div');
             baseModeText.id = 'gm_basemodetext';
@@ -215,28 +216,25 @@ export default {
       return function() {
         const result = cached_GenericGameSessionHandler.apply(this, arguments);
 
+        this.go_OLD = this.go;
+        this.go = function() {
+          gm.state.resetStaticInfo();
+
+          return this.go_OLD(...arguments);
+        };
+
         this.goInProgress_OLD = this.goInProgress;
         this.goInProgress = function() {
+          gm.state.resetStaticInfo();
+
           const gameSettings = arguments[7];
 
           if (gameSettings.GMMode && gm.lobby.networkEngine.getLSID() != gm.lobby.networkEngine.hostID) {
             const xml = document.createElement('xml');
             xml.innerHTML = gm.editor.decompressXml(gameSettings.GMMode);
 
-            gm.editor.headlessWorkspace.clear();
-            Blockly.Xml.domToWorkspace(xml, gm.editor.headlessWorkspace);
-
-            gm.editor.savedXml = xml;
-            gm.editor.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
-            gm.editor.resetAll();
-
-            try {
-              eval(gm.editor.generateCode());
-            } catch (e) {
-              console.log(e);
-            }
+            gm.lobby.processModeXml(xml);
           }
-
           return this.goInProgress_OLD(...arguments);
         };
 
@@ -246,10 +244,36 @@ export default {
     })();
   },
   socket: null,
+  playerArray: null,
   mpSession: null,
   networkEngine: null,
   gameCrashed: false,
   haltCausedByLoop: false,
+  processModeXml: function(xml) {
+    if (gm.editor.savedXml?.innerHTML !== xml.innerHTML) {
+      gm.editor.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
+      gm.editor.resetAll();
+      gm.editor.savedXml = xml;
+
+      if (gm.editor.savedSettings?.getAttribute('is_text_mode') === 'true') {
+        const modeContent = xml.getElementsByTagName('content')[0];
+        try {
+          gm.state.generateEvents(modeContent.innerText);
+        } catch (e) {
+          console.log(e);
+        }
+      } else {
+        gm.editor.headlessBlocklyWs.clear();
+        Blockly.Xml.domToWorkspace(xml, gm.editor.headlessBlocklyWs);
+
+        try {
+          gm.state.generateEvents(gm.editor.generateCode());
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+  },
   gameHalt: function() {
     if (gm.lobby.haltCausedByLoop) {
       gm.lobby.bonkLobby?.showStatusMessage('* [GMMaker] Game was halted due to a very large loop (likely an infinite loop). Loop iteration limit (total loop iterations inside an event) is 10000000. Check your code.', '#cc3333');

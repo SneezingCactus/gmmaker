@@ -16,6 +16,7 @@ import * as monaco from 'monaco-editor';
 import monacoWorker from '!raw-loader!../monaco/editor.worker.js';
 import monacoTypescript from '!raw-loader!../monaco/ts.worker.js';
 import monacoDefs from '!raw-loader!../monaco/gmm.d.ts';
+import monacoDefSnippets from '../monaco/snippets.js';
 
 // misc
 import {saveAs} from 'file-saver';
@@ -36,6 +37,7 @@ export default {
     document.getElementById('gmeditor_importbutton').addEventListener('click', gm.editor.GMEImport);
     document.getElementById('gmeditor_exportbutton').addEventListener('click', gm.editor.GMEExportShow);
     document.getElementById('gmeditor_backupsbutton').addEventListener('click', gm.editor.GMEBackupsShow);
+    document.getElementById('gmeditor_changebasebutton').addEventListener('click', gm.editor.GMEChangeEditor);
     document.getElementById('gmeditor_settingsbutton').addEventListener('click', gm.editor.GMESettingsShow);
     document.getElementById('gmeditor_savebutton').addEventListener('click', gm.editor.GMESave);
     document.getElementById('gmeditor_closebutton').addEventListener('click', gm.editor.hideGMEWindow);
@@ -137,13 +139,12 @@ export default {
     //  "hey can i copy your code"
     //  "sure but change some stuff so nobody notices"
     //  (yes kklkkj totally said that)
-    const dbOpenRequest = window.indexedDB.open('gmmakerStorage', 1);
-    let db;
+    const dbOpenRequest = window.indexedDB.open('gmmakerStorage1.0.0', 1);
 
     dbOpenRequest.onsuccess = () => {
-      db = dbOpenRequest.result;
-      db.transaction('backups');
-      const transaction = db.transaction('backups');
+      gm.editor.backupDB = dbOpenRequest.result;
+      gm.editor.backupDB.transaction('backups');
+      const transaction = gm.editor.backupDB.transaction('backups');
       const getRequest = transaction.objectStore('backups').get(1);
       getRequest.onsuccess = () => {
         gm.editor.modeBackups = getRequest.result;
@@ -195,18 +196,79 @@ export default {
 
     const defUri = 'ts:filename/gmm.d.ts';
 
+    // remove dom stuff
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       target: monaco.languages.typescript.ScriptTarget.ES2020,
       allowNonTsExtensions: true,
       lib: ['es2015'],
-      // lib: ['ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019'],
     });
 
+    // add gmm defs
     monaco.languages.typescript.javascriptDefaults.addExtraLib(monacoDefs, defUri);
 
+    // add gmm snippets
+    monacoDefSnippets();
+
     gm.editor.monacoWs = monaco.editor.create(document.getElementById('gmmonacodiv'), {
-      value: 'function hello() {\n\talert(\'Hello world!\');\n}',
+      value: '',
       language: 'javascript',
+      tabSize: 2,
+    });
+
+    gm.editor.monacoWs.getModel().onDidChangeContent(function(event) {
+      // the way this is formatted is s^^^^
+      if (!gm.editor.modeSettings.is_text_mode && !gm.editor.changingToTextEditor) {
+        if (gm.editor.blocklyWs.getTopBlocks().length == 0) {
+          gm.editor.blocklyWs.clear();
+          document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
+
+          gm.editor.modeSettings.is_text_mode = true;
+          return;
+        }
+
+        gm.editor.monacoWs.getModel().undo();
+        document.activeElement.blur();
+
+        gm.editor.genericDialog('Once you start typing, the conversion from blocks to text will become permanent and you will no longer be able to go back to the block editor.\n\nAre you sure you want to change to text?', function(confirmed) {
+          if (!confirmed) return;
+
+          gm.editor.blocklyWs.clear();
+          document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
+
+          gm.editor.modeSettings.is_text_mode = true;
+        }, true);
+      }
+      gm.editor.changingToTextEditor = false;
+
+      // backup
+      if (gm.editor.monacoWs.getValue() == '') return;
+      if (!gm.editor.modeSettings.is_text_mode) return;
+      if (!gm.editor.canBackup) return;
+      if (!gm.editor.backupDB) return;
+
+      gm.editor.canBackup = false;
+      setTimeout(function() {
+        gm.editor.canBackup = true;
+      }, 30000);
+
+      if (gm.editor.modeBackups.length > 5) {
+        gm.editor.modeBackups.pop();
+      }
+
+      const xml = document.createElement('xml');
+
+      const contentElement = Blockly.utils.xml.createElement('content');
+      contentElement.innerHTML = gm.editor.monacoWs.getValue();
+      xml.appendChild(contentElement);
+      xml.appendChild(gm.editor.createModeSettingsXML());
+
+      gm.editor.modeBackups.unshift({
+        xml: xml.innerHTML,
+        timeStamp: Date.now(),
+      });
+
+      const transaction = gm.editor.backupDB.transaction('backups', 'readwrite');
+      transaction.objectStore('backups').put(gm.editor.modeBackups, 1);
     });
 
     window.addEventListener('resize', () => {
@@ -292,7 +354,7 @@ export default {
     }),
 
     // create blockly workspaces
-    gm.editor.workspace = Blockly.inject('gmblocklydiv', {
+    gm.editor.blocklyWs = Blockly.inject('gmblocklydiv', {
       toolbox: document.getElementById('toolbox'),
       zoom: {
         controls: true,
@@ -301,13 +363,13 @@ export default {
       },
       theme: gm.editor.theme,
     });
-    gm.editor.headlessWorkspace = new Blockly.Workspace();
+    gm.editor.headlessBlocklyWs = new Blockly.Workspace();
 
     // drag surface makes the workspace lag a LOT while dragging on a really big project
-    gm.editor.workspace.useWorkspaceDragSurface_ = false;
+    gm.editor.blocklyWs.useWorkspaceDragSurface_ = false;
 
     // workspace plugins
-    const workspaceSearch = new WorkspaceSearch(gm.editor.workspace);
+    const workspaceSearch = new WorkspaceSearch(gm.editor.blocklyWs);
     workspaceSearch.init();
 
     // workspace dialogs
@@ -332,12 +394,13 @@ export default {
       blocklyDiv.style.width = bounds.width;
       blocklyDiv.style.height = bounds.height;
 
-      Blockly.svgResize(gm.editor.workspace);
+      Blockly.svgResize(gm.editor.blocklyWs);
     }, false);
 
-    gm.editor.workspace.addChangeListener(function() {
+    gm.editor.blocklyWs.addChangeListener(function() {
+      if (gm.editor.modeSettings.is_text_mode) return;
       if (!gm.editor.canBackup) return;
-      if (!db) return;
+      if (!gm.editor.backupDB) return;
 
       gm.editor.canBackup = false;
       setTimeout(function() {
@@ -348,30 +411,23 @@ export default {
         gm.editor.modeBackups.pop();
       }
 
-      const xml = Blockly.Xml.workspaceToDom(gm.editor.workspace, true);
+      const xml = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true);
 
-      const settingsObj = Blockly.utils.xml.createElement('gmsettings');
-      settingsObj.setAttribute('mode_name', gm.editor.modeName || 'Custom');
-      settingsObj.setAttribute('mode_description', gm.editor.modeDescription || 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).');
-      settingsObj.setAttribute('show_var_insp', gm.editor.showVarInspector) || false;
-      settingsObj.setAttribute('base_mode', gm.editor.baseMode || 'any');
-
-      xml.appendChild(settingsObj);
+      xml.appendChild(gm.editor.createModeSettingsXML());
 
       gm.editor.modeBackups.unshift({
         xml: xml.innerHTML,
         timeStamp: Date.now(),
       });
 
-      const transaction = db.transaction('backups', 'readwrite');
+      const transaction = gm.editor.backupDB.transaction('backups', 'readwrite');
       transaction.objectStore('backups').put(gm.editor.modeBackups, 1);
-      db.onerror = console.error;
     });
 
-    gm.editor.headlessWorkspace.fireChangeListener_OLD = gm.editor.headlessWorkspace.fireChangeListener;
-    gm.editor.headlessWorkspace.fireChangeListener = function() {
+    gm.editor.headlessBlocklyWs.fireChangeListener_OLD = gm.editor.headlessBlocklyWs.fireChangeListener;
+    gm.editor.headlessBlocklyWs.fireChangeListener = function() {
       if (gm.lobby.networkEngine.getLSID() !== gm.lobby.networkEngine.hostID) return;
-      return gm.editor.headlessWorkspace.fireChangeListener_OLD(...arguments);
+      return gm.editor.headlessBlocklyWs.fireChangeListener_OLD(...arguments);
     };
 
     window.blockly = Blockly;
@@ -422,13 +478,55 @@ export default {
       document.onmousemove = null;
     }
   },
+  modeSettingsDefaults: [
+    {name: 'mode_name', type: 'string', default: 'Custom'},
+    {name: 'mode_description', type: 'string', default: 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).'},
+    {name: 'show_var_insp', type: 'bool', default: false},
+    {name: 'base_mode', type: 'string', default: 'any'},
+    {name: 'is_text_mode', type: 'bool', default: false},
+  ],
+  modeSettings: {},
+  resetModeSettings: function() {
+    this.modeSettings = {};
+    for (let i = 0; i < this.modeSettingsDefaults.length; i++) {
+      const setting = this.modeSettingsDefaults[i];
+
+      this.modeSettings[setting.name] = setting.default;
+    }
+  },
+  updateModeSettings: function(xml) {
+    this.modeSettings = {};
+    for (let i = 0; i < this.modeSettingsDefaults.length; i++) {
+      const setting = this.modeSettingsDefaults[i];
+
+      if (setting.type == 'bool') {
+        this.modeSettings[setting.name] = xml.getAttribute(setting.name) === 'true' || setting.default;
+      } else {
+        this.modeSettings[setting.name] = xml.getAttribute(setting.name) || setting.default;
+      }
+    }
+  },
+  createModeSettingsXML: function() {
+    const element = Blockly.utils.xml.createElement('gmsettings');
+
+    for (let i = 0; i < this.modeSettingsDefaults.length; i++) {
+      const setting = this.modeSettingsDefaults[i];
+
+      element.setAttribute(setting.name, this.modeSettings[setting.name] ?? setting.default);
+    }
+
+    return element;
+  },
   disableLobbyChatbox: false,
   blockDefs: null,
-  workspace: null,
+  blocklyWs: null,
+  monacoWs: null,
   modeToImport: null,
   savedXml: null,
   modeBackups: [],
   canBackup: true,
+  changingToTextEditor: false,
+  isInTextEditor: false,
   xmlDict: ['block', 'mutation', 'field', 'variable', 'variables', 'bonkmap', 'statement', 'shadow', 'value', 'name', 'type', 'next', 'playerid_input', 'show_dropdown'],
   compressXml: function(xml) {
     if (!xml) return xml;
@@ -442,16 +540,18 @@ export default {
   decompressXml: function(xml) {
     if (!xml) return xml;
 
+    // remove html entities
+    const txt = document.createElement('textarea');
+    txt.innerHTML = xml;
+    xml = txt.value;
+
+    // replace dict references
     for (let i = 0; i < this.xmlDict.length; i++) {
       xml = xml.replace(new RegExp(`<(\/|)${i}([ >])`, 'g'), `<$1${this.xmlDict[i]}$2`);
       xml = xml.replace(new RegExp(` ${i}="`, 'g'), ` ${this.xmlDict[i]}="`);
     }
     return xml;
   },
-  modeName: null,
-  modeDescription: null,
-  showVarInspector: false,
-  varInspector: null,
   createVarInspTab: function(id, name) {
     if (!this.varInspector) return;
 
@@ -541,41 +641,45 @@ export default {
     document.getElementById('gmeditor').style.transform = 'scale(1)';
     document.getElementById('newbonklobby').style.transform = 'scale(0)';
 
-    gm.editor.disableLobbyChatbox = true;
+    if (gm.editor.savedSettings) gm.editor.updateModeSettings(gm.editor.savedSettings);
 
     const blocklyDiv = document.getElementById('gmblocklydiv');
     const monacoDiv = document.getElementById('gmmonacodiv');
     const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
 
-    // blocklyDiv.style.transform = 'scale(1)';
-    blocklyDiv.style.visibility = 'visible';
+    const changeBaseButton = document.getElementById('gmeditor_changebasebutton');
+    if (gm.editor.modeSettings.is_text_mode) {
+      monacoDiv.style.display = 'block';
+      gm.editor.blocklyWs.setVisible(false);
+      document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
+      changeBaseButton.classList.remove('jsIcon');
+      changeBaseButton.classList.add('blockIcon');
+    } else {
+      blocklyDiv.style.visibility = 'visible';
+      gm.editor.blocklyWs.setVisible(true);
+      document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
+      changeBaseButton.classList.add('jsIcon');
+      changeBaseButton.classList.remove('blockIcon');
+    }
+
     blocklyDiv.style.top = bounds.top;
     blocklyDiv.style.left = bounds.left;
     blocklyDiv.style.width = bounds.width;
     blocklyDiv.style.height = bounds.height;
-
-
-    monacoDiv.style.display = 'block';
     monacoDiv.style.top = bounds.top;
     monacoDiv.style.left = bounds.left;
     monacoDiv.style.width = bounds.width - 20;
     monacoDiv.style.height = bounds.height - 20;
 
-    gm.editor.workspace.setVisible(true);
     gm.editor.monacoWs.layout();
-    Blockly.svgResize(gm.editor.workspace);
+    Blockly.svgResize(gm.editor.blocklyWs);
 
     gm.editor.disableLobbyChatbox = true;
-
-    gm.editor.modeName = this.savedSettings?.getAttribute('mode_name') || 'Custom';
-    gm.editor.modeDescription = this.savedSettings?.getAttribute('mode_description') || 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).';
-    gm.editor.showVarInspector = this.savedSettings?.getAttribute('show_var_insp') === 'true' || false;
-    gm.editor.baseMode = this.savedSettings?.getAttribute('base_mode') || 'any';
   },
   hideGMEWindow: function() {
     gm.editor.disableLobbyChatbox = false;
 
-    gm.editor.workspace.setVisible(false);
+    gm.editor.blocklyWs.setVisible(false);
     document.getElementById('gmmonacodiv').style.display = 'none';
     document.getElementById('gmblocklydiv').style.visibility = 'hidden';
     document.getElementById('gmeditor').style.transform = 'scale(0)';
@@ -624,12 +728,10 @@ export default {
     gm.editor.genericDialog('Are you sure you want to delete all blocks and reset mode settings?', function(confirmed) {
       if (!confirmed) return;
 
-      gm.editor.workspace.clear();
-
-      gm.editor.modeName = 'Custom';
-      gm.editor.modeDescription = 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).';
-      gm.editor.showVarInspector = false;
-      gm.editor.baseMode = 'any';
+      gm.editor.blocklyWs.clear();
+      gm.editor.GMEChangeEditor(false);
+      document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
+      gm.editor.resetModeSettings();
     }, true);
   },
   GMEImport: function() {
@@ -655,10 +757,7 @@ export default {
 
         const gmSettings = xml?.getElementsByTagName('gmsettings')[0];
 
-        gm.editor.modeName = gmSettings?.getAttribute('mode_name') || 'Custom';
-        gm.editor.modeDescription = gmSettings?.getAttribute('mode_description') || 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).';
-        gm.editor.showVarInspector = gmSettings?.getAttribute('show_var_insp') === 'true' || false;
-        gm.editor.baseMode = gmSettings?.getAttribute('base_mode') || 'any';
+        gm.editor.updateModeSettings(gmSettings);
 
         document.getElementById('gmexport_name').value = file.name.slice(0, -4);
 
@@ -666,8 +765,14 @@ export default {
           gm.editor.modeToImport = xml;
           document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'visible';
         } else {
-          gm.editor.workspace.clear();
-          Blockly.Xml.domToWorkspace(xml, gm.editor.workspace);
+          gm.editor.GMEChangeEditor(gm.editor.modeSettings.is_text_mode);
+          if (gm.editor.modeSettings.is_text_mode) {
+            const modeContent = xml.getElementsByTagName('content')[0];
+            gm.editor.monacoWs.setValue(modeContent.innerText);
+          } else {
+            gm.editor.blocklyWs.clear();
+            Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
+          }
         }
       };
     };
@@ -678,8 +783,8 @@ export default {
     document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
   },
   GMEImportMapNo: function() {
-    gm.editor.workspace.clear();
-    Blockly.Xml.domToWorkspace(gm.editor.modeToImport, gm.editor.workspace);
+    gm.editor.blocklyWs.clear();
+    Blockly.Xml.domToWorkspace(gm.editor.modeToImport, gm.editor.blocklyWs);
 
     document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
   },
@@ -691,8 +796,16 @@ export default {
     gm.lobby.bonkLobby.updateGameSettings(gameSettings);
     gm.lobby.networkEngine.sendMapAdd(gameSettings.map);
 
-    gm.editor.workspace.clear();
-    Blockly.Xml.domToWorkspace(gm.editor.modeToImport, gm.editor.workspace);
+    gm.editor.GMEChangeEditor(gm.editor.modeSettings.is_text_mode);
+    if (gm.editor.modeSettings.is_text_mode) {
+      document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
+      const modeContent = gm.editor.modeToImport.getElementsByTagName('content')[0];
+      gm.editor.monacoWs.setValue(modeContent.innerText);
+    } else {
+      document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
+      gm.editor.blocklyWs.clear();
+      Blockly.Xml.domToWorkspace(gm.editor.modeToImport, gm.editor.blocklyWs);
+    }
 
     document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
   },
@@ -707,15 +820,19 @@ export default {
     const filename = document.getElementById('gmexport_name').value;
     const attachMap = document.getElementById('gmexport_attachmap').checked;
 
-    const xml = Blockly.Xml.workspaceToDom(gm.editor.workspace, true);
+    let xml;
 
-    const settingsObj = Blockly.utils.xml.createElement('gmsettings');
-    settingsObj.setAttribute('mode_name', gm.editor.modeName || 'Custom');
-    settingsObj.setAttribute('mode_description', gm.editor.modeDescription || 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).');
-    settingsObj.setAttribute('show_var_insp', gm.editor.showVarInspector) || false;
-    settingsObj.setAttribute('base_mode', gm.editor.baseMode || 'any');
+    if (gm.editor.modeSettings.is_text_mode) {
+      xml = document.createElement('xml');
 
-    xml.appendChild(settingsObj);
+      const contentElement = Blockly.utils.xml.createElement('content');
+      contentElement.innerHTML = gm.editor.monacoWs.getValue();
+      xml.appendChild(contentElement);
+    } else {
+      xml = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true);
+    }
+
+    xml.appendChild(gm.editor.createModeSettingsXML());
 
     if (attachMap) {
       xml.appendChild(Blockly.Xml.textToDom('<bonkmap>' + MapEncoder.encodeToDatabase(gm.lobby.mpSession.getGameSettings().map) + '</bonkmap>'));
@@ -754,54 +871,93 @@ export default {
 
     const gmSettings = xml?.getElementsByTagName('gmsettings')[0];
 
-    gm.editor.modeName = gmSettings?.getAttribute('mode_name') || 'Custom';
-    gm.editor.modeDescription = gmSettings?.getAttribute('mode_description') || 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).';
-    gm.editor.showVarInspector = gmSettings?.getAttribute('show_var_insp') === 'true' || false;
-    gm.editor.baseMode = gmSettings?.getAttribute('base_mode') || 'any';
+    if (gmSettings) gm.editor.updateModeSettings(gmSettings);
 
-    gm.editor.workspace.clear();
-    Blockly.Xml.domToWorkspace(xml, gm.editor.workspace);
+    gm.editor.GMEChangeEditor(gm.editor.modeSettings.is_text_mode);
+    if (gm.editor.modeSettings.is_text_mode) {
+      const modeContent = xml.getElementsByTagName('content')[0];
+      gm.editor.monacoWs.setValue(modeContent.innerText);
+    } else {
+      gm.editor.blocklyWs.clear();
+      Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
+    }
   },
   GMESettingsShow: function() {
     document.getElementById('gm_settingswindowcontainer').style.visibility = 'visible';
 
-    document.getElementById('gmsettings_modename').value = gm.editor.modeName;
-    document.getElementById('gmsettings_modedescription').value = gm.editor.modeDescription;
-    document.getElementById('gmsettings_showvarinsp').checked = gm.editor.showVarInspector;
-    document.getElementById('gmsettings_basemode').value = gm.editor.baseMode;
+    document.getElementById('gmsettings_modename').value = gm.editor.modeSettings.mode_name || gm.editor.modeSettingsDefaults[0].default;
+    document.getElementById('gmsettings_modedescription').value = gm.editor.modeSettings.mode_description || gm.editor.modeSettingsDefaults[1].default;
+    document.getElementById('gmsettings_showvarinsp').checked = gm.editor.modeSettings.show_var_insp || gm.editor.modeSettingsDefaults[2].default;
+    document.getElementById('gmsettings_basemode').value = gm.editor.modeSettings.base_mode || gm.editor.modeSettingsDefaults[3].default;
   },
   GMESettingsCancel: function() {
     document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
   },
   GMESettingsSave: function() {
-    gm.editor.modeName = document.getElementById('gmsettings_modename').value.substring(0, 12);
-    gm.editor.modeDescription = document.getElementById('gmsettings_modedescription').value.substring(0, 500);
-    gm.editor.showVarInspector = document.getElementById('gmsettings_showvarinsp').checked;
-    gm.editor.baseMode = document.getElementById('gmsettings_basemode').value;
+    gm.editor.modeSettings.mode_name = document.getElementById('gmsettings_modename').value.substring(0, 12);
+    gm.editor.modeSettings.mode_description = document.getElementById('gmsettings_modedescription').value.substring(0, 500);
+    gm.editor.modeSettings.show_var_insp = document.getElementById('gmsettings_showvarinsp').checked;
+    gm.editor.modeSettings.base_mode = document.getElementById('gmsettings_basemode').value;
 
     document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
+  },
+  GMEChangeEditor: function(toTextEditor) {
+    // this function is the chazziest thing ever
+    const blocklyDiv = document.getElementById('gmblocklydiv');
+    const monacoDiv = document.getElementById('gmmonacodiv');
+    const moveToTextEditor = typeof toTextEditor === 'boolean' ? toTextEditor : !gm.editor.isInTextEditor;
+    const changeBaseButton = document.getElementById('gmeditor_changebasebutton');
+
+    if (moveToTextEditor) {
+      gm.editor.isInTextEditor = true;
+      gm.editor.changingToTextEditor = true;
+      monacoDiv.style.display = 'block';
+      blocklyDiv.style.visibility = 'hidden';
+      gm.editor.monacoWs.layout();
+      gm.editor.monacoWs.setValue(gm.editor.generateCode());
+      changeBaseButton.classList.remove('jsIcon');
+      changeBaseButton.classList.add('blockIcon');
+    } else {
+      gm.editor.isInTextEditor = false;
+      blocklyDiv.style.visibility = 'visible';
+      monacoDiv.style.display = 'none';
+      gm.editor.monacoWs.layout();
+      changeBaseButton.classList.remove('blockIcon');
+      changeBaseButton.classList.add('jsIcon');
+    }
   },
   GMESave: function() {
     if (gm.lobby.networkEngine.getLSID() !== gm.lobby.networkEngine.hostID) return;
 
     gm.editor.resetAll();
 
-    try {
-      gm.state.generateEvents(gm.editor.generateCode());
-    } catch (e) {
-      alert(`An error ocurred while trying to save. Please send SneezingCactus a full screenshot of the console (Ctrl+Shift+I, go to the Console tab) so this error can be diagnosed.`);
-      throw (e);
+    let xml;
+
+    if (gm.editor.modeSettings.is_text_mode) {
+      try {
+        gm.state.generateEvents(gm.editor.monacoWs.getValue());
+      } catch (e) {
+        alert(`An error ocurred while trying to save. Please send SneezingCactus a full screenshot of the console (Ctrl+Shift+I, go to the Console tab) so this error can be diagnosed.`);
+        throw (e);
+      }
+
+      xml = document.createElement('xml');
+
+      const contentElement = Blockly.utils.xml.createElement('content');
+      contentElement.innerHTML = gm.editor.monacoWs.getValue();
+      xml.appendChild(contentElement);
+    } else {
+      try {
+        gm.state.generateEvents(gm.editor.generateCode());
+      } catch (e) {
+        alert(`An error ocurred while trying to save. Please send SneezingCactus a full screenshot of the console (Ctrl+Shift+I, go to the Console tab) so this error can be diagnosed.`);
+        throw (e);
+      }
+
+      xml = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true);
     }
 
-    const xml = Blockly.Xml.workspaceToDom(gm.editor.workspace, true);
-
-    const settingsObj = Blockly.utils.xml.createElement('gmsettings');
-    settingsObj.setAttribute('mode_name', gm.editor.modeName);
-    settingsObj.setAttribute('mode_description', gm.editor.modeDescription);
-    settingsObj.setAttribute('show_var_insp', gm.editor.showVarInspector);
-    settingsObj.setAttribute('base_mode', gm.editor.baseMode);
-
-    xml.appendChild(settingsObj);
+    xml.appendChild(gm.editor.createModeSettingsXML());
 
     gm.editor.savedXml = xml;
     gm.editor.savedSettings = xml?.getElementsByTagName('gmsettings')[0];
@@ -809,17 +965,17 @@ export default {
     gm.lobby.socket.emit(23, {'m': `!!!GMMODE!!!${compressedXml}`});
     gm.lobby.mpSession.getGameSettings().GMMode = compressedXml;
 
-    if (gm.editor.baseMode && gm.editor.baseMode !== 'any') {
-      gm.lobby.networkEngine.sendGAMO('b', gm.editor.baseMode);
+    if (gm.editor.modeSettings.base_mode && gm.editor.modeSettings.base_mode !== 'any') {
+      gm.lobby.networkEngine.sendGAMO('b', gm.editor.modeSettings.base_mode);
       gm.lobby.mpSession.getGameSettings().ga = 'b';
-      gm.lobby.mpSession.getGameSettings().mo = gm.editor.baseMode;
+      gm.lobby.mpSession.getGameSettings().mo = gm.editor.modeSettings.base_mode;
     }
 
     gm.lobby.bonkLobby.updateGameSettings();
     gm.editor.hideGMEWindow();
   },
   generateCode: function() {
-    const workspace = gm.lobby.networkEngine.getLSID() === gm.lobby.networkEngine.hostID ? gm.editor.workspace : gm.editor.headlessWorkspace;
+    const workspace = gm.lobby.networkEngine.getLSID() === gm.lobby.networkEngine.hostID ? gm.editor.blocklyWs : gm.editor.headlessBlocklyWs;
     const topBlocks = workspace.getTopBlocks();
     let code = '';
 
@@ -832,7 +988,7 @@ export default {
     }
 
     code = Blockly.JavaScript.finish(code);
-
+    code = code.replace('\n\n\n', '');
     if (code.startsWith('var ')) {
       code = code.replace(/var (.+);/, '');
     }
@@ -1825,25 +1981,7 @@ export default {
       return array;
     },
   },
-  resetVars: function() {
-  },
-  resetMode: function() {
-    gm.state.events.onFirstStep = function() {};
-    gm.state.events.onStep = function() {};
-    gm.state.events.onPlayerDie = function() {};
-    gm.state.events.onPlayerPlayerCollision = function() {};
-    gm.state.events.onPlayerArrowCollision = function() {};
-    gm.state.events.onPlayerPlatformCollision = function() {};
-    gm.state.events.onArrowPlayerCollision = function() {};
-    gm.state.events.onArrowArrowCollision = function() {};
-    gm.state.events.onArrowPlatformCollision = function() {};
-    gm.state.events.onPlatformPlayerCollision = function() {};
-    gm.state.events.onPlatformArrowCollision = function() {};
-    gm.state.events.onPlatformPlatformCollision = function() {};
-    gm.graphics.onRender = function() {};
-  },
   resetAll: function() {
-    gm.editor.resetMode();
-    gm.editor.funcs.clearGraphics();
+    gm.state.resetSES();
   },
 };
