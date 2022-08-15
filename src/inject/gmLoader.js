@@ -7,7 +7,6 @@ import '../gmWindow/style.css';
 
 import gmState from '../gmObject/state.js';
 import gmGraphics from '../gmObject/graphics.js';
-import gmInput from '../gmObject/inputs.js';
 import gmLobby from '../gmObject/lobby.js';
 import gmEditor from '../gmObject/editor.js';
 
@@ -23,7 +22,6 @@ window.initGM = function() {
     state: gmState,
     graphics: gmGraphics,
     lobby: gmLobby,
-    inputs: gmInput,
     editor: gmEditor,
   };
 

@@ -1,7 +1,7 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
-import * as PIXI from 'pixi.js-legacy';
+// import * as PIXI from 'pixi.js-legacy';
 
 export default {
   init: function() {
@@ -70,9 +70,14 @@ export default {
           const drawingB = stateB.gmExtra.drawings[i];
           const drawingList = gm.graphics.drawings;
 
-          // deletion of shapes that suddenly disappear
+          // deletion of drawings that suddenly disappear
           if (!drawingB && drawingList[i]) {
             drawingList[i].destroy();
+            drawingList[i] = null;
+          }
+
+          // deletion of drawings that suddenly get destroyed
+          if (drawingB && drawingList[i]._destroyed) {
             drawingList[i] = null;
           }
 
@@ -113,7 +118,7 @@ export default {
             drawingList[i].update(drawingB, drawingB, 1, stateB.physics.ppm * this.scaleRatio, true);
           }
 
-          // shape updating
+          // drawing updating
           if (drawingA && drawingB && drawingList[i]) {
             if (drawingA.attachTo != drawingB.attachTo) {
               drawingList[i].displayObject.parent.removeChild(drawingList[i]);

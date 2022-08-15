@@ -60,7 +60,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.(xml|html)$/i,
+        test: /\.(raw\.js|xml|html)$/i,
         use: 'raw-loader',
       },
       {

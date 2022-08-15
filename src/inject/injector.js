@@ -24,7 +24,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // This class takes care of updating the lobby and reacting to the player's interactions with the lobby.
       // It's used by gmmaker to update the custom mode when a change is sent by the host and to enable/disable the gmeditor button when a new player gets host.
       {name: 'NewBonkLobby', regex: 'function (..)\\(.{15}\\).{0,10000}newbonklobby', isConstructor: true},
-      // There's no singular way to describe this class since it's used many different purposes which have nothing to do with each other, except for handling something in the game session.
+      // There's no single way to describe this class since it's used many different purposes which have nothing to do with each other, except for handling something in the game session.
       // gmmaker uses its 'goInProgress' function (which takes care of calculating all the steps when you join mid-game) to load the custom mode before any steps get calculated.
       {name: 'GenericGameSessionHandler', regex: 'new (..)\\(null\\)', isConstructor: true},
       // This class contains the functions used by Bonk to compress/decompress maps.
@@ -40,13 +40,11 @@ window.gmInjectBonkScript = function(bonkSrc) {
     replace: [
       // make step function not delete the world's bodies and instead put that code into a global function
       {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Z]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.gmReplaceAccessors.endStep = () => {$1};'},
-      // Fixes 'fixtures' and 'ppm' being a reference to a single 'fixtures' and 'ppm' shared by all game states
-      {regex: '(shapes:JSON[^,]{0,100},fixtures:)([^,]{0,100})(.{0,400}ppm:)([^}]{0,100})', to: '$1JSON.parse(JSON.stringify($2))$3JSON.parse(JSON.stringify($4))'},
       // make game state list globally accessible
       {regex: '( < 100\\).{0,100}\\+ 1.{0,200}\\+\\+;)([^\\]]+\\])', to: '$1window.gmReplaceAccessors.gameStateList = $2;$2'},
       // call graphics rollback function
       // {regex: 'if\\(([^ ]+)( != Infinity\\){)(for[^<]+< )([^\\]]+\\])(.{0,400}=Infinity;)', to: 'if($1$2gm.graphics.doRollback($4, $1);$3$4$5'},
-      // allow for toggling of the death barrier
+      // allow toggling of the death barrier
       {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
       // modify position of sound with camera position
       {regex: '(=Math.{0,30}Math.{0,30}\\(1[^,]{0,10},)([^,]{0,10},-1)', flags: 'gm', to: '$1(window.gmReplaceAccessors.addToStereo ?? 0) + $2'},
@@ -79,7 +77,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
 
   console.log('[Game Mode Maker] Using hooks:', funcNames);
 
-  // Finish initiating gmmaker. If initGM doesn't exist yet, wait for it to exist, and then execute it.
+  // Finish initializing gmmaker. If initGM doesn't exist yet, wait for it to exist, and then execute it.
   newBonkSrc = newBonkSrc.replace(
       new RegExp(gmRegexes.inject.regex),
       `${gmRegexes.inject.wrap.left}${funcHooks}\n

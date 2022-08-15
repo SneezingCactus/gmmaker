@@ -2,9 +2,9 @@
 /* eslint-disable new-cap */
 
 import seedrandom from 'seedrandom';
-import declareMeths from '!raw-loader!../ses/declareMeths.js';
-import declareGameObject from '!raw-loader!../ses/declareGameObject.js';
-import sesCode from '!raw-loader!../ses/ses.umd.js';
+import declareMeths from '../ses/declareMeths.raw.js';
+import declareGameObject from '../ses/declareGameObject.raw.js';
+import sesCode from '../ses/ses.raw.js';
 
 export default {
   init: function() {
@@ -63,16 +63,18 @@ export default {
       if (!oldState.gmExtra) {
         const state = step_OLD(...arguments);
         gm.state.gameState = state;
+        gm.state.inputs = inputs;
         return state;
       }
 
       /* #region OVERRIDE APPLY */
       const overrides = oldState.gmExtra.overrides;
+      const fakeInputs = [];
 
       for (let i = 0; i !== oldState.discs.length; i++) {
         if (!oldState.discs[i]) continue;
 
-        inputs[i] = {
+        fakeInputs[i] = {
           up: overrides[i]?.up ?? inputs[i]?.up ?? false,
           down: overrides[i]?.down ?? inputs[i]?.down ?? false,
           left: overrides[i]?.left ?? inputs[i]?.left ?? false,
@@ -81,26 +83,11 @@ export default {
           action2: overrides[i]?.action2 ?? inputs[i]?.action2 ?? false,
         };
       }
+
+      arguments[1] = fakeInputs;
       /* #endregion OVERRIDE APPLY */
 
       let state = step_OLD(...arguments);
-
-      /* #region SEND STATIC INFO */
-      if (!gm.state.safeEval.globalThis.staticSetted) {
-        gm.state.staticInfo = oldState.gmInitial;
-        gm.state.staticInfo.lobby.clientId = gm.lobby.networkEngine.getLSID();
-        gm.state.safeEval.evaluate('this.setStaticInfo();');
-      }
-      /* #endregion SEND STATIC INFO */
-
-      /* #region SEND DYNAMIC INFO */
-      state.gmExtra = oldState.gmExtra;
-      gm.state.gameState = state;
-      gm.state.inputs = inputs;
-
-      gm.state.safeEval.evaluate('setDynamicInfo()');
-      state = gm.state.safeEval.globalThis.game.state;
-      /* #endregion SEND DYNAMIC INFO */
 
       /* #region DISC NORMALIZING */
       for (let i = 0; i !== state.discs.length; i++) {
@@ -115,6 +102,8 @@ export default {
       /* #endregion DISC NORMALIZING */
 
       /* #region NO LERP PROPERTY MANAGE */
+      state.gmExtra = oldState.gmExtra;
+
       for (let i = 0; i < state.physics.bodies.length; i++) {
         if (!state.physics.bodies[i]) continue;
         state.physics.bodies[i].ni = false;
@@ -130,12 +119,28 @@ export default {
       state.gmExtra.camera.noLerp = false;
 
       // cameraChanged, used to determine if offscreen arrows should be rendered or not
-      if (oldState.gmExtra.camera.xPos != 0 ||
-          oldState.gmExtra.camera.yPos != 0 ||
+      if (oldState.gmExtra.camera.xPos != 365 / state.physics.ppm ||
+          oldState.gmExtra.camera.yPos != 250 / state.physics.ppm ||
           oldState.gmExtra.camera.angle != 0 ||
-          oldState.gmExtra.camera.xScale != 0 ||
-          oldState.gmExtra.camera.yScale != 0) state.gmExtra.cameraChanged = true;
+          oldState.gmExtra.camera.xScale != 1 ||
+          oldState.gmExtra.camera.yScale != 1) state.gmExtra.cameraChanged = true;
       /* #endregion NO LERP PROPERTY MANAGE */
+
+      /* #region SEND STATIC INFO */
+      if (!gm.state.safeEval.globalThis.staticSetted) {
+        gm.state.staticInfo = oldState.gmInitial;
+        gm.state.staticInfo.lobby.clientId = gm.lobby.networkEngine.getLSID();
+        gm.state.safeEval.evaluate('this.setStaticInfo();');
+      }
+      /* #endregion SEND STATIC INFO */
+
+      /* #region SEND DYNAMIC INFO */
+      gm.state.gameState = state;
+      gm.state.inputs = inputs;
+
+      gm.state.safeEval.evaluate('setDynamicInfo()');
+      state = gm.state.safeEval.globalThis.game.state;
+      /* #endregion SEND DYNAMIC INFO */
 
       /* #region UPDATE RANDOM */
       let randomSeed = 0;
@@ -282,6 +287,7 @@ export default {
     };
   },
   gameState: null,
+  inputs: null,
   staticInfo: null,
   collisionsThisStep: [],
   pseudoRandom: null,

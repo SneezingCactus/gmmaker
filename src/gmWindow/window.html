@@ -16,7 +16,6 @@
                 <div id="gmeditor_settingsbutton" title="Mode settings" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
                 <div id="gmeditor_closebutton" title="Close" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
                 <div id="gmeditor_savebutton" title="Apply and close" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
-                
             </div>
         </div>
         <div id="gmworkspacearea"></div>
@@ -59,28 +58,49 @@
 </div>
 <div id="gm_settingswindowcontainer" class="gm_dialogwindowcontainer">
     <div class="gm_behindblocker"></div>
-    <div class="gm_dialogwindow" class="windowShadow">
+    <div class="gm_dialogwindow" class="windowShadow" style="max-width: none;">
         <div class="gm_dialogtopbar">Mode Settings</div>
-        <div class="gm_dialogoptions">
-            Mode name (12 characters max.)<br>
-            <input type="text" id="gmsettings_modename" class="whiteInputField windowShadow gm_dialogtextfield"
-                spellcheck="false" maxlength="12">
-            <br><br>
-            Mode description (500 characters max.)<br>
-            <textarea id="gmsettings_modedescription" style="height: 100px;" class="whiteInputField windowShadow gm_dialogtextfield"
-                spellcheck="false" maxlength="500"></textarea>
-            <br><br>
-            <label for="gmsettings_basemode">Base mode:</label>
-            <select id="gmsettings_basemode">
-                <option value="any">Any</option>
-            </select>
-            <br><br>
-            <input type="checkbox" id="gmsettings_showvarinsp"><label for="gmsettings_showvarinsp">Show variable inspector (for debugging)</label>
-        </div>
-
-        <div class="gm_dialogbuttoncontainer">
-            <div id="gmsettings_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
-            <div id="gmsettings_save" class="brownButton brownButton_classic buttonShadow">SAVE</div>
+        <div class="gm_horizontalflex">
+            <div class="gm_dialogoptions">
+                Mode name (12 characters max.)<br>
+                <input type="text" id="gmsettings_modename" class="whiteInputField windowShadow gm_dialogtextfield"
+                    spellcheck="false" maxlength="12">
+                <br><br>
+                Mode description (500 characters max.)<br>
+                <textarea id="gmsettings_modedescription" style="height: 100px;" class="whiteInputField windowShadow gm_dialogtextfield"
+                    spellcheck="false" maxlength="500"></textarea>
+                <br><br>
+                <label for="gmsettings_basemode">Base mode:</label>
+                <select id="gmsettings_basemode">
+                    <option value="any">Any</option>
+                </select>
+                <br><br>
+                <br><br>
+                <div class="gm_dialogbuttoncontainer" style="width: 100%;">
+                    <div id="gmsettings_cancel" class="brownButton brownButton_classic buttonShadow">CANCEL</div>
+                    <div id="gmsettings_save" class="brownButton brownButton_classic buttonShadow">SAVE</div>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 10px;">
+                <div class="gm_bartabs">
+                </div>
+                <div id="gmsettings_assetlist" class="gm_dialoglist">
+                    <div class="gm_listitem">
+                        <img class="gm_listitemimage">
+                        <div class="gm_listitemright">
+                            <input class="whiteInputField windowShadow gm_dialogtextfield gm_listitemname" type="text" value="test_id">
+                            <div class="gm_listitemdown">
+                                <div class="gm_listitemdetail">128x128, 604.26KB</div>
+                                <div title="Download image" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>        
+                                <div title="Delete image" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="gm_dialogbuttoncontainer" style="flex-direction: row-reverse; justify-content: normal;">
+                    <div id="gmsettings_importasset" class="brownButton brownButton_classic buttonShadow">IMPORT NEW</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

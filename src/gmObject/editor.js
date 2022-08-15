@@ -13,8 +13,8 @@ import defineBlockValidators from '../blockly/blockvalidators.js';
 
 // text libs
 import * as monaco from 'monaco-editor';
-import monacoWorker from '!raw-loader!../monaco/editor.worker.js';
-import monacoTypescript from '!raw-loader!../monaco/ts.worker.js';
+import monacoWorker from '../monaco/editor.worker.raw.js';
+import monacoTypescript from '../monaco/ts.worker.raw.js';
 import monacoDefs from '!raw-loader!../monaco/gmm.d.ts';
 import monacoDefSnippets from '../monaco/snippets.js';
 
@@ -199,6 +199,7 @@ export default {
     // remove dom stuff
     monaco.languages.typescript.javascriptDefaults.setCompilerOptions({
       target: monaco.languages.typescript.ScriptTarget.ES2020,
+      allowJs: true,
       allowNonTsExtensions: true,
       lib: ['es2015'],
     });
