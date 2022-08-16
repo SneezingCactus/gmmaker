@@ -77,7 +77,7 @@ export default {
           }
 
           // deletion of drawings that suddenly get destroyed
-          if (drawingB && drawingList[i]._destroyed) {
+          if (drawingB && drawingList[i]?._destroyed) {
             drawingList[i] = null;
           }
 
@@ -448,9 +448,9 @@ class CircleShape {
     this.displayObject.clear();
     this.displayObject.beginFill(lerpColor(shapeDefA.colour, shapeDefB.colour, weight));
 
-    const width = lerpNumber(shapeDefA.width, shapeDefB.width, weight) * scaleRatio;
-    const height = lerpNumber(shapeDefA.height, shapeDefB.height, weight) * scaleRatio;
-    this.displayObject.drawEllipse(width / -2, height / -2, width, height);
+    const width = lerpNumber(shapeDefA.width, shapeDefB.width, weight) * scaleRatio / 2;
+    const height = lerpNumber(shapeDefA.height, shapeDefB.height, weight) * scaleRatio / 2;
+    this.displayObject.drawEllipse(0, 0, width, height);
 
     this.displayObject.endFill();
 
