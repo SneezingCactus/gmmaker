@@ -315,7 +315,7 @@ export default {
   onPhysStep: function(gameState) {
     if (gameState.fte == 0) gm.editor.varInspector.innerHTML = '';
 
-    const shouldShowVarInsp = gm.editor.savedSettings?.getAttribute('show_var_insp') === 'true' &&// mode has var inspector enabled
+    const shouldShowVarInsp = gm.editor.savedSettings?.getAttribute('showVarInspector') === 'true' &&// mode has var inspector enabled
       gm.graphics.rendererClass.domContainer.style.visibility !== 'hidden';// we're in-game (to prevent it from popping up in the editor)
 
     if (shouldShowVarInsp && gm.editor.varInspectorContainer.style.display !== 'block') {
