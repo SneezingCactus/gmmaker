@@ -9,6 +9,9 @@
     --gm_behind_lobby_background: #1a2733;
     --gm_table_color: #c1cdd2;
     --gm_table_alt_color: #d2dbde;
+    --gm_button_text: #ffffff;
+    --gm_button_primary_color: #795548;
+    --gm_button_secondary_color: #4b252b;
 }
 
 /* GAME MODE EDITOR */
@@ -110,6 +113,14 @@
 
 #gmeditor_closebutton {
     background-image: url(images/gmeclose.png);
+}
+
+.gmeditor_download {
+    background-image: url(images/gmedownload.png);
+}
+
+.gmeditor_delete {
+    background-image: url(images/gmeclose2.png);
 }
 
 #gmworkspacearea {
@@ -284,25 +295,51 @@
     display: flex;
 }
 
+.gm_horizontalsep {
+    background-color: #00000022;
+    width: 3px;
+    margin: 20px;
+}
+
 .gm_dialoglist {
     display: flex;
     width: 400px;
-    height: 270px;
+    height: 290px;
     flex-direction: column;
     overflow-x: hidden;
     overflow-y: scroll;
 }
 
 .gm_bartabs {
+    position: relative;
     margin-top: 5px;
     width: 100%;
     height: 30px;
     display: flex;
 }
 
+.gm_bartabs span {
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background-color: var(--gm_button_primary_color);
+    bottom: 0;
+}
+
 .gm_tabbutton {
-    padding: 0px 15px;
+    color: var(--gm_button_text);
+    font-family: futurept_b1;
+    text-align: center;
+    background-color: var(--gm_button_primary_color);
+    border-radius: 5px 5px 0 0;
+    margin-right: 5px;
+    padding: 0px 20px;
     line-height: 2;
+}
+
+.gm_tabbutton.inactive {
+    background-color: var(--gm_button_secondary_color);
+    cursor: pointer;
 }
 
 .gm_listitem {

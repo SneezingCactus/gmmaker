@@ -20,6 +20,7 @@ import monacoDefSnippets from '../monaco/snippets.js';
 
 // misc
 import {saveAs} from 'file-saver';
+import md5 from 'md5';
 
 export default {
   init: function() {
@@ -44,6 +45,7 @@ export default {
 
     document.getElementById('gmsettings_cancel').addEventListener('click', gm.editor.GMESettingsCancel);
     document.getElementById('gmsettings_save').addEventListener('click', gm.editor.GMESettingsSave);
+    document.getElementById('gmsettings_importasset').addEventListener('click', gm.editor.GMESettingsImportAsset);
 
     document.getElementById('gmexport_cancel').addEventListener('click', gm.editor.GMEExportCancel);
     document.getElementById('gmexport_ok').addEventListener('click', gm.editor.GMEExportSave);
@@ -81,7 +83,7 @@ export default {
       'gmblockly_cancel', 'gmblockly_ok',
       'gmexport_cancel', 'gmexport_ok',
       'gmimportdialog_cancel', 'gmimportdialog_no', 'gmimportdialog_yes',
-      'gmsettings_cancel', 'gmsettings_save',
+      'gmsettings_cancel', 'gmsettings_save', 'gmsettings_importasset',
       'gmbackups_cancel', 'gmbackups_load',
     ];
 
@@ -112,24 +114,7 @@ export default {
 
     // get settings asset list item node
     gm.editor.settingsImageItem = document.getElementById('gmsettings_assetlist')
-        .getElementsByClassName('gm_listitem')[0].cloneNode();
-
-    // create var inspector
-    this.varInspectorContainer = document.createElement('div');
-    this.varInspectorContainer.id = 'gm_varinspector';
-
-    const varInspTopBar = document.createElement('div');
-    varInspTopBar.className = 'windowTopBar windowTopBar_classic';
-    varInspTopBar.innerText = 'Variable Inspector';
-    this.varInspectorContainer.appendChild(varInspTopBar);
-
-    this.varInspector = document.createElement('div');
-    this.varInspector.id = 'gmvi_content';
-    this.varInspectorContainer.appendChild(this.varInspector);
-
-    document.getElementById('pagecontainer').appendChild(this.varInspectorContainer);
-
-    this.makeDraggable(this.varInspectorContainer, varInspTopBar);
+        .getElementsByClassName('gm_listitem')[0].cloneNode(true);
 
     // init blockly and monaco workspaces
     this.initBlockly();
@@ -258,15 +243,16 @@ export default {
         gm.editor.modeBackups.pop();
       }
 
-      const xml = document.createElement('xml');
+      const content = gm.editor.monacoWs.getValue();
 
-      const contentElement = Blockly.utils.xml.createElement('content');
-      contentElement.innerHTML = gm.editor.monacoWs.getValue();
-      xml.appendChild(contentElement);
-      xml.appendChild(gm.editor.createModeSettingsXML());
+      const backup = {};
+      backup.content = content;
+      backup.isEmpty = content == '';
+      backup.settings = gm.editor.modeSettings;
+      backup.assets = gm.editor.modeAssets;
 
       gm.editor.modeBackups.unshift({
-        xml: xml.innerHTML,
+        mode: gm.encoding.compressMode(backup).buffer,
         timeStamp: Date.now(),
       });
 
@@ -416,10 +402,14 @@ export default {
 
       const xml = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true);
 
-      xml.appendChild(gm.editor.createModeSettingsXML());
+      const backup = {};
+      backup.content = xml.innerHTML;
+      backup.isEmpty = xml.getElementsByTagName('block').length == 0;
+      backup.settings = gm.editor.modeSettings;
+      backup.assets = gm.editor.modeAssets;
 
       gm.editor.modeBackups.unshift({
-        xml: xml.innerHTML,
+        mode: gm.encoding.compressMode(backup).buffer,
         timeStamp: Date.now(),
       });
 
@@ -435,56 +425,9 @@ export default {
 
     window.blockly = Blockly;
   },
-  makeDraggable: function(elmnt, dragBar) {
-    // code from https://www.w3schools.com/howto/howto_js_draggable.asp
-    // with some modifications
-
-    let pos1 = 0; let pos2 = 0; let pos3 = 0; let pos4 = 0;
-    if (dragBar) {
-      // if present, the header is where you move the DIV from:
-      dragBar.onmousedown = dragMouseDown;
-    } else {
-      // otherwise, move the DIV from anywhere inside the DIV:
-      elmnt.onmousedown = dragMouseDown;
-    }
-
-    // eslint-disable-next-line require-jsdoc
-    function dragMouseDown(e) {
-      e = e || window.event;
-      e.preventDefault();
-      // get the mouse cursor position at startup:
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      document.onmouseup = closeDragElement;
-      // call a function whenever the cursor moves:
-      document.onmousemove = elementDrag;
-    }
-
-    // eslint-disable-next-line require-jsdoc
-    function elementDrag(e) {
-      e = e || window.event;
-      e.preventDefault();
-      // calculate the new cursor position:
-      pos1 = pos3 - e.clientX;
-      pos2 = pos4 - e.clientY;
-      pos3 = e.clientX;
-      pos4 = e.clientY;
-      // set the element's new position:
-      elmnt.style.top = (elmnt.offsetTop - pos2) + 'px';
-      elmnt.style.left = (elmnt.offsetLeft - pos1) + 'px';
-    }
-
-    // eslint-disable-next-line require-jsdoc
-    function closeDragElement() {
-      // stop moving when mouse button is released:
-      document.onmouseup = null;
-      document.onmousemove = null;
-    }
-  },
   modeSettingsDefaults: [
     {name: 'modeName', type: 'string', default: 'Custom'},
     {name: 'modeDescription', type: 'string', default: 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).'},
-    {name: 'showVarInspector', type: 'bool', default: false},
     {name: 'baseMode', type: 'string', default: 'any'},
     {name: 'isTextMode', type: 'bool', default: false},
   ],
@@ -510,17 +453,6 @@ export default {
       }
     }
   },
-  createModeSettingsXML: function() {
-    const element = Blockly.utils.xml.createElement('gmsettings');
-
-    for (let i = 0; i < this.modeSettingsDefaults.length; i++) {
-      const setting = this.modeSettingsDefaults[i];
-
-      element.setAttribute(setting.name, this.modeSettings[setting.name] ?? setting.default);
-    }
-
-    return element;
-  },
   disableLobbyChatbox: false,
   blockDefs: null,
   blocklyWs: null,
@@ -531,116 +463,6 @@ export default {
   canBackup: true,
   changingToTextEditor: false,
   isInTextEditor: false,
-  xmlDict: ['block', 'mutation', 'field', 'variable', 'variables', 'bonkmap', 'statement', 'shadow', 'value', 'name', 'type', 'next', 'playerid_input', 'show_dropdown'],
-  compressXml: function(xml) {
-    if (!xml) return xml;
-
-    for (let i = 0; i < this.xmlDict.length; i++) {
-      xml = xml.replace(new RegExp(`<(\/|)${this.xmlDict[i]}([ >])`, 'g'), `<$1${i}$2`);
-      xml = xml.replace(new RegExp(` ${this.xmlDict[i]}="`, 'g'), ` ${i}="`);
-    }
-    return xml;
-  },
-  decompressXml: function(xml) {
-    if (!xml) return xml;
-
-    // remove html entities
-    const txt = document.createElement('textarea');
-    txt.innerHTML = xml;
-    xml = txt.value;
-
-    // replace dict references
-    for (let i = 0; i < this.xmlDict.length; i++) {
-      xml = xml.replace(new RegExp(`<(\/|)${i}([ >])`, 'g'), `<$1${this.xmlDict[i]}$2`);
-      xml = xml.replace(new RegExp(` ${i}="`, 'g'), ` ${this.xmlDict[i]}="`);
-    }
-    return xml;
-  },
-  createVarInspTab: function(id, name) {
-    if (!this.varInspector) return;
-
-    const tabHeaderElement = document.createElement('div');
-    tabHeaderElement.id = `gmvi_tab_header_${id}`;
-    tabHeaderElement.className = 'mapeditor_table_heading_div';
-
-    const tabNameElement = document.createElement('div');
-    tabNameElement.id = `gmvi_tab_name_${id}`;
-    tabNameElement.className = 'mapeditor_rightbox_heading';
-    tabNameElement.innerText = name;
-    tabHeaderElement.appendChild(tabNameElement);
-
-    const tabSignElement = document.createElement('div');
-    tabSignElement.id = `gmvi_tab_sign_${id}`;
-    tabSignElement.className = 'mapeditor_rightbox_heading_pm';
-    tabSignElement.innerText = '+';
-    tabHeaderElement.appendChild(tabSignElement);
-
-    const tabContentElement = document.createElement('div');
-    tabContentElement.id = `gmvi_tab_content_${id}`;
-    tabContentElement.className = 'gmvi_tab_content';
-    tabContentElement.style.display = 'none';
-
-    tabHeaderElement.addEventListener('click', function() {
-      if (tabContentElement.style.display == 'none') {
-        tabContentElement.style.display = 'flex';
-        tabSignElement.textContent = '-';
-      } else {
-        tabContentElement.style.display = 'none';
-        tabSignElement.textContent = '+';
-      }
-    });
-
-    this.varInspector.appendChild(tabHeaderElement);
-    this.varInspector.appendChild(tabContentElement);
-  },
-  updateVarInspector: function(gameState) {
-    const vars = gameState.gmExtra?.variables;
-
-    // create global tab and players' tabs if they don't exist already
-    if (!document.getElementById('gmvi_tab_header_global')) {
-      this.createVarInspTab('global', 'Global');
-    }
-
-    for (let i = 0; i < gameState.discs.length; i++) {
-      if (!gameState.discs[i]) continue;
-      if (!gm.graphics.rendererClass.playerArray[i]) continue;
-      if (document.getElementById(`gmvi_tab_header_${i}`)) continue;
-
-      this.createVarInspTab(i, `${gm.graphics.rendererClass.playerArray[i].userName || 'Unknown'} (id ${i})`);
-    }
-
-    if (!vars) return;
-
-    // eslint-disable-next-line guard-for-in
-    for (const key in vars) {
-      if (!document.getElementById(`gmvi_tab_header_${key}`)) continue;
-
-      // eslint-disable-next-line guard-for-in
-      for (const varName in vars[key]) {
-        let varElement = document.getElementById(`gmvi_vars_${key}_${varName}`);
-
-        if (!varElement) {
-          const varContainer = document.createElement('div');
-          varContainer.className = 'gmvi_var';
-
-          const varNameElement = document.createElement('div');
-          varNameElement.innerText = varName;
-          varContainer.appendChild(varNameElement);
-
-          varElement = document.createElement('div');
-          varElement.id = `gmvi_vars_${key}_${varName}`;
-          varContainer.appendChild(varElement);
-
-          document.getElementById(`gmvi_tab_content_${key}`).appendChild(varContainer);
-        }
-
-        const varJSON = JSON.stringify(vars[key][varName]);
-
-        // replace all shape elements with {Shape} to not clutter the var inspector
-        varElement.innerText = varJSON.includes('{') ? varJSON.replace(/{([^{]+{[^}]+}){2}}/g, '{Shape}') : varJSON;
-      }
-    }
-  },
   showGMEWindow: function() {
     document.getElementById('gmeditor').style.transform = 'scale(1)';
     document.getElementById('newbonklobby').style.transform = 'scale(0)';
@@ -745,14 +567,12 @@ export default {
       const file = e.target.files[0];
 
       const reader = new FileReader();
-      reader.readAsText(file, 'UTF-32');
+      reader.readAsArrayBuffer(file);
 
       reader.onload = (readerEvent) => {
-        const content = readerEvent.target.result;
-        window.shit = content;
-        const mode = JSON.parse(LZString.decompressFromUTF16(content));
-
-        gm.editor.modeSettings = mode.settings;
+        const content = new dcodeIO.ByteBuffer();
+        content.append(readerEvent.target.result);
+        const mode = gm.encoding.decompressMode(content);
 
         document.getElementById('gmexport_name').value = file.name.slice(0, -4);
 
@@ -760,6 +580,9 @@ export default {
           gm.editor.modeToImport = mode;
           document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'visible';
         } else {
+          gm.editor.modeAssets = mode.assets;
+          gm.editor.modeSettings = mode.settings;
+
           gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
           if (gm.editor.modeSettings.isTextMode) {
             document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
@@ -800,6 +623,9 @@ export default {
     gm.lobby.bonkLobby.updateGameSettings(gameSettings);
     gm.lobby.networkEngine.sendMapAdd(gameSettings.map);
 
+    gm.editor.modeAssets = mode.assets;
+    gm.editor.modeSettings = mode.settings;
+
     gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
     if (gm.editor.modeSettings.isTextMode) {
       document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
@@ -829,6 +655,7 @@ export default {
 
     const exported = {};
 
+    exported.assets = gm.editor.modeAssets;
     exported.settings = gm.editor.modeSettings;
 
     if (exported.settings.isTextMode) {
@@ -841,7 +668,7 @@ export default {
       exported.map = MapEncoder.encodeToDatabase(gm.lobby.mpSession.getGameSettings().map);
     }
 
-    const blob = new Blob([LZString.compressToUTF16(JSON.stringify(exported))], {type: 'text/plain;charset=utf-16'});
+    const blob = new Blob([gm.encoding.compressMode(exported).buffer], {type: 'application/octet-stream'});
     saveAs(blob, `${filename}.gmm`);
     document.getElementById('gm_exportwindowcontainer').style.visibility = 'hidden';
   },
@@ -866,22 +693,27 @@ export default {
   GMEBackupsLoad: function() {
     document.getElementById('gm_backupswindowcontainer').style.visibility = 'hidden';
 
-    const backup = gm.editor.modeBackups[document.getElementById('gmbackups_backupselect').value].xml;
-    if (!backup) return;
+    const compressedBackup = gm.editor.modeBackups[document.getElementById('gmbackups_backupselect').value].mode;
+    if (!compressedBackup) return;
 
-    const xml = document.createElement('xml');
-    xml.innerHTML = backup;
+    let backup = new dcodeIO.ByteBuffer();
+    backup.append(compressedBackup);
+    backup = gm.encoding.decompressMode(backup);
 
-    const gmSettings = xml?.getElementsByTagName('gmsettings')[0];
-
-    if (gmSettings) gm.editor.updateModeSettings(gmSettings);
+    gm.editor.modeAssets = backup.assets;
+    gm.editor.modeSettings = backup.settings;
 
     gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
     if (gm.editor.modeSettings.isTextMode) {
-      const modeContent = xml.getElementsByTagName('content')[0];
-      gm.editor.monacoWs.setValue(modeContent.innerText);
+      document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
+      gm.editor.monacoWs.setValue(backup.content);
     } else {
+      document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
       gm.editor.blocklyWs.clear();
+
+      const xml = document.createElement('xml');
+      xml.innerHTML = backup.content;
+
       Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
     }
   },
@@ -892,19 +724,34 @@ export default {
     document.getElementById('gmsettings_modedescription').value = gm.editor.modeSettings.modeDescription || gm.editor.modeSettingsDefaults[1].default;
     document.getElementById('gmsettings_basemode').value = gm.editor.modeSettings.baseMode || gm.editor.modeSettingsDefaults[3].default;
 
-    gm.editor.unappliedModeAssets = JSON.parse(JSON.stringify(gm.editor.modeAssets));
+    gm.editor.unsavedModeAssets = JSON.parse(JSON.stringify(gm.editor.modeAssets));
 
     const assetList = document.getElementById('gmsettings_assetlist');
 
     assetList.innerHTML = '';
 
-    for (let i = 0; i < gm.editor.modeAssets.images.length; i++) {
-      const imageDef = gm.editor.modeAssets.images[i];
-      const imageItem = gm.editor.settingsImageItem.cloneNode();
+    for (let i = 0; i < gm.editor.unsavedModeAssets.images.length; i++) {
+      if (!gm.editor.unsavedModeAssets.images[i]) continue;
 
-      imageItem.getElementsByClassName('gm_listitemimage')[0].src = 'data:image/png;base64,' + imageDef.data;
+      const imageOrder = i;
+      const imageDef = gm.editor.unsavedModeAssets.images[i];
+      const imageItem = gm.editor.settingsImageItem.cloneNode(true);
+
+      imageItem.getElementsByClassName('gm_listitemimage')[0].src = 'data:image/' + imageDef.extension + ';base64,' + imageDef.data;
       imageItem.getElementsByClassName('gm_listitemname')[0].value = imageDef.id;
       imageItem.getElementsByClassName('gm_listitemdetail')[0].innerText = imageDef.detail;
+      imageItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
+        gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_listitemname')[0].value;
+      });
+      imageItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
+        gm.editor.unsavedModeAssets.images[imageOrder] = null;
+        document.getElementById('gmsettings_assetlist').removeChild(imageItem);
+      });
+      imageItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
+        saveAs('data:image/' + imageDef.extension + ';base64,' + imageDef.data, imageItem.getElementsByClassName('gm_listitemname')[0].value + '.' + imageDef.extension);
+      });
+
+      document.getElementById('gmsettings_assetlist').appendChild(imageItem);
     }
   },
   GMESettingsCancel: function() {
@@ -915,9 +762,82 @@ export default {
     gm.editor.modeSettings.modeDescription = document.getElementById('gmsettings_modedescription').value.substring(0, 500);
     gm.editor.modeSettings.baseMode = document.getElementById('gmsettings_basemode').value;
 
-    gm.editor.modeAssets = gm.editor.unappliedModeAssets;
+    gm.editor.modeAssets = gm.editor.unsavedModeAssets;
 
     document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
+  },
+  GMESettingsImportAsset: function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+
+      reader.onload = (readerEvent) => {
+        const extension = file.type.slice(file.type.lastIndexOf('/') + 1);
+        const name = file.name.slice(0, file.name.lastIndexOf('.'));
+        const data = readerEvent.target.result.replace(/[^,]+,/, '');
+
+        // get human readable file size
+        let size = file.size;
+        let sizeUnit = 'B';
+
+        if (size >= 1024) {
+          size /= 1024;
+          sizeUnit = 'KiB';
+        }
+        if (size >= 1024) {
+          size /= 1024;
+          sizeUnit = 'MiB';
+        }
+
+        size = Math.round(size * 10) / 10 + sizeUnit;
+
+        // get image resolution
+        const image = new Image();
+
+        image.src = readerEvent.target.result;
+        image.onload = function() {
+          const resolution = image.width + 'x' + image.height;
+          const detail = size + ', ' + resolution;
+
+          // create new image asset
+          const imageAsset = {};
+          imageAsset.id = name;
+          imageAsset.data = data;
+          imageAsset.dataHash = md5(data);
+          imageAsset.extension = extension;
+          imageAsset.detail = detail;
+
+          const imageOrder = gm.editor.unsavedModeAssets.images.length;
+          gm.editor.unsavedModeAssets.images.push(imageAsset);
+
+          // create new image item
+          const imageItem = gm.editor.settingsImageItem.cloneNode(true);
+
+          imageItem.getElementsByClassName('gm_listitemimage')[0].src = 'data:image/' + extension + ';base64,' + data;
+          imageItem.getElementsByClassName('gm_listitemname')[0].value = name;
+          imageItem.getElementsByClassName('gm_listitemdetail')[0].innerText = detail;
+          imageItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
+            gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_listitemname')[0].value;
+          });
+          imageItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
+            gm.editor.unsavedModeAssets.images[imageOrder] = null;
+            document.getElementById('gmsettings_assetlist').removeChild(imageItem);
+          });
+          imageItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
+            saveAs('data:image/' + extension + ';base64,' + data, imageItem.getElementsByClassName('gm_listitemname')[0].value + '.' + extension);
+          });
+
+          document.getElementById('gmsettings_assetlist').appendChild(imageItem);
+        };
+      };
+    };
+
+    input.click();
   },
   GMEChangeEditor: function(toTextEditor) {
     // this function is the chazziest thing ever
@@ -951,6 +871,7 @@ export default {
 
     const saved = {};
 
+    // generate events in host and save content and isEmpty into the mode
     if (gm.editor.modeSettings.isTextMode) {
       try {
         gm.state.generateEvents(gm.editor.monacoWs.getValue());
@@ -978,12 +899,13 @@ export default {
     }
 
     saved.settings = gm.editor.modeSettings;
+    saved.assets = gm.editor.modeAssets;
+
+    gm.graphics.preloadImages(saved.assets.images);
 
     gm.editor.appliedMode = saved;
 
-    const compressedMode = LZString.compressToUTF16(JSON.stringify(saved));
-    gm.lobby.socket.emit(23, {'m': `!!!GMMODE!!!${compressedMode}`});
-    // gm.lobby.mpSession.getGameSettings().GMMode = compressedMode;
+    gm.lobby.sendMode(saved);
 
     if (saved.settings.baseMode && saved.settings.baseMode !== 'any') {
       gm.lobby.networkEngine.sendGAMO('b', saved.settings.baseMode);

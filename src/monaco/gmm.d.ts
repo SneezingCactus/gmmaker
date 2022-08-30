@@ -564,7 +564,7 @@ declare interface drawingShapeImage {
   /**
    * ID of the image.
    */
-  imageId: string
+  id: string
   /**
    * Angle of the image, in degrees.
    */
@@ -657,7 +657,7 @@ declare interface drawing {
   /**
    * An array containing all of the shapes that make up the drawing.
    */
-  shapes: drawingShape
+  shapes: drawingShape[]
 }
 
 declare interface camera {

@@ -8,16 +8,6 @@ export default {
     this.initBonkLobby();
     this.initNetworkEngine();
     this.initJoinHandlers();
-
-    // filters out modes coming from the host disguised as maps
-    MapEncoder.decodeFromDatabase_OLD = MapEncoder.decodeFromDatabase;
-    MapEncoder.decodeFromDatabase = function(map) {
-      if (map.startsWith('!!!GMMODE!!!')) {
-        return gm.lobby.mpSession.getGameSettings().map;
-      } else {
-        return MapEncoder.decodeFromDatabase_OLD(...arguments);
-      }
-    };
   },
   initSocketio: function() {
     io = function() {
@@ -31,18 +21,26 @@ export default {
         gm.editor.hideGMEWindow();
       });
 
-      // process modes coming from the host disguised as maps
-      socket.on(29, function(data) {
-        if (data.startsWith('!!!GMMODE!!!')) {
-          gm.lobby.processNewMode(data.replace('!!!GMMODE!!!', ''));
-          gm.lobby.bonkLobby.showStatusMessage('* [GMMaker] Host has changed the mode', '#cc3333');
-        }
-      });
+      // process new mode coming from host
+      socket.on(7, function(id, packet) {
+        if (id !== gm.lobby.networkEngine.hostID) return;
+        if (packet.initial && document.getElementById('sm_connectingContainer').style.visibility == 'hidden') return;
+        if (!packet.gmMode) return;
 
-      // process mode upon joining a room (while in lobby)
-      socket.on(21, function(settings) {
-        gm.lobby.processNewMode(settings.GMMode);
-        delete settings.GMMode;
+        if (!gm.lobby.newModeBuffer) {
+          gm.lobby.newModeBuffer = new dcodeIO.ByteBuffer();
+        }
+
+        gm.lobby.newModeBuffer.append(packet.data);
+
+        if (packet.finish) {
+          gm.editor.compressedMode = gm.lobby.newModeBuffer;
+          const mode = gm.encoding.decompressMode(gm.lobby.newModeBuffer);
+          gm.lobby.processNewMode(mode);
+          gm.lobby.newModeBuffer = null;
+
+          if (!packet.initial) gm.lobby.bonkLobby.showStatusMessage('* [GMMaker] Host has changed the mode', '#cc3333');
+        }
       });
       return socket;
     };
@@ -142,12 +140,6 @@ export default {
           return result;
         };
 
-        // does nothing (for now?)
-        this.show_OLD = this.show;
-        this.show = function() {
-          return this.show_OLD();
-        };
-
         return result;
       };
     })();
@@ -182,33 +174,21 @@ export default {
         return networkEngine.joinRoom_OLD(...arguments);
       };
 
-      // pass mode through settings to player who just joined (when in lobby)
+      // pass mode to player who just joined (when in lobby)
       networkEngine.informInLobby_OLD = networkEngine.informInLobby;
       networkEngine.informInLobby = function(a, b) {
-        const gameSettings = b;
+        gm.lobby.sendMode(null, true);
 
-        gameSettings.GMMode = LZString.compressToUTF16(JSON.stringify(gm.editor.appliedMode));
-
-        return networkEngine.informInLobby_OLD(a, gameSettings);
+        return networkEngine.informInLobby_OLD(a, b);
       };
 
-      // pass mode through settings to player who just joined (when in game)
+      // pass mode to player who just joined (when in game)
       networkEngine.informInGame_OLD = networkEngine.informInGame;
 
       networkEngine.informInGame = function(a, b) {
-        const gameSettings = b.gs;
-
-        gameSettings.GMMode = LZString.compressToUTF16(JSON.stringify(gm.editor.appliedMode));
-
-        b.gs = gameSettings;
+        gm.lobby.sendMode(null, true);
 
         return networkEngine.informInGame_OLD(a, b);
-      };
-
-      // does nothing (for now?)
-      networkEngine.sendReturnToLobby_OLD = networkEngine.sendReturnToLobby;
-      networkEngine.sendReturnToLobby = function() {
-        return networkEngine.sendReturnToLobby_OLD();
       };
 
       return gm.lobby.data = data, gm.lobby.mpSession = mpSession, gm.lobby.networkEngine = networkEngine, networkEngine;
@@ -252,14 +232,38 @@ export default {
   playerArray: null,
   mpSession: null,
   networkEngine: null,
+  newModeBuffer: null,
   gameCrashed: false,
   haltCausedByLoop: false,
-  processNewMode: function(compressedMode) {
-    const mode = JSON.parse(LZString.decompressFromUTF16(compressedMode));
+  sendMode: function(mode, initial = false) {
+    let compressedMode;
 
+    if (mode) {
+      compressedMode = gm.encoding.compressMode(mode);
+      gm.editor.compressedMode = compressedMode;
+    } else {
+      compressedMode = gm.editor.compressedMode;
+    }
+
+    if (!compressedMode) return;
+
+    const modeLength = compressedMode.offset + 1;
+
+    for (let i = 0; i < modeLength; i += 256000) {
+      gm.lobby.socket.emit(4, {
+        gmMode: true,
+        initial: initial,
+        finish: i + 256000 > modeLength,
+        data: compressedMode.copy(i, Math.min(i + 256000, compressedMode.buffer.byteLength)).buffer,
+      });
+    }
+  },
+  processNewMode: function(mode) {
     if (JSON.stringify(gm.editor.appliedMode) !== JSON.stringify(mode)) {
       gm.editor.resetAll();
       gm.editor.appliedMode = mode;
+      gm.graphics.preloadImages(mode.assets.images);
+      gm.lobby.bonkLobby.updateGameSettings();
 
       if (mode.settings.isTextMode) {
         try {

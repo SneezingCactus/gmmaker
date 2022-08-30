@@ -143,7 +143,7 @@ export default function() {
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a box shape for a drawing.',
             insertText: `{
-  type: 'bx', 
+  type: 'bx',
   colour: 0xff0000,
   alpha: 1,
   xPos: 0,
@@ -159,7 +159,7 @@ export default function() {
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a circle shape for a drawing.',
             insertText: `{
-  type: 'ci', 
+  type: 'ci',
   colour: 0xff0000,
   alpha: 1,
   xPos: 0,
@@ -175,7 +175,7 @@ export default function() {
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a polygon shape for a drawing. The vertices make up a simple isosceles triangle, as an example.',
             insertText: `{
-  type: 'po', 
+  type: 'po',
   colour: 0xff0000,
   alpha: 1,
   xPos: 0,
@@ -196,7 +196,7 @@ export default function() {
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a line shape for a drawing.',
             insertText: `{
-  type: 'li', 
+  type: 'li',
   colour: 0xff0000,
   alpha: 1,
   xPos: 0,
@@ -212,7 +212,7 @@ export default function() {
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a text shape for a drawing.',
             insertText: `{
-  type: 'tx', 
+  type: 'tx',
   colour: 0xff0000,
   alpha: 1,
   xPos: 0,
@@ -224,6 +224,23 @@ export default function() {
   bold: false,
   italic: false,
   shadow: true,
+}`,
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+          },
+          {
+            label: 'sh!graphicsDefineImageShape',
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            documentation: 'Shortcut template for defining an image shape for a drawing.',
+            insertText: `{
+  type: 'im',
+  id: 'image',
+  colour: 0xffffff,
+  alpha: 1,
+  xPos: 0,
+  yPos: 0,
+  angle: 0,
+  width: 5,
+  height: 5,
 }`,
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },

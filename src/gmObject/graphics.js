@@ -1,7 +1,7 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
-// import * as PIXI from 'pixi.js-legacy';
+import * as PIXI from 'pixi.js-legacy';
 
 export default {
   init: function() {
@@ -234,15 +234,35 @@ export default {
       };
     })();
   },
+  preloadImages: function(imageList) {
+    // new texture creation and image ids collection
+    const imageIds = [];
+
+    for (let i = 0; i < imageList.length; i++) {
+      const image = imageList[i];
+      if (!image) continue;
+
+      if (this.imageTextures[image.id]?.hash !== image.dataHash) {
+        this.imageTextures[image.id]?.destroy();
+        this.imageTextures[image.id] = new PIXI.BaseTexture.from('data:image/' + image.extension + ';base64,' + image.data);
+        this.imageTextures[image.id].hash = image.dataHash;
+      }
+
+      imageIds.push(image.id);
+    }
+
+    // unused textures deletion
+    for (const textureName in this.imageTextures) {
+      if (!imageIds.includes(textureName)) {
+        this.imageTextures[textureName]?.destroy();
+        delete this.imageTextures[textureName];
+      }
+    }
+  },
   rendererClass: null,
   camera: null,
   drawings: [],
-  screenDrawings: null,
-  worldDrawings: null,
-  discDrawings: null,
-  behindDiscDrawings: null,
-  bodyDrawings: null,
-  behindBodyDrawings: null,
+  imageTextures: {},
 };
 
 /**
@@ -307,7 +327,7 @@ class Drawing {
     for (let i = 0; i < forLength; i++) {
       // deletion of shapes that suddenly change type
       // these are later recreated in the new shape creation phase
-      if (drawDefB.shapes[i].type != drawDefA.shapes[i].type && this.shapes[i]) {
+      if (drawDefB.shapes[i]?.type != drawDefA.shapes[i]?.type && this.shapes[i]) {
         this.shapes[i].destroy();
         this.shapes[i] = null;
       }
@@ -335,6 +355,9 @@ class Drawing {
             break;
           case 'tx':
             this.shapes[i] = new TextShape();
+            break;
+          case 'im':
+            this.shapes[i] = new ImageShape();
             break;
         }
 
@@ -629,6 +652,71 @@ class TextShape {
     this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
     this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
     this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
+  }
+  destroy() {
+    this.displayObject.destroy();
+  }
+}
+
+/**
+ * Creates and manages a Graphics object for an image shape.
+ */
+class ImageShape {
+  constructor() {
+    this.displayObject = new PIXI.Sprite();// new PIXI.Texture(gm.graphics.imageTextures[]));
+    this.displayObject.anchor.set(0.5, 0.5);
+    this.transing = false;
+  }
+  update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
+    const stringifiedRegionA = JSON.stringify(shapeDefA.region);
+    const stringifiedRegionB = JSON.stringify(shapeDefB.region);
+
+    // property check
+    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
+    shapeDefA.id == shapeDefB.id &&
+    shapeDefA.alpha == shapeDefB.alpha &&
+    shapeDefA.xPos == shapeDefB.xPos &&
+    shapeDefA.yPos == shapeDefB.yPos &&
+    shapeDefA.angle == shapeDefB.angle &&
+    shapeDefA.width == shapeDefB.width &&
+    shapeDefA.height == shapeDefB.height &&
+    stringifiedRegionA == stringifiedRegionB;
+
+    if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.transing = !propsNoChange || forceUpdate;
+
+    if (shapeDefA.id != shapeDefB.id || this.displayObject.texture.baseTexture.cacheId === null) {
+      this.displayObject.texture = new PIXI.Texture(gm.graphics.imageTextures[shapeDefB.id]);
+    }
+
+    if (stringifiedRegionA != stringifiedRegionB || forceUpdate) {
+      const frame = this.displayObject.texture.frame;
+
+      if (shapeDefB.region) {
+        frame.x = shapeDefB.region.xPos;
+        frame.y = shapeDefB.region.yPos;
+        frame.width = shapeDefB.region.width;
+        frame.height = shapeDefB.region.height;
+      } else {
+        frame.x = 0;
+        frame.y = 0;
+        frame.width = gm.graphics.imageTextures[shapeDefB.id].width;
+        frame.height = gm.graphics.imageTextures[shapeDefB.id].height;
+      }
+
+      this.displayObject.texture.updateUvs();
+    }
+
+    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
+    this.displayObject.tint = lerpNumber(shapeDefA.colour, shapeDefB.colour, weight);
+    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
+    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
+    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
+    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
+    this.displayObject.scale.x = lerpNumber(shapeDefA.width, shapeDefB.width, weight) / this.displayObject.texture.frame.width * scaleRatio;
+    this.displayObject.scale.y = lerpNumber(shapeDefA.height, shapeDefB.height, weight) / this.displayObject.texture.frame.height * scaleRatio;
   }
   destroy() {
     this.displayObject.destroy();
