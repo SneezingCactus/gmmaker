@@ -89,6 +89,24 @@ export default {
 
       let state = step_OLD(...arguments);
 
+      /* #region ANGLE UNIT NORMALIZING */
+      for (let i = 0; i !== state.discs.length; i++) {
+        if (!state.discs[i]) continue;
+        state.discs[i].a *= 180 / Math.PI;
+        state.discs[i].av *= 180 / Math.PI;
+      }
+      for (let i = 0; i !== state.projectiles.length; i++) {
+        if (!state.projectiles[i]) continue;
+        state.projectiles[i].a *= 180 / Math.PI;
+        state.projectiles[i].av *= 180 / Math.PI;
+      }
+      for (let i = 0; i !== state.physics.bodies.length; i++) {
+        if (!state.physics.bodies[i]) continue;
+        state.physics.bodies[i].a *= 180 / Math.PI;
+        state.physics.bodies[i].av *= 180 / Math.PI;
+      }
+      /* #endregion ANGLE UNIT NORMALIZING */
+
       /* #region DISC NORMALIZING */
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
@@ -160,6 +178,82 @@ export default {
       /* #region EVENT FIRING */
 
       // fire collision events
+      for (let i = 0; i < gm.state.collisionsThisStep.length; i++) {
+        const collision = gm.state.collisionsThisStep[i];
+        const fixtureA = collision.fixtureAData;
+        const fixtureB = collision.fixtureBData;
+        const bodyA = collision.fixtureABodyData;
+        const bodyB = collision.fixtureBBodyData;
+        const normal = collision.normal;
+
+        // body data used if object A or object B is a body
+        const bodyAData = {
+          id: bodyA.arrayID,
+          fixtureId: fixtureA.arrayID,
+          normal: [
+            -normal.x,
+            -normal.y,
+          ],
+        };
+        const bodyBData = {
+          id: bodyB.arrayID,
+          fixtureId: fixtureB.arrayID,
+          normal: [
+            normal.x,
+            normal.y,
+          ],
+        };
+
+        // epic way of avoiding nesting
+        switch (bodyA.type + bodyB.type) {
+          case 'discdisc': {
+            gm.state.fireEvent('discCollision', {collideWith: 'disc'}, [bodyA.arrayID, bodyB.arrayID]);
+            gm.state.fireEvent('discCollision', {collideWith: 'disc'}, [bodyB.arrayID, bodyA.arrayID]);
+            break;
+          }
+          case 'discarrow': {
+            gm.state.fireEvent('discCollision', {collideWith: 'arrow'}, [bodyA.arrayID, bodyB.arrayID]);
+            gm.state.fireEvent('arrowCollision', {collideWith: 'disc'}, [bodyB.arrayID, bodyA.arrayID]);
+            break;
+          }
+          case 'discphys': {
+            gm.state.fireEvent('discCollision', {collideWith: 'body'}, [bodyA.arrayID, bodyBData]);
+            gm.state.fireEvent('bodyCollision', {collideWith: 'disc'}, [bodyBData, bodyA.arrayID]);
+            break;
+          }
+          case 'arrowdisc': {
+            gm.state.fireEvent('arrowCollision', {collideWith: 'disc'}, [bodyA.arrayID, bodyB.arrayID]);
+            gm.state.fireEvent('discCollision', {collideWith: 'arrow'}, [bodyB.arrayID, bodyA.arrayID]);
+            break;
+          }
+          case 'arrowarrow': {
+            gm.state.fireEvent('arrowCollision', {collideWith: 'arrow'}, [bodyA.arrayID, bodyB.arrayID]);
+            gm.state.fireEvent('arrowCollision', {collideWith: 'arrow'}, [bodyB.arrayID, bodyA.arrayID]);
+            break;
+          }
+          case 'arrowphys': {
+            gm.state.fireEvent('arrowCollision', {collideWith: 'body'}, [bodyA.arrayID, bodyBData]);
+            gm.state.fireEvent('bodyCollision', {collideWith: 'arrow'}, [bodyBData, bodyA.arrayID]);
+            break;
+          }
+          case 'physdisc': {
+            gm.state.fireEvent('bodyCollision', {collideWith: 'disc'}, [bodyAData, bodyB.arrayID]);
+            gm.state.fireEvent('discCollision', {collideWith: 'body'}, [bodyB.arrayID, bodyAData]);
+            break;
+          }
+          case 'physarrow': {
+            gm.state.fireEvent('bodyCollision', {collideWith: 'arrow'}, [bodyAData, bodyB.arrayID]);
+            gm.state.fireEvent('arrowCollision', {collideWith: 'body'}, [bodyB.arrayID, bodyAData]);
+            break;
+          }
+          case 'physphys': {
+            gm.state.fireEvent('bodyCollision', {collideWith: 'body'}, [bodyAData, bodyBData]);
+            gm.state.fireEvent('bodyCollision', {collideWith: 'body'}, [bodyBData, bodyAData]);
+            break;
+          }
+        }
+      }
+      gm.state.collisionsThisStep = [];
 
       // fire roundStart events
       const playerIds = gm.state.staticInfo.lobby.allPlayerIds;
@@ -181,7 +275,27 @@ export default {
       state = gm.state.safeEval.globalThis.game.state;
       state.gmInitial = oldState.gmInitial;
 
+      /* #region ANGLE UNIT RESTORING */
+      for (let i = 0; i !== state.discs.length; i++) {
+        if (!state.discs[i]) continue;
+        state.discs[i].a *= Math.PI / 180;
+        state.discs[i].av *= Math.PI / 180;
+      }
+      for (let i = 0; i !== state.projectiles.length; i++) {
+        if (!state.projectiles[i]) continue;
+        state.projectiles[i].a *= Math.PI / 180;
+        state.projectiles[i].av *= Math.PI / 180;
+      }
+      for (let i = 0; i !== state.physics.bodies.length; i++) {
+        if (!state.physics.bodies[i]) continue;
+        state.physics.bodies[i].a *= Math.PI / 180;
+        state.physics.bodies[i].av *= Math.PI / 180;
+      }
+      /* #endregion ANGLE UNIT RESTORING */
+
       gm.state.gameState = state;
+
+      if (window.gmReplaceAccessors.endStep) window.gmReplaceAccessors.endStep();
 
       return state;
     };

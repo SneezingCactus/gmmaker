@@ -217,8 +217,9 @@ export default {
     BonkGraphics.prototype.destroy = (function() {
       BonkGraphics.prototype.destroy_OLD = BonkGraphics.prototype.destroy;
       return function() {
-        // gm.graphics.screenDrawings?.destroy();
-        // gm.graphics.worldDrawings?.destroy();
+        document.getElementById('gm_logbox').innerHTML = '';
+        document.getElementById('gm_logbox').style.visibility = 'hidden';
+
         for (let i = 0; i < gm.graphics.drawings.length; i++) {
           gm.graphics.drawings[i]?.destroy();
         }
@@ -258,6 +259,22 @@ export default {
         delete this.imageTextures[textureName];
       }
     }
+  },
+  debugLog: function(message) {
+    const messageDiv = document.createElement('div');
+
+    if (typeof message === 'string') {
+      messageDiv.innerText = message;
+    } else {
+      messageDiv.innerText = JSON.stringify(message);
+    }
+
+    const logBox = document.getElementById('gm_logbox');
+
+    logBox.appendChild(messageDiv);
+    logBox.style.visibility = 'visible';
+    if (logBox.childElementCount > 30) logBox.removeChild(logBox.children[0]);
+    logBox.scrollTop = logBox.scrollHeight;
   },
   rendererClass: null,
   camera: null,

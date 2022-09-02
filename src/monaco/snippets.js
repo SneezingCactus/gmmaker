@@ -19,7 +19,7 @@ export default function() {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
-            label: 'sh!eventStepAllPlayers',
+            label: 'sh!eventStepAllDiscs',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "step" that gets called for every player that was in the room when the game started.',
             insertText: 'game.events.addEventListener(\'step\', {runOnce: false}, function(id) {\n  //code goes here\n})',
@@ -49,70 +49,70 @@ export default function() {
 
           // player collision events
           {
-            label: 'sh!eventPlayerCollidePlayer',
+            label: 'sh!eventDiscCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "playerCollision" targetting collisions with other players.',
-            insertText: 'game.events.addEventListener(\'playerCollision\', {collideWith: \'player\'}, function(playerIdA, playerIdB) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "discCollision" targetting collisions with other players.',
+            insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'disc\'}, function(discId, otherPlayerId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
-            label: 'sh!eventPlayerCollideArrow',
+            label: 'sh!eventDiscCollideArrow',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "playerCollision" targetting collisions with arrows.',
-            insertText: 'game.events.addEventListener(\'playerCollision\', {collideWith: \'arrow\'}, function(playerId, arrowId) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "discCollision" targetting collisions with arrows.',
+            insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'arrow\'}, function(discId, arrowId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
-            label: 'sh!eventPlayerCollideBody',
+            label: 'sh!eventDiscCollideBody',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "playerCollision" targetting collisions with bodies.',
-            insertText: 'game.events.addEventListener(\'playerCollision\', {collideWith: \'body\'}, function(playerId, bodyId, fixtureId) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "discCollision" targetting collisions with bodies.',
+            insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'body\'}, function(discId, bodyData) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
 
           // arrow collision events
           {
-            label: 'sh!eventArrowCollidePlayer',
+            label: 'sh!eventArrowCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "arrowCollision" targetting collisions with players.',
-            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'player\'}, function(arrowId, playerId) {\n  //code goes here\n})',
+            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'disc\'}, function(arrowId, playerId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
             label: 'sh!eventArrowCollideArrow',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "arrowCollision" targetting collisions with other arrows.',
-            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'arrow\'}, function(arrowIdA, arrowIdB) {\n  //code goes here\n})',
+            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'arrow\'}, function(arrowId, otherArrowId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
             label: 'sh!eventArrowCollideBody',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "arrowCollision" targetting collisions with bodies.',
-            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'body\'}, function(arrowId, bodyId, fixtureId) {\n  //code goes here\n})',
+            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'body\'}, function(arrowId, bodyData) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
 
           // body collision events
           {
-            label: 'sh!eventBodyCollidePlayer',
+            label: 'sh!eventBodyCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "bodyCollision" targetting collisions with players.',
-            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'player\'}, function(bodyId, fixtureId, playerId) {\n  //code goes here\n})',
+            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'disc\'}, function(bodyData, playerId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
             label: 'sh!eventBodyCollideArrow',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "bodyCollision" targetting collisions with arrows.',
-            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'arrow\'}, function(bodyId, fixtureId, arrowIdB) {\n  //code goes here\n})',
+            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'arrow\'}, function(bodyData, arrowId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
             label: 'sh!eventBodyCollideBody',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "bodyCollision" targetting collisions with bodies.',
-            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'body\'}, function(bodyIdA, fixtureIdA, bodyIdB, fixtureIdB) {\n  //code goes here\n})',
+            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'body\'}, function(bodyData, otherBodyData) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
 

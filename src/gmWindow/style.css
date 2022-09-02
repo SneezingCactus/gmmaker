@@ -398,6 +398,30 @@ path.blocklyPath.blockly-ws-search-highlight {
     fill-opacity: 1;
 }
 
+/* INGAME LOG BOX */
+#gm_logbox {
+    position: absolute;
+    border-radius: 10px;
+    padding: 10px;
+    top: 30px;
+    left: 30px;
+    width: 422px;
+    height: 128px;
+    resize: both;
+    visibility: hidden;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    font-family: "futurept_book";
+    font-size: 19px;
+    color: #ffffff;
+    text-shadow: 1px 1px black;
+    user-select: text;
+}
+
+#gm_logbox:hover {
+    background-color: #00000055;
+}
+
 /* VAR INSPECTOR */
 
 #gm_varinspector {

@@ -204,21 +204,18 @@ export default {
         // reset static info when game start
         this.go_OLD = this.go;
         this.go = function() {
+          document.getElementById('gm_logbox').innerHTML = '';
+          document.getElementById('gm_logbox').style.visibility = 'hidden';
           gm.state.resetStaticInfo();
 
           return this.go_OLD(...arguments);
         };
 
-        // apply mode upon joining (when in game)
         this.goInProgress_OLD = this.goInProgress;
         this.goInProgress = function() {
+          document.getElementById('gm_logbox').innerHTML = '';
+          document.getElementById('gm_logbox').style.visibility = 'hidden';
           gm.state.resetStaticInfo();
-
-          const gameSettings = arguments[7];
-          if (gameSettings.GMMode && gm.lobby.networkEngine.getLSID() != gm.lobby.networkEngine.hostID) {
-            gm.lobby.processNewMode(gameSettings.GMMode);
-            delete gameSettings.GMMode;
-          }
 
           return this.goInProgress_OLD(...arguments);
         };

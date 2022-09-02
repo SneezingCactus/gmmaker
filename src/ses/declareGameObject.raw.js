@@ -135,6 +135,7 @@ this.game = {
 
       return game.graphics.drawings.length - 1;
     },
+    debugLog: debugLog,
   },
 };
 
@@ -151,7 +152,3 @@ this.setStaticInfo = function() {
 this.setDynamicInfo = function() {
   getDynamicInfo(this.game);
 };
-
-// oldMath = Math;
-
-// Math = Object.assign({random: this.getRandom}, Math);

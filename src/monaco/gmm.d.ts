@@ -23,6 +23,22 @@ declare interface collisionEventOptions {
   collideWith: 'disc' | 'arrow' | 'body'
 }
 
+declare interface collisionEvent_disc extends collisionEventOptions {
+  collideWith: 'disc'
+}
+declare interface collisionEvent_arrow extends collisionEventOptions {
+  collideWith: 'arrow'
+}
+declare interface collisionEvent_body extends collisionEventOptions {
+  collideWith: 'body'
+}
+
+declare interface bodyCollisionData {
+  id: number
+  fixtureId: number
+  normalVector: number[2]
+}
+
 declare interface gameEvents {
   /**
    * Attach a function (listener) to an event. This function will be called when the event happens. An event can have multiple listeners attached to it.
@@ -36,9 +52,18 @@ declare interface gameEvents {
   addEventListener(eventName: 'roundStart', options: stepEventOptions, listener: () => void)
   addEventListener(eventName: 'step', options: stepEventOptions, listener: () => void)
   addEventListener(eventName: 'playerDie', options: null, listener: () => void)
-  addEventListener(eventName: 'discCollision', options: collisionEventOptions, listener: () => void)
-  addEventListener(eventName: 'arrowCollision', options: collisionEventOptions, listener: () => void)
-  addEventListener(eventName: 'bodyCollision', options: collisionEventOptions, listener: () => void)
+
+  addEventListener(eventName: 'discCollision', options: collisionEvent_disc, listener: (discId: number, collisionId: number) => void)
+  addEventListener(eventName: 'discCollision', options: collisionEvent_arrow, listener: (discId: number, collisionId: number) => void)
+  addEventListener(eventName: 'discCollision', options: collisionEvent_body, listener: (discId: number, collisionData: bodyCollisionData) => void)
+
+  addEventListener(eventName: 'arrowCollision', options: collisionEvent_disc, listener: (arrowId: number, collisionId: number) => void)
+  addEventListener(eventName: 'arrowCollision', options: collisionEvent_arrow, listener: (arrowId: number, collisionId: number) => void)
+  addEventListener(eventName: 'arrowCollision', options: collisionEvent_body, listener: (arrowId: number, collisionData: bodyCollisionData) => void)
+
+  addEventListener(eventName: 'bodyCollision', options: collisionEvent_disc, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
+  addEventListener(eventName: 'bodyCollision', options: collisionEvent_arrow, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
+  addEventListener(eventName: 'bodyCollision', options: collisionEvent_body, listener: (bodyData: bodyCollisionData, collisionData: bodyCollisionData) => void)
 }
 
 declare interface swingInfo {
@@ -74,7 +99,7 @@ declare interface disc {
    */
   yv:number
   /**
-   * Angle in radians of the disc.
+   * Angle in degrees of the disc.
    */
   a:number
   /**
@@ -518,7 +543,168 @@ declare interface drawingShapeLine {
   type: 'li'
   /**
    * X position at where the line ends.
+   */  attachId: number
+  /**
+   * Determines whether the drawing will appear in front or behind the attached object. If true, it will appear behind, otherwise, it will appear in front.
    */
+  isBehind: boolean
+  /**
+   * Determines whether any changes made to the drawing (excluding any shape changes) will go through 
+   * a smooth transition (as smooth as your screen's refresh rate) or if they will be applied instantly 
+   * (at 30fps). Resets to false every step.
+   */
+  noLerp: boolean
+  /**
+   * An array containing all of the shapes that make up the drawing.
+   */
+  shapes: drawingShape[]
+}
+
+declare interface camera {
+  /**
+   * X position of the camera.
+   */
+  xPos: number
+  /**
+   * Y position of the camera.
+   */
+  yPos: number
+  /**
+   * Angle of the camera, in degrees.
+   */
+  angle: number
+  /**
+   * X scale (zoom) of the camera.
+   */
+  xScale: number
+  /**
+   * Y scale (zoom) of the camera.
+   */
+  yScale: number
+  /**
+   * Determines whether any changes made to this drawing will be applied through a smooth transition (as smooth as your screen's refresh rate) or if they will be applied instantly (at 30fps). Resets to false every step.
+   */
+  noLerp: boolean
+}
+
+declare interface gameGraphics {
+  camera: camera
+  drawings: drawing[]
+  /**
+   * Creates a drawing with the data given. Any missing properties will be replaced by defaults.
+   */
+  createDrawing(options: drawing): number
+  bake(drawingId: number, resolution: number): void
+}
+
+declare interface rayCastResults {
+  objectType: 'disc' | 'arrow' | 'body'
+  objectId: number
+}
+
+declare interface gamePhysics {
+  rayCast(originX, originY, endX, endY, bitMask):rayCastResults
+}
+
+declare interface playerInput {
+  up: boolean
+  down: boolean
+  left: boolean
+  right: boolean
+  action: boolean
+  action2: boolean
+}
+
+declare interface inputMethods {
+  overrides: playerInput[]
+}
+
+declare type gameInputs = playerInput[] & inputMethods 
+
+// eslint-disable-next-line no-unused-vars
+interface game {
+  /**
+   * 
+   */
+  static events: gameEvents
+  /**
+   * A collection of info about the current state of a game, such as scores, player and map object attributes, etc.
+   */
+  static state: gameState
+  /**
+   * 
+   */
+  static inputs: gameInputs
+  /**
+   * A collection of info about the room, including players and game settings. 
+   * This does not change at any point in the game. This means that people leaving/joining during a game will not affect the content of this object.
+   */
+  static lobby: lobbyInfo
+  static graphics: gameGraphics
+}
+
+declare var game: game;
+
+interface Vector {
+  /**
+   * Adds the components of vector B to the respective components of vector A.
+   * 
+   * B can also be a number, in which case B is added to every single component of A.
+   */
+  static add(a: number[], b: number | number[]): number[]
+  /**
+   * Subtracts the components of vector B from the respective components of vector A.
+   * 
+   * B can also be a number, in which case B is subtracted from every single component of A.
+   */
+  static subtract(a: number[], b: number | number[]): number[]
+  /**
+   * Multiplies the components of vector A by the respective components of vector B.
+   * 
+   * B can also be a number, in which case, every single component of A is multiplied by B.
+   */
+  static multiply(a: number[], b: number | number[]): number[]
+  /**
+   * Divides the components of vector A by the respective components of vector B.
+   * 
+   * B can also be a number, in which case, every single component of A is divided by B.
+   */
+  static divide(a: number[], b: number | number[]): number[]
+  /**
+   * Returns the length (also called magnitude) of the vector.
+   */
+  static length(vector: number[]): number
+  /**
+   * Returns the distance between vector A and vector B.
+   */
+  static distance(a: number[], b: number[]): number
+  /**
+   * Returns the vector scaled to have a length of 1.
+   */
+  static normalize(vector: number[]): number[]
+  /**
+   * Returns the dot product of vector A and vector B.
+   * 
+   * If normalized vectors are given, the function returns 1 if they point in exactly the same direction,
+   * -1 if they point in completely opposite directions and zero if the vectors are perpendicular.
+   */
+  static dot(a: number[], b: number[]): number
+  /**
+   * Reflects a vector (dir) off the plane defined by a normal.
+   *
+   * The `normal` vector defines a plane (a plane's normal is the vector that is perpendicular to its surface).
+   * The `dir` vector is treated as a directional arrow coming in to the plane. 
+   * The returned value is a vector of equal magnitude to `dir` but with its direction reflected.
+   */
+  static reflect(dir: number[], normal: number[]): number[]
+  /**
+   * Returns a point linearly interpolated between points A and B by the interpolant `t`.
+   * 
+   * When `t` = 0, point A is returned.
+   * 
+   * When `t` = 1, point B is returned.
+   * 
+   * When `t` = 0.5, the point midway be
   xEnd: number
   /**
    * Y position at where the line ends.
@@ -616,7 +802,7 @@ declare interface drawing {
    */
   yPos: number
   /**
-   * Angle of the drawing, in radians.
+   * Angle of the drawing, in degrees.
    */
   angle: number
   /**
@@ -695,6 +881,7 @@ declare interface gameGraphics {
    */
   createDrawing(options: drawing): number
   bake(drawingId: number, resolution: number): void
+  debugLog(message: any): void
 }
 
 declare interface rayCastResults {
@@ -722,7 +909,7 @@ declare interface inputMethods {
 declare type gameInputs = playerInput[] & inputMethods 
 
 // eslint-disable-next-line no-unused-vars
-declare class game {
+interface game {
   /**
    * 
    */
@@ -741,14 +928,195 @@ declare class game {
    */
   static lobby: lobbyInfo
   static graphics: gameGraphics
-
-  // removes annoying methods from object proto
-  protected static apply:void
-  protected static call:void
-  protected static caller:void
-  protected static name:void
-  protected static prototype:void
-  protected static arguments:void
-  protected static toString:void
-  protected static bind:void
 }
+
+declare var game: game;
+
+interface Vector {
+  /**
+   * Adds the components of vector B to the respective components of vector A.
+   * 
+   * B can also be a number, in which case B is added to every single component of A.
+   */
+  static add(a: number[], b: number | number[]): number[]
+  /**
+   * Subtracts the components of vector B from the respective components of vector A.
+   * 
+   * B can also be a number, in which case B is subtracted from every single component of A.
+   */
+  static subtract(a: number[], b: number | number[]): number[]
+  /**
+   * Multiplies the components of vector A by the respective components of vector B.
+   * 
+   * B can also be a number, in which case, every single component of A is multiplied by B.
+   */
+  static multiply(a: number[], b: number | number[]): number[]
+  /**
+   * Divides the components of vector A by the respective components of vector B.
+   * 
+   * B can also be a number, in which case, every single component of A is divided by B.
+   */
+  static divide(a: number[], b: number | number[]): number[]
+  /**
+   * Returns the length (also called magnitude) of the vector.
+   */
+  static length(vector: number[]): number
+  /**
+   * Returns the distance between vector A and vector B.
+   */
+  static distance(a: number[], b: number[]): number
+  /**
+   * Returns the vector scaled to have a length of 1.
+   */
+  static normalize(vector: number[]): number[]
+  /**
+   * Returns the dot product of vector A and vector B.
+   * 
+   * If normalized vectors are given, the function returns 1 if they point in exactly the same direction,
+   * -1 if they point in completely opposite directions and zero if the vectors are perpendicular.
+   */
+  static dot(a: number[], b: number[]): number
+  /**
+   * Reflects a vector (dir) off the plane defined by a normal.
+   *
+   * The `normal` vector defines a plane (a plane's normal is the vector that is perpendicular to its surface).
+   * The `dir` vector is treated as a directional arrow coming in to the plane. 
+   * The returned value is a vector of equal magnitude to `dir` but with its direction reflected.
+   */
+  static reflect(dir: number[], normal: number[]): number[]
+  /**
+   * Returns a point linearly interpolated between points A and B by the interpolant `t`.
+   * 
+   * When `t` = 0, point A is returned.
+   * 
+   * When `t` = 1, point B is returned.
+   * 
+   * When `t` = 0.5, the point midway between A and B is returned.
+   */
+  static lerp(a: number[], b: number[], t: number): number[]
+}
+
+/** 
+ * An intrinsic object that provides vector mathematics functionality.
+ * 
+ * Vectors are represented by arrays of numbers. Example: [5, 2] is a 2d vector pointing at x: 5, y: 2.
+ */
+declare var Vector: Vector;
+
+interface Math {
+  /** The mathematical constant e. This is Euler's number, the base of natural logarithms. */
+  readonly E: number;
+  /** The natural logarithm of 10. */
+  readonly LN10: number;
+  /** The natural logarithm of 2. */
+  readonly LN2: number;
+  /** The base-2 logarithm of e. */
+  readonly LOG2E: number;
+  /** The base-10 logarithm of e. */
+  readonly LOG10E: number;
+  /** Pi. This is the ratio of the circumference of a circle to its diameter. */
+  readonly PI: number;
+  /** The square root of 0.5, or, equivalently, one divided by the square root of 2. */
+  readonly SQRT1_2: number;
+  /** The square root of 2. */
+  readonly SQRT2: number;
+  /**
+   * Returns the absolute value of a number (the value without regard to whether it is positive or negative).
+   * For example, the absolute value of -5 is the same as the absolute value of 5.
+   * @param x A numeric expression for which the absolute value is needed.
+   */
+  abs(x: number): number;
+  /**
+   * Returns the arc cosine (or inverse cosine) of a number.
+   * @param x A numeric expression.
+   */
+  acos(x: number): number;
+  /**
+   * Returns the arcsine of a number.
+   * @param x A numeric expression.
+   */
+  asin(x: number): number;
+  /**
+   * Returns the arctangent of a number.
+   * @param x A numeric expression for which the arctangent is needed.
+   */
+  atan(x: number): number;
+  /**
+   * Returns the angle (in degrees) from the X axis to a point.
+   * @param y A numeric expression representing the cartesian y-coordinate.
+   * @param x A numeric expression representing the cartesian x-coordinate.
+   */
+  atan2(y: number, x: number): number;
+  /**
+   * Returns the smallest integer greater than or equal to its numeric argument.
+   * @param x A numeric expression.
+   */
+  ceil(x: number): number;
+  /**
+   * Returns the cosine of a number.
+   * @param x A numeric expression that contains an angle measured in degrees.
+   */
+  cos(x: number): number;
+  /**
+   * Returns e (the base of natural logarithms) raised to a power.
+   * @param x A numeric expression representing the power of e.
+   */
+  exp(x: number): number;
+  /**
+   * Returns the greatest integer less than or equal to its numeric argument.
+   * @param x A numeric expression.
+   */
+  floor(x: number): number;
+  /**
+   * Returns the natural logarithm (base e) of a number.
+   * @param x A numeric expression.
+   */
+  log(x: number): number;
+  /**
+   * Returns the larger of a set of supplied numeric expressions.
+   * @param values Numeric expressions to be evaluated.
+   */
+  max(...values: number[]): number;
+  /**
+   * Returns the smaller of a set of supplied numeric expressions.
+   * @param values Numeric expressions to be evaluated.
+   */
+  min(...values: number[]): number;
+  /**
+   * Returns the value of a base expression taken to a specified power.
+   * @param x The base value of the expression.
+   * @param y The exponent value of the expression.
+   */
+  pow(x: number, y: number): number;
+  /** Returns a pseudorandom number between 0 and 1. */
+  random(): number;
+  /**
+   * Returns a supplied numeric expression rounded to the nearest integer.
+   * @param x The value to be rounded to the nearest integer.
+   */
+  round(x: number): number;
+  /**
+   * Returns the sine of a number.
+   * @param x A numeric expression that contains an angle measured in degrees.
+   */
+  sin(x: number): number;
+  /**
+   * Returns the square root of a number.
+   * @param x A numeric expression.
+   */
+  sqrt(x: number): number;
+  /**
+   * Returns the tangent of a number.
+   * @param x A numeric expression that contains an angle measured in degrees.
+   */
+  tan(x: number): number;
+}
+
+/** 
+ * An intrinsic object that provides basic mathematics functionality and constants. 
+ * 
+ * This Math object is slightly different than the Math object you would see in a normal JavaScript environment.
+ * The two main differences are that the numbers given by the functions are capped to 9 decimals,
+ * and that trigonometry functions use degrees instead of radians.
+ */
+declare var Math: Math;
