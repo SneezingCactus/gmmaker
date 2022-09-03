@@ -51,7 +51,7 @@ export default function() {
           {
             label: 'sh!eventDiscCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "discCollision" targetting collisions with other players.',
+            documentation: 'Creates an event listener for "discCollision" targetting collisions with other discs.',
             insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'disc\'}, function(discId, otherPlayerId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
@@ -74,8 +74,8 @@ export default function() {
           {
             label: 'sh!eventArrowCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "arrowCollision" targetting collisions with players.',
-            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'disc\'}, function(arrowId, playerId) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "arrowCollision" targetting collisions with discs.',
+            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'disc\'}, function(arrowId, discId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
@@ -97,8 +97,8 @@ export default function() {
           {
             label: 'sh!eventBodyCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "bodyCollision" targetting collisions with players.',
-            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'disc\'}, function(bodyData, playerId) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "bodyCollision" targetting collisions with discs.',
+            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'disc\'}, function(bodyData, discId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
@@ -234,6 +234,12 @@ export default function() {
             insertText: `{
   type: 'im',
   id: 'image',
+  region: {   // Only for demonstration purposes. Remove or edit to show full image instead of a 32x32 portion of it.
+    xPos: 0,
+    yPos: 0,
+    width: 32,
+    height: 32,
+  },
   colour: 0xffffff,
   alpha: 1,
   xPos: 0,

@@ -36,6 +36,10 @@ harden(getDynamicInfo);
 window.getEventArgs = () => copy(window.parent.gm.state.currentEventArgs);
 harden(getEventArgs);
 
+// graphics functions
+window.bakeDrawing = (id, resolution, ppm) => copy(window.parent.gm.graphics.bakeDrawing(id, resolution, ppm));
+harden(bakeDrawing);
+
 window.debugLog = (mess) => window.parent.gm.graphics.debugLog(mess);
 harden(debugLog);
 
@@ -160,10 +164,11 @@ window.Vector = {
   },
   reflect: (a, b) => {
     let result = [];
-    const dot = Vector.dot(a, b);
+    const normalizedB = Vector.normalize(b);
+    const dot = Vector.dot(a, normalizedB);
 
     for (let i = 0; i < a.length; i++) {
-      result[i] = a[i]-2*b[i]*dot;
+      result[i] = a[i]-2*normalizedB[i]*dot;
     }
 
     return result;
@@ -180,4 +185,4 @@ window.Vector = {
 };
 
 // return list of methods
-['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'debugLog', 'Math', 'Vector'];
+['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'bakeDrawing', 'debugLog', 'Math', 'Vector'];

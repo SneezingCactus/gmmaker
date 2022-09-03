@@ -407,7 +407,6 @@ path.blocklyPath.blockly-ws-search-highlight {
     left: 30px;
     width: 422px;
     height: 128px;
-    resize: both;
     visibility: hidden;
     overflow: hidden;
     overflow-wrap: break-word;
@@ -420,6 +419,7 @@ path.blocklyPath.blockly-ws-search-highlight {
 
 #gm_logbox:hover {
     background-color: #00000055;
+    resize: both;
 }
 
 /* VAR INSPECTOR */

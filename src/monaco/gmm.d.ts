@@ -36,7 +36,7 @@ declare interface collisionEvent_body extends collisionEventOptions {
 declare interface bodyCollisionData {
   id: number
   fixtureId: number
-  normalVector: number[2]
+  normal: number[2]
 }
 
 declare interface gameEvents {
@@ -880,7 +880,7 @@ declare interface gameGraphics {
    * Creates a drawing with the data given. Any missing properties will be replaced by defaults.
    */
   createDrawing(options: drawing): number
-  bake(drawingId: number, resolution: number): void
+  bakeDrawing(drawingId: number, resolution: number): void
   debugLog(message: any): void
 }
 
@@ -889,8 +889,14 @@ declare interface rayCastResults {
   objectId: number
 }
 
+declare interface rayCastAdditionalData {
+  fixtureId: number
+  isCapzone: boolean
+  normal: number[]
+}
+
 declare interface gamePhysics {
-  rayCast(originX, originY, endX, endY, bitMask):rayCastResults
+  rayCast(origin: number[], end: number[], filter: (objectType: 'disc'|'arrow'|'body', objectId: number, additionalData: rayCastAdditionalData) => number) 
 }
 
 declare interface playerInput {

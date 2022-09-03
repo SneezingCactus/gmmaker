@@ -1,7 +1,7 @@
 /* eslint-disable require-jsdoc */
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
-import * as PIXI from 'pixi.js-legacy';
+// import * as PIXI from 'pixi.js-legacy';
 
 export default {
   init: function() {
@@ -260,6 +260,38 @@ export default {
       }
     }
   },
+  bakeDrawing: function(id, resolution, ppm) {
+    const drawing = this.drawings[id].displayObject;
+    const bounds = drawing.getLocalBounds();
+    const width = (bounds.x + bounds.width) * 2 * drawing.scale.x;
+    const height = (bounds.y + bounds.height) * 2 * drawing.scale.y;
+    const bakedTex = PIXI.RenderTexture.create({
+      width: width,
+      height: height,
+      resolution: resolution * this.rendererClass.scaleRatio,
+    });
+
+    drawing.x += width / 2;
+    drawing.y += height / 2;
+    this.rendererClass.renderer.render(drawing, bakedTex);
+    drawing.x -= width / 2;
+    drawing.y -= height / 2;
+
+    let bakedId = 'BAKED_';
+    for (let i = 0; true; i++) {
+      if (!this.imageTextures['BAKED_' + i]) {
+        bakedId = 'BAKED_' + i;
+        break;
+      }
+    }
+
+    this.imageTextures[bakedId] = bakedTex.baseTexture;
+    return {
+      id: bakedId,
+      width: width / drawing.scale.x / (ppm * this.rendererClass.scaleRatio),
+      height: height / drawing.scale.y / (ppm * this.rendererClass.scaleRatio),
+    };
+  },
   debugLog: function(message) {
     const messageDiv = document.createElement('div');
 
@@ -338,13 +370,14 @@ class Drawing {
     this.displayObject.sortableChildren = true;
     this.shapes = [];
     this.transing = false;
+    this.lastDrawDef = {};
   }
   update(drawDefA, drawDefB, weight, scaleRatio, forceUpdate) {
     const forLength = Math.max(drawDefA.shapes.length, drawDefB.shapes.length);
     for (let i = 0; i < forLength; i++) {
       // deletion of shapes that suddenly change type
       // these are later recreated in the new shape creation phase
-      if (drawDefB.shapes[i]?.type != drawDefA.shapes[i]?.type && this.shapes[i]) {
+      if (drawDefB.shapes[i]?.type != this.lastDrawDef.shapes?.[i]?.type && this.shapes[i]) {
         this.shapes[i].destroy();
         this.shapes[i] = null;
       }
@@ -390,14 +423,16 @@ class Drawing {
     }
 
     // property check
-    const propsNoChange = drawDefA.alpha == drawDefB.alpha &&
-      drawDefA.xPos == drawDefB.xPos &&
-      drawDefA.yPos == drawDefB.yPos &&
-      drawDefA.angle == drawDefB.angle &&
-      drawDefA.xScale == drawDefB.xScale &&
-      drawDefA.yScale == drawDefB.yScale;
+    const propsNoChange = this.lastDrawDef.alpha == drawDefB.alpha &&
+      this.lastDrawDef.xPos == drawDefB.xPos &&
+      this.lastDrawDef.yPos == drawDefB.yPos &&
+      this.lastDrawDef.angle == drawDefB.angle &&
+      this.lastDrawDef.xScale == drawDefB.xScale &&
+      this.lastDrawDef.yScale == drawDefB.yScale;
 
     if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.lastDrawDef = drawDefB;
 
     this.transing = !propsNoChange || forceUpdate;
 
@@ -425,18 +460,21 @@ class BoxShape {
   constructor() {
     this.displayObject = new PIXI.Graphics();
     this.transing = false;
+    this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
-    shapeDefA.alpha == shapeDefB.alpha &&
-    shapeDefA.xPos == shapeDefB.xPos &&
-    shapeDefA.yPos == shapeDefB.yPos &&
-    shapeDefA.angle == shapeDefB.angle &&
-    shapeDefA.width == shapeDefB.width &&
-    shapeDefA.height == shapeDefB.height;
+    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+    this.lastDrawDef.alpha == shapeDefB.alpha &&
+    this.lastDrawDef.xPos == shapeDefB.xPos &&
+    this.lastDrawDef.yPos == shapeDefB.yPos &&
+    this.lastDrawDef.angle == shapeDefB.angle &&
+    this.lastDrawDef.width == shapeDefB.width &&
+    this.lastDrawDef.height == shapeDefB.height;
 
     if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.lastDrawDef = drawDefB;
 
     this.transing = !propsNoChange || forceUpdate;
 
@@ -468,18 +506,21 @@ class CircleShape {
   constructor() {
     this.displayObject = new PIXI.Graphics();
     this.transing = false;
+    this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
-        shapeDefA.alpha == shapeDefB.alpha &&
-        shapeDefA.xPos == shapeDefB.xPos &&
-        shapeDefA.yPos == shapeDefB.yPos &&
-        shapeDefA.angle == shapeDefB.angle &&
-        shapeDefA.width == shapeDefB.width &&
-        shapeDefA.height == shapeDefB.height;
+    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+        this.lastDrawDef.alpha == shapeDefB.alpha &&
+        this.lastDrawDef.xPos == shapeDefB.xPos &&
+        this.lastDrawDef.yPos == shapeDefB.yPos &&
+        this.lastDrawDef.angle == shapeDefB.angle &&
+        this.lastDrawDef.width == shapeDefB.width &&
+        this.lastDrawDef.height == shapeDefB.height;
 
     if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.lastDrawDef = shapeDefB;
 
     this.transing = !propsNoChange || forceUpdate;
 
@@ -511,26 +552,29 @@ class PolyShape {
   constructor() {
     this.displayObject = new PIXI.Graphics();
     this.transing = false;
+    this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
-        shapeDefA.alpha == shapeDefB.alpha &&
-        shapeDefA.xPos == shapeDefB.xPos &&
-        shapeDefA.yPos == shapeDefB.yPos &&
-        shapeDefA.angle == shapeDefB.angle &&
-        shapeDefA.xScale == shapeDefB.xScale &&
-        shapeDefA.yScale == shapeDefB.yScale;
+    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+        this.lastDrawDef.alpha == shapeDefB.alpha &&
+        this.lastDrawDef.xPos == shapeDefB.xPos &&
+        this.lastDrawDef.yPos == shapeDefB.yPos &&
+        this.lastDrawDef.angle == shapeDefB.angle &&
+        this.lastDrawDef.xScale == shapeDefB.xScale &&
+        this.lastDrawDef.yScale == shapeDefB.yScale;
 
     let vertsNoChange = true;
     for (let i = 0; i < shapeDefB.vertices.length; i++) {
-      if (shapeDefA.vertices[i] != shapeDefB.vertices[i]) {
+      if (this.lastDrawDef.vertices[i] != shapeDefB.vertices[i]) {
         vertsNoChange = false;
         break;
       };
     }
 
     if (propsNoChange && vertsNoChange && !forceUpdate && !this.transing) return;
+
+    this.lastDrawDef = shapeDefB;
 
     this.transing = !propsNoChange || !vertsNoChange || forceUpdate;
 
@@ -575,18 +619,21 @@ class LineShape {
   constructor() {
     this.displayObject = new PIXI.Graphics();
     this.transing = false;
+    this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
-        shapeDefA.alpha == shapeDefB.alpha &&
-        shapeDefA.xPos == shapeDefB.xPos &&
-        shapeDefA.yPos == shapeDefB.yPos &&
-        shapeDefA.xEnd == shapeDefB.xEnd &&
-        shapeDefA.yEnd == shapeDefB.yEnd &&
-        shapeDefA.width == shapeDefB.width;
+    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+        this.lastDrawDef.alpha == shapeDefB.alpha &&
+        this.lastDrawDef.xPos == shapeDefB.xPos &&
+        this.lastDrawDef.yPos == shapeDefB.yPos &&
+        this.lastDrawDef.xEnd == shapeDefB.xEnd &&
+        this.lastDrawDef.yEnd == shapeDefB.yEnd &&
+        this.lastDrawDef.width == shapeDefB.width;
 
     if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.lastDrawDef = shapeDefB;
 
     this.transing = !propsNoChange || forceUpdate;
 
@@ -618,22 +665,25 @@ class TextShape {
     this.displayObject = new PIXI.Text();
     this.displayObject.resolution = 2;
     this.transing = false;
+    this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
-        shapeDefA.alpha == shapeDefB.alpha &&
-        shapeDefA.xPos == shapeDefB.xPos &&
-        shapeDefA.yPos == shapeDefB.yPos &&
-        shapeDefA.angle == shapeDefB.angle &&
-        shapeDefA.text == shapeDefB.text &&
-        shapeDefA.size == shapeDefB.size &&
-        shapeDefA.align == shapeDefB.align &&
-        shapeDefA.bold == shapeDefB.bold &&
-        shapeDefA.italic == shapeDefB.italic &&
-        shapeDefA.shadow == shapeDefB.shadow;
+    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+        this.lastDrawDef.alpha == shapeDefB.alpha &&
+        this.lastDrawDef.xPos == shapeDefB.xPos &&
+        this.lastDrawDef.yPos == shapeDefB.yPos &&
+        this.lastDrawDef.angle == shapeDefB.angle &&
+        this.lastDrawDef.text == shapeDefB.text &&
+        this.lastDrawDef.size == shapeDefB.size &&
+        this.lastDrawDef.align == shapeDefB.align &&
+        this.lastDrawDef.bold == shapeDefB.bold &&
+        this.lastDrawDef.italic == shapeDefB.italic &&
+        this.lastDrawDef.shadow == shapeDefB.shadow;
 
     if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.lastDrawDef = shapeDefB;
 
     this.transing = !propsNoChange || forceUpdate;
 
@@ -683,23 +733,26 @@ class ImageShape {
     this.displayObject = new PIXI.Sprite();// new PIXI.Texture(gm.graphics.imageTextures[]));
     this.displayObject.anchor.set(0.5, 0.5);
     this.transing = false;
+    this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
-    const stringifiedRegionA = JSON.stringify(shapeDefA.region);
+    const stringifiedRegionA = JSON.stringify(this.lastDrawDef.region);
     const stringifiedRegionB = JSON.stringify(shapeDefB.region);
 
     // property check
-    const propsNoChange = shapeDefA.colour == shapeDefB.colour &&
-    shapeDefA.id == shapeDefB.id &&
-    shapeDefA.alpha == shapeDefB.alpha &&
-    shapeDefA.xPos == shapeDefB.xPos &&
-    shapeDefA.yPos == shapeDefB.yPos &&
-    shapeDefA.angle == shapeDefB.angle &&
-    shapeDefA.width == shapeDefB.width &&
-    shapeDefA.height == shapeDefB.height &&
+    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+    this.lastDrawDef.id == shapeDefB.id &&
+    this.lastDrawDef.alpha == shapeDefB.alpha &&
+    this.lastDrawDef.xPos == shapeDefB.xPos &&
+    this.lastDrawDef.yPos == shapeDefB.yPos &&
+    this.lastDrawDef.angle == shapeDefB.angle &&
+    this.lastDrawDef.width == shapeDefB.width &&
+    this.lastDrawDef.height == shapeDefB.height &&
     stringifiedRegionA == stringifiedRegionB;
 
     if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    this.lastDrawDef = shapeDefB;
 
     this.transing = !propsNoChange || forceUpdate;
 

@@ -75,6 +75,18 @@ this.defaults = {
     shadow: true,
     noLerp: false,
   },
+  imageShape: {
+    id: '',
+    region: null,
+    colour: 0xffffff,
+    alpha: 1,
+    xPos: 0,
+    yPos: 0,
+    angle: 0,
+    width: 1,
+    height: 1,
+    noLerp: false,
+  },
 };
 
 this.game = {
@@ -130,10 +142,31 @@ this.game = {
           case 'tx':
             drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.textShape)), shape);
             break;
+          case 'im':
+            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.imageShape)), shape);
+            break;
         }
       }
 
       return game.graphics.drawings.length - 1;
+    },
+    bakeDrawing: function(id, resolution = 1) {
+      if (!game.graphics.drawings[id]) return;
+      const baked = bakeDrawing(id, resolution, game.state.physics.ppm);
+
+      game.graphics.drawings[id].shapes = [{
+        type: 'im',
+        id: baked.id,
+        region: null,
+        colour: 0xffffff,
+        alpha: 1,
+        xPos: 0,
+        yPos: 0,
+        angle: 0,
+        width: baked.width,
+        height: baked.height,
+        noLerp: false,
+      }];
     },
     debugLog: debugLog,
   },
