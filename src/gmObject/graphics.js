@@ -13,8 +13,10 @@ export default {
       return function(stateA, stateB, weight) {
         this.render_OLD(...arguments);
 
-        // if no mode loaded, no gmm stuff
-        if (!stateA.gmExtra) return this.renderer.render(this.stage);
+        // if no mode loaded, no gmm stuff (except for camera pivot changing)
+        if (!stateA.gmExtra || gm.lobby.data.quick) {
+          return this.renderer.render(this.stage);
+        };
 
         /* #region DISC GRAPHICS PROTO MODIFY */
         if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen_OLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
@@ -164,18 +166,13 @@ export default {
       return function() {
         if (!gm.graphics.camera) gm.graphics.camera = new PIXI.Container();
 
-        // gm.graphics.screenDrawings = new PIXI.Container();
-        // gm.graphics.worldDrawings = new PIXI.Container();
-
-
         const result = this.build_OLD.apply(this, arguments);
         gm.graphics.rendererClass = this;
 
         /* #region CAMERA CONTAINER HANDLING */
-        // if (this.blurContainer.gmModified) return result;
-
         if (this.blurContainer.gmModified) {
           const childAmount = this.blurContainer.children.length;
+
           for (let i = 0; i < childAmount; i++) {
             const child = this.blurContainer.children[this.blurContainer.children.length-1];
 

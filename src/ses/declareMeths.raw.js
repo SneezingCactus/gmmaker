@@ -25,6 +25,20 @@ window.getDynamicInfo = (game) => {
 
   const gmExtra = copied.state.gmExtra;
 
+  // reset stuff on new round
+  if (game.state.rl == 1) {
+    gmExtra.camera = {
+      xPos: 365 / game.state.physics.ppm,
+      yPos: 250 / game.state.physics.ppm,
+      angle: 0,
+      xScale: 1,
+      yScale: 1,
+      noLerp: false,
+    };
+    gmExtra.drawings = [];
+    gmExtra.overrides = [];
+  }
+
   game.vars = gmExtra.vars;
   game.inputs.overrides = gmExtra.overrides;
   game.graphics.camera = gmExtra.camera;

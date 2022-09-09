@@ -16,6 +16,7 @@ export default {
 
       // reset mode when disconnecting
       socket.on('disconnect', function() {
+        BonkUtils.resetRenderer = true;
         gm.editor.appliedMode = null;
         gm.editor.resetAll();
         gm.editor.hideGMEWindow();

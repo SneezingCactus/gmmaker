@@ -335,11 +335,13 @@
     margin-right: 5px;
     padding: 0px 20px;
     line-height: 2;
+    pointer-events: none;
 }
 
 .gm_tabbutton.inactive {
     background-color: var(--gm_button_secondary_color);
     cursor: pointer;
+    pointer-events: all;
 }
 
 .gm_listitem {

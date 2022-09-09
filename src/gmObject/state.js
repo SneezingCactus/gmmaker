@@ -59,8 +59,8 @@ export default {
   initGameState: function() {
     const step_OLD = PhysicsClass.prototype.step;
     PhysicsClass.prototype.step = function(oldState, inputs) {
-      // don't do gmm business when no mode is loaded
-      if (!oldState.gmExtra) {
+      // don't do gmm business when no mode is loaded or if in quickplay
+      if (!oldState.gmExtra || gm.lobby.data.quick) {
         const state = step_OLD(...arguments);
         gm.state.gameState = state;
         gm.state.inputs = inputs;
@@ -331,7 +331,7 @@ export default {
       const gmInitial = {};
 
       const playerInfo = [];
-      for (let i = 0; i < gm.lobby.playerArray.length; i++) {
+      for (let i = 0; i < (gm.lobby.playerArray?.length ?? 0); i++) {
         const player = gm.lobby.playerArray[i];
 
         if (!player) continue;
@@ -361,7 +361,7 @@ export default {
         settings: gm.lobby.mpSession.getGameSettings(),
         seed: Math.round(Math.random() * 1000000),
       };
-      for (let i = 0; i < gm.lobby.playerArray.length; i++) {
+      for (let i = 0; i < (gm.lobby.playerArray?.length ?? 0); i++) {
         if (!gm.lobby.playerArray[i]) continue;
         gmInitial.lobby.allPlayerIds.push(i);
       }
