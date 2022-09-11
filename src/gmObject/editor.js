@@ -626,8 +626,8 @@ export default {
     gm.lobby.bonkLobby.updateGameSettings(gameSettings);
     gm.lobby.networkEngine.sendMapAdd(gameSettings.map);
 
-    gm.editor.modeAssets = mode.assets;
-    gm.editor.modeSettings = mode.settings;
+    gm.editor.modeAssets = gm.editor.modeToImport.assets;
+    gm.editor.modeSettings = gm.editor.modeToImport.settings;
 
     gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
     if (gm.editor.modeSettings.isTextMode) {
@@ -750,6 +750,8 @@ export default {
 
     assetList.innerHTML = '';
 
+    gm.audio.stopAllSounds();
+
     if (toSounds) {
       this.isInSoundsTab = true;
       document.getElementById('gmsettings_imagestab').classList.add('inactive');
@@ -794,6 +796,8 @@ export default {
           gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_listitemname')[0].value;
         });
         soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
+          soundPlayerHowl.unload();
+          soundPlayerHowl = null;
           gm.editor.unsavedModeAssets.sounds[soundOrder] = null;
           document.getElementById('gmsettings_assetlist').removeChild(soundItem);
         });
@@ -910,6 +914,8 @@ export default {
             gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_listitemname')[0].value;
           });
           soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
+            soundPlayerHowl.unload();
+            soundPlayerHowl = null;
             gm.editor.unsavedModeAssets.sounds[soundOrder] = null;
             document.getElementById('gmsettings_assetlist').removeChild(soundItem);
           });
@@ -975,6 +981,7 @@ export default {
       gm.editor.changingToTextEditor = true;
       monacoDiv.style.display = 'block';
       blocklyDiv.style.visibility = 'hidden';
+      gm.editor.blocklyWs.setVisible(false);
       gm.editor.monacoWs.layout();
       gm.editor.monacoWs.setValue(gm.editor.generateCode());
       changeBaseButton.classList.remove('jsIcon');
@@ -982,6 +989,7 @@ export default {
     } else {
       gm.editor.isInTextEditor = false;
       blocklyDiv.style.visibility = 'visible';
+      gm.editor.blocklyWs.setVisible(true);
       monacoDiv.style.display = 'none';
       gm.editor.monacoWs.layout();
       changeBaseButton.classList.remove('blockIcon');

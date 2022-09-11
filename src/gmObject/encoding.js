@@ -46,6 +46,7 @@ export default {
       soundsData[i] = data;
 
       const bufferedData = dcodeIO.ByteBuffer.fromBase64(data);
+      console.log(bufferedData.buffer.byteLength);
 
       compressedMode.writeUInt16(i);
       compressedMode.writeUInt32(bufferedData.buffer.byteLength);
@@ -94,7 +95,7 @@ export default {
 
       const byteLength = modeBuf.readUInt32();
 
-      imagesData.push(modeBuf.toBase64(modeBuf.offset, modeBuf.offset + byteLength));
+      imagesData[index] = modeBuf.toBase64(modeBuf.offset, modeBuf.offset + byteLength);
       modeBuf.offset += byteLength;
     }
 
@@ -106,8 +107,9 @@ export default {
       if (index == 32767) break;
 
       const byteLength = modeBuf.readUInt32();
+      console.log(byteLength);
 
-      soundsData.push(modeBuf.toBase64(modeBuf.offset, modeBuf.offset + byteLength));
+      soundsData[index] = modeBuf.toBase64(modeBuf.offset, modeBuf.offset + byteLength);
       modeBuf.offset += byteLength;
     }
 

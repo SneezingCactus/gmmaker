@@ -41,6 +41,7 @@
 }
 
 #gmeditor_helptext {
+    color: var(--gm_primary_text);
     font-family: 'futurept_b1';
     font-size: 15px;
     line-height: 25px;
@@ -367,12 +368,14 @@
 }
 
 .gm_listitemimage.play {
+    background-color: var(--gm_button_primary_color);
     background-image: url(images/gmeplay.png);
     background-size: contain;
     cursor: pointer;
 }
 
 .gm_listitemimage.stop {
+    background-color: var(--gm_button_primary_color);
     background-image: url(images/gmestop.png);
     background-size: contain;
     cursor: pointer;

@@ -94,6 +94,9 @@ export default {
               drawingList[i].displayObject.zIndex = 10000000 + i;
             }
 
+            drawingList[i].attachTo = drawingB.attachTo;
+            drawingList[i].attachId = drawingB.attachId;
+
             switch (drawingB.attachTo) {
               case 'screen':
                 // if it wasn't sortable, now it is
@@ -121,9 +124,13 @@ export default {
           }
 
           // drawing updating
-          if (drawingA && drawingB && drawingList[i]) {
-            if (drawingA.attachTo != drawingB.attachTo) {
-              drawingList[i].displayObject.parent.removeChild(drawingList[i]);
+          if (drawingB && drawingList[i]) {
+            if (drawingList[i].attachTo != drawingB.attachTo ||
+                drawingList[i].attachId != drawingB.attachId ||
+               !drawingList[i].displayObject.parent) {
+              drawingList[i].displayObject.parent?.removeChild(drawingList[i]);
+              drawingList[i].attachTo = drawingB.attachTo;
+              drawingList[i].attachId = drawingB.attachId;
 
               switch (drawingB.attachTo) {
                 case 'screen':

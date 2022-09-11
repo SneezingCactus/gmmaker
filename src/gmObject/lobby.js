@@ -18,6 +18,7 @@ export default {
       socket.on('disconnect', function() {
         BonkUtils.resetRenderer = true;
         gm.editor.appliedMode = null;
+        gm.audio.stopAllSounds();
         gm.editor.resetAll();
         gm.editor.hideGMEWindow();
       });
