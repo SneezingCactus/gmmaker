@@ -67,9 +67,9 @@ export default {
 
     // ensure compatibility with bonk-host
     if (window.createModeDropdown) {
-      window.createModeDropdown_OLD = window.createModeDropdown;
+      window.createModeDropdownOLD = window.createModeDropdown;
       window.createModeDropdown = function() {
-        window.createModeDropdown_OLD();
+        window.createModeDropdownOLD();
         GMOpenButton.className += ' gm_withbonkhost';
         document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
         window.BonkUtils.setButtonSounds([GMOpenButton]);
@@ -107,10 +107,10 @@ export default {
 
     // hook into chatbox focus method to enable/disable chatbox input
     const chatbox = document.getElementById('newbonklobby_chat_input');
-    chatbox.focus_OLD = chatbox.focus;
+    chatbox.focusOLD = chatbox.focus;
     chatbox.focus = function() {
       if (!gm.editor.disableLobbyChatbox) {
-        chatbox.focus_OLD();
+        chatbox.focusOLD();
       }
     };
 
@@ -296,16 +296,16 @@ export default {
     // eslint-disable-next-line guard-for-in
     for (const block in Blockly.Blocks) {
       Blockly.Blocks[block].init = (function() {
-        const init_OLD = Blockly.Blocks[block].init;
+        const initOLD = Blockly.Blocks[block].init;
 
         return function() {
-          init_OLD.apply(this, arguments);
+          initOLD.apply(this, arguments);
 
           if (!this.type.startsWith('on_') && !this.type.startsWith('procedures_def')) {
-            const onChange_OLD = this.onchange;
+            const onChangeOLD = this.onchange;
 
             this.setOnChange(function() {
-              if (onChange_OLD) onChange_OLD.apply(this, arguments);
+              if (onChangeOLD) onChangeOLD.apply(this, arguments);
 
               if (this.parentBlock_ || this.isInMutator || this.isInFlyout) {
                 this.setWarningText(null);
@@ -419,10 +419,10 @@ export default {
       transaction.objectStore('backups').put(gm.editor.modeBackups, 1);
     });
 
-    gm.editor.headlessBlocklyWs.fireChangeListener_OLD = gm.editor.headlessBlocklyWs.fireChangeListener;
+    gm.editor.headlessBlocklyWs.fireChangeListenerOLD = gm.editor.headlessBlocklyWs.fireChangeListener;
     gm.editor.headlessBlocklyWs.fireChangeListener = function() {
       if (gm.lobby.networkEngine.getLSID() !== gm.lobby.networkEngine.hostID) return;
-      return gm.editor.headlessBlocklyWs.fireChangeListener_OLD(...arguments);
+      return gm.editor.headlessBlocklyWs.fireChangeListenerOLD(...arguments);
     };
 
     window.blockly = Blockly;
@@ -732,6 +732,7 @@ export default {
     gm.editor.GMESettingsChangeTab(gm.editor.isInSoundsTab);
   },
   GMESettingsCancel: function() {
+    gm.audio.stopAllSounds();
     document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
   },
   GMESettingsSave: function() {
@@ -740,6 +741,7 @@ export default {
     gm.editor.modeSettings.baseMode = document.getElementById('gmsettings_basemode').value;
 
     gm.editor.modeAssets = gm.editor.unsavedModeAssets;
+    gm.audio.stopAllSounds();
 
     document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
   },
@@ -759,6 +761,32 @@ export default {
         const soundOrder = i;
         const soundDef = gm.editor.unsavedModeAssets.sounds[i];
         const soundItem = gm.editor.settingsImageItem.cloneNode(true);
+
+        const soundPlayer = soundItem.getElementsByClassName('gm_listitemimage')[0];
+        let soundPlayerHowl = null;
+        soundPlayer.classList.add('play');
+        soundPlayer.addEventListener('click', function() {
+          if (soundPlayerHowl) {
+            soundPlayer.classList.remove('stop');
+            soundPlayer.classList.add('play');
+            soundPlayerHowl.unload();
+            soundPlayerHowl = null;
+          } else {
+            soundPlayer.classList.add('stop');
+            soundPlayer.classList.remove('play');
+            soundPlayerHowl = new Howl({
+              src: 'data:audio/' + soundDef.extension + ';base64,' + soundDef.data,
+              volume: 1,
+            });
+            soundPlayerHowl.on('end', function() {
+              soundPlayer.classList.remove('stop');
+              soundPlayer.classList.add('play');
+              soundPlayerHowl.unload();
+              soundPlayerHowl = null;
+            });
+            soundPlayerHowl.play();
+          }
+        });
 
         soundItem.getElementsByClassName('gm_listitemname')[0].value = soundDef.id;
         soundItem.getElementsByClassName('gm_listitemdetail')[0].innerText = soundDef.detail;
@@ -849,6 +877,32 @@ export default {
 
           // create new sound item
           const soundItem = gm.editor.settingsImageItem.cloneNode(true);
+
+          const soundPlayer = soundItem.getElementsByClassName('gm_listitemimage')[0];
+          let soundPlayerHowl = null;
+          soundPlayer.classList.add('play');
+          soundPlayer.addEventListener('click', function() {
+            if (soundPlayerHowl) {
+              soundPlayer.classList.remove('stop');
+              soundPlayer.classList.add('play');
+              soundPlayerHowl.unload();
+              soundPlayerHowl = null;
+            } else {
+              soundPlayer.classList.add('stop');
+              soundPlayer.classList.remove('play');
+              soundPlayerHowl = new Howl({
+                src: 'data:audio/' + extension + ';base64,' + data,
+                volume: 1,
+              });
+              soundPlayerHowl.on('end', function() {
+                soundPlayer.classList.remove('stop');
+                soundPlayer.classList.add('play');
+                soundPlayerHowl.unload();
+                soundPlayerHowl = null;
+              });
+              soundPlayerHowl.play();
+            }
+          });
 
           soundItem.getElementsByClassName('gm_listitemname')[0].value = name;
           soundItem.getElementsByClassName('gm_listitemdetail')[0].innerText = size;
@@ -972,6 +1026,7 @@ export default {
     saved.assets = gm.editor.modeAssets;
 
     gm.graphics.preloadImages(saved.assets.images);
+    gm.audio.preloadSounds(saved.assets.sounds);
 
     gm.editor.appliedMode = saved;
 

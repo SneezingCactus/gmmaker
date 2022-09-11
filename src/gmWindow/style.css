@@ -366,6 +366,18 @@
     flex-shrink: 0;
 }
 
+.gm_listitemimage.play {
+    background-image: url(images/gmeplay.png);
+    background-size: contain;
+    cursor: pointer;
+}
+
+.gm_listitemimage.stop {
+    background-image: url(images/gmestop.png);
+    background-size: contain;
+    cursor: pointer;
+}
+
 .gm_listitemright {
     display: flex;
     flex-direction: column;

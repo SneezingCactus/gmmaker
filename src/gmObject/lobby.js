@@ -11,7 +11,7 @@ export default {
   },
   initSocketio: function() {
     io = function() {
-      const socket = io_OLD(...arguments);
+      const socket = ioOLD(...arguments);
       gm.lobby.socket = socket;
 
       // reset mode when disconnecting
@@ -48,15 +48,15 @@ export default {
   },
   initBonkLobby: function() {
     NewBonkLobby = (function() {
-      const bonkLobby_OLD = NewBonkLobby;
+      const bonkLobbyOLD = NewBonkLobby;
 
       return function() {
-        const result = bonkLobby_OLD.apply(this, arguments);
+        const result = bonkLobbyOLD.apply(this, arguments);
         gm.lobby.playerArray = arguments[1];
         gm.lobby.bonkLobby = this;
 
         // move mode over to the editor when host leaves and you're new host
-        this.handleHostLeft_OLD = this.handleHostLeft;
+        this.handleHostLeftOLD = this.handleHostLeft;
         this.handleHostLeft = function(_oldHostName, newHostId) {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
@@ -79,11 +79,11 @@ export default {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
 
-          return this.handleHostLeft_OLD(...arguments);
+          return this.handleHostLeftOLD(...arguments);
         };
 
         // move mode over to the editor when host changes and you're new host
-        this.handleHostChange_OLD = this.handleHostChange;
+        this.handleHostChangeOLD = this.handleHostChange;
         this.handleHostChange = function(_oldHostName, newHostId) {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
@@ -106,12 +106,12 @@ export default {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
 
-          return this.handleHostChange_OLD(...arguments);
+          return this.handleHostChangeOLD(...arguments);
         };
 
         // enforce button disable state
         // for some reason, sometimes the button is not disabled when it should be, this tries to prevent that
-        this.setGameSettings_OLD = this.setGameSettings;
+        this.setGameSettingsOLD = this.setGameSettings;
         this.setGameSettings = function(gameSettings) {
           if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
@@ -119,13 +119,13 @@ export default {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
 
-          return this.setGameSettings_OLD(gameSettings);
+          return this.setGameSettingsOLD(gameSettings);
         };
 
         // update lobby mode name when needed
-        this.updateGameSettings_OLD = this.updateGameSettings;
+        this.updateGameSettingsOLD = this.updateGameSettings;
         this.updateGameSettings = function() {
-          const result = this.updateGameSettings_OLD(...arguments);
+          const result = this.updateGameSettingsOLD(...arguments);
 
           const modeName = gm.editor.appliedMode?.settings.modeName || gm.editor.modeSettingsDefaults[0].default;
 
@@ -155,41 +155,41 @@ export default {
     });
   },
   initNetworkEngine: function() {
-    const networkengine_OLD = NetworkEngine;
+    const networkengineOLD = NetworkEngine;
     NetworkEngine = function(mpSession, data) {
-      const networkEngine = new networkengine_OLD(...arguments);
+      const networkEngine = new networkengineOLD(...arguments);
 
       // creating a room means you're going to be the host
       // therefore the editor button is enabled
-      networkEngine.createRoom_OLD = networkEngine.createRoom;
+      networkEngine.createRoomOLD = networkEngine.createRoom;
       networkEngine.createRoom = function() {
         document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
-        return networkEngine.createRoom_OLD(...arguments);
+        return networkEngine.createRoomOLD(...arguments);
       };
 
       // joining a room means you're not going to be the host, at least not immediately
       // therefore the editor button is disabled
-      networkEngine.joinRoom_OLD = networkEngine.joinRoom;
+      networkEngine.joinRoomOLD = networkEngine.joinRoom;
       networkEngine.joinRoom = function() {
         document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
-        return networkEngine.joinRoom_OLD(...arguments);
+        return networkEngine.joinRoomOLD(...arguments);
       };
 
       // pass mode to player who just joined (when in lobby)
-      networkEngine.informInLobby_OLD = networkEngine.informInLobby;
+      networkEngine.informInLobbyOLD = networkEngine.informInLobby;
       networkEngine.informInLobby = function(a, b) {
         gm.lobby.sendMode(null, true);
 
-        return networkEngine.informInLobby_OLD(a, b);
+        return networkEngine.informInLobbyOLD(a, b);
       };
 
       // pass mode to player who just joined (when in game)
-      networkEngine.informInGame_OLD = networkEngine.informInGame;
+      networkEngine.informInGameOLD = networkEngine.informInGame;
 
       networkEngine.informInGame = function(a, b) {
         gm.lobby.sendMode(null, true);
 
-        return networkEngine.informInGame_OLD(a, b);
+        return networkEngine.informInGameOLD(a, b);
       };
 
       return gm.lobby.data = data, gm.lobby.mpSession = mpSession, gm.lobby.networkEngine = networkEngine, networkEngine;
@@ -203,22 +203,22 @@ export default {
         const result = cached_GenericGameSessionHandler.apply(this, arguments);
 
         // reset static info when game start
-        this.go_OLD = this.go;
+        this.goOLD = this.go;
         this.go = function() {
           document.getElementById('gm_logbox').innerHTML = '';
           document.getElementById('gm_logbox').style.visibility = 'hidden';
           gm.state.resetStaticInfo();
 
-          return this.go_OLD(...arguments);
+          return this.goOLD(...arguments);
         };
 
-        this.goInProgress_OLD = this.goInProgress;
+        this.goInProgressOLD = this.goInProgress;
         this.goInProgress = function() {
           document.getElementById('gm_logbox').innerHTML = '';
           document.getElementById('gm_logbox').style.visibility = 'hidden';
           gm.state.resetStaticInfo();
 
-          return this.goInProgress_OLD(...arguments);
+          return this.goInProgressOLD(...arguments);
         };
 
         gm.lobby.GenericGameSessionHandler = this;
@@ -261,6 +261,7 @@ export default {
       gm.editor.resetAll();
       gm.editor.appliedMode = mode;
       gm.graphics.preloadImages(mode.assets.images);
+      gm.audio.preloadSounds(mode.assets.sounds);
       gm.lobby.bonkLobby.updateGameSettings();
 
       if (mode.settings.isTextMode) {

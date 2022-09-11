@@ -9,9 +9,9 @@ export default {
   },
   initBonkGraphics: function() {
     BonkGraphics.prototype.render = (function() {
-      BonkGraphics.prototype.render_OLD = BonkGraphics.prototype.render;
+      BonkGraphics.prototype.renderOLD = BonkGraphics.prototype.render;
       return function(stateA, stateB, weight) {
-        this.render_OLD(...arguments);
+        this.renderOLD(...arguments);
 
         // if no mode loaded, no gmm stuff (except for camera pivot changing)
         if (!stateA.gmExtra || gm.lobby.data.quick) {
@@ -19,13 +19,13 @@ export default {
         };
 
         /* #region DISC GRAPHICS PROTO MODIFY */
-        if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen_OLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
+        if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreenOLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
           const discGraphic = this.discGraphics?.[this.discGraphics?.length - 1];
-          discGraphic.__proto__.doOffScreen_OLD = discGraphic.__proto__.doOffScreen;
+          discGraphic.__proto__.doOffScreenOLD = discGraphic.__proto__.doOffScreen;
           discGraphic.__proto__.doOffScreen = function() {
             this.offScreenContainer.visible = false;
             if (!gm.state.gameState.gmExtra?.cameraChanged && gm.state.gameState?.rl > 1) {
-              return this.doOffScreen_OLD.apply(this, arguments);
+              return this.doOffScreenOLD.apply(this, arguments);
             }
             return;
           };
@@ -98,7 +98,7 @@ export default {
               case 'screen':
                 // if it wasn't sortable, now it is
                 this.blurContainer.sortableChildren = true;
-                this.blurContainer.addChild_OLD(drawingList[i].displayObject);
+                this.blurContainer.addChildOLD(drawingList[i].displayObject);
                 break;
               case 'world':
                 gm.graphics.camera.sortableChildren = true;
@@ -129,7 +129,7 @@ export default {
                 case 'screen':
                   // if it wasn't sortable, now it is
                   this.blurContainer.sortableChildren = true;
-                  this.blurContainer.addChild_OLD(drawingList[i].displayObject);
+                  this.blurContainer.addChildOLD(drawingList[i].displayObject);
                   break;
                 case 'world':
                   gm.graphics.camera.sortableChildren = true;
@@ -162,11 +162,11 @@ export default {
       };
     })();
     BonkGraphics.prototype.build = (function() {
-      BonkGraphics.prototype.build_OLD = BonkGraphics.prototype.build;
+      BonkGraphics.prototype.buildOLD = BonkGraphics.prototype.build;
       return function() {
         if (!gm.graphics.camera) gm.graphics.camera = new PIXI.Container();
 
-        const result = this.build_OLD.apply(this, arguments);
+        const result = this.buildOLD.apply(this, arguments);
         gm.graphics.rendererClass = this;
 
         /* #region CAMERA CONTAINER HANDLING */
@@ -178,7 +178,7 @@ export default {
 
             if (child == gm.graphics.camera) continue;
 
-            this.blurContainer.removeChild_OLD(child);
+            this.blurContainer.removeChildOLD(child);
             gm.graphics.camera.addChild(child);
           }
 
@@ -191,15 +191,15 @@ export default {
           gm.graphics.camera.removeChild(child);
         }
 
-        this.blurContainer.addChild_OLD = this.blurContainer.addChild;
+        this.blurContainer.addChildOLD = this.blurContainer.addChild;
         this.blurContainer.addChild = gm.graphics.camera.addChild;
-        this.blurContainer.removeChild_OLD = this.blurContainer.removeChild;
+        this.blurContainer.removeChildOLD = this.blurContainer.removeChild;
         this.blurContainer.removeChild = gm.graphics.camera.removeChild;
 
         while (this.blurContainer.children.length > 0) {
           const child = this.blurContainer.children[0];
 
-          this.blurContainer.removeChild_OLD(child);
+          this.blurContainer.removeChildOLD(child);
           gm.graphics.camera.addChild(child);
         }
         this.blurContainer.addChild(gm.graphics.camera);
@@ -212,10 +212,12 @@ export default {
     })();
 
     BonkGraphics.prototype.destroy = (function() {
-      BonkGraphics.prototype.destroy_OLD = BonkGraphics.prototype.destroy;
+      BonkGraphics.prototype.destroyOLD = BonkGraphics.prototype.destroy;
       return function() {
         document.getElementById('gm_logbox').innerHTML = '';
         document.getElementById('gm_logbox').style.visibility = 'hidden';
+
+        gm.audio.stopAllSounds();
 
         for (let i = 0; i < gm.graphics.drawings.length; i++) {
           gm.graphics.drawings[i]?.destroy();
@@ -228,7 +230,7 @@ export default {
           gm.graphics.camera.removeChild(child);
         }
 
-        return this.destroy_OLD(...arguments);
+        return this.destroyOLD(...arguments);
       };
     })();
   },
@@ -471,7 +473,7 @@ class BoxShape {
 
     if (propsNoChange && !forceUpdate && !this.transing) return;
 
-    this.lastDrawDef = drawDefB;
+    this.lastDrawDef = shapeDefB;
 
     this.transing = !propsNoChange || forceUpdate;
 

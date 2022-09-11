@@ -170,6 +170,18 @@ this.game = {
     },
     debugLog: debugLog,
   },
+  audio: {
+    playSound: playSound,
+    playSoundAtWorldPos: function(id, volume, xPos) {
+      const ppm = game.state.physics.ppm;
+
+      let panning = xPos / (365 / ppm) - 1;
+      panning += ((-game.graphics.camera.xPos + 730 / ppm) * game.graphics.camera.xScale) / (365 / ppm) - 1;
+
+      this.playSound(id, volume, panning);
+    },
+    stopAllSounds: stopAllSounds,
+  },
 };
 
 this.staticSetted = false;

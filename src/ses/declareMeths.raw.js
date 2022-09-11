@@ -1,4 +1,5 @@
 /* eslint-disable prefer-const */
+
 /**
  * to avoid clutter
  * @param {*} object
@@ -56,6 +57,13 @@ harden(bakeDrawing);
 
 window.debugLog = (mess) => window.parent.gm.graphics.debugLog(mess);
 harden(debugLog);
+
+// sound functions
+window.playSound = (id, volume, panning) => window.parent.gm.audio.playSound(id, volume, panning);
+harden(playSound);
+
+window.stopAllSounds = () => window.parent.gm.audio.stopAllSounds();
+harden(stopAllSounds);
 
 // safe math
 const newMath = {};
@@ -199,4 +207,4 @@ window.Vector = {
 };
 
 // return list of methods
-['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'bakeDrawing', 'debugLog', 'Math', 'Vector'];
+['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'bakeDrawing', 'debugLog', 'playSound', 'stopAllSounds', 'Math', 'Vector'];

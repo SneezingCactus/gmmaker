@@ -460,7 +460,7 @@ declare type drawingShape = drawingShapeBase & (drawingShapeBox | drawingShapeCi
 
 declare interface drawingShapeBase {
   /**
-   * Indicates what type of shape what the fuck ?
+   * Indicates what type of shape this is.
    */
   type: string, 
   /**
@@ -543,168 +543,7 @@ declare interface drawingShapeLine {
   type: 'li'
   /**
    * X position at where the line ends.
-   */  attachId: number
-  /**
-   * Determines whether the drawing will appear in front or behind the attached object. If true, it will appear behind, otherwise, it will appear in front.
    */
-  isBehind: boolean
-  /**
-   * Determines whether any changes made to the drawing (excluding any shape changes) will go through 
-   * a smooth transition (as smooth as your screen's refresh rate) or if they will be applied instantly 
-   * (at 30fps). Resets to false every step.
-   */
-  noLerp: boolean
-  /**
-   * An array containing all of the shapes that make up the drawing.
-   */
-  shapes: drawingShape[]
-}
-
-declare interface camera {
-  /**
-   * X position of the camera.
-   */
-  xPos: number
-  /**
-   * Y position of the camera.
-   */
-  yPos: number
-  /**
-   * Angle of the camera, in degrees.
-   */
-  angle: number
-  /**
-   * X scale (zoom) of the camera.
-   */
-  xScale: number
-  /**
-   * Y scale (zoom) of the camera.
-   */
-  yScale: number
-  /**
-   * Determines whether any changes made to this drawing will be applied through a smooth transition (as smooth as your screen's refresh rate) or if they will be applied instantly (at 30fps). Resets to false every step.
-   */
-  noLerp: boolean
-}
-
-declare interface gameGraphics {
-  camera: camera
-  drawings: drawing[]
-  /**
-   * Creates a drawing with the data given. Any missing properties will be replaced by defaults.
-   */
-  createDrawing(options: drawing): number
-  bake(drawingId: number, resolution: number): void
-}
-
-declare interface rayCastResults {
-  objectType: 'disc' | 'arrow' | 'body'
-  objectId: number
-}
-
-declare interface gamePhysics {
-  rayCast(originX, originY, endX, endY, bitMask):rayCastResults
-}
-
-declare interface playerInput {
-  up: boolean
-  down: boolean
-  left: boolean
-  right: boolean
-  action: boolean
-  action2: boolean
-}
-
-declare interface inputMethods {
-  overrides: playerInput[]
-}
-
-declare type gameInputs = playerInput[] & inputMethods 
-
-// eslint-disable-next-line no-unused-vars
-interface game {
-  /**
-   * 
-   */
-  static events: gameEvents
-  /**
-   * A collection of info about the current state of a game, such as scores, player and map object attributes, etc.
-   */
-  static state: gameState
-  /**
-   * 
-   */
-  static inputs: gameInputs
-  /**
-   * A collection of info about the room, including players and game settings. 
-   * This does not change at any point in the game. This means that people leaving/joining during a game will not affect the content of this object.
-   */
-  static lobby: lobbyInfo
-  static graphics: gameGraphics
-}
-
-declare var game: game;
-
-interface Vector {
-  /**
-   * Adds the components of vector B to the respective components of vector A.
-   * 
-   * B can also be a number, in which case B is added to every single component of A.
-   */
-  static add(a: number[], b: number | number[]): number[]
-  /**
-   * Subtracts the components of vector B from the respective components of vector A.
-   * 
-   * B can also be a number, in which case B is subtracted from every single component of A.
-   */
-  static subtract(a: number[], b: number | number[]): number[]
-  /**
-   * Multiplies the components of vector A by the respective components of vector B.
-   * 
-   * B can also be a number, in which case, every single component of A is multiplied by B.
-   */
-  static multiply(a: number[], b: number | number[]): number[]
-  /**
-   * Divides the components of vector A by the respective components of vector B.
-   * 
-   * B can also be a number, in which case, every single component of A is divided by B.
-   */
-  static divide(a: number[], b: number | number[]): number[]
-  /**
-   * Returns the length (also called magnitude) of the vector.
-   */
-  static length(vector: number[]): number
-  /**
-   * Returns the distance between vector A and vector B.
-   */
-  static distance(a: number[], b: number[]): number
-  /**
-   * Returns the vector scaled to have a length of 1.
-   */
-  static normalize(vector: number[]): number[]
-  /**
-   * Returns the dot product of vector A and vector B.
-   * 
-   * If normalized vectors are given, the function returns 1 if they point in exactly the same direction,
-   * -1 if they point in completely opposite directions and zero if the vectors are perpendicular.
-   */
-  static dot(a: number[], b: number[]): number
-  /**
-   * Reflects a vector (dir) off the plane defined by a normal.
-   *
-   * The `normal` vector defines a plane (a plane's normal is the vector that is perpendicular to its surface).
-   * The `dir` vector is treated as a directional arrow coming in to the plane. 
-   * The returned value is a vector of equal magnitude to `dir` but with its direction reflected.
-   */
-  static reflect(dir: number[], normal: number[]): number[]
-  /**
-   * Returns a point linearly interpolated between points A and B by the interpolant `t`.
-   * 
-   * When `t` = 0, point A is returned.
-   * 
-   * When `t` = 1, point B is returned.
-   * 
-   * When `t` = 0.5, the point midway be
   xEnd: number
   /**
    * Y position at where the line ends.
@@ -884,6 +723,33 @@ declare interface gameGraphics {
   debugLog(message: any): void
 }
 
+declare interface gameAudio {
+  /**
+   * Play a sound with a specified volume and panning.
+   * 
+   * The ID corresponding to a custom sound can be changed in the Mode Settings menu.
+   * You can find a list with all of the vanilla sounds and their respective IDs in @link https://todoaddthing
+   * @param id The ID of the sound to play.
+   * @param volume Volume of the sound (0 to 1). You can play sounds with volumes higher than 1.
+   * @param panning Panning (balance) of the sound (-1 to 1).
+   */
+  playSound(id: string, volume: number, panning: number)
+  /**
+   * Play a sound with a specified volume at a specified X position in the world.
+   * 
+   * The ID corresponding to a custom sound can be changed in the Mode Settings menu.
+   * You can find a list with all of the vanilla sounds and their respective IDs in @link https://todoaddthing
+   * @param id The ID of the sound to play.
+   * @param volume Volume of the sound (0 to 1). You can play sounds with volumes higher than 1.
+   * @param xPos World X position of the sound.
+   */
+  playSoundAtWorldPos(id: string, volume: number, xPos: number)
+  /**
+   * Stop ALL sounds that are currently playing, including sounds made by bonk.io itself.
+   */
+  stopAllSounds()
+}
+
 declare interface rayCastResults {
   objectType: 'disc' | 'arrow' | 'body'
   objectId: number
@@ -934,6 +800,7 @@ interface game {
    */
   static lobby: lobbyInfo
   static graphics: gameGraphics
+  static audio: gameAudio
 }
 
 declare var game: game;

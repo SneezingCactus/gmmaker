@@ -9,19 +9,19 @@ export default {
   },
   initBonkGraphics: function() {
     BonkGraphics.prototype.render = (function() {
-      BonkGraphics.prototype.render_OLD = BonkGraphics.prototype.render;
+      BonkGraphics.prototype.renderOLD = BonkGraphics.prototype.render;
       return function() {
         const gmExtraA = arguments[0].gmExtra;
         const gmExtraB = arguments[1].gmExtra;
 
         // modify offscreen function of discs
-        if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen_OLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
+        if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreenOLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
           const discGraphic = this.discGraphics?.[this.discGraphics?.length - 1];
-          discGraphic.__proto__.doOffScreen_OLD = discGraphic.__proto__.doOffScreen;
+          discGraphic.__proto__.doOffScreenOLD = discGraphic.__proto__.doOffScreen;
           discGraphic.__proto__.doOffScreen = function() {
             this.offScreenContainer.visible = false;
             if (!gm.state.gameState?.gmExtra.cameraChanged && gm.state.gameState?.rl > 1) {
-              return this.doOffScreen_OLD.apply(this, arguments);
+              return this.doOffScreenOLD.apply(this, arguments);
             }
             return;
           };
@@ -102,7 +102,7 @@ export default {
           }
         }
 
-        const result = this.render_OLD.apply(this, arguments);
+        const result = this.renderOLD.apply(this, arguments);
 
         // revert the last game state changes
         for (let i = 0; i < newBodies.length; i++) {
@@ -224,15 +224,15 @@ export default {
       };
     })();
     BonkGraphics.prototype.build = (function() {
-      BonkGraphics.prototype.build_OLD = BonkGraphics.prototype.build;
+      BonkGraphics.prototype.buildOLD = BonkGraphics.prototype.build;
       return function() {
-        const result = this.build_OLD.apply(this, arguments);
+        const result = this.buildOLD.apply(this, arguments);
         gm.editor.varInspector.innerHTML = '';
         return result;
       };
     })();
     BonkGraphics.prototype.destroy = (function() {
-      BonkGraphics.prototype.destroy_OLD = BonkGraphics.prototype.destroy;
+      BonkGraphics.prototype.destroyOLD = BonkGraphics.prototype.destroy;
       return function() {
         gm.editor.varInspector.innerHTML = '';
 
@@ -261,13 +261,13 @@ export default {
           gm.graphics.additionalWorldGraphics = [];
           gm.graphics.additionalScreenGraphics = [];
         }
-        const result = this.destroy_OLD.apply(this, arguments);
+        const result = this.destroyOLD.apply(this, arguments);
         gm.graphics.renderUpdates = [];
         return result;
       };
     })();
     BonkGraphics.prototype.resizeRenderer = (function() {
-      BonkGraphics.prototype.resizeRenderer_OLD = BonkGraphics.prototype.resizeRenderer;
+      BonkGraphics.prototype.resizeRendererOLD = BonkGraphics.prototype.resizeRenderer;
       return function() {
         if (gm.graphics.rendererClass) {
           for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
@@ -282,7 +282,7 @@ export default {
             if (!gm.graphics.additionalScreenGraphics[i]) continue;
             gm.graphics.rendererClass.blurContainer?.removeChild(gm.graphics.additionalScreenGraphics[i]);
           }
-          const result = this.resizeRenderer_OLD.apply(this, arguments);
+          const result = this.resizeRendererOLD.apply(this, arguments);
           for (let i = 0; i < gm.graphics.additionalDiscGraphics.length; i++) {
             if (!gm.graphics.additionalDiscGraphics[i]) continue;
 
@@ -307,7 +307,7 @@ export default {
           }
           return result;
         } else {
-          return this.resizeRenderer_OLD.apply(this, arguments);
+          return this.resizeRendererOLD.apply(this, arguments);
         }
       };
     })();

@@ -7,6 +7,7 @@ import '../gmWindow/style.css';
 
 import gmState from '../gmObject/state.js';
 import gmGraphics from '../gmObject/graphics.js';
+import gmAudio from '../gmObject/audio.js';
 import gmLobby from '../gmObject/lobby.js';
 import gmEditor from '../gmObject/editor.js';
 import gmEncoding from '../gmObject/encoding';
@@ -22,6 +23,7 @@ window.initGM = function() {
   window.gm = {
     state: gmState,
     graphics: gmGraphics,
+    audio: gmAudio,
     lobby: gmLobby,
     editor: gmEditor,
     encoding: gmEncoding,

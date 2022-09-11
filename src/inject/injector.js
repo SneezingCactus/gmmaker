@@ -72,7 +72,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
     }
     const funcInBonk = match[1];
     funcNames.push({name: func.name, regex: func.regex, func: funcInBonk});
-    funcHooks += `window.${func.name} = ${funcInBonk}; window.${func.name}_OLD = ${funcInBonk}; ${funcInBonk} = ` + (func.isConstructor ? `new Proxy(${funcInBonk}, {\n	construct(target, args) { \n		return new ${func.name}(...args); \n	}\n});\n` : `function(){\n	return ${func.name}(...arguments);\n};\n`);
+    funcHooks += `window.${func.name} = ${funcInBonk}; window.${func.name}OLD = ${funcInBonk}; ${funcInBonk} = ` + (func.isConstructor ? `new Proxy(${funcInBonk}, {\n	construct(target, args) { \n		return new ${func.name}(...args); \n	}\n});\n` : `function(){\n	return ${func.name}(...arguments);\n};\n`);
   }));
 
   console.log('[Game Mode Maker] Using hooks:', funcNames);

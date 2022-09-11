@@ -37,9 +37,9 @@ export default {
     this.safeEval.evaluate(declareGameObject);
   },
   initb2Step: function() {
-    Box2D.Dynamics.b2World.prototype.Step_OLD = Box2D.Dynamics.b2World.prototype.Step;
+    Box2D.Dynamics.b2World.prototype.StepOLD = Box2D.Dynamics.b2World.prototype.Step;
     Box2D.Dynamics.b2World.prototype.Step = function() {
-      if (!PhysicsClass.contactListener.PostSolve_OLD) gm.state.initContactListener();
+      if (!PhysicsClass.contactListener.PostSolveOLD) gm.state.initContactListener();
 
       // management of the die
       if (PhysicsClass.globalStepVars?.inputState) {
@@ -53,15 +53,15 @@ export default {
           }
         }
       }
-      return this.Step_OLD(...arguments);
+      return this.StepOLD(...arguments);
     };
   },
   initGameState: function() {
-    const step_OLD = PhysicsClass.prototype.step;
+    const stepOLD = PhysicsClass.prototype.step;
     PhysicsClass.prototype.step = function(oldState, inputs) {
       // don't do gmm business when no mode is loaded or if in quickplay
       if (!oldState.gmExtra || gm.lobby.data.quick) {
-        const state = step_OLD(...arguments);
+        const state = stepOLD(...arguments);
         gm.state.gameState = state;
         gm.state.inputs = inputs;
         return state;
@@ -87,7 +87,7 @@ export default {
       arguments[1] = fakeInputs;
       /* #endregion OVERRIDE APPLY */
 
-      let state = step_OLD(...arguments);
+      let state = stepOLD(...arguments);
 
       /* #region ANGLE UNIT NORMALIZING */
       for (let i = 0; i !== state.discs.length; i++) {
@@ -301,7 +301,7 @@ export default {
     };
   },
   initContactListener: function() {
-    PhysicsClass.contactListener.PostSolve_OLD = PhysicsClass.contactListener.PostSolve;
+    PhysicsClass.contactListener.PostSolveOLD = PhysicsClass.contactListener.PostSolve;
     PhysicsClass.contactListener.PostSolve = function(contact, impulses) {
       if (impulses.normalImpulses[0] > 0.1) {
         const worldManifold = new Box2D.Collision.b2WorldManifold();
@@ -316,14 +316,14 @@ export default {
         });
       }
 
-      return PhysicsClass.contactListener.PostSolve_OLD(...arguments);
+      return PhysicsClass.contactListener.PostSolveOLD(...arguments);
     };
   },
   initCreateState: function() {
-    PhysicsClass.createNewState_OLD = PhysicsClass.createNewState;
+    PhysicsClass.createNewStateOLD = PhysicsClass.createNewState;
 
     PhysicsClass.createNewState = function() {
-      const state = PhysicsClass.createNewState_OLD(...arguments);
+      const state = PhysicsClass.createNewStateOLD(...arguments);
 
       if (!gm.lobby.networkEngine) return state;
 

@@ -39,9 +39,9 @@ export default {
     this.safeEval.evaluate('this.game = {state: null, inputs: null, playerInfo: null, gameSettings: null, misc: null}');
   },
   initb2Step: function() {
-    Box2D.Dynamics.b2World.prototype.Step_OLD = Box2D.Dynamics.b2World.prototype.Step;
+    Box2D.Dynamics.b2World.prototype.StepOLD = Box2D.Dynamics.b2World.prototype.Step;
     Box2D.Dynamics.b2World.prototype.Step = function() {
-      if (!PhysicsClass.contactListener.PostSolve_OLD) gm.state.initContactListener();
+      if (!PhysicsClass.contactListener.PostSolveOLD) gm.state.initContactListener();
 
       // management of the die
       if (PhysicsClass.globalStepVars?.inputState) {
@@ -55,11 +55,11 @@ export default {
           }
         }
       }
-      return this.Step_OLD(...arguments);
+      return this.StepOLD(...arguments);
     };
   },
   initGameState: function() {
-    const step_OLD = PhysicsClass.prototype.step;
+    const stepOLD = PhysicsClass.prototype.step;
     PhysicsClass.prototype.step = function() {
       // I know, it's kinda dumb to put everything into a try catch,
       // but it works well here
@@ -95,7 +95,7 @@ export default {
           gmReplaceAccessors.disableDeathBarrier = true;
         }
 
-        let gst = step_OLD(...arguments);
+        let gst = stepOLD(...arguments);
 
         if (gst.ftu == 0) {
           gm.graphics.renderUpdates = [];
@@ -394,7 +394,7 @@ export default {
     };
   },
   initContactListener: function() {
-    PhysicsClass.contactListener.PostSolve_OLD = PhysicsClass.contactListener.PostSolve;
+    PhysicsClass.contactListener.PostSolveOLD = PhysicsClass.contactListener.PostSolve;
     PhysicsClass.contactListener.PostSolve = function(contact, impulses) {
       if (impulses.normalImpulses[0] > 0.1) {
         const worldManifold = new Box2D.Collision.b2WorldManifold();
@@ -409,7 +409,7 @@ export default {
         });
       }
 
-      return PhysicsClass.contactListener.PostSolve_OLD(...arguments);
+      return PhysicsClass.contactListener.PostSolveOLD(...arguments);
     };
   },
   gameState: null,
