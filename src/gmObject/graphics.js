@@ -124,7 +124,7 @@ export default {
           }
 
           // drawing updating
-          if (drawingB && drawingList[i]) {
+          if (drawingA && drawingB && drawingList[i]) {
             if (drawingList[i].attachTo != drawingB.attachTo ||
                 drawingList[i].attachId != drawingB.attachId ||
                !drawingList[i].displayObject.parent) {

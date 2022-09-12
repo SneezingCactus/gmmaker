@@ -19,7 +19,7 @@ export default function() {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           },
           {
-            label: 'sh!eventStepAllDiscs',
+            label: 'sh!eventStepAllPlayers',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "step" that gets called for every player that was in the room when the game started.',
             insertText: 'game.events.addEventListener(\'step\', {runOnce: false}, function(id) {\n  //code goes here\n})',
@@ -133,7 +133,6 @@ export default function() {
   yScale: 1,
   attachTo: 'world',
   isBehind: false,
-  noLerp: false,
   shapes: [],
 });`,
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
