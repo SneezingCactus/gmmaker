@@ -1,71 +1,4 @@
-declare interface stepEventOptions {
-  /**
-   * Indicates whether the listener will be called once, or if it will be called once for every player in the game.
-   * The goal of this option is to facilitate self-interaction within a player, when needed (for example, to add new abilities, or to draw player-specific HUD).
-   * 
-   * This option only affects "roundStart" and "step".
-   * 
-   * If set to false, the listener will be called multiple times, and it will be given the id of a different player every time.
-   * It will do so in the order the ids are in. Example: if there are two players, one with id 2 and another with id 5,
-   * the function will be called twice; the first time it will be given the id 2, then the other time, the id 5.  
-   * 
-   * If set to true, the listener will be called once, and no variables will be given.
-   */
-  runOnce: boolean
-}
-
-declare interface collisionEventOptions {
-  /**
-   * Indicates what collision needs to happen for the event to fire: collision with a player, an arrow or a body.
-   * 
-   * todo add descriptions of extra args
-   */
-  collideWith: 'disc' | 'arrow' | 'body'
-}
-
-declare interface collisionEvent_disc extends collisionEventOptions {
-  collideWith: 'disc'
-}
-declare interface collisionEvent_arrow extends collisionEventOptions {
-  collideWith: 'arrow'
-}
-declare interface collisionEvent_body extends collisionEventOptions {
-  collideWith: 'body'
-}
-
-declare interface bodyCollisionData {
-  id: number
-  fixtureId: number
-  normal: number[2]
-}
-
-declare interface gameEvents {
-  /**
-   * Attach a function (listener) to an event. This function will be called when the event happens. An event can have multiple listeners attached to it.
-   * 
-   * Read more about events in @link https://todoaddthing.
-   * 
-   * @param eventName The name of the event to attach the listener to.
-   * @param options Unique options to change when and how the listener will be called.
-   * @param listener The function to attach.
-   */
-  addEventListener(eventName: 'roundStart', options: stepEventOptions, listener: () => void)
-  addEventListener(eventName: 'step', options: stepEventOptions, listener: () => void)
-  addEventListener(eventName: 'playerDie', options: null, listener: () => void)
-
-  addEventListener(eventName: 'discCollision', options: collisionEvent_disc, listener: (discId: number, collisionId: number) => void)
-  addEventListener(eventName: 'discCollision', options: collisionEvent_arrow, listener: (discId: number, collisionId: number) => void)
-  addEventListener(eventName: 'discCollision', options: collisionEvent_body, listener: (discId: number, collisionData: bodyCollisionData) => void)
-
-  addEventListener(eventName: 'arrowCollision', options: collisionEvent_disc, listener: (arrowId: number, collisionId: number) => void)
-  addEventListener(eventName: 'arrowCollision', options: collisionEvent_arrow, listener: (arrowId: number, collisionId: number) => void)
-  addEventListener(eventName: 'arrowCollision', options: collisionEvent_body, listener: (arrowId: number, collisionData: bodyCollisionData) => void)
-
-  addEventListener(eventName: 'bodyCollision', options: collisionEvent_disc, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
-  addEventListener(eventName: 'bodyCollision', options: collisionEvent_arrow, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
-  addEventListener(eventName: 'bodyCollision', options: collisionEvent_body, listener: (bodyData: bodyCollisionData, collisionData: bodyCollisionData) => void)
-}
-
+/* #region GAME STATE */
 declare interface swingInfo {
   /**
    * Attached body's id.
@@ -147,6 +80,82 @@ declare interface disc {
    * Grapple joint information. Becomes null when the player isn't grappling anything.
    */
   swing:swingInfo
+}
+
+declare interface discDeath {
+  /**
+   * ID of the disc that died.
+   */
+  i: number
+  /**
+   * The amount of steps that happened since the disc died.
+   */
+  f: number
+  /**
+   * This number indicates the reason why the disc died:
+   * - If it's 1: the disc touched a death platform shape or a death arrow.
+   * - It it's 3: an opponent claimed a capture zone.
+   * - If it's 4: the disc went out of bounds.
+   */
+  m: number
+  /**
+   * X position that the disc had when it died.
+   */
+  x: number
+  /**
+   * Y position that the disc had when it died.
+   */
+  y: number
+  /**
+   * X velocity that the disc had when it died.
+   */
+  xv: number
+  /**
+   * Y velocity that the disc had when it died.
+   */
+  yv: number
+}
+
+declare interface projectile {
+  /**
+   * X position of the arrow.
+   */
+  x: number
+  /**
+   * Y position of the arrow.
+   */
+  y: number
+  /**
+   * Angle in degrees of the arrow.
+   */
+  a: number
+  /**
+   * Angular velocity of the arrow.
+   */
+  av: number
+  /**
+   * X velocity of the arrow.
+   */
+  xv: number
+  /**
+   * Y velocity of the arrow.
+   */
+  yv: number
+  /**
+   * Likely stands for "frames 'till end".
+   * 
+   * It's a timer number that indicates how many steps are left until the arrow despawns.
+   */
+  fte: number
+  /**
+   * Player ID of the arrow's owner.
+   */
+  did: number
+  /**
+   * Stands for "no interpolation", and works just like the noLerp variables in the camera and in drawings.
+   * Setting this value to true will make the game not interpolate the arrow's movement until the next step. Useful for teleporting arrows without visible middle frames.
+   */
+  ni:boolean
 }
 
 declare interface capZone {
@@ -303,10 +312,10 @@ declare interface fixture {
 
 declare interface shape {
   /**
-   * Shape type. Can be:\n
-   * "bx": A box, a rectangle;\n
-   * "ci": A circle;\n
-   * "po": A polygon.
+   * Shape type. Can be:
+   * - "bx": A box (rectangle)
+   * - "ci": A circle
+   * - "po": A polygon.
    */
   type : 'bx' | 'ci' | 'po'
   /**
@@ -343,28 +352,229 @@ declare interface shape {
   sk: boolean
 }
 
-declare interface physics {
-  bodies: body[]
-  fixtures: fixture[]
-  shapes: shape[]
-  ppm: number
+declare interface joint {
+  type: 'rv' | 'd' | 'lpj' | 'lsj'
+  d: {
+    la: number
+    ua: number
+    mmt: number
+    ms: number
+    el: boolean
+    em: boolean
+
+    fh: number
+    dr: number
+
+    cc: boolean
+    bf: number
+    dl: boolean
+  }
+  ba: number
+  bb: number
+  aa: number
+  ab: number
+  len: number
+
+  pax: number
+  pay: number
+  pa: number
+  pf: number
+  pl: number
+  pu: number
+  plen: number
+  pms: number
+
+  sax: number
+  say: number
+  sf: number
+  slen: number
 }
 
-
 declare interface gameState {
+  /**
+   * Likely stands for "map settings". It contains several map-specific settings.
+   */
+  ms: {
+    /** Corresponds to the "Respawn on death" option in the map editor. 
+     * It specifies whether discs can respawn on death or not. */
+    re: boolean
+    /** Corresponds to the "Players don't collide" option in the map editor. 
+     * It specifies whether discs can collide with each other (false) or not (true). */
+    nc: boolean
+    /** Corresponds to the "Players can fly" option in the map editor. 
+     * Stands for "flying". It specifies whether discs can "fly" (like in fly maps) or not. */
+    fl: boolean
+    /** Corresponds to the "Complex physics" option in the map editor. 
+     * For some reason, it's not a boolean, but a number:
+     * - When pq equals 2, complex physics are used.
+     * - When pq not equals 2, normal physics are used. */
+    pq: number
+    /** Map editor grid size. This property has no effect whatsoever on the game. */
+    gd: number
+  }
+  /**
+   * Probably stands for "map metadata". It contains a bunch of info about the map,
+   * such as the username of the person who created it, the name of the map, etc.
+   */
+  mm: {
+    /** Map author's username. */
+    a: string
+    /** The name of the map. */
+    n: string
+    /** Lilely stands for "database version". Maps published in flash bonk.io will have dbv 1, while maps published in current bonk.io will have dbv 2.*/
+    dbv: number
+    // todo
+    /** this thing */
+    mo: string
+    /** The amount of upvotes the map received. */
+    vu: number
+    /** The amount of downvotes the map received. */
+    vd: number
+    /** Original map author's username. This is only present in edited maps. In completely original maps, it gets set to "" (an empty string). */
+    rxa: string|null
+    /** Original map name. This is only present in edited maps. In completely original maps, it gets set to "" (an empty string). */
+    rxn: string|null
+    /** Original database version (refer to `dbv`'s description). This is only present in edited maps. In completely original maps, it gets set to 1. */
+    rxdb: number|null
+  }
   /**
    * Array that contains varied attributes for every player currently alive.
    * Ordered by player ID (discs[0] is player with id 0, discs[2] is player with id 2, etc.)
    */
   discs: disc[]
   /**
-   *
+   * 
    */
+  discDeaths: discDeath[]
+  projectiles: projectile[]
   capZones: capZone[]
   /**
    *
    */
-  physics: physics
+  physics: {
+    bodies: body[]
+    fixtures: fixture[]
+    shapes: shape[]
+    ppm: number
+  }
+  /**
+   * Likely stands for "round count". It indicates how many rounds have passed since the game started (when the host presses START).
+   */
+  rc: number
+  /**
+   * Likely stands for "round length". It's the amount of steps that have happened since last round start.
+   */
+  rl: number
+  /**
+   * Likely stands for "frames 'till unfreeze".
+   * 
+   * It's a timer number that indicates how many steps are left until the world unfreezes and the players can start moving.
+   * 
+   * On the first round, the name and author of the map will appear in a splash screen during this period.
+   * 
+   * On every other round, a "Game starts in" countdown will appear, showing the amount of seconds left until the timer is over.
+   * 
+   * When the timer reaches -1, it stops and the world unfreezes.
+   */
+  ftu: number
+  /**
+   * Likely stands for "frames 'till end".
+   * 
+   * It's a timer number that indicates how many steps are left until the round ends and the world gets reset.
+   * 
+   * When fte is greater than -1, a win screen appears and it starts counting down until it reaches 0,
+   * and the round ends.
+   * 
+   * When fte equals -1, the timer is inactive: nothing happens.
+   */
+  fte: number
+  /**
+   * Probably stands for something along the lines of "last scored".
+   * 
+   * - On a Free For All game, it contains the id of the player who just won the round.
+   * - On a Teams game, it indicates the team that just won the round: 0 = red, 1 = blue, 2 = green, 3 = yellow.
+   * - When set to -1 (both in FFA and Teams), it indicates a draw.
+   */
+  lscr: number
+  /**
+   * Array containing the amount of wins for each player/team.
+   * 
+   * - On a Free For All game, these scores are ordered by player ID and each one of them corresponds
+   *   to a player. For example: scores[10] would be player ID 10's amount of wins.
+   * - On a Teams game, there are up to 4 items, each one corresponding to a specific team,
+   *   in the following order: 0 = red, 1 = blue, 2 = green, 3 = yellow.
+   *   For example: scores[2] would be Team Green's amount of wins.
+   */
+  scores: []
+}
+/* #endregion GAME STATE */
+
+declare interface stepEventOptions {
+  /**
+   * Indicates whether the listener will be called once, or if it will be called once for every player in the game.
+   * The goal of this option is to facilitate self-interaction within a player, when needed (for example, to add new abilities, or to draw player-specific HUD).
+   * 
+   * This option only affects "roundStart" and "step".
+   * 
+   * If set to false, the listener will be called multiple times, and it will be given the id of a different player every time.
+   * It will do so in the order the ids are in. Example: if there are two players, one with id 2 and another with id 5,
+   * the function will be called twice; the first time it will be given the id 2, then the other time, the id 5.  
+   * 
+   * If set to true, the listener will be called once, and no variables will be given.
+   */
+  runOnce: boolean
+}
+
+declare interface collisionEventOptions {
+  /**
+   * Indicates what collision needs to happen for the event to fire: collision with a player, an arrow or a body.
+   * 
+   * todo add descriptions of extra args
+   */
+  collideWith: 'disc' | 'arrow' | 'body'
+}
+
+declare interface collisionEvent_disc extends collisionEventOptions {
+  collideWith: 'disc'
+}
+declare interface collisionEvent_arrow extends collisionEventOptions {
+  collideWith: 'arrow'
+}
+declare interface collisionEvent_body extends collisionEventOptions {
+  collideWith: 'body'
+}
+
+declare interface bodyCollisionData {
+  id: number
+  fixtureId: number
+  normal: number[]
+}
+
+declare interface gameEvents {
+  /**
+   * Attach a function (listener) to an event. This function will be called when the event happens. An event can have multiple listeners attached to it.
+   * 
+   * Read more about events in @link https://todoaddthing.
+   * 
+   * @param eventName The name of the event to attach the listener to.
+   * @param options Unique options to change when and how the listener will be called.
+   * @param listener The function to attach.
+   */
+  addEventListener(eventName: 'roundStart', options: stepEventOptions, listener: () => void)
+  addEventListener(eventName: 'step', options: stepEventOptions, listener: () => void)
+  addEventListener(eventName: 'playerDie', options: null, listener: () => void)
+
+  addEventListener(eventName: 'discCollision', options: collisionEvent_disc, listener: (discId: number, collisionId: number) => void)
+  addEventListener(eventName: 'discCollision', options: collisionEvent_arrow, listener: (discId: number, collisionId: number) => void)
+  addEventListener(eventName: 'discCollision', options: collisionEvent_body, listener: (discId: number, collisionData: bodyCollisionData) => void)
+
+  addEventListener(eventName: 'arrowCollision', options: collisionEvent_disc, listener: (arrowId: number, collisionId: number) => void)
+  addEventListener(eventName: 'arrowCollision', options: collisionEvent_arrow, listener: (arrowId: number, collisionId: number) => void)
+  addEventListener(eventName: 'arrowCollision', options: collisionEvent_body, listener: (arrowId: number, collisionData: bodyCollisionData) => void)
+
+  addEventListener(eventName: 'bodyCollision', options: collisionEvent_disc, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
+  addEventListener(eventName: 'bodyCollision', options: collisionEvent_arrow, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
+  addEventListener(eventName: 'bodyCollision', options: collisionEvent_body, listener: (bodyData: bodyCollisionData, collisionData: bodyCollisionData) => void)
 }
 
 declare interface lobbyPlayerInfo {
@@ -781,74 +991,83 @@ declare interface inputMethods {
 declare type gameInputs = playerInput[] & inputMethods 
 
 // eslint-disable-next-line no-unused-vars
-interface game {
+declare interface game {
   /**
    * 
    */
-  static events: gameEvents
+  events: gameEvents
   /**
    * A collection of info about the current state of a game, such as scores, player and map object attributes, etc.
    */
-  static state: gameState
+  state: gameState
   /**
    * 
    */
-  static inputs: gameInputs
+  inputs: gameInputs
   /**
    * A collection of info about the room, including players and game settings. 
    * This does not change at any point in the game. This means that people leaving/joining during a game will not affect the content of this object.
    */
-  static lobby: lobbyInfo
-  static graphics: gameGraphics
-  static audio: gameAudio
+  lobby: lobbyInfo
+  /**
+   * 
+   */
+  graphics: gameGraphics
+  audio: gameAudio
+  /**
+   * Empty object where you can store anything, as long as what you're trying to store can be represented using only JSON types (number, string, etc).
+   * 
+   * Whatever you store in here will stay here until the game ends.
+   */
+  vars: object
 }
 
 declare var game: game;
 
-interface Vector {
+declare interface Vector {
   /**
    * Adds the components of vector B to the respective components of vector A.
    * 
    * B can also be a number, in which case B is added to every single component of A.
    */
-  static add(a: number[], b: number | number[]): number[]
+  add(a: number[], b: number | number[]): number[]
   /**
    * Subtracts the components of vector B from the respective components of vector A.
    * 
    * B can also be a number, in which case B is subtracted from every single component of A.
    */
-  static subtract(a: number[], b: number | number[]): number[]
+  subtract(a: number[], b: number | number[]): number[]
   /**
    * Multiplies the components of vector A by the respective components of vector B.
    * 
    * B can also be a number, in which case, every single component of A is multiplied by B.
    */
-  static multiply(a: number[], b: number | number[]): number[]
+  multiply(a: number[], b: number | number[]): number[]
   /**
    * Divides the components of vector A by the respective components of vector B.
    * 
    * B can also be a number, in which case, every single component of A is divided by B.
    */
-  static divide(a: number[], b: number | number[]): number[]
+  divide(a: number[], b: number | number[]): number[]
   /**
    * Returns the length (also called magnitude) of the vector.
    */
-  static length(vector: number[]): number
+  length(vector: number[]): number
   /**
    * Returns the distance between vector A and vector B.
    */
-  static distance(a: number[], b: number[]): number
+  distance(a: number[], b: number[]): number
   /**
    * Returns the vector scaled to have a length of 1.
    */
-  static normalize(vector: number[]): number[]
+  normalize(vector: number[]): number[]
   /**
    * Returns the dot product of vector A and vector B.
    * 
    * If normalized vectors are given, the function returns 1 if they point in exactly the same direction,
    * -1 if they point in completely opposite directions and zero if the vectors are perpendicular.
    */
-  static dot(a: number[], b: number[]): number
+  dot(a: number[], b: number[]): number
   /**
    * Reflects a vector (dir) off the plane defined by a normal.
    *
@@ -856,7 +1075,7 @@ interface Vector {
    * The `dir` vector is treated as a directional arrow coming in to the plane. 
    * The returned value is a vector of equal magnitude to `dir` but with its direction reflected.
    */
-  static reflect(dir: number[], normal: number[]): number[]
+  reflect(dir: number[], normal: number[]): number[]
   /**
    * Returns a point linearly interpolated between points A and B by the interpolant `t`.
    * 
@@ -866,7 +1085,7 @@ interface Vector {
    * 
    * When `t` = 0.5, the point midway between A and B is returned.
    */
-  static lerp(a: number[], b: number[], t: number): number[]
+  lerp(a: number[], b: number[], t: number): number[]
 }
 
 /** 
@@ -876,7 +1095,7 @@ interface Vector {
  */
 declare var Vector: Vector;
 
-interface Math {
+declare interface Math {
   /** The mathematical constant e. This is Euler's number, the base of natural logarithms. */
   readonly E: number;
   /** The natural logarithm of 10. */

@@ -272,7 +272,7 @@ export default {
       }
       /* #endregion EVENT FIRING */
 
-      state = gm.state.safeEval.globalThis.game.state;
+      state = gm.state.safeEval.evaluate('this.prepareDynamicInfo()');
       state.gmInitial = oldState.gmInitial;
 
       /* #region ANGLE UNIT RESTORING */

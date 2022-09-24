@@ -18,20 +18,6 @@ export default {
           return this.renderer.render(this.stage);
         };
 
-        /* #region DISC GRAPHICS PROTO MODIFY */
-        if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreenOLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
-          const discGraphic = this.discGraphics?.[this.discGraphics?.length - 1];
-          discGraphic.__proto__.doOffScreenOLD = discGraphic.__proto__.doOffScreen;
-          discGraphic.__proto__.doOffScreen = function() {
-            this.offScreenContainer.visible = false;
-            if (!gm.state.gameState.gmExtra?.cameraChanged && gm.state.gameState?.rl > 1) {
-              return this.doOffScreenOLD.apply(this, arguments);
-            }
-            return;
-          };
-        }
-        /* #endregion DISC GRAPHICS PROTO MODIFY */
-
         /* #region UPDATE CAMERA */
         // this.blurContainer.pivot.x = -365 * this.scaleRatio;
         // this.blurContainer.pivot.y = -250 * this.scaleRatio;
@@ -67,7 +53,8 @@ export default {
         /* #endregion UPDATE CAMERA */
 
         /* #region UPDATE DRAWINGS */
-        for (let i = 0; i < stateB.gmExtra.drawings.length; i++) {
+        const maxDrawingsLength = Math.max(stateB.gmExtra.drawings.length, gm.graphics.drawings.length);
+        for (let i = 0; i < maxDrawingsLength; i++) {
           const drawingA = stateA.gmExtra.drawings[i];
           const drawingB = stateB.gmExtra.drawings[i];
           const drawingList = gm.graphics.drawings;
@@ -172,6 +159,29 @@ export default {
       BonkGraphics.prototype.buildOLD = BonkGraphics.prototype.build;
       return function() {
         if (!gm.graphics.camera) gm.graphics.camera = new PIXI.Container();
+
+        const emptyState = {ms: {re: false, nc: true, pq: 0, gd: 0, fl: false}, mm: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: ''}, shk: {x: 0, y: 0}, discs: [{x: 0, y: 0, xv: 0, yv: 0, a: 0, av: 0, a1a: 0, team: 1, a1: false, a2: false, ni: false, sx: 0, sy: 0, sxv: 0, syv: 0, ds: 0, da: 0, lhid: -1, lht: 0, swing: false}], capZones: [], seed: 0, ftu: -1, rc: 0, rl: 1, sts: null, physics: {shapes: [], fixtures: [], bodies: [], joints: [], bro: [], ppm: 1}, scores: [0], lscr: -1, fte: -1, discDeaths: [], players: [{id: 0, team: 1}], projectiles: []};
+        const emptySettings = {map: {v: 0, s: {re: false, nc: false, pq: 0, gd: 0, fl: false}, physics: {shapes: [], fixtures: [], bodies: [], joints: [], bro: [], ppm: 1}, spawns: [], capZones: [], m: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: '', vu: 0, vd: 0}}, gt: 2, wl: 3, q: false, tl: false, tea: false, ga: 'b', mo: 'b', bal: []};
+        this.buildOLD.apply(this, [
+          emptyState,
+          emptySettings,
+        ]);
+        this.render.apply(this, [emptyState, emptyState, 0, emptySettings, [], 0]);
+        if (!this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreenOLD && this.discGraphics?.[this.discGraphics?.length - 1]?.__proto__.doOffScreen) {
+          const discGraphic = this.discGraphics[0];
+          discGraphic.__proto__.doOffScreenOLD = discGraphic.__proto__.doOffScreen;
+          discGraphic.__proto__.doOffScreen = function() {
+            this.offScreenContainer.visible = false;
+            if (gm.state.gameState.gmExtra?.cameraChanged || gm.state.gameState?.rl <= 1) return;
+            return this.doOffScreenOLD.apply(this, arguments);
+          };
+          discGraphic.__proto__.moveOLD = discGraphic.__proto__.move;
+          discGraphic.__proto__.move = function(a, b) {
+            if (!a.discs[this.playerID]) arguments[0] = b;
+            this.moveOLD(...arguments);
+          };
+        }
+        this.destroyChildren();
 
         const result = this.buildOLD.apply(this, arguments);
         gm.graphics.rendererClass = this;

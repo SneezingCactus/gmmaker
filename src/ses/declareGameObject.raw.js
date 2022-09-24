@@ -197,3 +197,10 @@ this.setStaticInfo = function() {
 this.setDynamicInfo = function() {
   getDynamicInfo(this.game);
 };
+this.prepareDynamicInfo = function() {
+  game.state.gmExtra.camera = game.graphics.camera;
+  game.state.gmExtra.drawings = game.graphics.drawings;
+  game.state.gmExtra.overrides = game.inputs.overrides;
+
+  return game.state;
+};
