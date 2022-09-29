@@ -62,13 +62,15 @@ export default {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
 
+            gm.editor.modeSettings = gm.editor.appliedMode.settings;
+            gm.editor.modeAssets = gm.editor.appliedMode.assets;
+
             const modeContent = gm.editor.appliedMode.content;
 
             if (gm.editor.appliedMode.settings?.isTextMode) {
               gm.editor.changingToTextEditor = true;
               gm.editor.monacoWs.setValue(modeContent);
             } else {
-              gm.editor.GMEChangeEditor(false);
               gm.editor.blocklyWs.clear();
 
               const xml = document.createElement('xml');
@@ -89,13 +91,15 @@ export default {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
 
+            gm.editor.modeSettings = gm.editor.appliedMode.settings;
+            gm.editor.modeAssets = gm.editor.appliedMode.assets;
+
             const modeContent = gm.editor.appliedMode.content;
 
             if (gm.editor.appliedMode.settings?.isTextMode) {
               gm.editor.changingToTextEditor = true;
               gm.editor.monacoWs.setValue(modeContent);
             } else {
-              gm.editor.GMEChangeEditor(false);
               gm.editor.blocklyWs.clear();
 
               const xml = document.createElement('xml');

@@ -59,6 +59,9 @@ export default {
   initGameState: function() {
     const stepOLD = PhysicsClass.prototype.step;
     PhysicsClass.prototype.step = function(oldState, inputs) {
+      // don't do anything if crashed
+      if (gm.state.crashed) return oldState;
+
       // don't do gmm business when no mode is loaded or if in quickplay
       if (!oldState.gmExtra || gm.lobby.data.quick) {
         const state = stepOLD(...arguments);
@@ -405,13 +408,26 @@ export default {
   staticInfo: null,
   collisionsThisStep: [],
   pseudoRandom: null,
+  crashed: false,
+  crashAbort: function() {
+    this.crashed = true;
+    if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
+      document.getElementById('pretty_top_exit').click();
+    }
+  },
   generateEvents: function(code) {
     this.resetSES();
     this.safeEval.evaluate(code);
   },
   fireEvent: function() {
     gm.state.currentEventArgs = [...arguments];
-    gm.state.safeEval.evaluate('game.events.fireEvent(...getEventArgs())');
+
+    try {
+      gm.state.safeEval.evaluate('game.events.fireEvent(...getEventArgs())');
+    } catch (e) {
+      gm.state.crashAbort();
+      console.log(e);
+    }
   },
   resetStaticInfo: function() {
     gm.state.safeEval.evaluate('this.resetStaticInfo();');

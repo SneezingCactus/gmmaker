@@ -12,7 +12,7 @@ this.defaults = {
     noLerp: false,
     shapes: [],
   },
-  boxShape: {
+  drawingBoxShape: {
     colour: 0xffffff,
     alpha: 1,
     xPos: 0,
@@ -22,7 +22,7 @@ this.defaults = {
     height: 1,
     noLerp: false,
   },
-  circleShape: {
+  drawingCircleShape: {
     type: 'ci',
     colour: 0xffffff,
     alpha: 1,
@@ -33,7 +33,7 @@ this.defaults = {
     height: 1,
     noLerp: false,
   },
-  polyShape: {
+  drawingPolyShape: {
     type: 'po',
     colour: 0xffffff,
     alpha: 1,
@@ -49,7 +49,7 @@ this.defaults = {
     ],
     noLerp: false,
   },
-  lineShape: {
+  drawingLineShape: {
     type: 'li',
     colour: 0xffffff,
     alpha: 1,
@@ -60,7 +60,7 @@ this.defaults = {
     width: 1,
     noLerp: false,
   },
-  textShape: {
+  drawingTextShape: {
     type: 'tx',
     colour: 0xffffff,
     alpha: 1,
@@ -75,7 +75,7 @@ this.defaults = {
     shadow: true,
     noLerp: false,
   },
-  imageShape: {
+  drawingImageShape: {
     id: '',
     region: null,
     colour: 0xffffff,
@@ -86,6 +86,70 @@ this.defaults = {
     width: 1,
     height: 1,
     noLerp: false,
+  },
+  body: {
+    type: 's',
+    p: [0, 0],
+    lv: [0, 0],
+    a: 0,
+    av: 0,
+    fricp: false,
+    fric: 1,
+    de: 0.3,
+    re: 0.8,
+    ld: 0,
+    ad: 0,
+    fr: false,
+    bu: false,
+    cf: {
+      x: 0,
+      y: 0,
+      w: false,
+      ct: 0,
+    },
+    f_c: 1,
+    f_p: true,
+    f_1: true,
+    f_2: true,
+    f_3: true,
+    f_4: true,
+  },
+  bodyFixture: {
+    n: 'fixture',
+    f: 0xffffff,
+    fp: null,
+    fr: null,
+    re: null,
+    de: null,
+    d: false,
+    np: false,
+    ng: false,
+    ig: false,
+  },
+  bodyBoxShape: {
+    type: 'bx',
+    c: [0, 0],
+    a: 0,
+    w: 1,
+    h: 1,
+    sk: false,
+  },
+  bodyCircleShape: {
+    type: 'ci',
+    c: [0, 0],
+    r: 1,
+    sk: false,
+  },
+  bodyPolyShape: {
+    type: 'po',
+    c: [0, 0],
+    a: 0,
+    s: 1,
+    v: [
+      [0, 0],
+      [1, 0],
+      [0, 1],
+    ],
   },
 };
 
@@ -116,6 +180,43 @@ this.game = {
   state: {},
   inputs: {},
   lobby: {},
+  world: {
+    createBody: function(options) {
+      const finalBody = Object.assign(JSON.parse(JSON.stringify(defaults.body)), options.bodyDef);
+      finalBody.cf = Object.assign(JSON.parse(JSON.stringify(defaults.body.cf)), finalBody.cf);
+
+      finalBody.fx = [];
+
+      for (let i = 0; i < options.fixtureDefs.length; i++) {
+        const fixture = Object.assign(JSON.parse(JSON.stringify(defaults.bodyFixture)), options.fixtureDefs[i]);
+
+        let shape = options.shapeDefs[i] ?? {type: 'bx'};
+
+        switch (shape.type) {
+          case 'bx':
+            shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyBoxShape)), shape);
+            break;
+          case 'ci':
+            shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyCircleShape)), shape);
+            break;
+          case 'po':
+            shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyPolyShape)), shape);
+            break;
+        }
+
+        game.state.physics.shapes.push(shape);
+
+        fixture.sh = game.state.physics.shapes.length - 1;
+        game.state.physics.fixtures.push(fixture);
+        finalBody.fx.push(game.state.physics.fixtures.length - 1);
+      }
+
+      game.state.physics.bodies.push(finalBody);
+      game.state.physics.bro.splice(Math.min(options.viewOrder ?? Infinity, game.state.physics.bro.length), 0, game.state.physics.bodies.length - 1);
+
+      return game.state.physics.bodies.length - 1;
+    },
+  },
   graphics: {
     createDrawing: function(drawing) {
       const finalDrawing = Object.assign(JSON.parse(JSON.stringify(defaults.drawing)), drawing);
@@ -128,22 +229,22 @@ this.game = {
         const shape = drawing.shapes[i];
         switch (shape.type) {
           case 'bx':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.boxShape)), shape);
+            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingBoxShape)), shape);
             break;
           case 'ci':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.circleShape)), shape);
+            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingCircleShape)), shape);
             break;
           case 'po':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.polyShape)), shape);
+            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingPolyShape)), shape);
             break;
           case 'li':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.lineShape)), shape);
+            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingLineShape)), shape);
             break;
           case 'tx':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.textShape)), shape);
+            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingTextShape)), shape);
             break;
           case 'im':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.imageShape)), shape);
+            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingImageShape)), shape);
             break;
         }
       }

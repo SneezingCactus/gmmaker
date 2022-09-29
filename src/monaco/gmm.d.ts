@@ -990,6 +990,56 @@ declare interface inputMethods {
 
 declare type gameInputs = playerInput[] & inputMethods 
 
+declare interface createBodyOptions {
+  /**
+   * Indicates where in game.state.physics.bro the body id should be placed,
+   * in other words, it indicates the layer at which the body will be drawn,
+   * where the layer with the biggest number is the farthest layer, and the
+   * layer with the smallest number (down to 0) is the nearest layer.
+   * 
+   * If you don't specify this, the body will be placed at the nearest layer (0).
+   */
+  viewOrder: number
+  /**
+   * The body to be created.
+   * 
+   * It's not necessary to specify every property of the body here, any
+   * missing properties will be replaced by default values, so you can
+   * remove property definitions for stuff you don't need. For example:
+   * velocity, drag, fixed rotation, apply forces, and some others are not
+   * used on static bodies, so you can remove those when creating one.
+   */
+  bodyDef: body
+  /**
+   * The fixtures that will be making up the body, from farthest to nearest.
+   * 
+   * It's not necessary to specify every property of every fixture here, any
+   * missing properties will be replaced by default values, so you can
+   * remove property definitions for stuff you don't need. For example:
+   * physical properties, as well as death, no grapple and inner grapple are
+   * not used in a no-physics fixture, so you can remove those when defining one.
+   */
+  fixtureDefs: fixture[]
+  /**
+   * The shapes that make up each fixture. Each shape corresponds to their respective item;
+   * the first shape defined here corresponds to the first fixture, the second to the second, and so on.
+   * 
+   * It's not necessary to specify every property of every shape here, any
+   * missing properties will be replaced by default values, so you can
+   * remove property definitions for stuff you don't need to specify right now.
+   */
+  shapeDefs: shape[]
+}
+
+declare interface gameWorld {
+  /**
+   * Create a body with the specified body, fixture and shape definitions.
+   * 
+   * @returns {number} The id of the newly created body
+   */
+  createBody(options: createBodyOptions): number
+}
+
 // eslint-disable-next-line no-unused-vars
 declare interface game {
   /**
@@ -1009,6 +1059,7 @@ declare interface game {
    * This does not change at any point in the game. This means that people leaving/joining during a game will not affect the content of this object.
    */
   lobby: lobbyInfo
+  world: gameWorld
   /**
    * 
    */

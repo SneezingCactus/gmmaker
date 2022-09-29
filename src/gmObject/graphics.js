@@ -11,12 +11,205 @@ export default {
     BonkGraphics.prototype.render = (function() {
       BonkGraphics.prototype.renderOLD = BonkGraphics.prototype.render;
       return function(stateA, stateB, weight) {
-        this.renderOLD(...arguments);
-
         // if no mode loaded, no gmm stuff (except for camera pivot changing)
         if (!stateA.gmExtra || gm.lobby.data.quick) {
+          this.renderOLD(...arguments);
           return this.renderer.render(this.stage);
         };
+
+        // this is used a lot
+        const settings = gm.lobby.mpSession.getGameSettings();
+
+        /* #region UPDATE BODIES */
+        if (this.roundGraphics) {
+          const bodyGraphics = this.roundGraphics.bodyGraphics;
+          const bodies = stateB.physics.bodies;
+          const maxBodiesLength = Math.max(bodyGraphics.length, bodies.length);
+          for (let i = 0; i < maxBodiesLength; i++) {
+            const myBro = stateA.physics.bro.indexOf(i);
+
+            // body creation
+            if (bodies[i] && (!bodyGraphics[i] || bodyGraphics[i].notActuallyBuilt) && myBro !== -1) {
+              const newBodyGraphics = new gm.graphics.bodyGraphicsClass(stateB, i, this.scaleRatio, this.renderer, settings, this.playerArray);
+              this.roundGraphics.bodyGraphics[i] = newBodyGraphics;
+
+              newBodyGraphics.move(stateA, stateA, 0);
+
+              // the id of the body with my bro minus 1
+              const bodyBehind = stateA.physics.bro[myBro + 1];
+
+              if (bodyBehind) {
+                const index = this.roundGraphics.displayObject.children.indexOf(bodyGraphics[bodyBehind].displayObject) + 1;
+
+                if (newBodyGraphics.jointContainer.children.length > 0) {
+                  this.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
+                }
+
+                this.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
+              } else {
+                if (newBodyGraphics.jointContainer.children.length > 0) {
+                  this.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
+                }
+
+                this.roundGraphics.displayObject.addChild(newBodyGraphics.displayObject);
+              }
+            }
+
+            // body deletion
+            if (!bodies[i] && bodyGraphics[i] && !bodyGraphics[i].notActuallyBuilt) {
+              const graphic = bodyGraphics[i];
+              this.roundGraphics.displayObject.removeChild(graphic.displayObject);
+              this.roundGraphics.displayObject.removeChild(graphic.jointContainer);
+              graphic.destroy();
+              delete bodyGraphics[i];
+            }
+
+            // fixture appearance modification & body fixture list changing
+            if (!gm.graphics.lastRenderedState?.physics.bodies[i]) continue;
+            if (!stateB.physics.bodies[i]) continue;
+            if (!bodyGraphics[i]) continue;
+
+            let mustReorder = false;
+
+            const lastBodyFx = gm.graphics.lastRenderedState.physics.bodies[i].fx;
+            const bodyFx = bodies[i].fx;
+            const shapeGraphics = bodyGraphics[i].shapes;
+            const newShapeGraphics = [];
+
+            // fixture appearance modification
+            for (let f = 0; f < bodyFx.length; f++) {
+              const fixtureA = gm.graphics.lastRenderedState.physics.fixtures[bodyFx[f]];
+              const fixtureB = stateB.physics.fixtures[bodyFx[f]];
+
+              if (!fixtureA) continue;
+
+              const shapeIdA = fixtureA.sh;
+              const shapeIdB = fixtureB.sh;
+              const shapeA = gm.graphics.lastRenderedState.physics.shapes[shapeIdB];
+              const shapeB = stateB.physics.shapes[shapeIdB];
+
+              let mustRedraw = false;
+
+              if (shapeIdA !== shapeIdB) mustRedraw = true;
+
+              if (shapeA.type === shapeB.type) {
+                switch (shapeB.type) {
+                  case 'bx':
+                    if (shapeA.w !== shapeB.w ||
+                        shapeA.h !== shapeB.h ||
+                        shapeA.a !== shapeB.a ||
+                        shapeA.c[0] !== shapeB.c[0] ||
+                        shapeA.c[1] !== shapeB.c[1] ||
+                        fixtureA.f !== fixtureB.f ||
+                        fixtureA.sk !== fixtureB.sk) mustRedraw = true;
+                    break;
+                  case 'ci':
+                    if (shapeA.r !== shapeB.r ||
+                        shapeA.c[0] !== shapeB.c[0] ||
+                        shapeA.c[1] !== shapeB.c[1] ||
+                        fixtureA.f !== fixtureB.f ||
+                        fixtureA.sk !== fixtureB.sk) mustRedraw = true;
+                    break;
+                  case 'po':
+                    if (shapeA.c[0] !== shapeB.c[0] ||
+                      shapeA.c[1] !== shapeB.c[1] ||
+                      fixtureA.f !== fixtureB.f) mustRedraw = true;
+
+                    const maxVertLength = Math.max(shapeA.v.length, shapeB.v.length);
+                    for (let v = 0; v < maxVertLength; v++) {
+                      if (shapeA.v[v][0] !== shapeB.v[v][0] ||
+                          shapeA.v[v][1] !== shapeB.v[v][1]) {
+                        mustRedraw = true;
+                        break;
+                      };
+                    }
+                    break;
+                }
+              } else {
+                mustRedraw = true;
+              }
+
+              let isCapzoneA = false;
+              let isCapzoneB = false;
+              const tea = settings.tea;
+              for (let c = 0; c < gm.graphics.lastRenderedState.capZones.length; c++) {
+                if (gm.graphics.lastRenderedState.capZones[c] && gm.graphics.lastRenderedState.capZones[c].i == bodyFx[f]) {
+                  isCapzoneA = true;
+                  break;
+                }
+              }
+              for (let c = 0; c < stateB.capZones.length; c++) {
+                if (stateB.capZones[c] && stateB.capZones[c].i == bodyFx[f]) {
+                  isCapzoneB = true;
+                  break;
+                }
+              }
+
+              if (isCapzoneA !== isCapzoneB) mustRedraw = true;
+
+              if (!mustRedraw) continue;
+
+              mustReorder = true;
+
+              shapeGraphics[shapeIdA]?.destroy();
+              shapeGraphics[shapeIdA] = null;
+              shapeGraphics[shapeIdB] = new gm.graphics.shapeGraphicsClass(stateB, shapeIdB, isCapzoneB, this.scaleRatio, this.renderer, tea, this.playerArray, this.isReplay);
+            }
+
+            // body fixture list changing
+            if (JSON.stringify(lastBodyFx) !== JSON.stringify(bodyFx)) {
+              mustReorder = true;
+
+              for (let f = 0; f < bodyFx.length; f++) {
+                const shapeId = stateB.physics.fixtures[bodyFx[f]].sh;
+
+                if (shapeGraphics[shapeId]) {
+                  newShapeGraphics[shapeId] = shapeGraphics[shapeId];
+                  shapeGraphics[shapeId] = null;
+                } else {
+                  let isCapzone = false;
+                  const tea = settings.tea;
+                  for (let c = 0; c < stateB.capZones.length; c++) {
+                    if (stateB.capZones[c] && stateB.capZones[c].i == bodyFx[f]) {
+                      isCapzone = true;
+                      break;
+                    }
+                  }
+                  newShapeGraphics[shapeId] = new gm.graphics.shapeGraphicsClass(stateB, shapeId, isCapzone, this.scaleRatio, this.renderer, tea, this.playerArray, this.isReplay);
+                }
+              }
+
+              bodyGraphics[i].shapes = newShapeGraphics;
+            }
+
+            if (!mustReorder) continue;
+
+            // remove all children
+            while (bodyGraphics[i].displayObject.children.length > 0) {
+              bodyGraphics[i].displayObject.removeChild(bodyGraphics[i].displayObject.children[bodyGraphics[i].displayObject.children.length-1]);
+            }
+            while (bodyGraphics[i].shadowContainer.children.length > 0) {
+              bodyGraphics[i].shadowContainer.removeChild(bodyGraphics[i].shadowContainer.children[bodyGraphics[i].shadowContainer.children.length-1]);
+            }
+
+            // re-add the children
+            bodyGraphics[i].displayObject.addChild(bodyGraphics[i].shadowContainer);
+            for (let f = 0; f < bodyFx.length; f++) {
+              const shapeId = stateB.physics.fixtures[bodyFx[f]].sh;
+
+              if (bodyGraphics[i].shapes[shapeId].shadowTexture) {
+                bodyGraphics[i].shadowContainer.addChild(bodyGraphics[i].shapes[shapeId].shadowTexture);
+              } else if (bodyGraphics[i].shapes[shapeId].shadow) {
+                bodyGraphics[i].shadowContainer.addChild(bodyGraphics[i].shapes[shapeId].shadow);
+              };
+
+              bodyGraphics[i].displayObject.addChild(bodyGraphics[i].shapes[shapeId].graphic);
+            }
+          }
+        }
+        /* #endregion UPDATE BODIES */
+
+        this.renderOLD(...arguments);
 
         /* #region UPDATE CAMERA */
         // this.blurContainer.pivot.x = -365 * this.scaleRatio;
@@ -149,6 +342,9 @@ export default {
         }
         /* #endregion UPDATE DRAWINGS */
 
+        // save this state for later use
+        gm.graphics.lastRenderedState = stateB;
+
         // render
         this.renderer.render(this.stage);
 
@@ -160,8 +356,10 @@ export default {
       return function() {
         if (!gm.graphics.camera) gm.graphics.camera = new PIXI.Container();
 
-        const emptyState = {ms: {re: false, nc: true, pq: 0, gd: 0, fl: false}, mm: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: ''}, shk: {x: 0, y: 0}, discs: [{x: 0, y: 0, xv: 0, yv: 0, a: 0, av: 0, a1a: 0, team: 1, a1: false, a2: false, ni: false, sx: 0, sy: 0, sxv: 0, syv: 0, ds: 0, da: 0, lhid: -1, lht: 0, swing: false}], capZones: [], seed: 0, ftu: -1, rc: 0, rl: 1, sts: null, physics: {shapes: [], fixtures: [], bodies: [], joints: [], bro: [], ppm: 1}, scores: [0], lscr: -1, fte: -1, discDeaths: [], players: [{id: 0, team: 1}], projectiles: []};
-        const emptySettings = {map: {v: 0, s: {re: false, nc: false, pq: 0, gd: 0, fl: false}, physics: {shapes: [], fixtures: [], bodies: [], joints: [], bro: [], ppm: 1}, spawns: [], capZones: [], m: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: '', vu: 0, vd: 0}}, gt: 2, wl: 3, q: false, tl: false, tea: false, ga: 'b', mo: 'b', bal: []};
+        gm.graphics.rendererClass = this;
+
+        const emptyState = {ms: {re: false, nc: true, pq: 0, gd: 0, fl: false}, mm: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: ''}, shk: {x: 0, y: 0}, discs: [{x: 0, y: 0, xv: 0, yv: 0, a: 0, av: 0, a1a: 0, team: 1, a1: false, a2: false, ni: false, sx: 0, sy: 0, sxv: 0, syv: 0, ds: 0, da: 0, lhid: -1, lht: 0, swing: false}], capZones: [], seed: 0, ftu: -1, rc: 0, rl: 1, sts: null, physics: {shapes: [{type: 'bx', w: 1, h: 1, c: [0, 0], a: 0, sk: false}], fixtures: [{sh: 0, n: '', fr: null, fp: null, re: null, de: null, f: 0, d: false, np: false, ng: false}], bodies: [{type: 's', p: [0, 0], a: 0, av: 0, lv: [0, 0], ld: 0, ad: 0, fr: false, bu: false, fx: [0], fric: 0, fricp: false, de: 0, re: 0, f_c: 1, f_p: true, f_1: true, f_2: true, f_3: true, f_4: true, cf: {x: 0, y: 0, w: true, ct: 0}, ni: false}], joints: [], bro: [0], ppm: 12}, scores: [0], lscr: -1, fte: -1, discDeaths: [], players: [{id: 0, team: 1}], projectiles: []};
+        const emptySettings = {map: {v: 0, s: {re: false, nc: false, pq: 0, gd: 0, fl: false}, physics: {shapes: [{type: 'bx', w: 1, h: 1, c: [0, 0], a: 0, sk: false}], fixtures: [{sh: 0, n: '', fr: null, fp: null, re: null, de: null, f: 0, d: false, np: false, ng: false}], bodies: [{type: 's', p: [0, 0], a: 0, av: 0, lv: [0, 0], ld: 0, ad: 0, fr: false, bu: false, fx: [0], fric: 0, fricp: false, de: 0, re: 0, f_c: 1, f_p: true, f_1: true, f_2: true, f_3: true, f_4: true, cf: {x: 0, y: 0, w: true, ct: 0}, ni: false}], joints: [], bro: [0], ppm: 12}, spawns: [], capZones: [], m: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: '', vu: 0, vd: 0}}, gt: 2, wl: 3, q: false, tl: false, tea: false, ga: 'b', mo: 'b', bal: []};
         this.buildOLD.apply(this, [
           emptyState,
           emptySettings,
@@ -180,11 +378,27 @@ export default {
             if (!a.discs[this.playerID]) arguments[0] = b;
             this.moveOLD(...arguments);
           };
+          gm.graphics.bodyGraphicsClass = gm.graphics.rendererClass.roundGraphics.bodyGraphics[0].constructor;
+          gm.graphics.shapeGraphicsClass = gm.graphics.rendererClass.roundGraphics.bodyGraphics[0].shapes[0].constructor;
+          gm.graphics.bodyGraphicsClass.prototype.buildOLD = gm.graphics.bodyGraphicsClass.prototype.build;
+          gm.graphics.bodyGraphicsClass.prototype.build = function(state) {
+            if (!state.physics.bodies[this.bodyID]) {
+              this.notActuallyBuilt = true;
+              return;
+            }
+            gm.graphics.bodyGraphicsClass.prototype.buildOLD.apply(this, arguments);
+          };
+          gm.graphics.bodyGraphicsClass.prototype.moveOLD = gm.graphics.bodyGraphicsClass.prototype.move;
+          gm.graphics.bodyGraphicsClass.prototype.move = function(stateA, stateB) {
+            if (this.notActuallyBuilt) return;
+            if (!stateA.physics.bodies[this.bodyID]) return;
+            if (!stateB.physics.bodies[this.bodyID]) return;
+            gm.graphics.bodyGraphicsClass.prototype.moveOLD.apply(this, arguments);
+          };
         }
         this.destroyChildren();
 
         const result = this.buildOLD.apply(this, arguments);
-        gm.graphics.rendererClass = this;
 
         /* #region CAMERA CONTAINER HANDLING */
         if (this.blurContainer.gmModified) {
@@ -324,6 +538,7 @@ export default {
     if (logBox.childElementCount > 30) logBox.removeChild(logBox.children[0]);
     logBox.scrollTop = logBox.scrollHeight;
   },
+  lastRenderedState: null,
   rendererClass: null,
   camera: null,
   drawings: [],

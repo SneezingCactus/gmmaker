@@ -26,6 +26,7 @@ export default {
   init: function() {
     this.blockDefs = blockDefs;
     this.initGMEditor();
+    this.resetModeSettings();
   },
   initGMEditor: function() {
     // create the gm editor div
@@ -442,18 +443,6 @@ export default {
       const setting = this.modeSettingsDefaults[i];
 
       this.modeSettings[setting.name] = setting.default;
-    }
-  },
-  updateModeSettings: function(xml) {
-    this.modeSettings = {};
-    for (let i = 0; i < this.modeSettingsDefaults.length; i++) {
-      const setting = this.modeSettingsDefaults[i];
-
-      if (setting.type == 'bool') {
-        this.modeSettings[setting.name] = xml.getAttribute(setting.name) === 'true' || setting.default;
-      } else {
-        this.modeSettings[setting.name] = xml.getAttribute(setting.name) || setting.default;
-      }
     }
   },
   disableLobbyChatbox: false,
