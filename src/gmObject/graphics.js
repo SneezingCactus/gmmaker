@@ -1,3 +1,4 @@
+/* eslint-disable no-invalid-this */
 /* eslint-disable require-jsdoc */
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
@@ -10,14 +11,17 @@ export default {
   initBonkGraphics: function() {
     BonkGraphics.prototype.render = (function() {
       BonkGraphics.prototype.renderOLD = BonkGraphics.prototype.render;
-      return function(stateA, stateB, weight) {
+      const renderFunction = function(stateA, stateB, weight) {
+        // don't do anything if crashed
+        if (gm.state.crashed) return;
+
         // if no mode loaded, no gmm stuff (except for camera pivot changing)
         if (!stateA.gmExtra || gm.lobby.data.quick) {
           this.renderOLD(...arguments);
           return this.renderer.render(this.stage);
         };
 
-        // this is used a lot
+        // graphics is used a lot
         const settings = gm.lobby.mpSession.getGameSettings();
 
         /* #region UPDATE BODIES */
@@ -342,18 +346,26 @@ export default {
         }
         /* #endregion UPDATE DRAWINGS */
 
-        // save this state for later use
+        // save graphics state for later use
         gm.graphics.lastRenderedState = stateB;
 
         // render
         this.renderer.render(this.stage);
-
-        return;
+      };
+      return function() {
+        try {
+          return renderFunction.apply(this, arguments);
+        } catch (e) {
+          if (gm.state.crashed) return;
+          gm.state.crashed = true;
+          setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!?
+          return;
+        }
       };
     })();
     BonkGraphics.prototype.build = (function() {
       BonkGraphics.prototype.buildOLD = BonkGraphics.prototype.build;
-      return function() {
+      const buildFunction = function() {
         if (!gm.graphics.camera) gm.graphics.camera = new PIXI.Container();
 
         gm.graphics.rendererClass = this;
@@ -440,6 +452,16 @@ export default {
 
         return result;
       };
+      return function() {
+        try {
+          return buildFunction.apply(this, arguments);
+        } catch (e) {
+          if (gm.state.crashed) return;
+          gm.state.crashed = true;
+          setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!?
+          return;
+        }
+      };
     })();
 
     BonkGraphics.prototype.destroy = (function() {
@@ -449,6 +471,8 @@ export default {
         document.getElementById('gm_logbox').style.visibility = 'hidden';
 
         gm.audio.stopAllSounds();
+
+        gm.state.crashed = false;
 
         for (let i = 0; i < gm.graphics.drawings.length; i++) {
           gm.graphics.drawings[i]?.destroy();

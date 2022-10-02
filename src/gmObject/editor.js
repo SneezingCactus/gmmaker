@@ -83,7 +83,7 @@ export default {
     // adding button sounds
     const buttons = [
       'gmeditor_newbutton', 'gmeditor_importbutton', 'gmeditor_exportbutton', 'gmeditor_savebutton', 'gmeditor_closebutton', 'gmeditor_settingsbutton', 'gmeditor_backupsbutton', 'gmeditor_changebasebutton',
-      'gmblockly_cancel', 'gmblockly_ok',
+      'gmgeneric_cancel', 'gmgeneric_ok',
       'gmexport_cancel', 'gmexport_ok',
       'gmimportdialog_cancel', 'gmimportdialog_no', 'gmimportdialog_yes',
       'gmsettings_cancel', 'gmsettings_save', 'gmsettings_importasset',
@@ -227,7 +227,7 @@ export default {
           document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
 
           gm.editor.modeSettings.isTextMode = true;
-        }, true);
+        }, {showCancel: true});
       }
       gm.editor.changingToTextEditor = false;
 
@@ -366,13 +366,13 @@ export default {
 
     // workspace dialogs
     Blockly.dialog.setAlert(function(message, callback) {
-      gm.editor.genericDialog(message, callback, false);
+      gm.editor.genericDialog(message, callback);
     });
     Blockly.dialog.setConfirm(function(message, callback) {
-      gm.editor.genericDialog(message, callback, true);
+      gm.editor.genericDialog(message, callback, {showCancel: true});
     });
     Blockly.dialog.setPrompt(function(message, defaultValue, callback) {
-      gm.editor.genericDialog(message, callback, true, true, defaultValue);
+      gm.editor.genericDialog(message, callback, {showCancel: true, showInput: true, inputValue: defaultValue});
     });
 
     // add loop trap
@@ -501,44 +501,47 @@ export default {
     document.getElementById('gmeditor').style.transform = 'scale(0)';
     document.getElementById('newbonklobby').style.transform = 'scale(1)';
   },
-  genericDialog: function(message = '', callback = ()=>{}, showCancel = false, showInput = false, inputValue = '') {
-    document.getElementById('gm_blocklydialogcontainer').style.visibility = 'visible';
+  genericDialog: function(message = '', callback = ()=>{}, options) {
+    document.getElementById('gm_genericdialogcontainer').style.visibility = 'visible';
 
-    document.getElementById('gmblockly_message').innerText = message;
-    document.getElementById('gmblockly_promptcontainer').style.display = showInput ? 'block' : 'none';
-    if (showInput) document.getElementById('gmblockly_prompt').focus();
-    document.getElementById('gmblockly_prompt').value = inputValue;
-    document.getElementById('gmblockly_cancel').style.display = showCancel ? 'block' : 'none';
+    document.getElementById('gmgeneric_message').innerHTML = message;
+    document.getElementById('gmgeneric_promptcontainer').style.display = options.showInput ? 'block' : 'none';
+    if (options.showInput) document.getElementById('gmgeneric_prompt').focus();
+    document.getElementById('gmgeneric_prompt').value = options.inputValue;
+    document.getElementById('gmgeneric_cancel').style.display = options.showCancel ? 'block' : 'none';
+
+    document.getElementById('gmgeneric_code').parentElement.style.display = options.showCode ? 'block' : 'none';
+    if (options.showCode) document.getElementById('gmgeneric_code').innerText = options.code;
 
     // it's weird but it works and it looks neat
     // eslint-disable-next-line prefer-const
     let closeDialog;
 
     const okListener = function() {
-      callback(showInput ? document.getElementById('gmblockly_prompt').value : true);
+      callback(options.showInput ? document.getElementById('gmgeneric_prompt').value : true);
       closeDialog();
     };
     const okInputListener = function(event) {
       if (event.key === 'Enter') {
-        callback(showInput ? document.getElementById('gmblockly_prompt').value : true);
+        callback(options.showInput ? document.getElementById('gmgeneric_prompt').value : true);
         closeDialog();
       }
     };
     const cancelListener = function() {
-      callback(showInput ? null : false);
+      callback(options.showInput ? null : false);
       closeDialog();
     };
 
     closeDialog = function() {
-      document.getElementById('gm_blocklydialogcontainer').style.visibility = 'hidden';
-      document.getElementById('gmblockly_ok').removeEventListener('click', okListener);
-      document.getElementById('gmblockly_prompt').removeEventListener('keydown', okInputListener);
-      document.getElementById('gmblockly_cancel').removeEventListener('click', cancelListener);
+      document.getElementById('gm_genericdialogcontainer').style.visibility = 'hidden';
+      document.getElementById('gmgeneric_ok').removeEventListener('click', okListener);
+      document.getElementById('gmgeneric_prompt').removeEventListener('keydown', okInputListener);
+      document.getElementById('gmgeneric_cancel').removeEventListener('click', cancelListener);
     };
 
-    document.getElementById('gmblockly_ok').addEventListener('click', okListener);
-    document.getElementById('gmblockly_prompt').addEventListener('keydown', okInputListener);
-    document.getElementById('gmblockly_cancel').addEventListener('click', cancelListener);
+    document.getElementById('gmgeneric_ok').addEventListener('click', okListener);
+    document.getElementById('gmgeneric_prompt').addEventListener('keydown', okInputListener);
+    document.getElementById('gmgeneric_cancel').addEventListener('click', cancelListener);
   },
   GMENew: function() {
     gm.editor.genericDialog('Are you sure you want to delete all blocks, reset mode settings and remove all custom images and sounds?', function(confirmed) {
@@ -549,7 +552,7 @@ export default {
       document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
       gm.editor.modeAssets = {images: [], sounds: []};
       gm.editor.resetModeSettings();
-    }, true);
+    }, {showCancel: true});
   },
   GMEImport: function() {
     const input = document.createElement('input');
@@ -997,7 +1000,15 @@ export default {
       try {
         gm.state.generateEvents(gm.editor.monacoWs.getValue());
       } catch (e) {
-        alert(`An error ocurred while trying to save. Please send SneezingCactus a full screenshot of the console (Ctrl+Shift+I, go to the Console tab) so this error can be diagnosed.`);
+        let report = e.stack;
+
+        report = report.replace(/(at [^\(\n]+) \(eval at .{0,100}.{0,50}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
+        report = report.replace(/Proxy\.eval([^\n]+)(.|\n)*/gm, '<anonymous>$1');
+
+        gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. Below is the crash report, which may help you find out what happened.', ()=>{}, {
+          showCode: true,
+          code: report,
+        });
         throw (e);
       }
 

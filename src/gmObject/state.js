@@ -58,9 +58,9 @@ export default {
   },
   initGameState: function() {
     const stepOLD = PhysicsClass.prototype.step;
-    PhysicsClass.prototype.step = function(oldState, inputs) {
+    const stepFunction = function(oldState, inputs) {
       // don't do anything if crashed
-      if (gm.state.crashed) return oldState;
+      if (gm.state.crashed) return JSON.parse(JSON.stringify(oldState));
 
       // don't do gmm business when no mode is loaded or if in quickplay
       if (!oldState.gmExtra || gm.lobby.data.quick) {
@@ -90,7 +90,9 @@ export default {
       arguments[1] = fakeInputs;
       /* #endregion OVERRIDE APPLY */
 
-      let state = stepOLD(...arguments);
+      let state;
+
+      state = stepOLD(...arguments);
 
       /* #region ANGLE UNIT NORMALIZING */
       for (let i = 0; i !== state.discs.length; i++) {
@@ -302,6 +304,16 @@ export default {
 
       return state;
     };
+    PhysicsClass.prototype.step = function(oldState) {
+      try {
+        return stepFunction(...arguments);
+      } catch (e) {
+        if (gm.state.crashed) return oldState;
+        gm.state.crashed = true;
+        setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!
+        return oldState;
+      }
+    };
   },
   initContactListener: function() {
     PhysicsClass.contactListener.PostSolveOLD = PhysicsClass.contactListener.PostSolve;
@@ -409,8 +421,72 @@ export default {
   collisionsThisStep: [],
   pseudoRandom: null,
   crashed: false,
-  crashAbort: function() {
-    this.crashed = true;
+  crashAbort: function(e) {
+    console.error(e);
+    if (e.isModeError) {
+      let report = e.stack;
+
+      report = report.replace(/(at [^\(\n]+) \(eval at .{0,100}.{0,50}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
+      report = report.replace(/Object\.eval \[as listener\]([^\n]+)(.|\n)*/gm, '<anonymous>$1');
+      report = report.replace(/Proxy./gm, 'function ');
+
+      if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
+        gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. Below is the crash report, which may help you find out what happened.', ()=>{}, {
+          showCode: true,
+          code: report,
+        });
+
+        gm.editor.showGMEWindow();
+
+        const match = /:([0-9]+):([0-9]+)/gm.exec(report);
+
+        gm.editor.monacoWs.revealPositionInCenter({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
+        gm.editor.monacoWs.setPosition({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
+      } else {
+        gm.editor.genericDialog('Whoops! Seems like something went wrong with the current mode\'s code. Below is the crash report:', ()=>{}, {
+          showCode: true,
+          code: report,
+        });
+      }
+    } else if (e == 'Assertion Failed') {
+      gm.editor.genericDialog([
+        'Whoops! Seems like something went wrong with the physics engine. ',
+        'This might or might not be an issue with the currently applied mode, or GMMaker itself.',
+        '<br><br>',
+        'Are you sure you\'re not playing a map that intentionally crashes the game using invalid polygons? ',
+        'Does the custom mode manipulate physical polygon shapes (if any custom mode is currently being used)?',
+        '<br><br>',
+        'Physical polygons are quite unstable and can cause crashes if used incorrectly, for example, ',
+        'a physical polygon should not end on the same point as the start point.',
+      ].join(''), ()=>{}, {});
+    } else {
+      if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
+        gm.editor.genericDialog([
+          'Whoops! Seems like there was an unknown error and the game had to be stopped. ',
+          'This might or might not be an issue with the currently applied mode (if any is currently being used), or GMMaker itself.',
+          '<br><br>',
+          'If you are using a custom mode, check this <a href="todo">list of reasons why a custom mode could crash the game. (LINK NOT WORKING YET)</a>. ',
+          'It might help you find what\'s wrong and how to fix it.',
+          '<br><br>',
+          'If not, are you using any other mods/extensions (apart from the Code Injector)? ',
+          'Try disabling them, reload, and try again.',
+          '<br><br>',
+          'If you think this is a GMMaker bug and not something about your custom mode, or any other mods you have installed, ',
+          'don\'t hesitate to ask SneezingCactus about it on the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
+        ].join(''), ()=>{}, {});
+      } else {
+        gm.editor.genericDialog([
+          'Whoops! Seems like there was an unknown error and the game had to be stopped. ',
+          'This might or might not be an issue with the currently applied mode (if any is currently being used), or GMMaker itself.',
+          '<br><br>',
+          'Are you using any other mods/extensions (apart from the Code Injector)? ',
+          'Try disabling them, reload, and try again.',
+          '<br><br>',
+          'If you think this is a GMMaker bug and not something about the current custom mode, or any other mods you have installed, ',
+          'don\'t hesitate to ask SneezingCactus about it on the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
+        ].join(''), ()=>{}, {});
+      }
+    }
     if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
       document.getElementById('pretty_top_exit').click();
     }
@@ -421,13 +497,7 @@ export default {
   },
   fireEvent: function() {
     gm.state.currentEventArgs = [...arguments];
-
-    try {
-      gm.state.safeEval.evaluate('game.events.fireEvent(...getEventArgs())');
-    } catch (e) {
-      gm.state.crashAbort();
-      console.log(e);
-    }
+    gm.state.safeEval.evaluate('game.events.fireEvent(...getEventArgs())');
   },
   resetStaticInfo: function() {
     gm.state.safeEval.evaluate('this.resetStaticInfo();');

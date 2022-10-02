@@ -267,9 +267,15 @@
     flex-grow: 1;
 }
 
+.gm_dialogcode {
+    background-color: var(--gm_table_color);
+    padding: 10px;
+    white-space: pre-wrap;
+}
+
 .gm_dialogoptions {
     color: var(--gm_primary_text);
-    text-align: left;
+    text-align: justify;
     left: 0;
     right: 0;
     top: 53px;

@@ -160,12 +160,17 @@ this.game = {
       this.eventListeners[eventName]?.push({options: options, listener: listener});
     },
     fireEvent: function(eventName, options, args) {
-      const listeners = this.eventListeners[eventName];
-      for (let i = 0; i < listeners.length; i++) {
-        if (listeners[i].options.runOnce != options.runOnce ||
-            listeners[i].options.collideWith != options.collideWith) continue;
+      try {
+        const listeners = this.eventListeners[eventName];
+        for (let i = 0; i < listeners.length; i++) {
+          if (listeners[i].options.runOnce != options.runOnce ||
+              listeners[i].options.collideWith != options.collideWith) continue;
 
-        listeners[i].listener(...args);
+          listeners[i].listener(...args);
+        }
+      } catch (e) {
+        e.isModeError = true;
+        throw e;
       }
     },
     eventListeners: {
