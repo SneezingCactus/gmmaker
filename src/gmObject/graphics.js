@@ -228,24 +228,24 @@ export default {
         camera.y = 250 * this.scaleRatio;
 
         if (cameraObjB.noLerp) {
-          camera.pivot.x = cameraObjB.xPos * scaleMultiplier;
-          camera.pivot.y = cameraObjB.yPos * scaleMultiplier;
+          camera.pivot.x = cameraObjB.pos[0] * scaleMultiplier;
+          camera.pivot.y = cameraObjB.pos[1] * scaleMultiplier;
           camera.angle = cameraObjB.angle;
-          camera.scale.x = cameraObjB.xScale;
-          camera.scale.y = cameraObjB.yScale;
+          camera.scale.x = cameraObjB.scale[0];
+          camera.scale.y = cameraObjB.scale[1];
         } else {
-          const anglePointA = [Math.sin(cameraObjA.angle), Math.cos(cameraObjA.angle)];
-          const anglePointB = [Math.sin(cameraObjB.angle), Math.cos(cameraObjB.angle)];
+          const anglePointA = [Math.sin(cameraObjA.angle * (Math.PI / 180)), Math.cos(cameraObjA.angle * (Math.PI / 180))];
+          const anglePointB = [Math.sin(cameraObjB.angle * (Math.PI / 180)), Math.cos(cameraObjB.angle * (Math.PI / 180))];
           const lerpedAnglePoint = [
             (1 - arguments[2]) * anglePointA[0] + arguments[2] * anglePointB[0],
             (1 - arguments[2]) * anglePointA[1] + arguments[2] * anglePointB[1],
           ];
 
-          camera.pivot.x = (1 - arguments[2]) * cameraObjA.xPos * scaleMultiplier + arguments[2] * cameraObjB.xPos * scaleMultiplier;
-          camera.pivot.y = (1 - arguments[2]) * cameraObjA.yPos * scaleMultiplier + arguments[2] * cameraObjB.yPos * scaleMultiplier;
+          camera.pivot.x = (1 - arguments[2]) * cameraObjA.pos[0] * scaleMultiplier + arguments[2] * cameraObjB.pos[0] * scaleMultiplier;
+          camera.pivot.y = (1 - arguments[2]) * cameraObjA.pos[1] * scaleMultiplier + arguments[2] * cameraObjB.pos[1] * scaleMultiplier;
           camera.rotation = Math.atan2(lerpedAnglePoint[0], lerpedAnglePoint[1]);
-          camera.scale.x = (1 - arguments[2]) * cameraObjA.xScale + arguments[2] * cameraObjB.xScale;
-          camera.scale.y = (1 - arguments[2]) * cameraObjA.yScale + arguments[2] * cameraObjB.yScale;
+          camera.scale.x = (1 - arguments[2]) * cameraObjA.scale[0] + arguments[2] * cameraObjB.scale[0];
+          camera.scale.y = (1 - arguments[2]) * cameraObjA.scale[1] + arguments[2] * cameraObjB.scale[1];
         }
         /* #endregion UPDATE CAMERA */
 
@@ -497,9 +497,11 @@ export default {
       const image = imageList[i];
       if (!image) continue;
 
-      if (this.imageTextures[image.id]?.hash !== image.dataHash) {
+      if (this.imageTextures[image.id]?.hash !== image.dataHash || this.imageTextures[image.id].gmUseNearest !== image.useNearest) {
         this.imageTextures[image.id]?.destroy();
         this.imageTextures[image.id] = new PIXI.BaseTexture.from('data:image/' + image.extension + ';base64,' + image.data);
+        this.imageTextures[image.id].scaleMode = image.useNearest ? 0 : 1;
+        this.imageTextures[image.id].gmUseNearest = image.useNearest;
         this.imageTextures[image.id].hash = image.dataHash;
       }
 
@@ -517,8 +519,8 @@ export default {
   bakeDrawing: function(id, resolution, ppm) {
     const drawing = this.drawings[id].displayObject;
     const bounds = drawing.getLocalBounds();
-    const width = (bounds.x + bounds.width) * 2 * drawing.scale.x;
-    const height = (bounds.y + bounds.height) * 2 * drawing.scale.y;
+    const width = (bounds.x + bounds.size[0]) * 2 * drawing.scale.x;
+    const height = (bounds.y + bounds.size[1]) * 2 * drawing.scale.y;
     const bakedTex = PIXI.RenderTexture.create({
       width: width,
       height: height,
@@ -679,26 +681,26 @@ class Drawing {
 
     // property check
     const propsNoChange = this.lastDrawDef.alpha == drawDefB.alpha &&
-      this.lastDrawDef.xPos == drawDefB.xPos &&
-      this.lastDrawDef.yPos == drawDefB.yPos &&
+      this.lastDrawDef.pos[0] == drawDefB.pos[0] &&
+      this.lastDrawDef.pos[1] == drawDefB.pos[1] &&
       this.lastDrawDef.angle == drawDefB.angle &&
-      this.lastDrawDef.xScale == drawDefB.xScale &&
-      this.lastDrawDef.yScale == drawDefB.yScale;
+      this.lastDrawDef.scale[0] == drawDefB.scale[0] &&
+      this.lastDrawDef.scale[1] == drawDefB.scale[1];
 
     if (propsNoChange && !forceUpdate && !this.transing) return;
+
+    if (drawDefB.noLerp) drawDefA = drawDefB;
 
     this.lastDrawDef = drawDefB;
 
     this.transing = !propsNoChange || forceUpdate;
 
-    if (drawDefB.noLerp) drawDefA = drawDefB;
-
     this.displayObject.alpha = lerpNumber(drawDefA.alpha, drawDefB.alpha, weight);
-    this.displayObject.x = lerpNumber(drawDefA.xPos, drawDefB.xPos, weight) * scaleRatio;
-    this.displayObject.y = lerpNumber(drawDefA.yPos, drawDefB.yPos, weight) * scaleRatio;
+    this.displayObject.x = lerpNumber(drawDefA.pos[0], drawDefB.pos[0], weight) * scaleRatio;
+    this.displayObject.y = lerpNumber(drawDefA.pos[1], drawDefB.pos[1], weight) * scaleRatio;
     this.displayObject.angle = lerpAngle(drawDefA.angle, drawDefB.angle, weight);
-    this.displayObject.scale.x = lerpNumber(drawDefA.xScale, drawDefB.xScale, weight);
-    this.displayObject.scale.y = lerpNumber(drawDefA.yScale, drawDefB.yScale, weight);
+    this.displayObject.scale.x = lerpNumber(drawDefA.scale[0], drawDefB.scale[0], weight);
+    this.displayObject.scale.y = lerpNumber(drawDefA.scale[1], drawDefB.scale[1], weight);
   }
   destroy() {
     for (let i = 0; i < this.shapes.length; i++) {
@@ -714,40 +716,45 @@ class Drawing {
 class BoxShape {
   constructor() {
     this.displayObject = new PIXI.Graphics();
-    this.transing = false;
     this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
     const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
     this.lastDrawDef.alpha == shapeDefB.alpha &&
-    this.lastDrawDef.xPos == shapeDefB.xPos &&
-    this.lastDrawDef.yPos == shapeDefB.yPos &&
+    this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
+    this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
     this.lastDrawDef.angle == shapeDefB.angle &&
-    this.lastDrawDef.width == shapeDefB.width &&
-    this.lastDrawDef.height == shapeDefB.height;
+    this.lastDrawDef.size[0] == shapeDefB.size[0] &&
+    this.lastDrawDef.size[1] == shapeDefB.size[1];
 
-    if (propsNoChange && !forceUpdate && !this.transing) return;
-
-    this.lastDrawDef = shapeDefB;
-
-    this.transing = !propsNoChange || forceUpdate;
+    if (propsNoChange && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
-    this.displayObject.clear();
-    this.displayObject.beginFill(lerpColor(shapeDefA.colour, shapeDefB.colour, weight));
+    this.lastDrawDef = {
+      colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
+      alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
+      pos: [lerpNumber(shapeDefA.pos[0], shapeDefB.pos[0], weight),
+        lerpNumber(shapeDefA.pos[1], shapeDefB.pos[1], weight)],
+      angle: lerpAngle(shapeDefA.angle, shapeDefB.angle, weight),
+      size: [lerpNumber(shapeDefA.size[0], shapeDefB.size[0], weight),
+        lerpNumber(shapeDefA.size[1], shapeDefB.size[1], weight)],
+    };
 
-    const width = lerpNumber(shapeDefA.width, shapeDefB.width, weight) * scaleRatio;
-    const height = lerpNumber(shapeDefA.height, shapeDefB.height, weight) * scaleRatio;
+    this.displayObject.clear();
+    this.displayObject.beginFill(this.lastDrawDef.colour);
+
+    const width = this.lastDrawDef.size[0] * scaleRatio;
+    const height = this.lastDrawDef.size[1] * scaleRatio;
     this.displayObject.drawRect(width / -2, height / -2, width, height);
 
     this.displayObject.endFill();
 
-    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
-    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
-    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
-    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
+    this.displayObject.alpha = this.lastDrawDef.alpha;
+    this.displayObject.x = this.lastDrawDef.pos[0] * scaleRatio;
+    this.displayObject.y = this.lastDrawDef.pos[1] * scaleRatio;
+    this.displayObject.angle = this.lastDrawDef.angle;
   }
   destroy() {
     this.displayObject.destroy();
@@ -760,40 +767,45 @@ class BoxShape {
 class CircleShape {
   constructor() {
     this.displayObject = new PIXI.Graphics();
-    this.transing = false;
     this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
     const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
         this.lastDrawDef.alpha == shapeDefB.alpha &&
-        this.lastDrawDef.xPos == shapeDefB.xPos &&
-        this.lastDrawDef.yPos == shapeDefB.yPos &&
+        this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
+        this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
         this.lastDrawDef.angle == shapeDefB.angle &&
-        this.lastDrawDef.width == shapeDefB.width &&
-        this.lastDrawDef.height == shapeDefB.height;
+        this.lastDrawDef.size[0] == shapeDefB.size[0] &&
+        this.lastDrawDef.size[1] == shapeDefB.size[1];
 
-    if (propsNoChange && !forceUpdate && !this.transing) return;
-
-    this.lastDrawDef = shapeDefB;
-
-    this.transing = !propsNoChange || forceUpdate;
+    if (propsNoChange && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
-    this.displayObject.clear();
-    this.displayObject.beginFill(lerpColor(shapeDefA.colour, shapeDefB.colour, weight));
+    this.lastDrawDef = {
+      colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
+      alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
+      pos: [lerpNumber(shapeDefA.pos[0], shapeDefB.pos[0], weight),
+        lerpNumber(shapeDefA.pos[1], shapeDefB.pos[1], weight)],
+      angle: lerpAngle(shapeDefA.angle, shapeDefB.angle, weight),
+      size: [lerpNumber(shapeDefA.size[0], shapeDefB.size[0], weight),
+        lerpNumber(shapeDefA.size[1], shapeDefB.size[1], weight)],
+    };
 
-    const width = lerpNumber(shapeDefA.width, shapeDefB.width, weight) * scaleRatio / 2;
-    const height = lerpNumber(shapeDefA.height, shapeDefB.height, weight) * scaleRatio / 2;
+    this.displayObject.clear();
+    this.displayObject.beginFill(this.lastDrawDef.colour);
+
+    const width = this.lastDrawDef.size[0] * scaleRatio / 2;
+    const height = this.lastDrawDef.size[1] * scaleRatio / 2;
     this.displayObject.drawEllipse(0, 0, width, height);
 
     this.displayObject.endFill();
 
-    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
-    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
-    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
-    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
+    this.displayObject.alpha = this.lastDrawDef.alpha;
+    this.displayObject.x = this.lastDrawDef.pos[0] * scaleRatio;
+    this.displayObject.y = this.lastDrawDef.pos[1] * scaleRatio;
+    this.displayObject.angle = this.lastDrawDef.angle;
   }
   destroy() {
     this.displayObject.destroy();
@@ -806,37 +818,41 @@ class CircleShape {
 class PolyShape {
   constructor() {
     this.displayObject = new PIXI.Graphics();
-    this.transing = false;
     this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
     const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
         this.lastDrawDef.alpha == shapeDefB.alpha &&
-        this.lastDrawDef.xPos == shapeDefB.xPos &&
-        this.lastDrawDef.yPos == shapeDefB.yPos &&
+        this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
+        this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
         this.lastDrawDef.angle == shapeDefB.angle &&
-        this.lastDrawDef.xScale == shapeDefB.xScale &&
-        this.lastDrawDef.yScale == shapeDefB.yScale;
+        this.lastDrawDef.scale[0] == shapeDefB.scale[0] &&
+        this.lastDrawDef.scale[1] == shapeDefB.scale[1];
 
     let vertsNoChange = true;
-    for (let i = 0; i < shapeDefB.vertices.length; i++) {
-      if (this.lastDrawDef.vertices[i] != shapeDefB.vertices[i]) {
+    const maxVertexLength = Math.max(this.lastDrawDef.vertices?.length ?? 0, shapeDefB.vertices.length);
+    for (let i = 0; i < maxVertexLength; i++) {
+      if (this.lastDrawDef.vertices?.[i][0] != shapeDefB.vertices[i][0] ||
+          this.lastDrawDef.vertices?.[i][1] != shapeDefB.vertices[i][1]) {
         vertsNoChange = false;
         break;
       };
     }
 
-    if (propsNoChange && vertsNoChange && !forceUpdate && !this.transing) return;
-
-    this.lastDrawDef = shapeDefB;
-
-    this.transing = !propsNoChange || !vertsNoChange || forceUpdate;
+    if (propsNoChange && vertsNoChange && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
-    this.displayObject.clear();
-    this.displayObject.beginFill(lerpColor(shapeDefA.colour, shapeDefB.colour, weight));
+    this.lastDrawDef = {
+      colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
+      alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
+      pos: [lerpNumber(shapeDefA.pos[0], shapeDefB.pos[0], weight),
+        lerpNumber(shapeDefA.pos[1], shapeDefB.pos[1], weight)],
+      angle: lerpAngle(shapeDefA.angle, shapeDefB.angle, weight),
+      scale: [lerpNumber(shapeDefA.scale[0], shapeDefB.scale[0], weight),
+        lerpNumber(shapeDefA.scale[1], shapeDefB.scale[1], weight)],
+    };
 
     const vertices = [];
     for (let i = 0; i < shapeDefB.vertices.length; i++) {
@@ -852,15 +868,20 @@ class PolyShape {
       ) * scaleRatio);
     }
 
-    this.displayObject.drawPolygon(vertices);
+    this.lastDrawDef.vertices = vertices;
+
+    this.displayObject.clear();
+    this.displayObject.beginFill(this.lastDrawDef.colour);
+
+    this.displayObject.drawPolygon(this.lastDrawDef.vertices);
     this.displayObject.endFill();
 
-    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
-    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
-    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
-    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
-    this.displayObject.scale.x = lerpNumber(shapeDefA.xScale, shapeDefB.xScale, weight);
-    this.displayObject.scale.y = lerpNumber(shapeDefA.yScale, shapeDefB.yScale, weight);
+    this.displayObject.alpha = this.lastDrawDef.alpha;
+    this.displayObject.x = this.lastDrawDef.pos[0] * scaleRatio;
+    this.displayObject.y = this.lastDrawDef.pos[1] * scaleRatio;
+    this.displayObject.angle = this.lastDrawDef.angle;
+    this.displayObject.scale.x = this.lastDrawDef.scale[0];
+    this.displayObject.scale.y = this.lastDrawDef.scale[1];
   }
   destroy() {
     this.displayObject.destroy();
@@ -873,39 +894,44 @@ class PolyShape {
 class LineShape {
   constructor() {
     this.displayObject = new PIXI.Graphics();
-    this.transing = false;
     this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
     const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
         this.lastDrawDef.alpha == shapeDefB.alpha &&
-        this.lastDrawDef.xPos == shapeDefB.xPos &&
-        this.lastDrawDef.yPos == shapeDefB.yPos &&
-        this.lastDrawDef.xEnd == shapeDefB.xEnd &&
-        this.lastDrawDef.yEnd == shapeDefB.yEnd &&
+        this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
+        this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
+        this.lastDrawDef.end[0] == shapeDefB.end[0] &&
+        this.lastDrawDef.end[1] == shapeDefB.end[1] &&
         this.lastDrawDef.width == shapeDefB.width;
 
-    if (propsNoChange && !forceUpdate && !this.transing) return;
-
-    this.lastDrawDef = shapeDefB;
-
-    this.transing = !propsNoChange || forceUpdate;
+    if (propsNoChange && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
+    this.lastDrawDef = {
+      colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
+      alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
+      pos: [lerpNumber(shapeDefA.pos[0], shapeDefB.pos[0], weight),
+        lerpNumber(shapeDefA.pos[1], shapeDefB.pos[1], weight)],
+      end: [lerpNumber(shapeDefA.end[0], shapeDefB.end[0], weight),
+        lerpNumber(shapeDefA.end[1], shapeDefB.end[1], weight)],
+      width: lerpNumber(shapeDefA.width, shapeDefB.width, weight),
+    };
+
     this.displayObject.clear();
     this.displayObject.lineStyle(
-        lerpNumber(shapeDefA.width, shapeDefB.width, weight) * scaleRatio,
-        lerpColor(shapeDefA.colour, shapeDefB.colour, weight), 1);
+        this.lastDrawDef.width * scaleRatio,
+        this.lastDrawDef.colour, 1);
     this.displayObject.moveTo(
-        lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio,
-        lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio);
+        this.lastDrawDef.pos[0] * scaleRatio,
+        this.lastDrawDef.pos[1] * scaleRatio);
     this.displayObject.lineTo(
-        lerpNumber(shapeDefA.xEnd, shapeDefB.xEnd, weight) * scaleRatio,
-        lerpNumber(shapeDefA.yEnd, shapeDefB.yEnd, weight) * scaleRatio);
+        this.lastDrawDef.end[0] * scaleRatio,
+        this.lastDrawDef.end[1] * scaleRatio);
 
-    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
+    this.displayObject.alpha = this.lastDrawDef.alpha;
   }
   destroy() {
     this.displayObject.destroy();
@@ -919,15 +945,14 @@ class TextShape {
   constructor() {
     this.displayObject = new PIXI.Text();
     this.displayObject.resolution = 2;
-    this.transing = false;
     this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
     const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
         this.lastDrawDef.alpha == shapeDefB.alpha &&
-        this.lastDrawDef.xPos == shapeDefB.xPos &&
-        this.lastDrawDef.yPos == shapeDefB.yPos &&
+        this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
+        this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
         this.lastDrawDef.angle == shapeDefB.angle &&
         this.lastDrawDef.text == shapeDefB.text &&
         this.lastDrawDef.size == shapeDefB.size &&
@@ -936,20 +961,32 @@ class TextShape {
         this.lastDrawDef.italic == shapeDefB.italic &&
         this.lastDrawDef.shadow == shapeDefB.shadow;
 
-    if (propsNoChange && !forceUpdate && !this.transing) return;
+    if (propsNoChange && !forceUpdate) return;
+
+    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
     this.lastDrawDef = shapeDefB;
 
-    this.transing = !propsNoChange || forceUpdate;
-
-    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+    this.lastDrawDef = {
+      colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
+      alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
+      pos: [lerpNumber(shapeDefA.pos[0], shapeDefB.pos[0], weight),
+        lerpNumber(shapeDefA.pos[1], shapeDefB.pos[1], weight)],
+      angle: lerpAngle(shapeDefA.angle, shapeDefB.angle, weight),
+      text: shapeDefB.text,
+      size: lerpNumber(shapeDefA.size, shapeDefB.size, weight),
+      align: shapeDefB.align,
+      bold: shapeDefB.bold,
+      italic: shapeDefB.italic,
+      shadow: shapeDefB.shadow,
+    };
 
     this.displayObject.text = shapeDefB.text;
     this.displayObject.style = {
       fontFamily: 'futurept_medium',
-      fontSize: lerpNumber(shapeDefA.size, shapeDefB.size, weight) * scaleRatio,
+      fontSize: this.lastDrawDef.size * scaleRatio,
       align: shapeDefB.align,
-      fill: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
+      fill: this.lastDrawDef.colour,
       fontStyle: shapeDefB.italic ? 'italic' : 'normal',
       fontWeight: shapeDefB.bold ? 'bold' : 'normal',
       dropShadow: shapeDefB.shadow,
@@ -970,10 +1007,10 @@ class TextShape {
         break;
     }
 
-    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
-    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
-    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
-    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
+    this.displayObject.x = this.lastDrawDef.pos[0] * scaleRatio;
+    this.displayObject.y = this.lastDrawDef.pos[1] * scaleRatio;
+    this.displayObject.angle = this.lastDrawDef.angle;
+    this.displayObject.alpha = this.lastDrawDef.alpha;
   }
   destroy() {
     this.displayObject.destroy();
@@ -987,7 +1024,6 @@ class ImageShape {
   constructor() {
     this.displayObject = new PIXI.Sprite();// new PIXI.Texture(gm.graphics.imageTextures[]));
     this.displayObject.anchor.set(0.5, 0.5);
-    this.transing = false;
     this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
@@ -998,20 +1034,28 @@ class ImageShape {
     const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
     this.lastDrawDef.id == shapeDefB.id &&
     this.lastDrawDef.alpha == shapeDefB.alpha &&
-    this.lastDrawDef.xPos == shapeDefB.xPos &&
-    this.lastDrawDef.yPos == shapeDefB.yPos &&
+    this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
+    this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
     this.lastDrawDef.angle == shapeDefB.angle &&
-    this.lastDrawDef.width == shapeDefB.width &&
-    this.lastDrawDef.height == shapeDefB.height &&
+    this.lastDrawDef.size[0] == shapeDefB.size[0] &&
+    this.lastDrawDef.size[1] == shapeDefB.size[1] &&
     stringifiedRegionA == stringifiedRegionB;
 
-    if (propsNoChange && !forceUpdate && !this.transing) return;
+    if (propsNoChange && !forceUpdate) return;
 
-    this.lastDrawDef = shapeDefB;
+    this.lastDrawDef = {
+      colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
+      alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
+      pos: [lerpNumber(shapeDefA.pos[0], shapeDefB.pos[0], weight),
+        lerpNumber(shapeDefA.pos[1], shapeDefB.pos[1], weight)],
+      angle: lerpAngle(shapeDefA.angle, shapeDefB.angle, weight),
+      size: [lerpNumber(shapeDefA.size[0], shapeDefB.size[0], weight),
+        lerpNumber(shapeDefA.size[1], shapeDefB.size[1], weight)],
+      region: shapeDefB.region,
+      id: shapeDefB.id,
+    };
 
-    this.transing = !propsNoChange || forceUpdate;
-
-    if (shapeDefA.id != shapeDefB.id || this.displayObject.texture.baseTexture.cacheId === null) {
+    if (this.lastDrawDef.id != shapeDefB.id || this.displayObject.texture.baseTexture.cacheId === null) {
       this.displayObject.texture = new PIXI.Texture(gm.graphics.imageTextures[shapeDefB.id]);
     }
 
@@ -1019,10 +1063,10 @@ class ImageShape {
       const frame = this.displayObject.texture.frame;
 
       if (shapeDefB.region) {
-        frame.x = shapeDefB.region.xPos;
-        frame.y = shapeDefB.region.yPos;
-        frame.width = shapeDefB.region.width;
-        frame.height = shapeDefB.region.height;
+        frame.x = shapeDefB.region.pos[0];
+        frame.y = shapeDefB.region.pos[1];
+        frame.width = shapeDefB.region.size[0];
+        frame.height = shapeDefB.region.size[1];
       } else {
         frame.x = 0;
         frame.y = 0;
@@ -1035,13 +1079,13 @@ class ImageShape {
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
-    this.displayObject.tint = lerpNumber(shapeDefA.colour, shapeDefB.colour, weight);
-    this.displayObject.alpha = lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight);
-    this.displayObject.x = lerpNumber(shapeDefA.xPos, shapeDefB.xPos, weight) * scaleRatio;
-    this.displayObject.y = lerpNumber(shapeDefA.yPos, shapeDefB.yPos, weight) * scaleRatio;
-    this.displayObject.angle = lerpAngle(shapeDefA.angle, shapeDefB.angle, weight);
-    this.displayObject.scale.x = lerpNumber(shapeDefA.width, shapeDefB.width, weight) / this.displayObject.texture.frame.width * scaleRatio;
-    this.displayObject.scale.y = lerpNumber(shapeDefA.height, shapeDefB.height, weight) / this.displayObject.texture.frame.height * scaleRatio;
+    this.displayObject.tint = this.lastDrawDef.colour;
+    this.displayObject.alpha = this.lastDrawDef.alpha;
+    this.displayObject.x = this.lastDrawDef.pos[0] * scaleRatio;
+    this.displayObject.y = this.lastDrawDef.pos[1] * scaleRatio;
+    this.displayObject.angle = this.lastDrawDef.angle;
+    this.displayObject.scale.x = this.lastDrawDef.size[0] / this.displayObject.texture.frame.width * scaleRatio;
+    this.displayObject.scale.y = this.lastDrawDef.size[1] / this.displayObject.texture.frame.height * scaleRatio;
   }
   destroy() {
     this.displayObject.destroy();

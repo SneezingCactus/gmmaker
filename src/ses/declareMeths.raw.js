@@ -6,6 +6,7 @@
  * @return {*}
  */
 function copy(object) {
+  if (object === undefined) return undefined;
   return JSON.parse(JSON.stringify(object));
 }
 
@@ -29,11 +30,10 @@ window.getDynamicInfo = (game) => {
   // reset stuff on new round
   if (game.state.rl == 1) {
     gmExtra.camera = {
-      xPos: 365 / game.state.physics.ppm,
-      yPos: 250 / game.state.physics.ppm,
+      pos: [365 / game.state.physics.ppm,
+        250 / game.state.physics.ppm],
       angle: 0,
-      xScale: 1,
-      yScale: 1,
+      scale: [1, 1],
       noLerp: false,
     };
     gmExtra.drawings = [];
@@ -44,6 +44,7 @@ window.getDynamicInfo = (game) => {
   game.inputs.overrides = gmExtra.overrides;
   game.graphics.camera = gmExtra.camera;
   game.graphics.drawings = gmExtra.drawings;
+  game.world.disableDeathBarrier = gmExtra.disableDeathBarrier;
 };
 harden(getDynamicInfo);
 
@@ -64,6 +65,15 @@ harden(playSound);
 
 window.stopAllSounds = () => window.parent.gm.audio.stopAllSounds();
 harden(stopAllSounds);
+
+// world functions
+
+window.rayCast = (origin, end, filter) => copy(window.parent.gm.state.rayCast(origin, end, filter ? (hit) => {
+  return filter(copy(hit));
+} : null));
+window.rayCastAll = (origin, end, filter) => copy(window.parent.gm.state.rayCast(origin, end, filter ? (hit) => {
+  return filter(copy(hit));
+} : null, true));
 
 // safe math
 const newMath = {};
@@ -204,7 +214,16 @@ window.Vector = {
 
     return result;
   },
+  rotate2d: (v, a) => {
+    let result = [];
+
+    const old = [v[0], v[1]];
+    result[0] = old[0] * newMath.cos(a) - old[1] * newMath.sin(a);
+    result[1] = old[0] * newMath.sin(a) + old[1] * newMath.cos(a);
+
+    return result;
+  },
 };
 
 // return list of methods
-['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'bakeDrawing', 'debugLog', 'playSound', 'stopAllSounds', 'Math', 'Vector'];
+['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'bakeDrawing', 'debugLog', 'playSound', 'stopAllSounds', 'rayCast', 'rayCastAll', 'Math', 'Vector'];

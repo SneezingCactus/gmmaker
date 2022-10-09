@@ -2,11 +2,9 @@
 this.defaults = {
   drawing: {
     alpha: 1,
-    xPos: 0,
-    yPos: 0,
+    pos: [0, 0],
     angle: 0,
-    xScale: 1,
-    yScale: 1,
+    scale: [1, 1],
     attachTo: 'world',
     isBehind: false,
     noLerp: false,
@@ -15,33 +13,27 @@ this.defaults = {
   drawingBoxShape: {
     colour: 0xffffff,
     alpha: 1,
-    xPos: 0,
-    yPos: 0,
+    pos: [0, 0],
     angle: 0,
-    width: 1,
-    height: 1,
+    size: [1, 1],
     noLerp: false,
   },
   drawingCircleShape: {
     type: 'ci',
     colour: 0xffffff,
     alpha: 1,
-    xPos: 0,
-    yPos: 0,
+    pos: [0, 0],
     angle: 0,
-    width: 1,
-    height: 1,
+    size: [1, 1],
     noLerp: false,
   },
   drawingPolyShape: {
     type: 'po',
     colour: 0xffffff,
     alpha: 1,
-    xPos: 0,
-    yPos: 0,
+    pos: [0, 0],
     angle: 0,
-    xScale: 1,
-    yScale: 1,
+    scale: [1, 1],
     vertices: [
       [0, 0],
       [1, 0],
@@ -53,10 +45,8 @@ this.defaults = {
     type: 'li',
     colour: 0xffffff,
     alpha: 1,
-    xPos: 0,
-    yPos: 0,
-    xEnd: 1,
-    yEnd: 1,
+    pos: [0, 0],
+    end: [1, 1],
     width: 1,
     noLerp: false,
   },
@@ -64,8 +54,7 @@ this.defaults = {
     type: 'tx',
     colour: 0xffffff,
     alpha: 1,
-    xPos: 0,
-    yPos: 0,
+    pos: [0, 0],
     angle: 0,
     text: '',
     size: 1,
@@ -80,11 +69,9 @@ this.defaults = {
     region: null,
     colour: 0xffffff,
     alpha: 1,
-    xPos: 0,
-    yPos: 0,
+    pos: [0, 0],
     angle: 0,
-    width: 1,
-    height: 1,
+    size: [1, 1],
     noLerp: false,
   },
   body: {
@@ -163,8 +150,8 @@ this.game = {
       try {
         const listeners = this.eventListeners[eventName];
         for (let i = 0; i < listeners.length; i++) {
-          if (listeners[i].options.runOnce != options.runOnce ||
-              listeners[i].options.collideWith != options.collideWith) continue;
+          if (listeners[i].options?.runOnce != options?.runOnce ||
+              listeners[i].options?.collideWith != options?.collideWith) continue;
 
           listeners[i].listener(...args);
         }
@@ -221,6 +208,12 @@ this.game = {
 
       return game.state.physics.bodies.length - 1;
     },
+    killDisc: function(id, allowRespawn = true) {
+      game.state.gmExtra.kills.push({id: id, allowRespawn: allowRespawn});
+    },
+    rayCast: rayCast,
+    rayCastAll: rayCastAll,
+    disableDeathBarrier: false,
   },
   graphics: {
     createDrawing: function(drawing) {
@@ -266,11 +259,10 @@ this.game = {
         region: null,
         colour: 0xffffff,
         alpha: 1,
-        xPos: 0,
-        yPos: 0,
+        pos: [0, 0],
         angle: 0,
-        width: baked.width,
-        height: baked.height,
+        size: [baked.width,
+          baked.height],
         noLerp: false,
       }];
     },
@@ -307,6 +299,7 @@ this.prepareDynamicInfo = function() {
   game.state.gmExtra.camera = game.graphics.camera;
   game.state.gmExtra.drawings = game.graphics.drawings;
   game.state.gmExtra.overrides = game.inputs.overrides;
+  game.state.gmExtra.disableDeathBarrier = game.world.disableDeathBarrier;
 
   return game.state;
 };

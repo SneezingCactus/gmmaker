@@ -51,6 +51,8 @@ export default {
               PhysicsClass.globalStepVars.discs[kills[i].id].diedThisStep = kills[i].allowRespawn ? 1 : 3;
             }
           }
+
+          PhysicsClass.globalStepVars.inputState.gmExtra.kills = [];
         }
       }
       return this.StepOLD(...arguments);
@@ -94,6 +96,14 @@ export default {
 
       state = stepOLD(...arguments);
 
+      /* #region UPDATE DEATH BARRIER DISABLE */
+      window.gmReplaceAccessors.disableDeathBarrier = oldState.gmExtra.disableDeathBarrier;
+
+      if (oldState.rl === 0) {
+        window.gmReplaceAccessors.disableDeathBarrier = true;
+      }
+      /* #endregion UPDATE DEATH BARRIER DISABLE */
+
       /* #region ANGLE UNIT NORMALIZING */
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
@@ -124,7 +134,7 @@ export default {
       }
       /* #endregion DISC NORMALIZING */
 
-      /* #region NO LERP PROPERTY MANAGE */
+      /* #region EXTRA PROPERTY MANAGE */
       state.gmExtra = oldState.gmExtra;
 
       for (let i = 0; i < state.physics.bodies.length; i++) {
@@ -142,12 +152,12 @@ export default {
       state.gmExtra.camera.noLerp = false;
 
       // cameraChanged, used to determine if offscreen arrows should be rendered or not
-      if (oldState.gmExtra.camera.xPos != 365 / state.physics.ppm ||
-          oldState.gmExtra.camera.yPos != 250 / state.physics.ppm ||
+      if (oldState.gmExtra.camera.pos[0] != 365 / state.physics.ppm ||
+          oldState.gmExtra.camera.pos[1] != 250 / state.physics.ppm ||
           oldState.gmExtra.camera.angle != 0 ||
-          oldState.gmExtra.camera.xScale != 1 ||
-          oldState.gmExtra.camera.yScale != 1) state.gmExtra.cameraChanged = true;
-      /* #endregion NO LERP PROPERTY MANAGE */
+          oldState.gmExtra.camera.scale[0] != 1 ||
+          oldState.gmExtra.camera.scale[1] != 1) state.gmExtra.cameraChanged = true;
+      /* #endregion EXTRA PROPERTY MANAGE */
 
       /* #region SEND STATIC INFO */
       if (!gm.state.safeEval.globalThis.staticSetted) {
@@ -259,6 +269,11 @@ export default {
         }
       }
       gm.state.collisionsThisStep = [];
+
+      // fire playerDie events
+      for (let i = 0; i < state.discDeaths.length; i++) {
+        if (state.discDeaths[i]?.f === 0) gm.state.fireEvent('playerDie', null, [i]);
+      }
 
       // fire roundStart events
       const playerIds = gm.state.staticInfo.lobby.allPlayerIds;
@@ -388,15 +403,16 @@ export default {
       const gmExtra = {
         vars: {},
         camera: {
-          xPos: 365 / state.physics.ppm,
-          yPos: 250 / state.physics.ppm,
+          pos: [365 / state.physics.ppm,
+            250 / state.physics.ppm],
           angle: 0,
-          xScale: 1,
-          yScale: 1,
+          scale: [1, 1],
           noLerp: false,
         },
         drawings: [],
         overrides: [],
+        disableDeathBarrier: false,
+        kills: [],
       };
 
       for (let i = 0; i < gmInitial.lobby.allPlayerIds.length; i++) {
@@ -421,6 +437,61 @@ export default {
   collisionsThisStep: [],
   pseudoRandom: null,
   crashed: false,
+  rayCast: function(origin, end, filter, multiResult) {
+    const hits = [];
+
+    const rayCastCallback = (fixture, point, normal, fraction) => {
+      const bodyData = fixture.GetBody().GetUserData();
+      const fixtureData = fixture.GetUserData();
+
+      const hit = {
+        type: null,
+        id: bodyData.arrayID,
+        point: [point.x, point.y],
+        normal: [normal.x, normal.y],
+      };
+
+      switch (bodyData.type) {
+        case 'disc':
+          hit.type = 'disc';
+        case 'arrow':
+          hit.type = 'arrow';
+        case 'phys':
+          hit.type = 'body';
+          hit.fixtureId = fixtureData.arrayID;
+          hit.isCapzone = fixtureData.capzone;
+          break;
+      }
+
+      hits[fraction] = hit;
+
+      return -1;
+    };
+
+    window.PhysicsClass.world.RayCast(
+        rayCastCallback,
+        new Box2D.Common.Math.b2Vec2(origin[0], origin[1]),
+        new Box2D.Common.Math.b2Vec2(end[0], end[1]),
+    );
+
+    const keysInOrder = Object.keys(hits).sort();
+    let theChosenOne = multiResult ? [] : null;
+
+    for (let i = 0; i < keysInOrder.length; i++) {
+      const hit = hits[keysInOrder[i]];
+
+      if (!filter || filter(hit)) {
+        if (multiResult) {
+          theChosenOne.push(hit);
+        } else {
+          theChosenOne = hit;
+          break;
+        }
+      }
+    }
+
+    return theChosenOne;
+  },
   crashAbort: function(e) {
     console.error(e);
     if (e.isModeError) {

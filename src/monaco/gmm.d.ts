@@ -183,11 +183,11 @@ declare interface body {
   /**
    * position
    */
-  p: vec2
+  p: number[]
   /**
    * linear velocity
    */
-  lv: vec2
+  lv: number[]
   /**
    * angle
    */
@@ -664,8 +664,6 @@ declare interface lobbyInfo {
   settings: gameSettings
 }
 
-declare type vec2 = [number, number]
-
 declare type drawingShape = drawingShapeBase & (drawingShapeBox | drawingShapeCircle | drawingShapeLine | drawingShapePolygon | drawingShapeText | drawingShapeImage)
 
 declare interface drawingShapeBase {
@@ -682,13 +680,11 @@ declare interface drawingShapeBase {
    */
   alpha: number
   /**
-   * X position of the shape, relative to the drawing.
+   * Position (offset) of the shape, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  xPos: number
-  /**
-   * Y position of the shape, relative to the drawing.
-   */
-  yPos: number
+  pos: number[]
   /**
    * Determines whether any changes made to the drawing (excluding any shape changes) will go through 
    * a smooth transition (as smooth as your screen's refresh rate) or if they will be applied instantly 
@@ -704,13 +700,11 @@ declare interface drawingShapeBox {
    */
   angle: number
   /**
-   * Width of the box.
+   * Size of the box, as a 2d vector. X axis is width, Y axis is height.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  width: number
-  /**
-   * Height of the box.
-   */
-  height: number
+  size: number[]
 }
 
 declare interface drawingShapeCircle {
@@ -720,13 +714,11 @@ declare interface drawingShapeCircle {
    */
   angle: number
   /**
-   * Width of the circle.
+   * Size of the circle, as a 2d vector. X axis is width, Y axis is height.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  width: number
-  /**
-   * Height of the circle.
-   */
-  height: number
+  size: number[]
 }
 
 declare interface drawingShapePolygon {
@@ -736,31 +728,29 @@ declare interface drawingShapePolygon {
    */
   angle: number
   /**
-   * X scale of the polygon.
+   * Scale of the polygon, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  xScale: number
+  scale: number[]
   /**
-   * Y scale of the polygon.
+   * The vertices that make up the polygon, represented as 2d vectors.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  yScale: number
-  /**
-   * The vertices that make up the polygon.
-   */
-  vertices: vec2[]
+  vertices: number[][]
 }
 
 declare interface drawingShapeLine {
   type: 'li'
   /**
-   * X position at where the line ends.
+   * Position at which the line ends, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  xEnd: number
+  end: number[]
   /**
-   * Y position at where the line ends.
-   */
-  yEnd: number
-  /**
-   * Width of the line.
+   * Width (thickness) of the line.
    */
   width: number
 }
@@ -811,30 +801,24 @@ declare interface drawingShapeImage {
    */
   region: {
     /**
-     * X position of the image region, in pixels.
+     * Position of the image region, in pixels, as a 2d vector.
+     * 
+     * Read more about vectors in @link https://todoaddthing.
      */
-    xPos: number
+    pos: number[]
     /**
-     * Y position of the image region, in pixels.
+     * Size of the image region, in pixels, as a 2d vector. X axis is width, Y axis is height.
+     * 
+     * Read more about vectors in @link https://todoaddthing.
      */
-    yPos: number
-    /**
-     * Width of the image region, in pixels.
-     */
-    width: number
-    /**
-     * Height of the image region, in pixels.
-     */
-    height: number
+    size: number[]
   } | null
   /**
-   * Width of the image, in meters.
+   * Size of the image, as a 2d vector. X axis is width, Y axis is height.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  width: number
-  /**
-   * Height of the image, in meters.
-   */
-  height: number
+  size: number[]
 }
 
 declare interface drawing {
@@ -843,25 +827,21 @@ declare interface drawing {
    */
   alpha: number
   /**
-   * X position of the drawing.
+   * Position of the drawing, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  xPos: number
-  /**
-   * Y position of the drawing.
-   */
-  yPos: number
+  pos: number[]
   /**
    * Angle of the drawing, in degrees.
    */
   angle: number
   /**
-   * X scale of the drawing.
+   * Scale of the drawing, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  xScale: number
-  /**
-   * Y scale of the drawing.
-   */
-  yScale: number
+  scale: number[]
   /**
    * Indicates what type of object this drawing is attached to. Whether it appears in front or behind the attached object is determined by isBehind.
    * It can be either of these five types:
@@ -897,25 +877,21 @@ declare interface drawing {
 
 declare interface camera {
   /**
-   * X position of the camera.
+   * Position of the camera, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  xPos: number
-  /**
-   * Y position of the camera.
-   */
-  yPos: number
+  pos: number[]
   /**
    * Angle of the camera, in degrees.
    */
   angle: number
   /**
-   * X scale (zoom) of the camera.
+   * Scale (zoom) of the camera, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  xScale: number
-  /**
-   * Y scale (zoom) of the camera.
-   */
-  yScale: number
+  scale: number
   /**
    * Determines whether any changes made to this drawing will be applied through a smooth transition (as smooth as your screen's refresh rate) or if they will be applied instantly (at 30fps). Resets to false every step.
    */
@@ -958,21 +934,6 @@ declare interface gameAudio {
    * Stop ALL sounds that are currently playing, including sounds made by bonk.io itself.
    */
   stopAllSounds()
-}
-
-declare interface rayCastResults {
-  objectType: 'disc' | 'arrow' | 'body'
-  objectId: number
-}
-
-declare interface rayCastAdditionalData {
-  fixtureId: number
-  isCapzone: boolean
-  normal: number[]
-}
-
-declare interface gamePhysics {
-  rayCast(origin: number[], end: number[], filter: (objectType: 'disc'|'arrow'|'body', objectId: number, additionalData: rayCastAdditionalData) => number) 
 }
 
 declare interface playerInput {
@@ -1031,13 +992,69 @@ declare interface createBodyOptions {
   shapeDefs: shape[]
 }
 
+declare interface rayCastResult {
+  type: 'disc' | 'arrow' | 'body'
+  id: number
+  point: number[]
+  normal: number[]
+  fixtureId: number
+  isCapzone: boolean
+}
+
 declare interface gameWorld {
+  /**
+   * When set to true, the barrier that kills players when they go offscreen is disabled.
+   */
+  disableDeathBarrier: boolean
+  /**
+   * Kill a specified disc. The disc gets killed in the next step, 
+   * so it will still exist until you move on to the next step.
+   * 
+   * It's also not possible to kill a disc while the game is frozen (at the start of a round).
+   * 
+   * @param id The id of the disc to kill.
+   * @param allowRespawn When set to true, the disc can respawn (on maps that have "respawn on death" activated). 
+   * When set to false, the disc can't respawn even if "respawn on death" is activated, like when someone claims a capzone.
+   * True by default.
+   */
+  killDisc(id: number, allowRespawn: boolean)
   /**
    * Create a body with the specified body, fixture and shape definitions.
    * 
    * @returns {number} The id of the newly created body
    */
   createBody(options: createBodyOptions): number
+  /**
+   * Cast a ray from an `origin` point in the world to an `end` point.
+   * 
+   * The `filter` function's job is to indicate where the ray should stop and return the results.
+   * When the ray hits something, the filter function is given details about the hit, and it must
+   * judge these details and return `true` if the hit is valid and the raycast should stop, or
+   * `false` if the hit is invalid and the raycast should keep going.
+   * 
+   * When the filter returns `true`, the raycast stops and returns the same info that was given to the filter.
+   * If the ray reaches the end position without the filter ever returning `true`, meaning that there's nothing
+   * left to hit, the raycast stops anyways and returns `null`.
+   * 
+   * Note: the fixtureId and isCapzone properties in the hit results are only for type body hits,
+   * and therefore are `undefined` in type disc and type arrow hits.
+   * 
+   * @param origin The start point of the ray, as a 2d vector, represented by a number array `[x,y]` 
+   * @param end  The end point of the ray, as a 2d vector, represented by a number array `[x,y]` 
+   * @param filter Filter function that dictates at which point the ray should stop.
+   */
+  rayCast(origin: number[], end: number[], filter: (hit: rayCastResult) => boolean): rayCastResult|null
+  /**
+   * It's like a raycast, but it allows you to find multiple objects in the line.
+   * 
+   * When the filter returns `true`, the raycast doesn't stop, instead, it adds the hit info to an
+   * array that gets returned once the raycast gets to the `end` point.
+   * 
+   * @param origin The start point of the ray, as a 2d vector, represented by a number array `[x,y]` 
+   * @param end  The end point of the ray, as a 2d vector, represented by a number array `[x,y]` 
+   * @param filter Filter function that dictates what hits should be ignored and which shouldn't.
+   */
+  rayCastAll(origin: number[], end: number[], filter: (hit: rayCastResult) => boolean): rayCastResult[]
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -1128,15 +1145,19 @@ declare interface Vector {
    */
   reflect(dir: number[], normal: number[]): number[]
   /**
-   * Returns a point linearly interpolated between points A and B by the interpolant `t`.
+   * Returns a vector linearly interpolated between vectors A and B by the interpolant t.
    * 
-   * When `t` = 0, point A is returned.
+   * When t = 0, vector A is returned.
    * 
-   * When `t` = 1, point B is returned.
+   * When t = 1, vector B is returned.
    * 
-   * When `t` = 0.5, the point midway between A and B is returned.
+   * When t = 0.5, the vector midway between A and B is returned.
    */
   lerp(a: number[], b: number[], t: number): number[]
+  /**
+   * Rotate a 2d vector by a given angle, taking the point zero (0, 0) as the rotation center.
+   */
+  rotate2d(v: number[], a: number): number[]
 }
 
 /** 

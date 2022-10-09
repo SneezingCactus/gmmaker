@@ -811,11 +811,38 @@ export default {
         const imageDef = gm.editor.unsavedModeAssets.images[i];
         const imageItem = gm.editor.settingsImageItem.cloneNode(true);
 
+        const filterButton = document.createElement('div');
+
+        if (imageDef.useNearest) {
+          filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter nearest';
+          filterButton.title = 'Using nearest neighbour';
+        } else {
+          filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
+          filterButton.title = 'Using bilinear';
+        }
+
+        imageItem.getElementsByClassName('gm_listitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
+
         imageItem.getElementsByClassName('gm_listitemimage')[0].src = 'data:image/' + imageDef.extension + ';base64,' + imageDef.data;
         imageItem.getElementsByClassName('gm_listitemname')[0].value = imageDef.id;
         imageItem.getElementsByClassName('gm_listitemdetail')[0].innerText = imageDef.detail;
         imageItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
           gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_listitemname')[0].value;
+        });
+        filterButton.addEventListener('click', function() {
+          const image = gm.editor.unsavedModeAssets.images[imageOrder];
+
+          if (image.useNearest) {
+            image.useNearest = false;
+
+            filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
+            filterButton.title = 'Using bilinear';
+          } else {
+            image.useNearest = true;
+
+            filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter nearest';
+            filterButton.title = 'Using nearest neighbour';
+          }
         });
         imageItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
           gm.editor.unsavedModeAssets.images[imageOrder] = null;
@@ -932,6 +959,7 @@ export default {
             imageAsset.dataHash = md5(data);
             imageAsset.extension = extension;
             imageAsset.detail = detail;
+            imageAsset.useNearest = false;
 
             const imageOrder = gm.editor.unsavedModeAssets.images.length;
             gm.editor.unsavedModeAssets.images.push(imageAsset);
@@ -939,11 +967,32 @@ export default {
             // create new image item
             const imageItem = gm.editor.settingsImageItem.cloneNode(true);
 
+            const filterButton = document.createElement('div');
+            filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
+            filterButton.title = 'Using bilinear';
+
+            imageItem.getElementsByClassName('gm_listitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
+
             imageItem.getElementsByClassName('gm_listitemimage')[0].src = 'data:image/' + extension + ';base64,' + data;
             imageItem.getElementsByClassName('gm_listitemname')[0].value = name;
             imageItem.getElementsByClassName('gm_listitemdetail')[0].innerText = detail;
             imageItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
               gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_listitemname')[0].value;
+            });
+            filterButton.addEventListener('click', function() {
+              const image = gm.editor.unsavedModeAssets.images[imageOrder];
+
+              if (image.useNearest) {
+                image.useNearest = false;
+
+                filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
+                filterButton.title = 'Using bilinear';
+              } else {
+                image.useNearest = true;
+
+                filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter nearest';
+                filterButton.title = 'Using nearest';
+              }
             });
             imageItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
               gm.editor.unsavedModeAssets.images[imageOrder] = null;

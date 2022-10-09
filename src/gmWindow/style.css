@@ -116,6 +116,20 @@
     background-image: url(images/gmeclose.png);
 }
 
+.gmeditor_filter {
+    background-image: url(images/gmefilter.png);
+    background-size: 18px;
+}
+
+.gmeditor_filter.nearest {
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+.gmeditor_filter.bilinear {
+    image-rendering: optimizeQuality;
+}
+
 .gmeditor_download {
     background-image: url(images/gmedownload.png);
 }
