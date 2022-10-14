@@ -30,6 +30,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // This class contains the functions used by Bonk to compress/decompress maps.
       // It's used by gmmaker to compress and decompress maps attached to custom modes.
       {name: 'MapEncoder', regex: '{try{.{3,6}=(.{1,2})\\[', isConstructor: true},
+      {name: 'InputHandler', regex: 'Date.{0,100}new ([^\\(]+).{0,100}\\$\\(document', isConstructor: true},
       // This class' task is to calculate the game step every 1/30 seconds.
       // It's used by gmmaker to manipulate the game state, detect collisions, do raycasts, etc.
       {name: 'PhysicsClass', regex: ';([A-Za-z])\\[.{0,100}]={discs', isConstructor: true},
@@ -42,6 +43,10 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Z]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.gmReplaceAccessors.endStep = () => {$1};'},
       // make game state list globally accessible
       {regex: '( < 100\\).{0,100}\\+ 1.{0,200}\\+\\+;)([^\\]]+\\])', to: '$1window.gmReplaceAccessors.gameStateList = $2;$2'},
+      // make input list globally accessible
+      {regex: '(document[^;]{0,100};([^=]{0,100})=\\[\\[]];)', to: '$1window.gmReplaceAccessors.inputList = $2;'},
+      // allow forcing of input registering (normally new inputs are only registered when changing press state of one of the keys)
+      {regex: '(>= 0;.{0,100}--.{0,300}break;\\}\\}if\\()([^\\{]{0,200}\\{)(.{0,200}\\{i:.{0,100}f:)', to: '$1window.gmReplaceAccessors.forceInputRegister || $2window.gmReplaceAccessors.forceInputRegister = false;$3'},
       // call graphics rollback function
       // {regex: 'if\\(([^ ]+)( != Infinity\\){)(for[^<]+< )([^\\]]+\\])(.{0,400}=Infinity;)', to: 'if($1$2gm.graphics.doRollback($4, $1);$3$4$5'},
       // allow toggling of the death barrier
@@ -50,7 +55,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(=Math.{0,30}Math.{0,30}\\(1[^,]{0,10},)([^,]{0,10},-1)', flags: 'gm', to: '$1(window.gmReplaceAccessors.addToStereo ?? 0) + $2'},
       // remove pixi render function at the end of BonkGraphics render function to allow for gmm to do stuff before rendering
       {regex: '(this.renderer.render\\(this.stage\\);)', to: '/*$1*/'},
-      // add existance checks
+      // add existance checks where needed
       {regex: '(ppm:.{0,100}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.bodies[$3]) continue;'},
     ],
     inject: {

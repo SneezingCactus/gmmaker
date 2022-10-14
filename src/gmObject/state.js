@@ -127,7 +127,20 @@ export default {
         if (!state.discs[i]) continue;
 
         if (!inputs[i]) {
-          inputs[i] = inputs[i] || {left: false, right: false, up: false, down: false, action: false, action2: false};
+          inputs[i] = inputs[i] || {
+            left: false,
+            right: false,
+            up: false,
+            down: false,
+            action: false,
+            action2: false,
+            mouse: {
+              pos: [0, 0],
+              left: false,
+              right: false,
+              center: false,
+            },
+          };
         }
 
         if (!state.discs[i].swing) state.discs[i].swing = false;

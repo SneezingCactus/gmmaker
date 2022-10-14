@@ -943,6 +943,12 @@ declare interface playerInput {
   right: boolean
   action: boolean
   action2: boolean
+  mouse: {
+    pos: number[]
+    left: boolean
+    right: boolean
+    center: boolean
+  }
 }
 
 declare interface inputMethods {

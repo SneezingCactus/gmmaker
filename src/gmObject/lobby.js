@@ -214,6 +214,8 @@ export default {
           document.getElementById('gm_logbox').style.visibility = 'hidden';
           gm.state.resetStaticInfo();
 
+          window.gmReplaceAccessors.forceInputRegister = true;
+
           return this.goOLD(...arguments);
         };
 

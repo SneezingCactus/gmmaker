@@ -965,8 +965,6 @@ class TextShape {
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
-    this.lastDrawDef = shapeDefB;
-
     this.lastDrawDef = {
       colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
       alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
@@ -1043,6 +1041,8 @@ class ImageShape {
 
     if (propsNoChange && !forceUpdate) return;
 
+    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
     this.lastDrawDef = {
       colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
       alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
@@ -1076,8 +1076,6 @@ class ImageShape {
 
       this.displayObject.texture.updateUvs();
     }
-
-    if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
     this.displayObject.tint = this.lastDrawDef.colour;
     this.displayObject.alpha = this.lastDrawDef.alpha;
