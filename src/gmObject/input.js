@@ -10,6 +10,7 @@ export default {
     window.addEventListener('mousedown', forceInputFunction);
     window.addEventListener('mouseup', forceInputFunction);
     window.addEventListener('mousemove', forceInputFunction);
+    document.getElementById('gamerenderer').addEventListener('contextmenu', (e) => e.preventDefault());
   },
   initInputHandler: function() {
     InputHandler = function() {

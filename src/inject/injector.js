@@ -56,7 +56,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // remove pixi render function at the end of BonkGraphics render function to allow for gmm to do stuff before rendering
       {regex: '(this.renderer.render\\(this.stage\\);)', to: '/*$1*/'},
       // add existance checks where needed
-      {regex: '(ppm:.{0,100}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.bodies[$3]) continue;'},
+      {regex: '(ppm:.{0,100}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.shapes[$3]) continue;'},
     ],
     inject: {
       regex: ';}\\);}}\\);',

@@ -37,7 +37,16 @@ window.getDynamicInfo = (game) => {
       noLerp: false,
     };
     gmExtra.drawings = [];
-    gmExtra.overrides = [];
+    for (let i = 0; i < game.lobby.allPlayerIds.length; i++) {
+      gmExtra.overrides[game.lobby.allPlayerIds[i]] = {
+        up: null,
+        down: null,
+        left: null,
+        right: null,
+        action: null,
+        action2: null,
+      };
+    }
   }
 
   game.vars = gmExtra.vars;
@@ -222,6 +231,9 @@ window.Vector = {
     result[1] = old[0] * newMath.sin(a) + old[1] * newMath.cos(a);
 
     return result;
+  },
+  getAngle2d: (v) => {
+    return -newMath.atan2(v[0], v[1]) + 90;
   },
 };
 

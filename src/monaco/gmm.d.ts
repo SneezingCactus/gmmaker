@@ -902,7 +902,7 @@ declare interface gameGraphics {
   camera: camera
   drawings: drawing[]
   /**
-   * Creates a drawing with the data given. Any missing properties will be replaced by defaults.
+   * Creates a drawing with the data given. Any missing properties will be replaced with defaults.
    */
   createDrawing(options: drawing): number
   bakeDrawing(drawingId: number, resolution: number): void
@@ -971,7 +971,7 @@ declare interface createBodyOptions {
    * The body to be created.
    * 
    * It's not necessary to specify every property of the body here, any
-   * missing properties will be replaced by default values, so you can
+   * missing properties will be replaced with default values, so you can
    * remove property definitions for stuff you don't need. For example:
    * velocity, drag, fixed rotation, apply forces, and some others are not
    * used on static bodies, so you can remove those when creating one.
@@ -981,7 +981,7 @@ declare interface createBodyOptions {
    * The fixtures that will be making up the body, from farthest to nearest.
    * 
    * It's not necessary to specify every property of every fixture here, any
-   * missing properties will be replaced by default values, so you can
+   * missing properties will be replaced with default values, so you can
    * remove property definitions for stuff you don't need. For example:
    * physical properties, as well as death, no grapple and inner grapple are
    * not used in a no-physics fixture, so you can remove those when defining one.
@@ -992,7 +992,32 @@ declare interface createBodyOptions {
    * the first shape defined here corresponds to the first fixture, the second to the second, and so on.
    * 
    * It's not necessary to specify every property of every shape here, any
-   * missing properties will be replaced by default values, so you can
+   * missing properties will be replaced with default values, so you can
+   * remove property definitions for stuff you don't need to specify right now.
+   */
+  shapeDefs: shape[]
+}
+
+declare interface addFixtureShapeOptions {
+  /**
+   * The id of the body to attach the fixture to.
+   */
+  bodyId: body
+  /**
+   * The fixture to be created.
+   * 
+   * It's not necessary to specify every property of the fixture here, any
+   * missing properties will be replaced with default values, so you can
+   * remove property definitions for stuff you don't need. For example:
+   * physical properties, as well as death, no grapple and inner grapple are
+   * not used in a no-physics fixture, so you can remove those when defining one.
+   */
+  fixtureDefs: fixture[]
+  /**
+   * The shape that makes up the fixture.
+   * 
+   * It's not necessary to specify every property of the shape here, any
+   * missing properties will be replaced with default values, so you can
    * remove property definitions for stuff you don't need to specify right now.
    */
   shapeDefs: shape[]
@@ -1030,6 +1055,12 @@ declare interface gameWorld {
    * @returns {number} The id of the newly created body
    */
   createBody(options: createBodyOptions): number
+  /**
+   * Create a fixture-shape combo with the specified definitions, and add it to a specified body.
+   * 
+   * @returns {number} The id of the newly created fixture
+   */
+  addFixtureShapeToBody(options: addFixtureShapeOptions): number
   /**
    * Cast a ray from an `origin` point in the world to an `end` point.
    * 
@@ -1164,6 +1195,11 @@ declare interface Vector {
    * Rotate a 2d vector by a given angle, taking the point zero (0, 0) as the rotation center.
    */
   rotate2d(v: number[], a: number): number[]
+  /**
+   * Get the angle between the 2d vector and (1, 0), taking the point zero (0, 0) as the rotation center.
+   * This is the inverse of `Vector.rotate2d([1, 0], angle)`.
+   */
+  getAngle2d(v: number[]): number
 }
 
 /** 

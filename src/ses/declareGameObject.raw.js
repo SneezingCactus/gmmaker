@@ -208,6 +208,31 @@ this.game = {
 
       return game.state.physics.bodies.length - 1;
     },
+    addFixtureShapeToBody: function(options) {
+      const fixture = Object.assign(JSON.parse(JSON.stringify(defaults.bodyFixture)), options.fixtureDef);
+
+      let shape = options.shapeDef ?? {type: 'bx'};
+
+      switch (shape.type) {
+        case 'bx':
+          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyBoxShape)), shape);
+          break;
+        case 'ci':
+          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyCircleShape)), shape);
+          break;
+        case 'po':
+          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyPolyShape)), shape);
+          break;
+      }
+
+      game.state.physics.shapes.push(shape);
+
+      fixture.sh = game.state.physics.shapes.length - 1;
+      game.state.physics.fixtures.push(fixture);
+      game.state.physics.bodies[options.bodyId]?.fx.push(game.state.physics.fixtures.length - 1);
+
+      return game.state.physics.fixtures.length - 1;
+    },
     killDisc: function(id, allowRespawn = true) {
       game.state.gmExtra.kills.push({id: id, allowRespawn: allowRespawn});
     },

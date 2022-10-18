@@ -319,7 +319,36 @@ export default function() {
             sortText: 'ca',
           },
           {
-            label: 'sh!worldCreateBodyDefineFixture',
+            label: 'sh!worldAddFixtureShapeToBody',
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            documentation: 'Shortcut template for adding a fixture with a box shape to a body with id 0.',
+            insertText: `game.world.addFixtureShapeToBody({
+  bodyId: 0,
+  fixtureDef: {
+    f: 0xff0000,
+    fp: null,
+    fr: null,
+    re: null,
+    de: null,
+    d: false,
+    np: false,
+    ng: false,
+    ig: false
+  },
+  shapeDef: {
+    type: 'bx',
+    c: [0, 0],
+    a: 0,
+    w: 5,
+    h: 5,
+    sk: false
+  },
+});`,
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            sortText: 'cab',
+          },
+          {
+            label: 'sh!worldDefineFixture',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a fixture to use in `game.graphics.createBody`.',
             insertText: `{
@@ -338,7 +367,7 @@ export default function() {
             sortText: 'cb',
           },
           {
-            label: 'sh!worldCreateBodyDefineBoxShape',
+            label: 'sh!worldDefineBoxShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a box shape to use in `game.graphics.createBody`.',
             insertText: `{
@@ -353,7 +382,7 @@ export default function() {
             sortText: 'cc',
           },
           {
-            label: 'sh!worldCreateBodyDefineCircleShape',
+            label: 'sh!worldDefineCircleShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a circle shape to use in `game.graphics.createBody`.',
             insertText: `{
@@ -366,7 +395,7 @@ export default function() {
             sortText: 'cd',
           },
           {
-            label: 'sh!worldCreateBodyDefinePolygonShape',
+            label: 'sh!worldDefinePolygonShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a polygon shape to use in `game.graphics.createBody`.',
             insertText: `{

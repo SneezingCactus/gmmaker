@@ -407,6 +407,12 @@ export default {
             if (!stateB.physics.bodies[this.bodyID]) return;
             gm.graphics.bodyGraphicsClass.prototype.moveOLD.apply(this, arguments);
           };
+          gm.graphics.shapeGraphicsClass.prototype.doShrinkOLD = gm.graphics.shapeGraphicsClass.prototype.doShrink;
+          gm.graphics.shapeGraphicsClass.prototype.doShrink = function(stateA, stateB) {
+            if (!stateA.physics.shapes[this.shapeID]) return;
+            if (!stateB.physics.shapes[this.shapeID]) return;
+            gm.graphics.shapeGraphicsClass.prototype.doShrinkOLD.apply(this, arguments);
+          };
         }
         this.destroyChildren();
 
@@ -626,7 +632,6 @@ class Drawing {
     this.displayObject = new PIXI.Container();
     this.displayObject.sortableChildren = true;
     this.shapes = [];
-    this.transing = false;
     this.lastDrawDef = {};
   }
   update(drawDefA, drawDefB, weight, scaleRatio, forceUpdate) {
@@ -687,20 +692,25 @@ class Drawing {
       this.lastDrawDef.scale[0] == drawDefB.scale[0] &&
       this.lastDrawDef.scale[1] == drawDefB.scale[1];
 
-    if (propsNoChange && !forceUpdate && !this.transing) return;
+    if (propsNoChange && !forceUpdate) return;
 
     if (drawDefB.noLerp) drawDefA = drawDefB;
 
-    this.lastDrawDef = drawDefB;
+    this.lastDrawDef = {
+      alpha: lerpNumber(drawDefA.alpha, drawDefB.alpha, weight),
+      pos: [lerpNumber(drawDefA.pos[0], drawDefB.pos[0], weight),
+        lerpNumber(drawDefA.pos[1], drawDefB.pos[1], weight)],
+      angle: lerpAngle(drawDefA.angle, drawDefB.angle, weight),
+      scale: [lerpNumber(drawDefA.scale[0], drawDefB.scale[0], weight),
+        lerpNumber(drawDefA.scale[1], drawDefB.scale[1], weight)],
+    };
 
-    this.transing = !propsNoChange || forceUpdate;
-
-    this.displayObject.alpha = lerpNumber(drawDefA.alpha, drawDefB.alpha, weight);
-    this.displayObject.x = lerpNumber(drawDefA.pos[0], drawDefB.pos[0], weight) * scaleRatio;
-    this.displayObject.y = lerpNumber(drawDefA.pos[1], drawDefB.pos[1], weight) * scaleRatio;
-    this.displayObject.angle = lerpAngle(drawDefA.angle, drawDefB.angle, weight);
-    this.displayObject.scale.x = lerpNumber(drawDefA.scale[0], drawDefB.scale[0], weight);
-    this.displayObject.scale.y = lerpNumber(drawDefA.scale[1], drawDefB.scale[1], weight);
+    this.displayObject.alpha = this.lastDrawDef.alpha;
+    this.displayObject.x = this.lastDrawDef.pos[0] * scaleRatio;
+    this.displayObject.y = this.lastDrawDef.pos[1] * scaleRatio;
+    this.displayObject.angle = this.lastDrawDef.angle;
+    this.displayObject.scale.x = this.lastDrawDef.scale[0];
+    this.displayObject.scale.y = this.lastDrawDef.scale[1];
   }
   destroy() {
     for (let i = 0; i < this.shapes.length; i++) {
