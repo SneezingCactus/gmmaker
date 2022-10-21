@@ -4,7 +4,7 @@ export default {
       const HowlOLD = window.Howl;
       return function(options) {
         const theSound = new HowlOLD({
-          src: gm.audio.soundOverride ?? options.src,
+          src: options.src,
           volume: options.volume,
           loop: options.loop,
         });
@@ -29,14 +29,29 @@ export default {
   },
   stopAllSounds: function() {
     for (let i = 0; i < this.soundsPlaying.length; i++) {
+      if (!this.soundsPlaying[i]) continue;
       this.soundsPlaying[i]?.stop();
     }
     this.soundsPlaying = [];
   },
   playSound: function(id, volume, panning) {
-    this.soundOverride = this.customSounds[id];
-    BonkUtils.soundManager.playSound(id, panning, volume);
-    this.soundOverride = null;
+    if (BonkUtils.mute || BonkUtils.preClickMute) return;
+    // if (window.gmReplaceAccessors.rollbacking) return;
+
+    const theSound = new Howl({
+      src: this.customSounds[id] || GameResources.soundStrings[id],
+      volume: volume,
+    });
+    theSound.stereo(panning);
+    theSound.play();
+
+    gm.audio.soundsPlaying.push(theSound);
+
+    const theSoundIndex = gm.audio.soundsPlaying.length - 1;
+
+    theSound.on('end', function() {
+      delete gm.audio.soundsPlaying[theSoundIndex];
+    });
   },
   customSounds: {},
   soundsPlaying: [],

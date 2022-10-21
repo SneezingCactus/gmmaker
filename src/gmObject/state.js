@@ -506,7 +506,6 @@ export default {
     return theChosenOne;
   },
   crashAbort: function(e) {
-    console.error(e);
     if (e.isModeError) {
       let report = e.stack;
 
@@ -571,9 +570,12 @@ export default {
         ].join(''), ()=>{}, {});
       }
     }
+
     if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
       document.getElementById('pretty_top_exit').click();
     }
+
+    throw e;
   },
   generateEvents: function(code) {
     this.resetSES();

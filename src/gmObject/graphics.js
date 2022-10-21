@@ -441,9 +441,13 @@ export default {
         }
 
         this.blurContainer.addChildOLD = this.blurContainer.addChild;
-        this.blurContainer.addChild = gm.graphics.camera.addChild;
+        this.blurContainer.addChild = function() {
+          gm.graphics.camera.addChild(...arguments);
+        };
         this.blurContainer.removeChildOLD = this.blurContainer.removeChild;
-        this.blurContainer.removeChild = gm.graphics.camera.removeChild;
+        this.blurContainer.removeChild = function() {
+          gm.graphics.camera.removeChild(...arguments);
+        };
 
         while (this.blurContainer.children.length > 0) {
           const child = this.blurContainer.children[0];
@@ -451,7 +455,7 @@ export default {
           this.blurContainer.removeChildOLD(child);
           gm.graphics.camera.addChild(child);
         }
-        this.blurContainer.addChild(gm.graphics.camera);
+        this.blurContainer.addChildOLD(gm.graphics.camera);
 
         this.blurContainer.gmModified = true;
         /* #endregion CAMERA CONTAINER HANDLING */

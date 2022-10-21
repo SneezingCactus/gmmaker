@@ -788,7 +788,7 @@ export default {
           gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_listitemname')[0].value;
         });
         soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
-          soundPlayerHowl.unload();
+          soundPlayerHowl?.unload();
           soundPlayerHowl = null;
           gm.editor.unsavedModeAssets.sounds[soundOrder] = null;
           document.getElementById('gmsettings_assetlist').removeChild(soundItem);
@@ -933,7 +933,7 @@ export default {
             gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_listitemname')[0].value;
           });
           soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
-            soundPlayerHowl.unload();
+            soundPlayerHowl?.unload();
             soundPlayerHowl = null;
             gm.editor.unsavedModeAssets.sounds[soundOrder] = null;
             document.getElementById('gmsettings_assetlist').removeChild(soundItem);

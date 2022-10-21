@@ -49,6 +49,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(>= 0;.{0,100}--.{0,300}break;\\}\\}if\\()([^\\{]{0,200}\\{)(.{0,200}\\{i:.{0,100}f:)', to: '$1window.gmReplaceAccessors.forceInputRegister || $2window.gmReplaceAccessors.forceInputRegister = false;$3'},
       // call graphics rollback function
       // {regex: 'if\\(([^ ]+)( != Infinity\\){)(for[^<]+< )([^\\]]+\\])(.{0,400}=Infinity;)', to: 'if($1$2gm.graphics.doRollback($4, $1);$3$4$5'},
+      {regex: 'if\\(([^ ]+ != Infinity\\){)(for[^<]+< [^\\]]+\\].{0,400}=Infinity;)', to: 'if($1window.gmReplaceAccessors.rollbacking = true;$2window.gmReplaceAccessors.rollbacking = false;'},
       // allow toggling of the death barrier
       {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
       // modify position of sound with camera position
