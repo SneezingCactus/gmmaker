@@ -30,6 +30,8 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // This class contains the functions used by Bonk to compress/decompress maps.
       // It's used by gmmaker to compress and decompress maps attached to custom modes.
       {name: 'MapEncoder', regex: '{try{.{3,6}=(.{1,2})\\[', isConstructor: true},
+      // This class listens to your inputs and turns them into something that Bonk can understand.
+      // It's used by gmmaker to add mouse buttons and position into the inputs.
       {name: 'InputHandler', regex: 'Date.{0,100}new ([^\\(]+).{0,100}\\$\\(document', isConstructor: true},
       // This class' task is to calculate the game step every 1/30 seconds.
       // It's used by gmmaker to manipulate the game state, detect collisions, do raycasts, etc.
@@ -137,7 +139,5 @@ a bonk.io update.`);
     throw error;
   }
 });
-
-window.bonkCodeInjectors.push((bonkSrc) => bonkSrc);
 
 console.log('[Game Mode Maker] Injector loaded');

@@ -951,8 +951,17 @@ declare interface playerInput {
   }
 }
 
+declare interface playerOverride {
+  up: boolean
+  down: boolean
+  left: boolean
+  right: boolean
+  action: boolean
+  action2: boolean
+}
+
 declare interface inputMethods {
-  overrides: playerInput[]
+  overrides: playerOverride[]
 }
 
 declare type gameInputs = playerInput[] & inputMethods 
@@ -1128,6 +1137,50 @@ declare interface game {
 }
 
 declare var game: game;
+
+declare interface Colour {
+  /**
+   * Get red, green and blue values from a hex colour.
+   * 
+   * The RGB values will be returned in the form of an array ordered by `[red, green, blue]`.
+   */
+  toRGBValues(colour: number): number[]
+  /**
+   * Get hue, saturation and value from a hex colour.
+   * 
+   * The HSV values will be returned in the form of an array ordered by `[hue, saturation, value]`.
+   */
+  toHSVValues(colour: number): number[]
+  /**
+   * Turn red, green and blue into a hex colour to use in drawings, fixtures, etc.
+   * 
+   * The RGB values must be given in the form of an array ordered by `[red, green, blue]`.
+   */
+  fromRGBValues(rgb: number[]): number[]
+  /**
+   * Turn hue, saturation and value into a hex colour to use in drawings, fixtures, etc.
+   * 
+   * The HSV values must be given in the form of an array ordered by `[hue, saturation, value]`.
+   */
+  fromHSVValues(hsv: number[]): number[]
+  /**
+   * Blend the RGB values of colour A and colour B by interpolant t.
+   * 
+   * When t = 0, colour A is returned.
+   * 
+   * When t = 1, colour B is returned.
+   * 
+   * When t = 0.5, the colour "between" A and B is returned.
+   */
+  blend(a: number, b: number, t: number): number
+}
+
+/** 
+ * An intrinsic object that provides colour manipulation functionality.
+ * 
+ * Colours are represented by a hex code in the form of a number.
+ */
+declare var Colour: Colour;
 
 declare interface Vector {
   /**

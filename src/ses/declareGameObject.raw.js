@@ -276,7 +276,7 @@ this.game = {
     },
     bakeDrawing: function(id, resolution = 1) {
       if (!game.graphics.drawings[id]) return;
-      const baked = bakeDrawing(id, resolution, game.state.physics.ppm);
+      const baked = bakeDrawing(id, resolution, game.state);
 
       game.graphics.drawings[id].shapes = [{
         type: 'im',

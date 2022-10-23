@@ -250,100 +250,7 @@ export default {
         /* #endregion UPDATE CAMERA */
 
         /* #region UPDATE DRAWINGS */
-        const maxDrawingsLength = Math.max(stateB.gmExtra.drawings.length, gm.graphics.drawings.length);
-        for (let i = 0; i < maxDrawingsLength; i++) {
-          const drawingA = stateA.gmExtra.drawings[i];
-          const drawingB = stateB.gmExtra.drawings[i];
-          const drawingList = gm.graphics.drawings;
-
-          // deletion of drawings that suddenly disappear
-          if (!drawingB && drawingList[i]) {
-            drawingList[i].destroy();
-            drawingList[i] = null;
-          }
-
-          // deletion of drawings that suddenly get destroyed
-          if (drawingB && drawingList[i]?._destroyed) {
-            drawingList[i] = null;
-          }
-
-          // new shape creation
-          if (drawingB && !drawingList[i]) {
-            drawingList[i] = new Drawing();
-
-            if (drawingB.isBehind) {
-              // come on, who's going to make that much drawings
-              drawingList[i].displayObject.zIndex = -10000000 + i;
-            } else {
-              drawingList[i].displayObject.zIndex = 10000000 + i;
-            }
-
-            drawingList[i].attachTo = drawingB.attachTo;
-            drawingList[i].attachId = drawingB.attachId;
-
-            switch (drawingB.attachTo) {
-              case 'screen':
-                // if it wasn't sortable, now it is
-                this.blurContainer.sortableChildren = true;
-                this.blurContainer.addChildOLD(drawingList[i].displayObject);
-                break;
-              case 'world':
-                gm.graphics.camera.sortableChildren = true;
-                gm.graphics.camera.addChild(drawingList[i].displayObject);
-                break;
-              case 'disc':
-                const disc = this.discGraphics[drawingB.attachId];
-                if (!disc) break;
-                disc.container.sortableChildren = true;
-                disc.container.addChild(drawingList[i].displayObject);
-                break;
-              case 'body':
-                const body = this.roundGraphics.bodyGraphics[drawingB.attachId];
-                if (!body) break;
-                body.displayObject.sortableChildren = true;
-                body.displayObject.addChild(drawingList[i].displayObject);
-                break;
-            }
-            drawingList[i].update(drawingB, drawingB, 1, stateB.physics.ppm * this.scaleRatio, true);
-          }
-
-          // drawing updating
-          if (drawingA && drawingB && drawingList[i]) {
-            if (drawingList[i].attachTo != drawingB.attachTo ||
-                drawingList[i].attachId != drawingB.attachId ||
-               !drawingList[i].displayObject.parent) {
-              drawingList[i].displayObject.parent?.removeChild(drawingList[i]);
-              drawingList[i].attachTo = drawingB.attachTo;
-              drawingList[i].attachId = drawingB.attachId;
-
-              switch (drawingB.attachTo) {
-                case 'screen':
-                  // if it wasn't sortable, now it is
-                  this.blurContainer.sortableChildren = true;
-                  this.blurContainer.addChildOLD(drawingList[i].displayObject);
-                  break;
-                case 'world':
-                  gm.graphics.camera.sortableChildren = true;
-                  gm.graphics.camera.addChild(drawingList[i].displayObject);
-                  break;
-                case 'disc':
-                  const disc = this.discGraphics[drawingB.attachId];
-                  if (!disc) break;
-                  disc.container.sortableChildren = true;
-                  disc.container.addChild(drawingList[i].displayObject);
-                  break;
-                case 'body':
-                  const body = this.roundGraphics.bodyGraphics[drawingB.attachId];
-                  if (!body) break;
-                  body.displayObject.sortableChildren = true;
-                  body.displayObject.addChild(drawingList[i].displayObject);
-                  break;
-              }
-            }
-
-            drawingList[i].update(drawingA, drawingB, weight, stateB.physics.ppm * this.scaleRatio);
-          }
-        }
+        gm.graphics.updateDrawings(stateA, stateB, weight);
         /* #endregion UPDATE DRAWINGS */
 
         // save graphics state for later use
@@ -499,6 +406,105 @@ export default {
       };
     })();
   },
+  updateDrawings: function(stateA, stateB, weight) {
+    const maxDrawingsLength = Math.max(stateB.gmExtra.drawings.length, gm.graphics.drawings.length);
+
+    const renderer = gm.graphics.rendererClass;
+
+    for (let i = 0; i < maxDrawingsLength; i++) {
+      const drawingA = stateA.gmExtra.drawings[i];
+      const drawingB = stateB.gmExtra.drawings[i];
+      const drawingList = gm.graphics.drawings;
+
+      // deletion of drawings that suddenly disappear
+      if (!drawingB && drawingList[i]) {
+        drawingList[i].destroy();
+        drawingList[i] = null;
+      }
+
+      // deletion of drawings that suddenly get destroyed
+      if (drawingB && drawingList[i]?._destroyed) {
+        drawingList[i] = null;
+      }
+
+      // new shape creation
+      if (drawingB && !drawingList[i]) {
+        drawingList[i] = new Drawing();
+
+        if (drawingB.isBehind) {
+          // come on, who's going to make that much drawings
+          drawingList[i].displayObject.zIndex = -10000000 + i;
+        } else {
+          drawingList[i].displayObject.zIndex = 10000000 + i;
+        }
+
+        drawingList[i].attachTo = drawingB.attachTo;
+        drawingList[i].attachId = drawingB.attachId;
+
+        switch (drawingB.attachTo) {
+          case 'screen':
+            // if it wasn't sortable, now it is
+            renderer.blurContainer.sortableChildren = true;
+            renderer.blurContainer.addChildOLD(drawingList[i].displayObject);
+            break;
+          case 'world':
+            gm.graphics.camera.sortableChildren = true;
+            gm.graphics.camera.addChild(drawingList[i].displayObject);
+            break;
+          case 'disc':
+            const disc = renderer.discGraphics[drawingB.attachId];
+            if (!disc) break;
+            disc.container.sortableChildren = true;
+            disc.container.addChild(drawingList[i].displayObject);
+            break;
+          case 'body':
+            const body = renderer.roundGraphics.bodyGraphics[drawingB.attachId];
+            if (!body) break;
+            body.displayObject.sortableChildren = true;
+            body.displayObject.addChild(drawingList[i].displayObject);
+            break;
+        }
+        drawingList[i].update(drawingB, drawingB, 1, stateB.physics.ppm * renderer.scaleRatio, true);
+      }
+
+      // drawing updating
+      if (drawingA && drawingB && drawingList[i]) {
+        if (drawingList[i].attachTo != drawingB.attachTo ||
+            drawingList[i].attachId != drawingB.attachId ||
+           !drawingList[i].displayObject.parent) {
+          drawingList[i].displayObject.parent?.removeChild(drawingList[i]);
+          drawingList[i].attachTo = drawingB.attachTo;
+          drawingList[i].attachId = drawingB.attachId;
+
+          switch (drawingB.attachTo) {
+            case 'screen':
+              // if it wasn't sortable, now it is
+              renderer.blurContainer.sortableChildren = true;
+              renderer.blurContainer.addChildOLD(drawingList[i].displayObject);
+              break;
+            case 'world':
+              gm.graphics.camera.sortableChildren = true;
+              gm.graphics.camera.addChild(drawingList[i].displayObject);
+              break;
+            case 'disc':
+              const disc = renderer.discGraphics[drawingB.attachId];
+              if (!disc) break;
+              disc.container.sortableChildren = true;
+              disc.container.addChild(drawingList[i].displayObject);
+              break;
+            case 'body':
+              const body = renderer.roundGraphics.bodyGraphics[drawingB.attachId];
+              if (!body) break;
+              body.displayObject.sortableChildren = true;
+              body.displayObject.addChild(drawingList[i].displayObject);
+              break;
+          }
+        }
+
+        drawingList[i].update(drawingA, drawingB, weight, stateB.physics.ppm * renderer.scaleRatio);
+      }
+    }
+  },
   preloadImages: function(imageList) {
     // new texture creation and image ids collection
     const imageIds = [];
@@ -526,22 +532,33 @@ export default {
       }
     }
   },
-  bakeDrawing: function(id, resolution, ppm) {
+  bakeDrawing: function(id, resolution, state) {
+    if (state.gmExtra.drawings[id] && !this.drawings[id]) {
+      this.updateDrawings(state, state, 0);
+    } else if (!state.gmExtra.drawings[id]) {
+      return;
+    }
+
     const drawing = this.drawings[id].displayObject;
     const bounds = drawing.getLocalBounds();
-    const width = (bounds.x + bounds.size[0]) * 2 * drawing.scale.x;
-    const height = (bounds.y + bounds.size[1]) * 2 * drawing.scale.y;
+    const width = (bounds.x + bounds.width) * 2 * drawing.scale.x;
+    const height = (bounds.y + bounds.height) * 2 * drawing.scale.y;
     const bakedTex = PIXI.RenderTexture.create({
       width: width,
       height: height,
       resolution: resolution * this.rendererClass.scaleRatio,
     });
 
-    drawing.x += width / 2;
-    drawing.y += height / 2;
+    const oldX = drawing.x;
+    const oldY = drawing.y;
+    const oldAngle = drawing.angle;
+    drawing.x = width / 2;
+    drawing.y = height / 2;
+    drawing.angle = 0;
     this.rendererClass.renderer.render(drawing, bakedTex);
-    drawing.x -= width / 2;
-    drawing.y -= height / 2;
+    drawing.x = oldX;
+    drawing.y = oldY;
+    drawing.angle = oldAngle;
 
     let bakedId = 'BAKED_';
     for (let i = 0; true; i++) {
@@ -550,6 +567,8 @@ export default {
         break;
       }
     }
+
+    const ppm = state.physics.ppm;
 
     this.imageTextures[bakedId] = bakedTex.baseTexture;
     return {

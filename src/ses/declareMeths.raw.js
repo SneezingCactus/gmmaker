@@ -62,7 +62,7 @@ window.getEventArgs = () => copy(window.parent.gm.state.currentEventArgs);
 harden(getEventArgs);
 
 // graphics functions
-window.bakeDrawing = (id, resolution, ppm) => copy(window.parent.gm.graphics.bakeDrawing(id, resolution, ppm));
+window.bakeDrawing = (id, resolution, state) => copy(window.parent.gm.graphics.bakeDrawing(id, resolution, state));
 harden(bakeDrawing);
 
 window.debugLog = (mess) => window.parent.gm.graphics.debugLog(mess);
@@ -106,6 +106,16 @@ newMath.acos = (a) => oldMath.round(oldMath.acos(a) * (180 / oldMath.PI) * 10000
 newMath.atan = (a) => oldMath.round(oldMath.atan(a) * (180 / oldMath.PI) * 1000000000) / 1000000000;
 newMath.atan2 = (a, b) => oldMath.round(oldMath.atan2(a, b) * (180 / oldMath.PI) * 1000000000) / 1000000000;
 newMath.random = () => oldMath.round(0 + window.parent.gm.state.pseudoRandom() * 1000000000) / 1000000000;
+newMath.lerpAngle = (a, b, t) => {
+  const anglePointA = [newMath.sin(a * (newMath.PI/180)), newMath.cos(a * (newMath.PI/180))];
+  const anglePointB = [newMath.sin(b * (newMath.PI/180)), newMath.cos(b * (newMath.PI/180))];
+  const lerpedAnglePoint = [
+    (1 - t) * anglePointA[0] + t * anglePointB[0],
+    (1 - t) * anglePointA[1] + t * anglePointB[1],
+  ];
+
+  return Math.atan2(lerpedAnglePoint[0], lerpedAnglePoint[1]) * (180/newMath.PI);
+};
 
 Math = newMath;
 
@@ -237,5 +247,78 @@ window.Vector = {
   },
 };
 
+window.Colour = {
+  toRGBValues: function(colour) {
+    return [
+      colour >> 16,
+      colour >> 8 & 0xff,
+      colour & 0xff,
+    ];
+  },
+  toHSVValues: function(colour) {
+    const r = (colour >> 16) / 255;
+    const g = (colour >> 8 & 0xff) / 255;
+    const b = (colour & 0xff) / 255;
+
+    const max = Math.max(r, Math.max(g, b));
+    const min = Math.min(r, Math.min(g, b));
+    const c = max - min;
+
+    let h;
+
+    if (c == 0) {
+      h = 0;
+    } else {
+      switch (max) {
+        case r: h = 60 * ((g - b) / c); break;
+        case g: h = 60 * ((b - r) / c + 2); break;
+        case b: h = 60 * ((r - g) / c + 4); break;
+      }
+
+      if (h < 0) h = 360 - h;
+    }
+
+    const s = max == 0 ? 0 : c / max;
+
+    return [h, s, max];
+  },
+  fromRGBValues: function(rgb) {
+    return (rgb[0] << 16) + (rgb[1] << 8) + rgb[2];
+  },
+  fromHSVValues: function(hsv) {
+    const c = hsv[1] * hsv[2];
+    const h = hsv[0] % 360 / 60;
+    const x = c * (1 - Math.abs(h % 2 - 1));
+
+    let rgb;
+
+    switch (Math.floor(h)) {
+      case 0: rgb = [c, x, 0]; break;
+      case 1: rgb = [x, c, 0]; break;
+      case 2: rgb = [0, c, x]; break;
+      case 3: rgb = [0, x, c]; break;
+      case 4: rgb = [x, 0, c]; break;
+      case 5: rgb = [c, 0, x]; break;
+    }
+
+    const m = hsv[2] - c;
+    rgb[0] = Math.floor((rgb[0] + m) * 255);
+    rgb[1] = Math.floor((rgb[1] + m) * 255);
+    rgb[2] = Math.floor((rgb[2] + m) * 255);
+
+    return (rgb[0] << 16) + (rgb[1] << 8) + rgb[2];
+  },
+  blend: function(a, b, t) {
+    const rgbA = this.toRGBValues(a);
+    const rgbB = this.toRGBValues(b);
+
+    return this.fromRGBValues([
+      rgbA[0] + (rgbB[0] - rgbA[0]) * t,
+      rgbA[1] + (rgbB[1] - rgbA[1]) * t,
+      rgbA[2] + (rgbB[2] - rgbA[2]) * t,
+    ]);
+  },
+};
+
 // return list of methods
-['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'bakeDrawing', 'debugLog', 'playSound', 'stopAllSounds', 'rayCast', 'rayCastAll', 'Math', 'Vector'];
+['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'bakeDrawing', 'debugLog', 'playSound', 'stopAllSounds', 'rayCast', 'rayCastAll', 'Math', 'Vector', 'Colour'];

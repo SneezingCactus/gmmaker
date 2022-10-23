@@ -13,9 +13,9 @@ import gmLobby from '../gmObject/lobby.js';
 import gmEditor from '../gmObject/editor.js';
 import gmEncoding from '../gmObject/encoding';
 
-window.initGM = function() {
-  if (window.gm) return;
-
+// inline part to be removed in userscript version
+// eslint-disable-next-line brace-style
+window.initGM = function() {if (window.gm) return;
   if (window.gmStyles) {
     document.querySelector('head').appendChild(window.gmStyles);
   }
