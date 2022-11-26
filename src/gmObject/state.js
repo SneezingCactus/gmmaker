@@ -86,6 +86,7 @@ export default {
           right: overrides[i]?.right ?? inputs[i]?.right ?? false,
           action: overrides[i]?.action ?? inputs[i]?.action ?? false,
           action2: overrides[i]?.action2 ?? inputs[i]?.action2 ?? false,
+          mouse: inputs[i]?.mouse,
         };
       }
 
@@ -107,16 +108,28 @@ export default {
       /* #region ANGLE UNIT NORMALIZING */
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
+
+        state.discs[i].ra = state.discs[i].a;
+        state.discs[i].rav = state.discs[i].av;
+
         state.discs[i].a *= 180 / Math.PI;
         state.discs[i].av *= 180 / Math.PI;
       }
       for (let i = 0; i !== state.projectiles.length; i++) {
         if (!state.projectiles[i]) continue;
+
+        state.projectiles[i].ra = state.projectiles[i].a;
+        state.projectiles[i].rav = state.projectiles[i].av;
+
         state.projectiles[i].a *= 180 / Math.PI;
         state.projectiles[i].av *= 180 / Math.PI;
       }
       for (let i = 0; i !== state.physics.bodies.length; i++) {
         if (!state.physics.bodies[i]) continue;
+
+        state.physics.bodies[i].ra = state.physics.bodies[i].a;
+        state.physics.bodies[i].rav = state.physics.bodies[i].av;
+
         state.physics.bodies[i].a *= 180 / Math.PI;
         state.physics.bodies[i].av *= 180 / Math.PI;
       }
@@ -126,36 +139,69 @@ export default {
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
 
-        if (!inputs[i]) {
-          inputs[i] = inputs[i] || {
+        inputs[i] = inputs[i] || {
+          left: false,
+          right: false,
+          up: false,
+          down: false,
+          action: false,
+          action2: false,
+          mouse: {
+            pos: [0, 0],
             left: false,
             right: false,
-            up: false,
-            down: false,
-            action: false,
-            action2: false,
-            mouse: {
-              pos: [0, 0],
-              left: false,
-              right: false,
-              center: false,
-            },
-          };
-        }
+            center: false,
+          },
+        };
 
         if (!state.discs[i].swing) state.discs[i].swing = false;
       }
       /* #endregion DISC NORMALIZING */
 
+      /* #region CHANGE XY TO VECTORS */
+      for (let i = 0; i !== state.discs.length; i++) {
+        if (!state.discs[i]) continue;
+
+        const disc = state.discs[i];
+
+        disc.p = [disc.x, disc.y];
+        disc.lv = [disc.xv, disc.yv];
+        disc.sp = [disc.sx, disc.sy];
+        disc.slv = [disc.sxv, disc.syv];
+      }
+      for (let i = 0; i !== state.discDeaths.length; i++) {
+        if (!state.discDeaths[i]) continue;
+
+        const death = state.discDeaths[i];
+
+        death.p = [death.x, death.y];
+        death.lv = [death.xv, death.yv];
+      }
+      for (let i = 0; i !== state.projectiles.length; i++) {
+        if (!state.projectiles[i]) continue;
+
+        const arrow = state.projectiles[i];
+
+        arrow.p = [arrow.x, arrow.y];
+        arrow.lv = [arrow.xv, arrow.yv];
+      }
+      /* #endregion CHANGE XY TO VECTORS */
+
       /* #region EXTRA PROPERTY MANAGE */
       state.gmExtra = oldState.gmExtra;
 
+      for (let i = 0; i < state.discs.length; i++) {
+        if (!state.discs[i]) continue;
+        state.discs[i].visible = oldState.discs[i]?.visible ?? true;
+      }
       for (let i = 0; i < state.physics.bodies.length; i++) {
         if (!state.physics.bodies[i]) continue;
+        state.physics.bodies[i].visible = oldState.physics.bodies[i]?.visible ?? true;
         state.physics.bodies[i].ni = false;
       }
       for (let i = 0; i < state.projectiles.length; i++) {
         if (!state.projectiles[i]) continue;
+        state.projectiles[i].visible = oldState.projectiles[i]?.visible ?? true;
         state.projectiles[i].ni = false;
       }
       for (let i = 0; i < state.gmExtra.drawings.length; i++) {
@@ -292,37 +338,96 @@ export default {
       const playerIds = gm.state.staticInfo.lobby.allPlayerIds;
 
       if (oldState.rl == 0) {
-        gm.state.fireEvent('roundStart', {runOnce: true}, []);
+        gm.state.fireEvent('roundStart', {perPlayer: false}, []);
         for (let i = 0; i < playerIds.length; i++) {
-          gm.state.fireEvent('roundStart', {runOnce: false}, [playerIds[i]]);
+          gm.state.fireEvent('roundStart', {perPlayer: true}, [playerIds[i]]);
         }
       }
 
       // fire step events
-      gm.state.fireEvent('step', {runOnce: true}, []);
+      gm.state.fireEvent('step', {perPlayer: false}, []);
       for (let i = 0; i < playerIds.length; i++) {
-        gm.state.fireEvent('step', {runOnce: false}, [playerIds[i]]);
+        gm.state.fireEvent('step', {perPlayer: true}, [playerIds[i]]);
       }
       /* #endregion EVENT FIRING */
 
       state = gm.state.safeEval.evaluate('this.prepareDynamicInfo()');
       state.gmInitial = oldState.gmInitial;
 
+      /* #region CHANGE VECTORS TO XY */
+      for (let i = 0; i !== state.discs.length; i++) {
+        if (!state.discs[i]) continue;
+
+        const disc = state.discs[i];
+
+        disc.x = disc.p[0];
+        disc.y = disc.p[1];
+        disc.xv = disc.lv[0];
+        disc.yv = disc.lv[1];
+        disc.sx = disc.sp[0];
+        disc.sy = disc.sp[1];
+        disc.sxv = disc.slv[0];
+        disc.syv = disc.slv[1];
+      }
+      for (let i = 0; i !== state.discDeaths.length; i++) {
+        if (!state.discDeaths[i]) continue;
+
+        const death = state.discDeaths[i];
+
+        death.x = death.p[0];
+        death.y = death.p[1];
+        death.xv = death.lv[0];
+        death.yv = death.lv[1];
+      }
+      for (let i = 0; i !== state.projectiles.length; i++) {
+        if (!state.projectiles[i]) continue;
+
+        const arrow = state.projectiles[i];
+
+        arrow.x = arrow.p[0];
+        arrow.y = arrow.p[1];
+        arrow.xv = arrow.lv[0];
+        arrow.yv = arrow.lv[1];
+      }
+      /* #endregion VECTORS TO XY */
+
       /* #region ANGLE UNIT RESTORING */
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
         state.discs[i].a *= Math.PI / 180;
         state.discs[i].av *= Math.PI / 180;
+
+        if (Math.abs(state.discs[i].a - state.discs[i].ra) < 0.000000001) {
+          state.discs[i].a = state.discs[i].ra;
+        }
+        if (Math.abs(state.discs[i].av - state.discs[i].rav) < 0.000000001) {
+          state.discs[i].av = state.discs[i].rav;
+        }
       }
       for (let i = 0; i !== state.projectiles.length; i++) {
         if (!state.projectiles[i]) continue;
         state.projectiles[i].a *= Math.PI / 180;
         state.projectiles[i].av *= Math.PI / 180;
+
+        if (Math.abs(state.projectiles[i].a - state.projectiles[i].ra) < 0.000000001) {
+          state.projectiles[i].a = state.projectiles[i].ra;
+        }
+        if (Math.abs(state.projectiles[i].av - state.projectiles[i].rav) < 0.000000001) {
+          state.projectiles[i].av = state.projectiles[i].rav;
+        }
       }
       for (let i = 0; i !== state.physics.bodies.length; i++) {
         if (!state.physics.bodies[i]) continue;
+
         state.physics.bodies[i].a *= Math.PI / 180;
         state.physics.bodies[i].av *= Math.PI / 180;
+
+        if (Math.abs(state.physics.bodies[i].a - state.physics.bodies[i].ra) < 0.000000001) {
+          state.physics.bodies[i].a = state.physics.bodies[i].ra;
+        }
+        if (Math.abs(state.physics.bodies[i].av - state.physics.bodies[i].rav) < 0.000000001) {
+          state.physics.bodies[i].av = state.physics.bodies[i].rav;
+        }
       }
       /* #endregion ANGLE UNIT RESTORING */
 
@@ -369,6 +474,7 @@ export default {
       const state = PhysicsClass.createNewStateOLD(...arguments);
 
       if (!gm.lobby.networkEngine) return state;
+      if (gm.lobby.networkEngine.hostID !== gm.lobby.networkEngine.getLSID()) return state;
 
       /* #region gmInitial CREATION */
       const gmInitial = {};

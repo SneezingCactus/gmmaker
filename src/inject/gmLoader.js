@@ -4,6 +4,7 @@
 /* eslint-disable no-tabs */
 
 import '../gmWindow/style.css';
+import splashHtml from '../gmWindow/splash.html';
 
 import gmState from '../gmObject/state.js';
 import gmInput from '../gmObject/input.js';
@@ -11,7 +12,7 @@ import gmGraphics from '../gmObject/graphics.js';
 import gmAudio from '../gmObject/audio.js';
 import gmLobby from '../gmObject/lobby.js';
 import gmEditor from '../gmObject/editor.js';
-import gmEncoding from '../gmObject/encoding';
+import gmEncoding from '../gmObject/encoding.js';
 
 // inline part to be removed in userscript version
 // eslint-disable-next-line brace-style
@@ -36,6 +37,21 @@ window.initGM = function() {if (window.gm) return;
   for (const key in gm) {
     gm[key].init();
   }
+
+  // show epic splash screen
+  let splashElement = document.createElement('div');
+  document.getElementById('newbonkgamecontainer').prepend(splashElement);
+  splashElement.outerHTML = splashHtml;
+
+  // yes this is needed
+  splashElement = document.getElementsByClassName('gm_splashcontainer')[0];
+
+  setTimeout(function() {
+    splashElement.style.top = '0px';
+  }, 1000);
+  setTimeout(function() {
+    splashElement.style.top = '-1000px';
+  }, 5000);
 
   console.log('[Game Mode Maker] The extension has been successfully loaded!');
 };

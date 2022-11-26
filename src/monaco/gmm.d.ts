@@ -16,21 +16,17 @@ declare interface swingInfo {
 
 declare interface disc {
   /**
-   * X position of the disc.
+   * Position of the disc, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  x:number
+  p: number[]
   /**
-   * Y position of the disc.
-   */
-  y:number
-  /**
-   * X velocity of the disc.
-   */
-  xv:number
-  /**
-   * Y velocity of the disc.
-   */
-  yv:number
+  * Linear velocity of the disc, as a 2d vector.
+  * 
+  * Read more about vectors in @link https://todoaddthing.
+  */
+  lv: number[]
   /**
    * Angle in degrees of the disc.
    */
@@ -53,21 +49,17 @@ declare interface disc {
    */
   ni:boolean
   /**
-   * Spawn X position of the disc.
+   * Spawn position of the disc, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  sx:number
+  sp: number[]
   /**
-   * Spawn Y position of the disc.
+   * Spawn linear velocity of the disc, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  sy:number
-  /**
-   * Spawn X velocity of the disc.
-   */
-  sxv:number
-  /**
-   * Spawn Y velocity of the disc.
-   */
-  syv:number
+  slv: number[]
   /**
    * Arrow aim speed (controls how fast an arrow will launch).
    */
@@ -99,32 +91,32 @@ declare interface discDeath {
    */
   m: number
   /**
-   * X position that the disc had when it died.
+   * Position that the disc had when it died, as a 2d vector.
+   *  
+   * Read more about vectors in @link https://todoaddthing.
    */
-  x: number
+  p: number[]
   /**
-   * Y position that the disc had when it died.
+   * Linear velocity that the disc had when it died, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  y: number
-  /**
-   * X velocity that the disc had when it died.
-   */
-  xv: number
-  /**
-   * Y velocity that the disc had when it died.
-   */
-  yv: number
+  lv: number[]
 }
 
 declare interface projectile {
   /**
-   * X position of the arrow.
+   * Position of the arrow, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  x: number
+  p: number[]
   /**
-   * Y position of the arrow.
+   * Linear velocity of the arrow, as a 2d vector.
+   * 
+   * Read more about vectors in @link https://todoaddthing.
    */
-  y: number
+  lv: number[]
   /**
    * Angle in degrees of the arrow.
    */
@@ -133,14 +125,6 @@ declare interface projectile {
    * Angular velocity of the arrow.
    */
   av: number
-  /**
-   * X velocity of the arrow.
-   */
-  xv: number
-  /**
-   * Y velocity of the arrow.
-   */
-  yv: number
   /**
    * Likely stands for "frames 'till end".
    * 
@@ -516,13 +500,13 @@ declare interface stepEventOptions {
    * 
    * This option only affects "roundStart" and "step".
    * 
-   * If set to false, the listener will be called multiple times, and it will be given the id of a different player every time.
+   * If set to true, the listener will be called multiple times, and it will be given the id of a different player every time.
    * It will do so in the order the ids are in. Example: if there are two players, one with id 2 and another with id 5,
    * the function will be called twice; the first time it will be given the id 2, then the other time, the id 5.  
    * 
-   * If set to true, the listener will be called once, and no variables will be given.
+   * If set to false, the listener will be called once, and no variables will be given.
    */
-  runOnce: boolean
+  perPlayer: boolean
 }
 
 declare interface collisionEventOptions {

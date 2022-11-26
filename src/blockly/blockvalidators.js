@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 /* eslint-disable no-caller */
 /* eslint-disable no-invalid-this */
 /* eslint-disable camelcase */
@@ -8,6 +9,183 @@ import Blockly from 'blockly';
 * Sets up the blocks' validators
 */
 export default function() {
+  // why does this not exist???
+  Blockly.Block.prototype.removeInputAt = function(index, opt_quiet) {
+    const input = this.inputList[index];
+    if (input) {
+      if (input.type === Blockly.inputTypes.STATEMENT) {
+        this.statementInputCount--;
+      }
+      input.dispose();
+      this.inputList.splice(index, 1);
+
+      if (this.rendered) {
+        this.render();
+        this.bumpNeighbours();
+      }
+
+      return true;
+    } else if (opt_quiet) {
+      return false;
+    }
+
+    throw Error('Input not found at: ' + index);
+  };
+
+  const eventStepMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+      const perPlayer = (this.getFieldValue('perplayer') === 'TRUE');
+      container.setAttribute('perplayer', perPlayer);
+      this.updateShape_(perPlayer);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      const perPlayer = (xmlElement.getAttribute('perplayer') !== 'false');
+      this.updateShape_(perPlayer);
+    },
+    updateShape_: function(perPlayer) {
+      const inputExists = this.inputList.length > 3;
+      if (perPlayer && !inputExists) {
+        this.appendDummyInput('')
+            .appendField('store player id in var')
+            .appendField(new Blockly.FieldVariable('id'), 'player_id');
+
+        this.moveNumberedInputBefore(3, 2);
+      } else if (!perPlayer && inputExists) {
+        this.removeInputAt(2);
+      }
+    },
+  };
+
+  const eventStepValidator = function() {
+    this.mixin(eventStepMixin);
+
+    const perPlayerCheck = this.getField('perplayer');
+
+    perPlayerCheck.setValidator(function(newValue) {
+      const perPlayer = (newValue === 'TRUE');
+      this.getSourceBlock().updateShape_(perPlayer);
+    });
+  };
+  Blockly.Blocks['event_step'].validatorInit = eventStepValidator;
+  Blockly.Blocks['event_roundstart'].validatorInit = eventStepValidator;
+
+  const eventCollisionMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+      const colA = this.getFieldValue('col_a');
+      const colB = this.getFieldValue('col_b');
+      const storeInfo = this.getFieldValue('store_info') === 'TRUE';
+      container.setAttribute('col_a', colA);
+      container.setAttribute('col_b', colB);
+      container.setAttribute('store_info', storeInfo);
+      this.updateShape_(colA, colB, storeInfo);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      const colA = xmlElement.getAttribute('col_a');
+      const colB = xmlElement.getAttribute('col_b');
+      const storeInfo = xmlElement.getAttribute('store_info');
+      this.updateShape_(colA, colB, storeInfo);
+    },
+    updateShape_: function(colA, colB, storeInfo) {
+      function appendFieldIfNotExist(input, field, fieldId) {
+        if (input.fieldRow.find((field) => field.name === fieldId)) return;
+        input.appendField(field, fieldId);
+      }
+
+      const varInputsExist = this.inputList.length > 4;
+
+      if (storeInfo && !varInputsExist) {
+        this.appendDummyInput('');
+        this.appendDummyInput('');
+        this.moveNumberedInputBefore(3, 2);
+        this.moveNumberedInputBefore(4, 3);
+      }
+      if (!storeInfo) {
+        if (varInputsExist) {
+          this.removeInputAt(2);
+          this.removeInputAt(2);
+        }
+
+        return;
+      }
+
+      switch (colA) {
+        case 'disc':
+          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A disc id'), 'a_discid');
+          this.inputList[2].removeField('a_arrowid', true);
+          this.inputList[2].removeField('a_bodyid', true);
+          this.inputList[2].removeField('a_fixtureid', true);
+          this.inputList[2].removeField('a_normal', true);
+          this.inputList[2].removeField('a_capzone', true);
+          break;
+        case 'arrow':
+          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A arrow id'), 'a_arrowid');
+          this.inputList[2].removeField('a_discid', true);
+          this.inputList[2].removeField('a_bodyid', true);
+          this.inputList[2].removeField('a_fixtureid', true);
+          this.inputList[2].removeField('a_normal', true);
+          this.inputList[2].removeField('a_capzone', true);
+          break;
+        case 'body':
+          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A body id'), 'a_bodyid');
+          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A fixture id'), 'a_fixtureid');
+          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A normal'), 'a_normal');
+          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A is capzone'), 'a_capzone');
+          this.inputList[2].removeField('a_discid', true);
+          this.inputList[2].removeField('a_arrowid', true);
+          break;
+      }
+
+      switch (colB) {
+        case 'disc':
+          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B disc id'), 'b_discid');
+          this.inputList[3].removeField('b_arrowid', true);
+          this.inputList[3].removeField('b_bodyid', true);
+          this.inputList[3].removeField('b_fixtureid', true);
+          this.inputList[3].removeField('b_normal', true);
+          this.inputList[3].removeField('b_capzone', true);
+          break;
+        case 'arrow':
+          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B arrow id'), 'b_arrowid');
+          this.inputList[3].removeField('b_discid', true);
+          this.inputList[3].removeField('b_bodyid', true);
+          this.inputList[3].removeField('b_fixtureid', true);
+          this.inputList[3].removeField('b_normal', true);
+          this.inputList[3].removeField('b_capzone', true);
+          break;
+        case 'body':
+          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B body id'), 'b_bodyid');
+          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B fixture id'), 'b_fixtureid');
+          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B normal'), 'b_normal');
+          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B is capzone'), 'b_capzone');
+          this.inputList[3].removeField('b_discid', true);
+          this.inputList[3].removeField('b_arrowid', true);
+          break;
+      }
+    },
+  };
+
+  Blockly.Blocks['event_collision'].validatorInit = function() {
+    this.mixin(eventCollisionMixin);
+
+    const colADropdown = this.getField('col_a');
+    const colBDropdown = this.getField('col_b');
+    const storeInfoCheck = this.getField('store_info');
+
+    colADropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue, colBDropdown.getValue(), storeInfoCheck.getValue() === 'TRUE');
+    });
+    colBDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(colADropdown.getValue(), newValue, storeInfoCheck.getValue() === 'TRUE');
+    });
+    storeInfoCheck.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(colADropdown.getValue(), colBDropdown.getValue(), newValue === 'TRUE');
+    });
+  };
+  return;
   const playerIdMixin = {
     mutationToDom: function() {
       const container = Blockly.utils.xml.createElement('mutation');
@@ -741,6 +919,36 @@ export default function() {
 
 // blockly built-in
 
+Blockly.ToolboxCategory.prototype.addColourBorder_ = function() {};
+
+Blockly.ToolboxCategory.prototype.initOLD = Blockly.ToolboxCategory.prototype.init;
+Blockly.ToolboxCategory.prototype.init = function() {
+  this.initOLD(...arguments);
+
+  window.BonkUtils.setButtonSounds([this.rowDiv_]);
+
+  this.gm_bgElement = document.createElement('div');
+  this.gm_bgElement.classList.add('gm_blockly_toolbox_button_bg');
+  this.htmlDiv_.prepend(this.gm_bgElement);
+
+  const defaultColour =
+  this.parseColour_(Blockly.ToolboxCategory.defaultBackgroundColour);
+  this.gm_bgElement.style.backgroundColor = this.colour_ || defaultColour;
+};
+
+Blockly.ToolboxCategory.prototype.setSelectedOLD = Blockly.ToolboxCategory.prototype.setSelected;
+Blockly.ToolboxCategory.prototype.setSelected = function(isSelected) {
+  this.setSelectedOLD(isSelected);
+
+  this.rowDiv_.style.backgroundColor = '';
+
+  if (isSelected) {
+    this.gm_bgElement.style.filter = 'brightness(0.5)';
+  } else {
+    this.gm_bgElement.style.filter = '';
+  }
+};
+
 Blockly.Xml.applyInputTagNodes_ = function(xmlChildren, workspace, block, prototypeName) {
   for (let i = 0; i < xmlChildren.length; i++) {
     const xmlChild = xmlChildren[i];
@@ -766,4 +974,79 @@ Blockly.Xml.applyInputTagNodes_ = function(xmlChildren, workspace, block, protot
       input.connection.setShadowDom(childBlockInfo.childShadowElement);
     }
   }
+};
+
+// little hack to fix the immense lag when dragging around the workspace
+
+Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
+  if (this.useWorkspaceDragSurface_ && this.isDragSurfaceActive_) {
+    this.workspaceDragSurface_.translateSurface(x, y);
+  } else {
+    const translation = 'translate(' + x + ',' + y + ') ' +
+        'scale(' + this.scale + ')';
+    this.svgBlockCanvas_.setAttribute('transform', translation);
+    this.svgBubbleCanvas_.setAttribute('transform', translation);
+  }
+  // Now update the block drag surface if we're using one.
+  if (this.blockDragSurface_) {
+    this.blockDragSurface_.translateAndScaleGroup(x, y, this.scale);
+  }
+  // And update the grid if we're using one.
+  if (this.grid_) {
+    this.grid_.moveTo(x, y);
+  }
+
+  // this.maybeFireViewportChangeEvent();
+};
+
+// (not) temporary fix to the disappearing blocks problem
+Blockly.WorkspaceSvg.prototype.setCachedParentSvgSize = function(width, height) {
+  const svg = this.getParentSvg();
+  if (width != null) {
+    this.cachedParentSvgSize_.width = width;
+    // This is set to support the public (but deprecated) Blockly.svgSize
+    // method.
+    svg.cachedWidth_ = width;
+  }
+  if (height != null) {
+    this.cachedParentSvgSize_.height = height;
+    // This is set to support the public (but deprecated) Blockly.svgSize
+    // method.
+    svg.cachedHeight_ = height;
+  }
+};
+
+
+Blockly.Variables.flyoutCategory = function(workspace) {
+  let xmlList = [];
+  const button = document.createElement('button');
+  button.setAttribute('text', '%{BKY_NEW_VARIABLE}');
+  button.setAttribute('callbackKey', 'CREATE_VARIABLE');
+
+  workspace.registerButtonCallback('CREATE_VARIABLE', function(button) {
+    Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace());
+  });
+
+  xmlList.push(button);
+
+  const removeUnusedButton = document.createElement('button');
+  removeUnusedButton.setAttribute('text', 'Delete unused variables');
+  removeUnusedButton.setAttribute('callbackKey', 'DELETE_UNUSED_VARIABLES');
+
+  workspace.registerButtonCallback('DELETE_UNUSED_VARIABLES', function(button) {
+    const workspace = button.getTargetWorkspace();
+    const allVars = workspace.getAllVariables();
+    const usedVars = Blockly.Variables.allUsedVarModels(workspace);
+
+    for (let i = 0; i < allVars.length; i++) {
+      if (usedVars.includes(allVars[i])) continue;
+      gm.editor.blocklyWs.deleteVariableById(allVars[i].id_);
+    }
+  });
+
+  xmlList.push(removeUnusedButton);
+
+  const blockList = Blockly.Variables.flyoutCategoryBlocks(workspace);
+  xmlList = xmlList.concat(blockList);
+  return xmlList;
 };

@@ -107,14 +107,14 @@ newMath.atan = (a) => oldMath.round(oldMath.atan(a) * (180 / oldMath.PI) * 10000
 newMath.atan2 = (a, b) => oldMath.round(oldMath.atan2(a, b) * (180 / oldMath.PI) * 1000000000) / 1000000000;
 newMath.random = () => oldMath.round(0 + window.parent.gm.state.pseudoRandom() * 1000000000) / 1000000000;
 newMath.lerpAngle = (a, b, t) => {
-  const anglePointA = [newMath.sin(a * (newMath.PI/180)), newMath.cos(a * (newMath.PI/180))];
-  const anglePointB = [newMath.sin(b * (newMath.PI/180)), newMath.cos(b * (newMath.PI/180))];
+  const anglePointA = [newMath.sin(a), newMath.cos(a)];
+  const anglePointB = [newMath.sin(b), newMath.cos(b)];
   const lerpedAnglePoint = [
     (1 - t) * anglePointA[0] + t * anglePointB[0],
     (1 - t) * anglePointA[1] + t * anglePointB[1],
   ];
 
-  return Math.atan2(lerpedAnglePoint[0], lerpedAnglePoint[1]) * (180/newMath.PI);
+  return newMath.atan2(lerpedAnglePoint[0], lerpedAnglePoint[1]);
 };
 
 Math = newMath;

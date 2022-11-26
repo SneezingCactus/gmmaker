@@ -14,6 +14,82 @@
     --gm_button_secondary_color: #4b252b;
 }
 
+/* SPLASH SCREEN */
+
+@keyframes gm_gearspin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.gm_splashcontainer {
+    display: flex;
+    position: absolute;
+    top: -500px;
+    left: 0;
+    z-index: 99;
+
+    margin: 30px;
+    padding: 20px;
+
+    background-color: #00000055;
+    border-radius: 15px;
+    transition: top 2s;
+}
+
+.gm_splashlogo {
+    width: 75px;
+    height: 75px;
+}
+
+.gm_splashgear {
+    position: relative;
+    width: 45px;
+    height: 45px;
+
+    background-image: url(images/gmmgear.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 45px;
+}
+
+.gm_splashgear.one {
+    top: 5px;
+    animation: gm_gearspin 2s linear infinite;
+}
+
+.gm_splashgear.two {
+    left: 25px;
+    bottom: 15px;
+
+    animation: gm_gearspin reverse 2s linear infinite;
+    animation-delay: 1000ms;
+}
+
+.gm_splashtext {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin-left: 15px;
+}
+
+.gm_splashtitle {
+    color: #fff;
+    font-family: 'futurept_demi_oblique';
+    font-size: 36px;
+}
+
+.gm_splashdesc {
+    display: flex;
+    justify-content: space-between;
+    
+    color: #fff;
+    font-family: 'futurept_book';
+}
+
 /* GAME MODE EDITOR */
 
 #gmeditor {
@@ -34,7 +110,7 @@
     margin: 0;
     padding-top: 34px;
     background-color: var(--gm_primary_background);
-    border-radius: 4px;
+    border-radius: 8px 8px 4px 4px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -173,12 +249,15 @@
 }
 
 #newbonklobby_modebutton {
-    width: 75px;
+    width: calc(50% - 62px);
     right: 55px;
 }
 
-#newbonklobby_modebutton .gm_withbonkhost {
-    right: 15px;
+#newbonklobby_modebutton.gm_withbonkhost {
+    width: calc(100% - 42px);
+    left: 0;
+    bottom: -30px;
+    position: absolute !important;
 }
 
 #gmeditor_openbutton {
@@ -524,4 +603,43 @@ path.blocklyPath.blockly-ws-search-highlight {
 .gmvi_var div {
     flex-basis: 0;
     flex-grow: 1;
+}
+
+/* BLOCKLY CLASSES */
+
+.gm_blockly_toolbox_button_bg {
+    position: fixed;
+    width: 109px;
+    height: 30px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.blocklyTreeSeparator {
+    visibility: hidden;
+}
+
+.blocklyToolboxDiv {
+    background-color: var(--gm_primary_background);
+    padding: 4px 10px 4px 0;
+}
+
+.blocklyTreeRow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: rgb(0 0 0 / 63%) 1px 1px 5px -2px;
+    height: 30px;
+    padding-left: 8px !important;
+    cursor: pointer;
+}
+
+.blocklyTreeIcon {
+    width: 0px;
+    height: 0px;
+}
+
+.blocklyTreeLabel {
+    color: #fff;
+    font: 15px 'futurept_b1';
 }

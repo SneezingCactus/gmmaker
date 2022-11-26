@@ -23,8 +23,11 @@ export default {
         gm.editor.hideGMEWindow();
       });
 
-      // process new mode coming from host
       socket.on(7, function(id, packet) {
+        // add gm input data to i if it exists
+        if (packet.gm) packet.i = [packet.i, packet.gm];
+
+        // process new mode coming from host
         if (id !== gm.lobby.networkEngine.hostID) return;
         if (packet.initial && document.getElementById('sm_connectingContainer').style.visibility == 'hidden') return;
         if (!packet.gmMode) return;
@@ -44,6 +47,18 @@ export default {
           if (!packet.initial) gm.lobby.bonkLobby.showStatusMessage('* [GMMaker] Host has changed the mode', '#cc3333');
         }
       });
+
+      socket.emitOLD = socket.emit;
+      socket.emit = function(id, packet) {
+        if (id === 4 && !packet.gmMode && typeof packet.i === 'object') {
+          const inputArray = packet.i;
+          packet.i = inputArray[0];
+          inputArray.shift();
+          packet.gm = inputArray;
+        }
+
+        return socket.emitOLD(...arguments);
+      };
       return socket;
     };
   },

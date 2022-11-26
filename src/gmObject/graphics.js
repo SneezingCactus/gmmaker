@@ -216,9 +216,6 @@ export default {
         this.renderOLD(...arguments);
 
         /* #region UPDATE CAMERA */
-        // this.blurContainer.pivot.x = -365 * this.scaleRatio;
-        // this.blurContainer.pivot.y = -250 * this.scaleRatio;
-
         const cameraObjA = stateA.gmExtra.camera;
         const cameraObjB = stateB.gmExtra.camera;
         const camera = gm.graphics.camera;
@@ -277,7 +274,7 @@ export default {
 
         gm.graphics.rendererClass = this;
 
-        const emptyState = {ms: {re: false, nc: true, pq: 0, gd: 0, fl: false}, mm: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: ''}, shk: {x: 0, y: 0}, discs: [{x: 0, y: 0, xv: 0, yv: 0, a: 0, av: 0, a1a: 0, team: 1, a1: false, a2: false, ni: false, sx: 0, sy: 0, sxv: 0, syv: 0, ds: 0, da: 0, lhid: -1, lht: 0, swing: false}], capZones: [], seed: 0, ftu: -1, rc: 0, rl: 1, sts: null, physics: {shapes: [{type: 'bx', w: 1, h: 1, c: [0, 0], a: 0, sk: false}], fixtures: [{sh: 0, n: '', fr: null, fp: null, re: null, de: null, f: 0, d: false, np: false, ng: false}], bodies: [{type: 's', p: [0, 0], a: 0, av: 0, lv: [0, 0], ld: 0, ad: 0, fr: false, bu: false, fx: [0], fric: 0, fricp: false, de: 0, re: 0, f_c: 1, f_p: true, f_1: true, f_2: true, f_3: true, f_4: true, cf: {x: 0, y: 0, w: true, ct: 0}, ni: false}], joints: [], bro: [0], ppm: 12}, scores: [0], lscr: -1, fte: -1, discDeaths: [], players: [{id: 0, team: 1}], projectiles: []};
+        const emptyState = {ms: {re: false, nc: true, pq: 0, gd: 0, fl: false}, mm: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: ''}, shk: {x: 0, y: 0}, discs: [{x: 0, y: 0, xv: 0, yv: 0, a: 0, av: 0, a1a: 0, team: 1, a1: false, a2: false, ni: false, sx: 0, sy: 0, sxv: 0, syv: 0, ds: 0, da: 0, lhid: -1, lht: 0, swing: false}], capZones: [], seed: 0, ftu: -1, rc: 0, rl: 1, sts: null, physics: {shapes: [{type: 'bx', w: 1, h: 1, c: [0, 0], a: 0, sk: false}], fixtures: [{sh: 0, n: '', fr: null, fp: null, re: null, de: null, f: 0, d: false, np: false, ng: false}], bodies: [{type: 's', p: [0, 0], a: 0, av: 0, lv: [0, 0], ld: 0, ad: 0, fr: false, bu: false, fx: [0], fric: 0, fricp: false, de: 0, re: 0, f_c: 1, f_p: true, f_1: true, f_2: true, f_3: true, f_4: true, cf: {x: 0, y: 0, w: true, ct: 0}, ni: false}], joints: [], bro: [0], ppm: 12}, scores: [0], lscr: -1, fte: -1, discDeaths: [], players: [{id: 0, team: 1}], projectiles: [{x: 0, y: 0, xv: 0, yv: 0, a: 0, av: 0, did: 0, fte: 10}]};
         const emptySettings = {map: {v: 0, s: {re: false, nc: false, pq: 0, gd: 0, fl: false}, physics: {shapes: [{type: 'bx', w: 1, h: 1, c: [0, 0], a: 0, sk: false}], fixtures: [{sh: 0, n: '', fr: null, fp: null, re: null, de: null, f: 0, d: false, np: false, ng: false}], bodies: [{type: 's', p: [0, 0], a: 0, av: 0, lv: [0, 0], ld: 0, ad: 0, fr: false, bu: false, fx: [0], fric: 0, fricp: false, de: 0, re: 0, f_c: 1, f_p: true, f_1: true, f_2: true, f_3: true, f_4: true, cf: {x: 0, y: 0, w: true, ct: 0}, ni: false}], joints: [], bro: [0], ppm: 12}, spawns: [], capZones: [], m: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: '', vu: 0, vd: 0}}, gt: 2, wl: 3, q: false, tl: false, tea: false, ga: 'b', mo: 'b', bal: []};
         this.buildOLD.apply(this, [
           emptyState,
@@ -295,8 +292,34 @@ export default {
           discGraphic.__proto__.moveOLD = discGraphic.__proto__.move;
           discGraphic.__proto__.move = function(a, b) {
             if (!a.discs[this.playerID]) arguments[0] = b;
+
+            this.moveOLD(...arguments);
+
+            // one-time explanation
+            // the ?? true makes it so that if there's no visible value, the default is true
+            // because non gmm games won't have these values
+            const invisAlpha = b.discs[this.playerID].visible ?? true ? 1 : 0;
+            this.playerGraphic.alpha = invisAlpha;
+            this.nameText.alpha = invisAlpha;
+            if (this.shadow) this.shadow.alpha = invisAlpha;
+            if (this.arrowAimContainer) this.arrowAimContainer.alpha = invisAlpha;
+            if (this.specialGraphic) this.specialGraphic.alpha = invisAlpha;
+            if (this.specialRing) this.specialRing.alpha = invisAlpha;
+            if (this.teamOutline) this.teamOutline.alpha = invisAlpha;
+
+            if (b.discs[this.playerID].visible) this.outline.alpha = 0;
+          };
+
+          const arrowGraphic = this.arrowGraphics[0];
+          arrowGraphic.__proto__.moveOLD = arrowGraphic.__proto__.move;
+          arrowGraphic.__proto__.move = function(a, b) {
+            if (b.projectiles[this.arrowID].ni) arguments[0] = b;
+
+            this.graphic.alpha = b.projectiles[this.arrowID].visible ?? true ? 1 : 0;
+
             this.moveOLD(...arguments);
           };
+
           gm.graphics.bodyGraphicsClass = gm.graphics.rendererClass.roundGraphics.bodyGraphics[0].constructor;
           gm.graphics.shapeGraphicsClass = gm.graphics.rendererClass.roundGraphics.bodyGraphics[0].shapes[0].constructor;
           gm.graphics.bodyGraphicsClass.prototype.buildOLD = gm.graphics.bodyGraphicsClass.prototype.build;
@@ -312,6 +335,11 @@ export default {
             if (this.notActuallyBuilt) return;
             if (!stateA.physics.bodies[this.bodyID]) return;
             if (!stateB.physics.bodies[this.bodyID]) return;
+
+            if (stateB.physics.bodies[this.bodyID].ni) arguments[0] = stateB;
+
+            this.displayObject.alpha = stateB.physics.bodies[this.bodyID].visible ?? true ? 1 : 0;
+
             gm.graphics.bodyGraphicsClass.prototype.moveOLD.apply(this, arguments);
           };
           gm.graphics.shapeGraphicsClass.prototype.doShrinkOLD = gm.graphics.shapeGraphicsClass.prototype.doShrink;

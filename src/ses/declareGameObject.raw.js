@@ -150,7 +150,7 @@ this.game = {
       try {
         const listeners = this.eventListeners[eventName];
         for (let i = 0; i < listeners.length; i++) {
-          if (listeners[i].options?.runOnce != options?.runOnce ||
+          if (listeners[i].options?.perPlayer != options?.perPlayer ||
               listeners[i].options?.collideWith != options?.collideWith) continue;
 
           listeners[i].listener(...args);
@@ -241,6 +241,34 @@ this.game = {
     disableDeathBarrier: false,
   },
   graphics: {
+    addShapeToDrawing: function(drawingId, shape) {
+      const drawing = game.graphics.drawings[drawingId];
+
+      if (!drawing) return;
+
+      switch (shape.type) {
+        case 'bx':
+          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingBoxShape)), shape));
+          break;
+        case 'ci':
+          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingCircleShape)), shape));
+          break;
+        case 'po':
+          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingPolyShape)), shape));
+          break;
+        case 'li':
+          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingLineShape)), shape));
+          break;
+        case 'tx':
+          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingTextShape)), shape));
+          break;
+        case 'im':
+          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingImageShape)), shape));
+          break;
+      }
+
+      return drawing.shapes.length - 1;
+    },
     createDrawing: function(drawing) {
       const finalDrawing = Object.assign(JSON.parse(JSON.stringify(defaults.drawing)), drawing);
 

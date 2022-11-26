@@ -67,14 +67,26 @@ export default {
     GMOpenButton.addEventListener('click', gm.editor.showGMEWindow);
 
     // ensure compatibility with bonk-host
-    if (window.createModeDropdown) {
-      window.createModeDropdownOLD = window.createModeDropdown;
-      window.createModeDropdown = function() {
-        window.createModeDropdownOLD();
-        GMOpenButton.className += ' gm_withbonkhost';
+    if (window.bonkHost && !window.bonkHost.modeDropdownCreated) {
+      window.bonkHost.createModeDropdownOLD = window.bonkHost.createModeDropdown;
+      window.bonkHost.createModeDropdown = function() {
+        window.bonkHost.createModeDropdownOLD();
+        document.getElementById('newbonklobby_modebutton').classList.add('gm_withbonkhost');
         document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
         window.BonkUtils.setButtonSounds([GMOpenButton]);
+
+        const modeDropdown = document.getElementById('newbonklobby_modebutton').parentElement;
+        modeDropdown.style.width = 'calc(50% - 22px)';
+        modeDropdown.style.bottom = '85px';
       };
+    } else if (window.bonkHost) {
+      document.getElementById('newbonklobby_modebutton').classList.add('gm_withbonkhost');
+      document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
+      window.BonkUtils.setButtonSounds([GMOpenButton]);
+
+      const modeDropdown = document.getElementById('newbonklobby_modebutton').parentElement;
+      modeDropdown.style.width = 'calc(50% - 22px)';
+      modeDropdown.style.bottom = '85px';
     } else {
       document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
       window.BonkUtils.setButtonSounds([GMOpenButton]);
@@ -256,7 +268,7 @@ export default {
 
       gm.editor.modeBackups.unshift({
         mode: gm.encoding.compressMode(backup).buffer,
-        timeStamp: Date.now(),
+        name: gm.editor.modeSettings.modeName + ' - ' + new Date(Date.now()).toLocaleString(),
       });
 
       const transaction = gm.editor.backupDB.transaction('backups', 'readwrite');
@@ -302,7 +314,7 @@ export default {
         return function() {
           initOLD.apply(this, arguments);
 
-          if (!this.type.startsWith('on_') && !this.type.startsWith('procedures_def')) {
+          if (!this.type.startsWith('event_') && !this.type.startsWith('procedures_def')) {
             const onChangeOLD = this.onchange;
 
             this.setOnChange(function() {
@@ -337,7 +349,7 @@ export default {
     document.getElementById('pagecontainer').appendChild(blocklyDiv);
 
     // create gmmaker theme
-    gm.editor.theme = Blockly.Theme.defineTheme('gmmaker', {
+    gm.editor.lightTheme = Blockly.Theme.defineTheme('gmmaker-light', {
       'base': Blockly.Themes.Classic,
       'fontStyle': {
         'family': 'futurept_b1',
@@ -345,15 +357,38 @@ export default {
       },
     }),
 
+    gm.editor.darkTheme = Blockly.Theme.defineTheme('gmmaker-dark', {
+      'base': Blockly.Themes.Classic,
+      'fontStyle': {
+        'family': 'futurept_b1',
+        'size': 12,
+      },
+      'componentStyles': {
+        'workspaceBackgroundColour': '#1e1e1e',
+        'toolboxBackgroundColour': 'blackBackground',
+        'toolboxForegroundColour': '#fff',
+        'flyoutBackgroundColour': '#252526',
+        'flyoutForegroundColour': '#ccc',
+        'flyoutOpacity': 1,
+        'scrollbarColour': '#797979',
+        'insertionMarkerColour': '#fff',
+        'insertionMarkerOpacity': 0.3,
+        'scrollbarOpacity': 0.4,
+        'cursorColour': '#d0d0d0',
+        'blackBackground': '#333',
+      },
+    });
+
     // create blockly workspaces
     gm.editor.blocklyWs = Blockly.inject('gmblocklydiv', {
       toolbox: document.getElementById('toolbox'),
+      oneBasedIndex: false,
       zoom: {
         controls: true,
         wheel: true,
         pinch: true,
       },
-      theme: gm.editor.theme,
+      theme: gm.editor.lightTheme,
     });
     gm.editor.headlessBlocklyWs = new Blockly.Workspace();
 
@@ -374,9 +409,6 @@ export default {
     Blockly.dialog.setPrompt(function(message, defaultValue, callback) {
       gm.editor.genericDialog(message, callback, {showCancel: true, showInput: true, inputValue: defaultValue});
     });
-
-    // add loop trap
-    Blockly.JavaScript.INFINITE_LOOP_TRAP = 'if (++loopIterations > 10000000) throw \'gmInfiniteLoop\';';
 
     window.addEventListener('resize', () => {
       const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
@@ -413,7 +445,7 @@ export default {
 
       gm.editor.modeBackups.unshift({
         mode: gm.encoding.compressMode(backup).buffer,
-        timeStamp: Date.now(),
+        name: gm.editor.modeSettings.modeName + ' - ' + Date.now().toLocaleString(),
       });
 
       const transaction = gm.editor.backupDB.transaction('backups', 'readwrite');
@@ -677,7 +709,7 @@ export default {
     for (let i = 0; i < gm.editor.modeBackups.length; i++) {
       const option = document.createElement('option');
       option.value = i;
-      option.innerText = new Date(gm.editor.modeBackups[i].timeStamp).toLocaleString();
+      option.innerText = gm.editor.modeBackups[i].name;
 
       backupSelect.appendChild(option);
     }
@@ -1106,15 +1138,17 @@ export default {
     Blockly.JavaScript.init(workspace);
 
     for (let i = 0; i != topBlocks.length; i++) {
-      if (!topBlocks[i].type.startsWith('on_') && !topBlocks[i].type.startsWith('procedures_def')) continue;
+      if (!topBlocks[i].type.startsWith('event_') && !topBlocks[i].type.startsWith('procedures_def')) continue;
 
-      code += Blockly.JavaScript.blockToCode(topBlocks[i]) + '\n';
+      code += Blockly.JavaScript.blockToCode(topBlocks[i]);
     }
 
     code = Blockly.JavaScript.finish(code);
-    code = code.replace('\n\n\n', '');
+
     if (code.startsWith('var ')) {
-      code = code.replace(/var (.+);/, '');
+      code = code.replace(/var [^\n]+[\n]+/m, '');
+    } else if (code.startsWith('\n\n\n')) {
+      code = code.replace('\n\n\n', '');
     }
 
     return code;

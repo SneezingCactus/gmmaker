@@ -8,7 +8,10 @@ export default {
           volume: options.volume,
           loop: options.loop,
         });
-        gm.audio.soundsPlaying.push(theSound);
+        gm.audio.soundsPlaying.push({
+          id: null,
+          howl: theSound,
+        });
         const theSoundIndex = gm.audio.soundsPlaying.length - 1;
 
         theSound.on('end', function() {
@@ -30,13 +33,17 @@ export default {
   stopAllSounds: function() {
     for (let i = 0; i < this.soundsPlaying.length; i++) {
       if (!this.soundsPlaying[i]) continue;
-      this.soundsPlaying[i]?.stop();
+      this.soundsPlaying[i].howl.stop();
     }
     this.soundsPlaying = [];
   },
   playSound: function(id, volume, panning) {
     if (BonkUtils.mute || BonkUtils.preClickMute) return;
-    // if (window.gmReplaceAccessors.rollbacking) return;
+    if (window.gmReplaceAccessors.rollbacking) {
+      for (let i = 0; i < gm.audio.soundsPlaying.length; i++) {
+        if (gm.audio.soundsPlaying[i].id === id) return;
+      }
+    };
 
     const theSound = new Howl({
       src: this.customSounds[id] || GameResources.soundStrings[id],
@@ -45,7 +52,10 @@ export default {
     theSound.stereo(panning);
     theSound.play();
 
-    gm.audio.soundsPlaying.push(theSound);
+    gm.audio.soundsPlaying.push({
+      id: id,
+      howl: theSound,
+    });
 
     const theSoundIndex = gm.audio.soundsPlaying.length - 1;
 
