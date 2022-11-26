@@ -72,6 +72,10 @@ declare interface disc {
    * Grapple joint information. Becomes null when the player isn't grappling anything.
    */
   swing:swingInfo
+  /**
+   * Determines whether the disc is visible or not.
+   */
+  visible: boolean
 }
 
 declare interface discDeath {
@@ -140,6 +144,10 @@ declare interface projectile {
    * Setting this value to true will make the game not interpolate the arrow's movement until the next step. Useful for teleporting arrows without visible middle frames.
    */
   ni:boolean
+  /**
+   * Determines whether the arrow is visible or not.
+   */
+  visible: boolean
 }
 
 declare interface capZone {
@@ -244,6 +252,10 @@ declare interface body {
    * collide with D
    */
   f_4: boolean
+  /**
+   * Determines whether the body is visible or not.
+   */
+  visible: boolean
 }
 
 declare interface fixture {

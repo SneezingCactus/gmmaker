@@ -295,19 +295,15 @@ export default {
 
             this.moveOLD(...arguments);
 
-            // one-time explanation
-            // the ?? true makes it so that if there's no visible value, the default is true
-            // because non gmm games won't have these values
-            const invisAlpha = b.discs[this.playerID].visible ?? true ? 1 : 0;
-            this.playerGraphic.alpha = invisAlpha;
-            this.nameText.alpha = invisAlpha;
-            if (this.shadow) this.shadow.alpha = invisAlpha;
-            if (this.arrowAimContainer) this.arrowAimContainer.alpha = invisAlpha;
-            if (this.specialGraphic) this.specialGraphic.alpha = invisAlpha;
-            if (this.specialRing) this.specialRing.alpha = invisAlpha;
-            if (this.teamOutline) this.teamOutline.alpha = invisAlpha;
-
-            if (b.discs[this.playerID].visible) this.outline.alpha = 0;
+            const invis = b.discs[this.playerID].visible ?? true;
+            this.playerGraphic.visible = invis;
+            this.nameText.visible = invis;
+            this.outline.visible = invis;
+            if (this.shadow) this.shadow.visible = invis;
+            if (this.arrowAimContainer) this.arrowAimContainer.visible = invis;
+            if (this.specialGraphic) this.specialGraphic.visible = invis;
+            if (this.specialRing) this.specialRing.visible = invis;
+            if (this.teamOutline) this.teamOutline.visible = invis;
           };
 
           const arrowGraphic = this.arrowGraphics[0];
@@ -338,7 +334,16 @@ export default {
 
             if (stateB.physics.bodies[this.bodyID].ni) arguments[0] = stateB;
 
-            this.displayObject.alpha = stateB.physics.bodies[this.bodyID].visible ?? true ? 1 : 0;
+            const invis = stateB.physics.bodies[this.bodyID].visible ?? true;
+            if (this.gmInvisCheck !== invis) {
+              if (this.shadowContainer) this.shadowContainer.visible = invis;
+              for (let i = 0; i < this.shapes.length; i++) {
+                if (!this.shapes[i]?.graphicTexture) continue;
+                this.shapes[i].graphicTexture.visible = invis;
+              }
+
+              this.gmInvisCheck = invis;
+            }
 
             gm.graphics.bodyGraphicsClass.prototype.moveOLD.apply(this, arguments);
           };
@@ -402,6 +407,7 @@ export default {
           return buildFunction.apply(this, arguments);
         } catch (e) {
           if (gm.state.crashed) return;
+          if (gm.graphics.rendererClass.isReplay === 'replay') throw e;
           gm.state.crashed = true;
           setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!?
           return;
@@ -499,7 +505,7 @@ export default {
       if (drawingA && drawingB && drawingList[i]) {
         if (drawingList[i].attachTo != drawingB.attachTo ||
             drawingList[i].attachId != drawingB.attachId ||
-           !drawingList[i].displayObject.parent) {
+           !drawingList[i].displayObject.parent?.parent?.parent) {
           drawingList[i].displayObject.parent?.removeChild(drawingList[i]);
           drawingList[i].attachTo = drawingB.attachTo;
           drawingList[i].attachId = drawingB.attachId;

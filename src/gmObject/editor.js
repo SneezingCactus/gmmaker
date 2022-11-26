@@ -75,7 +75,10 @@ export default {
         document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
         window.BonkUtils.setButtonSounds([GMOpenButton]);
 
-        const modeDropdown = document.getElementById('newbonklobby_modebutton').parentElement;
+        const modeButton = document.getElementById('newbonklobby_modebutton');
+        const modeDropdown = modeButton.parentElement;
+        modeButton.classList.add('brownButton', 'brownButton_classic', 'buttonShadow');
+        modeDropdown.classList.remove('brownButton', 'brownButton_classic', 'buttonShadow');
         modeDropdown.style.width = 'calc(50% - 22px)';
         modeDropdown.style.bottom = '85px';
       };
@@ -84,7 +87,10 @@ export default {
       document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
       window.BonkUtils.setButtonSounds([GMOpenButton]);
 
-      const modeDropdown = document.getElementById('newbonklobby_modebutton').parentElement;
+      const modeButton = document.getElementById('newbonklobby_modebutton');
+      const modeDropdown = modeButton.parentElement;
+      modeButton.classList.add('brownButton', 'brownButton_classic', 'buttonShadow');
+      modeDropdown.classList.remove('brownButton', 'brownButton_classic', 'buttonShadow');
       modeDropdown.style.width = 'calc(50% - 22px)';
       modeDropdown.style.bottom = '85px';
     } else {

@@ -73,6 +73,8 @@ export default {
       }
 
       /* #region OVERRIDE APPLY */
+      // this is where overrides are applied to player inputs
+
       const overrides = oldState.gmExtra.overrides;
       const fakeInputs = [];
 
@@ -105,7 +107,9 @@ export default {
       }
       /* #endregion UPDATE DEATH BARRIER DISABLE */
 
-      /* #region ANGLE UNIT NORMALIZING */
+      /* #region ANGLE UNIT DEGREEING */
+      // this is where angles represented in radians are turned into degrees for easier manipulation
+
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
 
@@ -133,9 +137,12 @@ export default {
         state.physics.bodies[i].a *= 180 / Math.PI;
         state.physics.bodies[i].av *= 180 / Math.PI;
       }
-      /* #endregion ANGLE UNIT NORMALIZING */
+      /* #endregion ANGLE UNIT DEGREEING */
 
       /* #region DISC NORMALIZING */
+      // here, certain conflicting disc props, such as swing and input, are normalized
+      // to prevent some undefined-related errors
+
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
 
@@ -159,6 +166,9 @@ export default {
       /* #endregion DISC NORMALIZING */
 
       /* #region CHANGE XY TO VECTORS */
+      // this is where certain props such as positions and velocities are turned into vectors
+      // to allow the mode maker to use Vector functions with them easily
+
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
 
@@ -188,22 +198,41 @@ export default {
       /* #endregion CHANGE XY TO VECTORS */
 
       /* #region EXTRA PROPERTY MANAGE */
+      // this is where props added by gmmaker into the state, such as
+      // nolerp and visibility of objects, are managed
+
       state.gmExtra = oldState.gmExtra;
 
+      // disc props
       for (let i = 0; i < state.discs.length; i++) {
         if (!state.discs[i]) continue;
-        state.discs[i].visible = oldState.discs[i]?.visible ?? true;
+
+        if (state.rl !== 0) {
+          state.discs[i].visible = oldState.discs[i]?.visible ?? true;
+        }
       }
+
+      // body props
       for (let i = 0; i < state.physics.bodies.length; i++) {
         if (!state.physics.bodies[i]) continue;
-        state.physics.bodies[i].visible = oldState.physics.bodies[i]?.visible ?? true;
         state.physics.bodies[i].ni = false;
+
+        if (state.rl !== 0) {
+          state.physics.bodies[i].visible = oldState.physics.bodies[i]?.visible ?? true;
+        }
       }
+
+      // arrow props
       for (let i = 0; i < state.projectiles.length; i++) {
         if (!state.projectiles[i]) continue;
-        state.projectiles[i].visible = oldState.projectiles[i]?.visible ?? true;
         state.projectiles[i].ni = false;
+
+        if (state.rl !== 0) {
+          state.projectiles[i].visible = oldState.projectiles[i]?.visible ?? true;
+        }
       }
+
+      // cam/drawing props
       for (let i = 0; i < state.gmExtra.drawings.length; i++) {
         if (!state.gmExtra.drawings[i]) continue;
         state.gmExtra.drawings[i].noLerp = false;
@@ -219,6 +248,8 @@ export default {
       /* #endregion EXTRA PROPERTY MANAGE */
 
       /* #region SEND STATIC INFO */
+      // static info is info that is only sent to the sandbox once, such as lobby info
+
       if (!gm.state.safeEval.globalThis.staticSetted) {
         gm.state.staticInfo = oldState.gmInitial;
         gm.state.staticInfo.lobby.clientId = gm.lobby.networkEngine.getLSID();
@@ -227,6 +258,8 @@ export default {
       /* #endregion SEND STATIC INFO */
 
       /* #region SEND DYNAMIC INFO */
+      // dynamic info is info that is sent to the sandbox every step, such as game state and inputs
+
       gm.state.gameState = state;
       gm.state.inputs = inputs;
 
@@ -235,6 +268,7 @@ export default {
       /* #endregion SEND DYNAMIC INFO */
 
       /* #region UPDATE RANDOM */
+      // this is where the random seed used by the sandbox's Math.random() is updated
       let randomSeed = 0;
 
       // bring some more randomness to the mix!
@@ -244,12 +278,14 @@ export default {
       }
 
       randomSeed += state.rl;
+      randomSeed *= state.rc;
       randomSeed *= gm.state.staticInfo.lobby.seed;
 
       gm.state.pseudoRandom = new seedrandom(randomSeed);
       /* #endregion UPDATE RANDOM */
 
       /* #region EVENT FIRING */
+      // after all preparations are done, it's time to fire the events set by the mode
 
       // fire collision events
       for (let i = 0; i < gm.state.collisionsThisStep.length; i++) {
@@ -351,10 +387,13 @@ export default {
       }
       /* #endregion EVENT FIRING */
 
+      // after all events are done, dynamic info is sent back from sandbox
       state = gm.state.safeEval.evaluate('this.prepareDynamicInfo()');
       state.gmInitial = oldState.gmInitial;
 
       /* #region CHANGE VECTORS TO XY */
+      // turn vectors back to xy props
+
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
 
@@ -392,6 +431,10 @@ export default {
       /* #endregion VECTORS TO XY */
 
       /* #region ANGLE UNIT RESTORING */
+      // turn angles back into radians
+      // if an angle didn't change during the event firing, it's set to the pre-degreed value
+      // instead of being multiplied, to prevent possible desyncs due to floating point error
+
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
         state.discs[i].a *= Math.PI / 180;
@@ -431,8 +474,10 @@ export default {
       }
       /* #endregion ANGLE UNIT RESTORING */
 
+      // make game state publicly accessible
       gm.state.gameState = state;
 
+      // let bonk dispose world objects to prevent memory leaks
       if (window.gmReplaceAccessors.endStep) window.gmReplaceAccessors.endStep();
 
       return state;
@@ -442,6 +487,7 @@ export default {
         return stepFunction(...arguments);
       } catch (e) {
         if (gm.state.crashed) return oldState;
+        if (gm.graphics.rendererClass.isReplay === 'replay') throw e;
         gm.state.crashed = true;
         setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!
         return oldState;
