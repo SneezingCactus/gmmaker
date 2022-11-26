@@ -31,7 +31,7 @@
     margin: 0;
     padding-top: 34px;
     background-color: var(--gm_primary_background);
-    border-radius: 4px;
+    border-radius: 8px 8px 4px 4px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -132,12 +132,15 @@
 }
 
 #newbonklobby_modebutton {
-    width: 75px;
+    width: calc(50% - 62px);
     right: 55px;
 }
 
-#newbonklobby_modebutton .gm_withbonkhost {
-    right: 15px;
+#newbonklobby_modebutton.gm_withbonkhost {
+    width: calc(100% - 42px);
+    left: 0;
+    bottom: -30px;
+    position: absolute !important;
 }
 
 #gmeditor_openbutton {

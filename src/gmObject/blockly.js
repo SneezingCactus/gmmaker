@@ -50,14 +50,32 @@ export default {
     GMOpenButton.addEventListener('click', gm.blockly.showGMEWindow);
 
     // ensure compatibility with bonk-host
-    if (window.createModeDropdown) {
-      window.createModeDropdown_OLD = window.createModeDropdown;
-      window.createModeDropdown = function() {
-        window.createModeDropdown_OLD();
-        GMOpenButton.className += ' gm_withbonkhost';
+    if (window.bonkHost && !window.bonkHost.modeDropdownCreated) {
+      window.bonkHost.createModeDropdownOLD = window.bonkHost.createModeDropdown;
+      window.bonkHost.createModeDropdown = function() {
+        window.bonkHost.createModeDropdownOLD();
+        document.getElementById('newbonklobby_modebutton').classList.add('gm_withbonkhost');
         document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
         window.BonkUtils.setButtonSounds([GMOpenButton]);
+
+        const modeButton = document.getElementById('newbonklobby_modebutton');
+        const modeDropdown = modeButton.parentElement;
+        modeButton.classList.add('brownButton', 'brownButton_classic', 'buttonShadow');
+        modeDropdown.classList.remove('brownButton', 'brownButton_classic', 'buttonShadow');
+        modeDropdown.style.width = 'calc(50% - 22px)';
+        modeDropdown.style.bottom = '85px';
       };
+    } else if (window.bonkHost) {
+      document.getElementById('newbonklobby_modebutton').classList.add('gm_withbonkhost');
+      document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
+      window.BonkUtils.setButtonSounds([GMOpenButton]);
+
+      const modeButton = document.getElementById('newbonklobby_modebutton');
+      const modeDropdown = modeButton.parentElement;
+      modeButton.classList.add('brownButton', 'brownButton_classic', 'buttonShadow');
+      modeDropdown.classList.remove('brownButton', 'brownButton_classic', 'buttonShadow');
+      modeDropdown.style.width = 'calc(50% - 22px)';
+      modeDropdown.style.bottom = '85px';
     } else {
       document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
       window.BonkUtils.setButtonSounds([GMOpenButton]);

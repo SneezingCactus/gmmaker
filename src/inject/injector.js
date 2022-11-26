@@ -32,10 +32,10 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'MapEncoder', regex: '{try{.{3,6}=(.{1,2})\\[', isConstructor: true},
       // This class' task is to calculate the game step every 1/30 seconds.
       // It's used by gmmaker to manipulate the game state, detect collisions, do raycasts, etc.
-      {name: 'PhysicsClass', regex: ';([A-Za-z])\\[.{0,100}]={discs', isConstructor: true},
+      {name: 'PhysicsClass', regex: '[\\{\\};]([A-Za-z])\\[.{0,100}]={discs', isConstructor: true},
       // This class contains a list of all the available modes, their descriptions, and their ids.
       // It's used by gmmaker to add the modes to the base mode dropdown in Mode Settings.
-      {name: 'ModeList', regex: ';([A-Za-z0-9]{3}\\[[0-9]{0,10}\\]).{0,50}={lobbyName', isConstructor: true},
+      {name: 'ModeList', regex: '[\\{\\};]([A-Za-z0-9]{3}\\[[0-9]{0,10}\\]).{0,50}={lobbyName', isConstructor: true},
     ],
     replace: [
       // make step function not delete the world's bodies and instead put that code into a global function
