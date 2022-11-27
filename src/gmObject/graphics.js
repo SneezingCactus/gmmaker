@@ -261,6 +261,7 @@ export default {
           return renderFunction.apply(this, arguments);
         } catch (e) {
           if (gm.state.crashed) return;
+          if (gm.graphics.rendererClass.isReplay === 'replay') throw e;
           gm.state.crashed = true;
           setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!?
           return;

@@ -245,6 +245,9 @@ export default {
           oldState.gmExtra.camera.angle != 0 ||
           oldState.gmExtra.camera.scale[0] != 1 ||
           oldState.gmExtra.camera.scale[1] != 1) state.gmExtra.cameraChanged = true;
+
+      // misc
+      state.gmExtra.graphicsQuality = BonkUtils.customControls.quality;
       /* #endregion EXTRA PROPERTY MANAGE */
 
       /* #region SEND STATIC INFO */

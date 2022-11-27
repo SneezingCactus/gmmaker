@@ -238,6 +238,7 @@ this.game = {
     },
     rayCast: rayCast,
     rayCastAll: rayCastAll,
+    getDiscSize: (id) => game.lobby.settings.bal[id] ? 1 + Math.max(Math.min(game.lobby.settings.bal[id] / 100, 1), -0.94) : 1,
     disableDeathBarrier: false,
   },
   graphics: {

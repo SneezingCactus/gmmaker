@@ -12,7 +12,9 @@ function copy(object) {
 
 // pretty self-explanatory
 window.getStaticInfo = (game) => {
-  Object.assign(game, copy(window.parent.gm.state.staticInfo));
+  const staticInfo = copy(window.parent.gm.state.staticInfo);
+
+  game.lobby = staticInfo.lobby;
 };
 harden(getStaticInfo);
 
@@ -51,6 +53,7 @@ window.getDynamicInfo = (game) => {
 
   game.vars = gmExtra.vars;
   game.inputs.overrides = gmExtra.overrides;
+  game.graphics.quality = gmExtra.graphicsQuality;
   game.graphics.camera = gmExtra.camera;
   game.graphics.drawings = gmExtra.drawings;
   game.world.disableDeathBarrier = gmExtra.disableDeathBarrier;

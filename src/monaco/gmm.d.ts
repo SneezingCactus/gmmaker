@@ -898,6 +898,18 @@ declare interface gameGraphics {
   camera: camera
   drawings: drawing[]
   /**
+   * The quality option chosen by *you*, the one running the code, in the bonk.io settings menu.
+   * 
+   * Quality is stored as a number: 1 is Low, 2 is Medium and 3 is High.
+   * 
+   * VERY IMPORTANT, PLEASE READ: Because it's *your* chosen quality, this value may be different for other people in the room,
+   * because for them, it's *their* chosen quality. This means you can potentially desync the game if you use it incorrectly.
+   * 
+   * In order to not desync the game, you should only use it for graphical or audio purposes (like, for example, 
+   * to create certain drawings only if you have your quality set to High), and it must not modify the game state at all.
+   */
+  quality: 1|2|3
+  /**
    * Creates a drawing with the data given. Any missing properties will be replaced with defaults.
    */
   createDrawing(options: drawing): number
@@ -1042,6 +1054,18 @@ declare interface gameWorld {
    * When set to true, the barrier that kills players when they go offscreen is disabled.
    */
   disableDeathBarrier: boolean
+  /**
+   * Get the radius of a disc (affected by balance).
+   * 
+   * If given the id of a disc that doesn't exist, it will return 1, as that's the
+   * size value of a disc with 0% balance.
+   * 
+   * It's recommended to only call this function once and store the value somewhere
+   * if you use it a lot in your code.
+   * 
+   * @param id The id of the disc.
+   */
+  getDiscRadius(id: number): number
   /**
    * Kill a specified disc. The disc gets killed in the next step, 
    * so it will still exist until you move on to the next step.

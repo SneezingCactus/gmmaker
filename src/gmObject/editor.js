@@ -137,6 +137,15 @@ export default {
     gm.editor.settingsImageItem = document.getElementById('gmsettings_assetlist')
         .getElementsByClassName('gm_listitem')[0].cloneNode(true);
 
+    // keyboard shortcuts
+    window.addEventListener('keydown', function(e) {
+      // apply and close
+      if (e.ctrlKey && e.key.toLowerCase() == 's') {
+        e.preventDefault();
+        gm.editor.GMESave();
+      };
+    });
+
     // init blockly and monaco workspaces
     this.initBlockly();
     this.initMonaco();
