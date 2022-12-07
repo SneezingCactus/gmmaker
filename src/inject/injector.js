@@ -14,13 +14,13 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'Box2D', regex: 'requirejs\\(\\[[^\\]]+\\],function\\([^,]+,[^,]+,([^\\)]+)', isConstructor: true},
       // This class takes care of all in-game graphics.
       // In gmmaker, it's used to add player's drawings into the scene, manipulate the camera, and rerender the scene when a platform gets added/deleted or a shape gets modified.
-      {name: 'BonkGraphics', regex: 'null;[A-Za-z0-9\\[\\]]+\\(true\\);[A-Za-z0-9\\[\\]]+=null;}};([A-Za-z0-9\\[\\]]+)=class', isConstructor: true},
+      {name: 'BonkGraphics', regex: ';([^=};]+)=class.{0,500}docu.{0,3000}TWEEN.{0,100}x:0,y', isConstructor: true},
       // This class contains some useful functions (XP to level, hueify, etc) and data (your avatars, the server to use when hosting a room, your country, etc) used within Bonk.
       // It's used by gmmaker to give sounds to the editor buttons using the 'setButtonSounds' function.
       {name: 'BonkUtils', regex: '(...\\[[^\\]]+\\]).{10,20}=function\\((...,){4}...\\).{0,1400}0\\.62', isConstructor: true},
       // This class takes care of communicating with the room's server.
       // It's used by gmmaker to give new players the game mode data.
-      {name: 'NetworkEngine', regex: 'function ([^\\)]*)\\([^\\)]{11}\\).{0,5000}reconnection:false', isConstructor: true},
+      {name: 'NetworkEngine', regex: 'function ([^\\)]*)\\([^\\)]{11}\\).{0,8000}reconnection:false', isConstructor: true},
       // This class takes care of updating the lobby and reacting to the player's interactions with the lobby.
       // It's used by gmmaker to update the custom mode when a change is sent by the host and to enable/disable the gmeditor button when a new player gets host.
       {name: 'NewBonkLobby', regex: 'function (..)\\(.{15}\\).{0,10000}newbonklobby', isConstructor: true},
@@ -32,10 +32,10 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'MapEncoder', regex: '{try{.{3,6}=(.{1,2})\\[', isConstructor: true},
       // This class' task is to calculate the game step every 1/30 seconds.
       // It's used by gmmaker to manipulate the game state, detect collisions, do raycasts, etc.
-      {name: 'PhysicsClass', regex: '[\\{\\};]([A-Za-z])\\[.{0,100}]={discs', isConstructor: true},
+      {name: 'PhysicsClass', regex: '[\\{\\};](.)\\[.{0,100}]={discs', isConstructor: true},
       // This class contains a list of all the available modes, their descriptions, and their ids.
       // It's used by gmmaker to add the modes to the base mode dropdown in Mode Settings.
-      {name: 'ModeList', regex: '[\\{\\};]([A-Za-z0-9]{3}\\[[0-9]{0,10}\\]).{0,50}={lobbyName', isConstructor: true},
+      {name: 'ModeList', regex: '[\\}\\{;]([^\\[]{3}\\[[0-9]{0,10}\\]).{0,50}={lobbyName', isConstructor: true},
     ],
     replace: [
       // make step function not delete the world's bodies and instead put that code into a global function
