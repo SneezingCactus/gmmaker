@@ -108,7 +108,7 @@ newMath.asin = (a) => oldMath.round(oldMath.asin(a) * (180 / oldMath.PI) * 10000
 newMath.acos = (a) => oldMath.round(oldMath.acos(a) * (180 / oldMath.PI) * 1000000000) / 1000000000;
 newMath.atan = (a) => oldMath.round(oldMath.atan(a) * (180 / oldMath.PI) * 1000000000) / 1000000000;
 newMath.atan2 = (a, b) => oldMath.round(oldMath.atan2(a, b) * (180 / oldMath.PI) * 1000000000) / 1000000000;
-newMath.random = () => oldMath.round(0 + window.parent.gm.state.pseudoRandom() * 1000000000) / 1000000000;
+newMath.random = () => {};
 newMath.lerpAngle = (a, b, t) => {
   const anglePointA = [newMath.sin(a), newMath.cos(a)];
   const anglePointB = [newMath.sin(b), newMath.cos(b)];

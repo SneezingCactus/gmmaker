@@ -15,7 +15,7 @@ export default {
         // don't do anything if crashed
         if (gm.state.crashed) return;
 
-        // if no mode loaded, no gmm stuff (except for camera pivot changing)
+        // if no mode loaded, no gmm stuff
         if (!stateA.gmExtra || gm.lobby.data.quick) {
           this.renderOLD(...arguments);
           return this.renderer.render(this.stage);
@@ -257,11 +257,14 @@ export default {
         this.renderer.render(this.stage);
       };
       return function() {
+        if (this.isReplay === 'replay') {
+          return renderFunction.apply(this, arguments);
+        }
+
         try {
           return renderFunction.apply(this, arguments);
         } catch (e) {
           if (gm.state.crashed) return;
-          if (gm.graphics.rendererClass.isReplay === 'replay') throw e;
           gm.state.crashed = true;
           setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!?
           return;
@@ -275,6 +278,7 @@ export default {
 
         gm.graphics.rendererClass = this;
 
+        /* #region CLASS MODIFIERS */
         const emptyState = {ms: {re: false, nc: true, pq: 0, gd: 0, fl: false}, mm: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: ''}, shk: {x: 0, y: 0}, discs: [{x: 0, y: 0, xv: 0, yv: 0, a: 0, av: 0, a1a: 0, team: 1, a1: false, a2: false, ni: false, sx: 0, sy: 0, sxv: 0, syv: 0, ds: 0, da: 0, lhid: -1, lht: 0, swing: false}], capZones: [], seed: 0, ftu: -1, rc: 0, rl: 1, sts: null, physics: {shapes: [{type: 'bx', w: 1, h: 1, c: [0, 0], a: 0, sk: false}], fixtures: [{sh: 0, n: '', fr: null, fp: null, re: null, de: null, f: 0, d: false, np: false, ng: false}], bodies: [{type: 's', p: [0, 0], a: 0, av: 0, lv: [0, 0], ld: 0, ad: 0, fr: false, bu: false, fx: [0], fric: 0, fricp: false, de: 0, re: 0, f_c: 1, f_p: true, f_1: true, f_2: true, f_3: true, f_4: true, cf: {x: 0, y: 0, w: true, ct: 0}, ni: false}], joints: [], bro: [0], ppm: 12}, scores: [0], lscr: -1, fte: -1, discDeaths: [], players: [{id: 0, team: 1}], projectiles: [{x: 0, y: 0, xv: 0, yv: 0, a: 0, av: 0, did: 0, fte: 10}]};
         const emptySettings = {map: {v: 0, s: {re: false, nc: false, pq: 0, gd: 0, fl: false}, physics: {shapes: [{type: 'bx', w: 1, h: 1, c: [0, 0], a: 0, sk: false}], fixtures: [{sh: 0, n: '', fr: null, fp: null, re: null, de: null, f: 0, d: false, np: false, ng: false}], bodies: [{type: 's', p: [0, 0], a: 0, av: 0, lv: [0, 0], ld: 0, ad: 0, fr: false, bu: false, fx: [0], fric: 0, fricp: false, de: 0, re: 0, f_c: 1, f_p: true, f_1: true, f_2: true, f_3: true, f_4: true, cf: {x: 0, y: 0, w: true, ct: 0}, ni: false}], joints: [], bro: [0], ppm: 12}, spawns: [], capZones: [], m: {a: '', n: '', dbv: 1, dbid: 0, authid: -1, date: '', rxid: 0, rxn: '', rxa: '', rxdb: 1, cr: [], pub: false, mo: '', vu: 0, vd: 0}}, gt: 2, wl: 3, q: false, tl: false, tea: false, ga: 'b', mo: 'b', bal: []};
         this.buildOLD.apply(this, [
@@ -301,7 +305,7 @@ export default {
             this.nameText.visible = invis;
             this.outline.visible = invis;
             if (this.shadow) this.shadow.visible = invis;
-            if (this.arrowAimContainer) this.arrowAimContainer.visible = invis;
+            if (this.arrowAimContainer) this.arrowAimContainer.visible = this.arrowAimContainer.visible && invis;
             if (this.specialGraphic) this.specialGraphic.visible = invis;
             if (this.specialRing) this.specialRing.visible = invis;
             if (this.teamOutline) this.teamOutline.visible = invis;
@@ -357,6 +361,8 @@ export default {
         }
         this.destroyChildren();
 
+        /* #endregion CLASS MODIFIERS */
+
         const result = this.buildOLD.apply(this, arguments);
 
         /* #region CAMERA CONTAINER HANDLING */
@@ -404,18 +410,27 @@ export default {
         return result;
       };
       return function() {
+        if (this.isReplay === 'replay') {
+          return buildFunction.apply(this, arguments);
+        }
+
         try {
           return buildFunction.apply(this, arguments);
         } catch (e) {
           if (gm.state.crashed) return;
-          if (gm.graphics.rendererClass.isReplay === 'replay') throw e;
           gm.state.crashed = true;
           setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!?
           return;
         }
       };
     })();
-
+    BonkGraphics.prototype.resizeRenderer = (function() {
+      BonkGraphics.prototype.resizeRendererOLD = BonkGraphics.prototype.resizeRenderer;
+      return function() {
+        gm.graphics.forceDrawingUpdate = true;
+        return this.resizeRendererOLD(...arguments);
+      };
+    })();
     BonkGraphics.prototype.destroy = (function() {
       BonkGraphics.prototype.destroyOLD = BonkGraphics.prototype.destroy;
       return function() {
@@ -506,7 +521,8 @@ export default {
       if (drawingA && drawingB && drawingList[i]) {
         if (drawingList[i].attachTo != drawingB.attachTo ||
             drawingList[i].attachId != drawingB.attachId ||
-           !drawingList[i].displayObject.parent?.parent?.parent) {
+           (!drawingList[i].displayObject.parent?.parent?.parent && drawingList[i].attachTo !== 'screen') ||
+           (!drawingList[i].displayObject.parent?.parent && drawingList[i].attachTo === 'screen')) {
           drawingList[i].displayObject.parent?.removeChild(drawingList[i]);
           drawingList[i].attachTo = drawingB.attachTo;
           drawingList[i].attachId = drawingB.attachId;
@@ -536,9 +552,11 @@ export default {
           }
         }
 
-        drawingList[i].update(drawingA, drawingB, weight, stateB.physics.ppm * renderer.scaleRatio);
+        drawingList[i].update(drawingA, drawingB, weight, stateB.physics.ppm * renderer.scaleRatio, gm.graphics.forceDrawingUpdate);
       }
     }
+
+    gm.graphics.forceDrawingUpdate = false;
   },
   preloadImages: function(imageList) {
     // new texture creation and image ids collection
@@ -738,7 +756,7 @@ class Drawing {
 
       // shape updating
       if (drawDefA.shapes[i] && drawDefB.shapes[i] && this.shapes[i]) {
-        this.shapes[i].update(drawDefA.shapes[i], drawDefB.shapes[i], weight, scaleRatio);
+        this.shapes[i].update(drawDefA.shapes[i], drawDefB.shapes[i], weight, scaleRatio, gm.graphics.forceDrawingUpdate);
       }
     }
 
@@ -761,6 +779,7 @@ class Drawing {
       angle: lerpAngle(drawDefA.angle, drawDefB.angle, weight),
       scale: [lerpNumber(drawDefA.scale[0], drawDefB.scale[0], weight),
         lerpNumber(drawDefA.scale[1], drawDefB.scale[1], weight)],
+      shapes: drawDefB.shapes,
     };
 
     this.displayObject.alpha = this.lastDrawDef.alpha;
@@ -786,17 +805,18 @@ class BoxShape {
     this.displayObject = new PIXI.Graphics();
     this.lastDrawDef = {};
   }
+  hasChanged(newShapeDef) {
+    return this.lastDrawDef.colour != newShapeDef.colour ||
+    this.lastDrawDef.alpha != newShapeDef.alpha ||
+    this.lastDrawDef.pos[0] != newShapeDef.pos[0] ||
+    this.lastDrawDef.pos[1] != newShapeDef.pos[1] ||
+    this.lastDrawDef.angle != newShapeDef.angle ||
+    this.lastDrawDef.size[0] != newShapeDef.size[0] ||
+    this.lastDrawDef.size[1] != newShapeDef.size[1];
+  }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
-    this.lastDrawDef.alpha == shapeDefB.alpha &&
-    this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
-    this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
-    this.lastDrawDef.angle == shapeDefB.angle &&
-    this.lastDrawDef.size[0] == shapeDefB.size[0] &&
-    this.lastDrawDef.size[1] == shapeDefB.size[1];
-
-    if (propsNoChange && !forceUpdate) return;
+    if (!forceUpdate && !this.hasChanged(shapeDefB)) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
@@ -964,17 +984,18 @@ class LineShape {
     this.displayObject = new PIXI.Graphics();
     this.lastDrawDef = {};
   }
+  hasChanged(newShapeDef) {
+    return this.lastDrawDef.colour != newShapeDef.colour ||
+    this.lastDrawDef.alpha != newShapeDef.alpha ||
+    this.lastDrawDef.pos[0] != newShapeDef.pos[0] ||
+    this.lastDrawDef.pos[1] != newShapeDef.pos[1] ||
+    this.lastDrawDef.end[0] != newShapeDef.end[0] ||
+    this.lastDrawDef.end[1] != newShapeDef.end[1] ||
+    this.lastDrawDef.width != newShapeDef.width;
+  }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
-        this.lastDrawDef.alpha == shapeDefB.alpha &&
-        this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
-        this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
-        this.lastDrawDef.end[0] == shapeDefB.end[0] &&
-        this.lastDrawDef.end[1] == shapeDefB.end[1] &&
-        this.lastDrawDef.width == shapeDefB.width;
-
-    if (propsNoChange && !forceUpdate) return;
+    if (!forceUpdate && !this.hasChanged(shapeDefB)) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
@@ -991,15 +1012,13 @@ class LineShape {
     this.displayObject.clear();
     this.displayObject.lineStyle(
         this.lastDrawDef.width * scaleRatio,
-        this.lastDrawDef.colour, 1);
+        this.lastDrawDef.colour, this.lastDrawDef.alpha);
     this.displayObject.moveTo(
         this.lastDrawDef.pos[0] * scaleRatio,
         this.lastDrawDef.pos[1] * scaleRatio);
     this.displayObject.lineTo(
         this.lastDrawDef.end[0] * scaleRatio,
         this.lastDrawDef.end[1] * scaleRatio);
-
-    this.displayObject.alpha = this.lastDrawDef.alpha;
   }
   destroy() {
     this.displayObject.destroy();

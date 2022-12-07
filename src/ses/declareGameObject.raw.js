@@ -238,7 +238,7 @@ this.game = {
     },
     rayCast: rayCast,
     rayCastAll: rayCastAll,
-    getDiscSize: (id) => game.lobby.settings.bal[id] ? 1 + Math.max(Math.min(game.lobby.settings.bal[id] / 100, 1), -0.94) : 1,
+    getDiscRadius: (id) => game.lobby.settings.bal[id] ? 1 + Math.max(Math.min(game.lobby.settings.bal[id] / 100, 1), -0.94) : 1,
     disableDeathBarrier: false,
   },
   graphics: {
@@ -348,6 +348,22 @@ this.setStaticInfo = function() {
 };
 this.setDynamicInfo = function() {
   getDynamicInfo(this.game);
+
+  let randomSeed = 0;
+
+  // bring some more randomness to the mix!
+  for (let i = 0; i < game.state.discs.length; i++) {
+    if (!game.state.discs[i]) continue;
+    randomSeed = randomSeed + game.state.discs[i].x + game.state.discs[i].y + game.state.discs[i].xv + game.state.discs[i].yv;
+  }
+
+  randomSeed += game.state.rl;
+  randomSeed += randomSeed * game.state.rc;
+  randomSeed *= game.lobby.seed + 1;
+
+  // eslint-disable-next-line new-cap
+  const random = new Math.seedrandom(randomSeed);
+  Math.random = (a) => Math.round(random() * 1000000000) / 1000000000;
 };
 this.prepareDynamicInfo = function() {
   game.state.gmExtra.camera = game.graphics.camera;

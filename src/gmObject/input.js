@@ -21,7 +21,14 @@ export default {
       handler.getInputs = function() {
         const inputs = handler.getInputsOLD(...arguments);
 
-        const mouse = gm.graphics.rendererClass.renderer.plugins.interaction.mouse;
+        let mouse = gm.graphics.rendererClass?.renderer?.plugins.interaction.mouse;
+
+        if (mouse) {
+          gm.input.lastMouse = {buttons: mouse.buttons, global: {x: mouse.global.x, y: mouse.global.y}};
+        } else {
+          mouse = gm.input.lastMouse;
+        }
+
         const scaleRatio = gm.state.gameState.physics.ppm * gm.graphics.rendererClass.scaleRatio;
 
         inputs.mouse = {
@@ -77,8 +84,8 @@ export default {
         decoded.mouse = {
           pos: [encoded[1], encoded[2]],
           left: (encoded[3] & 0b001) == 0b001,
-          right: (encoded[4] & 0b010) == 0b010,
-          middle: (encoded[5] & 0b100) == 0b100,
+          right: (encoded[3] & 0b010) == 0b010,
+          middle: (encoded[3] & 0b100) == 0b100,
         };
       } else {
         decoded = BonkUtils.decodeInputsOLD(encoded);
@@ -88,4 +95,5 @@ export default {
     };
   },
   inputHandler: null,
+  lastMouse: {buttons: 0, global: {x: 0, y: 0}},
 };

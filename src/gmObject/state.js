@@ -1,9 +1,9 @@
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
 
-import seedrandom from 'seedrandom';
 import declareMeths from '../ses/declareMeths.raw.js';
 import declareGameObject from '../ses/declareGameObject.raw.js';
+import seedrandomCode from '../ses/seedrandom.raw.js';
 import sesCode from '../ses/ses.raw.js';
 
 export default {
@@ -34,6 +34,7 @@ export default {
     }
 
     this.safeEval = new this.safeEvalWindow.Compartment(meths);
+    this.safeEval.evaluate(seedrandomCode);
     this.safeEval.evaluate(declareGameObject);
   },
   initb2Step: function() {
@@ -270,23 +271,6 @@ export default {
       state = gm.state.safeEval.globalThis.game.state;
       /* #endregion SEND DYNAMIC INFO */
 
-      /* #region UPDATE RANDOM */
-      // this is where the random seed used by the sandbox's Math.random() is updated
-      let randomSeed = 0;
-
-      // bring some more randomness to the mix!
-      for (let i = 0; i < state.discs.length; i++) {
-        if (!state.discs[i]) continue;
-        randomSeed = randomSeed + state.discs[i].x + state.discs[i].y + state.discs[i].xv + state.discs[i].yv;
-      }
-
-      randomSeed += state.rl;
-      randomSeed *= state.rc;
-      randomSeed *= gm.state.staticInfo.lobby.seed;
-
-      gm.state.pseudoRandom = new seedrandom(randomSeed);
-      /* #endregion UPDATE RANDOM */
-
       /* #region EVENT FIRING */
       // after all preparations are done, it's time to fire the events set by the mode
 
@@ -486,6 +470,10 @@ export default {
       return state;
     };
     PhysicsClass.prototype.step = function(oldState) {
+      if (gm.graphics.rendererClass?.isReplay === 'replay') {
+        return stepFunction(...arguments);
+      }
+
       try {
         return stepFunction(...arguments);
       } catch (e) {
@@ -603,7 +591,6 @@ export default {
   inputs: null,
   staticInfo: null,
   collisionsThisStep: [],
-  pseudoRandom: null,
   crashed: false,
   rayCast: function(origin, end, filter, multiResult) {
     const hits = [];
@@ -622,8 +609,10 @@ export default {
       switch (bodyData.type) {
         case 'disc':
           hit.type = 'disc';
+          break;
         case 'arrow':
           hit.type = 'arrow';
+          break;
         case 'phys':
           hit.type = 'body';
           hit.fixtureId = fixtureData.arrayID;

@@ -41,7 +41,7 @@ export default {
     if (BonkUtils.mute || BonkUtils.preClickMute) return;
     if (window.gmReplaceAccessors.rollbacking) {
       for (let i = 0; i < gm.audio.soundsPlaying.length; i++) {
-        if (gm.audio.soundsPlaying[i].id === id) return;
+        if (gm.audio.soundsPlaying[i]?.id === id) return;
       }
     };
 

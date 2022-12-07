@@ -5,19 +5,27 @@
         <div class="windowTopBar windowTopBar_classic">Game Mode Editor</div>
         <div id="gmeditor_buttoncontainer">
             <div id="gmeditor_leftbuttons">
-                <div id="gmeditor_newbutton" title="New" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
-                <div id="gmeditor_importbutton" title="Import" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
-                <div id="gmeditor_exportbutton" title="Export" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
-                <div id="gmeditor_backupsbutton" title="Load backup" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_newbutton" title="New"
+                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_importbutton" title="Import"
+                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_exportbutton" title="Export"
+                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_backupsbutton" title="Load backup"
+                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
             </div>
             <div id="gmeditor_helptext">
-                Feeling lost? Hover over a block to get a brief description of what it does.
+                Feeling lost? well too bad lol (actual help text coming soon)
             </div>
             <div id="gmeditor_rightbuttons">
-                <div id="gmeditor_changebasebutton" title="Change to JavaScript" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton jsIcon"></div>
-                <div id="gmeditor_settingsbutton" title="Mode settings" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
-                <div id="gmeditor_closebutton" title="Close" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
-                <div id="gmeditor_savebutton" title="Apply and close" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <!--<div id="gmeditor_changebasebutton" title="Change to JavaScript"
+                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton jsIcon"></div>-->
+                <div id="gmeditor_settingsbutton" title="Mode settings"
+                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_closebutton" title="Close"
+                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                <div id="gmeditor_savebutton" title="Apply and close"
+                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
             </div>
         </div>
         <div id="gmworkspacearea"></div>
@@ -70,8 +78,9 @@
                     spellcheck="false" maxlength="12">
                 <br><br>
                 Mode description (500 characters max.)<br>
-                <textarea id="gmsettings_modedescription" style="height: 100px;" class="whiteInputField windowShadow gm_dialogtextfield"
-                    spellcheck="false" maxlength="500"></textarea>
+                <textarea id="gmsettings_modedescription" style="height: 100px;"
+                    class="whiteInputField windowShadow gm_dialogtextfield" spellcheck="false"
+                    maxlength="500"></textarea>
                 <br><br>
                 <label for="gmsettings_basemode">Base mode:</label>
                 <select id="gmsettings_basemode">
@@ -95,17 +104,23 @@
                     <div class="gm_listitem">
                         <img class="gm_listitemimage">
                         <div class="gm_listitemright">
-                            <input class="whiteInputField windowShadow gm_dialogtextfield gm_listitemname" type="text" value="test_id">
+                            <input class="whiteInputField windowShadow gm_dialogtextfield gm_listitemname" type="text"
+                                value="test_id">
                             <div class="gm_listitemdown">
                                 <div class="gm_listitemdetail">128x128, 604.26KB</div>
-                                <div title="Download image" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_download"></div>        
-                                <div title="Delete image" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_delete"></div>
+                                <div title="Download image"
+                                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_download">
+                                </div>
+                                <div title="Delete image"
+                                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_delete">
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="gm_dialogbuttoncontainer" style="flex-direction: row-reverse; justify-content: normal;">
-                    <div id="gmsettings_importasset" class="brownButton brownButton_classic buttonShadow">Import New</div>
+                    <div id="gmsettings_importasset" class="brownButton brownButton_classic buttonShadow">Import New
+                    </div>
                 </div>
             </div>
         </div>
@@ -157,11 +172,14 @@
             <div class="gm_listitem">
                 <img class="gm_listitemimage">
                 <div class="gm_listitemright">
-                    <input class="whiteInputField windowShadow gm_dialogtextfield gm_listitemname" type="text" value="test_id">
+                    <input class="whiteInputField windowShadow gm_dialogtextfield gm_listitemname" type="text"
+                        value="test_id">
                     <div class="gm_listitemdown">
                         <div class="gm_listitemdetail">128x128, 604.26KB</div>
-                        <div title="Download image" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>        
-                        <div title="Delete image" class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                        <div title="Download image"
+                            class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
+                        <div title="Delete image"
+                            class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
                     </div>
                 </div>
             </div>
@@ -170,5 +188,20 @@
             <div id="gmbackups_cancel" class="brownButton brownButton_classic buttonShadow">Close</div>
             <div id="gmbackups_load" class="brownButton brownButton_classic buttonShadow">Import New</div>
         </div>
-    </div>    
+    </div>
 </div>
+<!--
+<div id="gm_prefswindowcontainer">
+    <div class="windowTopBar windowTopBar_classic">GMMaker Preferences</div>
+    <div id="gmprefs_catcontainer">
+        <div class="gmprefs_category">Editor</div>
+        <div class="gmprefs_category">Cosmetics</div>
+    </div>
+    <div id="gmprefs_optcontainer">
+        <div class="gm_dialogbuttoncontainer">
+            <div id="gmprefs_cancel" class="brownButton brownButton_classic buttonShadow">Cancel</div>
+            <div id="gmprefs_save" class="brownButton brownButton_classic buttonShadow">Save</div>
+        </div>
+    </div>
+</div>
+-->

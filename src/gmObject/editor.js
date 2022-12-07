@@ -3,13 +3,15 @@
 /* eslint-disable new-cap */
 
 // blockly libs
+// REMOVE BEFORE RELEASE
+/*
 import Blockly from 'blockly';
 import {WorkspaceSearch} from '@blockly/plugin-workspace-search';
 import toolbox from '../blockly/toolbox.xml';
-import windowHtml from '../gmWindow/window.html';
 import blockDefs from '../blockly/blockdefs.js';
 import defineBlockCode from '../blockly/blockfuncs.js';
 import defineBlockValidators from '../blockly/blockvalidators.js';
+*/
 
 // text libs
 import * as monaco from 'monaco-editor';
@@ -19,12 +21,14 @@ import monacoDefs from '!raw-loader!../monaco/gmm.d.ts';
 import monacoDefSnippets from '../monaco/snippets.js';
 
 // misc
+import windowHtml from '../gmWindow/window.html';
 import {saveAs} from 'file-saver';
 import md5 from 'md5';
 
 export default {
   init: function() {
-    this.blockDefs = blockDefs;
+    // REMOVE BEFORE RELEASE
+    // this.blockDefs = blockDefs;
     this.initGMEditor();
     this.resetModeSettings();
   },
@@ -39,7 +43,8 @@ export default {
     document.getElementById('gmeditor_importbutton').addEventListener('click', gm.editor.GMEImport);
     document.getElementById('gmeditor_exportbutton').addEventListener('click', gm.editor.GMEExportShow);
     document.getElementById('gmeditor_backupsbutton').addEventListener('click', gm.editor.GMEBackupsShow);
-    document.getElementById('gmeditor_changebasebutton').addEventListener('click', gm.editor.GMEChangeEditor);
+    // REMOVE BEFORE RELEASE
+    // document.getElementById('gmeditor_changebasebutton').addEventListener('click', gm.editor.GMEChangeEditor);
     document.getElementById('gmeditor_settingsbutton').addEventListener('click', gm.editor.GMESettingsShow);
     document.getElementById('gmeditor_savebutton').addEventListener('click', gm.editor.GMESave);
     document.getElementById('gmeditor_closebutton').addEventListener('click', gm.editor.hideGMEWindow);
@@ -99,8 +104,9 @@ export default {
     }
 
     // adding button sounds
+    // REMOVE COMMENTED BEFORE RELEASE
     const buttons = [
-      'gmeditor_newbutton', 'gmeditor_importbutton', 'gmeditor_exportbutton', 'gmeditor_savebutton', 'gmeditor_closebutton', 'gmeditor_settingsbutton', 'gmeditor_backupsbutton', 'gmeditor_changebasebutton',
+      'gmeditor_newbutton', 'gmeditor_importbutton', 'gmeditor_exportbutton', 'gmeditor_savebutton', 'gmeditor_closebutton', 'gmeditor_settingsbutton', 'gmeditor_backupsbutton', // 'gmeditor_changebasebutton',
       'gmgeneric_cancel', 'gmgeneric_ok',
       'gmexport_cancel', 'gmexport_ok',
       'gmimportdialog_cancel', 'gmimportdialog_no', 'gmimportdialog_yes',
@@ -147,7 +153,8 @@ export default {
     });
 
     // init blockly and monaco workspaces
-    this.initBlockly();
+    // REMOVE BEFORE RELEASE
+    // this.initBlockly();
     this.initMonaco();
 
     this.hideGMEWindow();
@@ -235,6 +242,9 @@ export default {
 
     gm.editor.monacoWs.getModel().onDidChangeContent(function(event) {
       // the way this is formatted is s^^^^
+
+      // REMOVE BEFORE RELEASE
+      /*
       if (!gm.editor.modeSettings.isTextMode && !gm.editor.changingToTextEditor) {
         if (gm.editor.blocklyWs.getTopBlocks().length == 0) {
           gm.editor.blocklyWs.clear();
@@ -257,6 +267,7 @@ export default {
         }, {showCancel: true});
       }
       gm.editor.changingToTextEditor = false;
+      */
 
       // backup
       if (gm.editor.monacoWs.getValue() == '') return;
@@ -479,7 +490,7 @@ export default {
     {name: 'modeName', type: 'string', default: 'Custom'},
     {name: 'modeDescription', type: 'string', default: 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).'},
     {name: 'baseMode', type: 'string', default: 'any'},
-    {name: 'isTextMode', type: 'bool', default: false},
+    {name: 'isTextMode', type: 'bool', default: true},
   ],
   modeSettings: {},
   modeAssets: {images: [], sounds: []},
@@ -506,10 +517,12 @@ export default {
     document.getElementById('gmeditor').style.transform = 'scale(1)';
     document.getElementById('newbonklobby').style.transform = 'scale(0)';
 
-    const blocklyDiv = document.getElementById('gmblocklydiv');
+    // const blocklyDiv = document.getElementById('gmblocklydiv');
     const monacoDiv = document.getElementById('gmmonacodiv');
     const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
 
+    // REMOVE BEFORE RELEASE
+    /*
     const changeBaseButton = document.getElementById('gmeditor_changebasebutton');
     if (gm.editor.modeSettings.isTextMode) {
       monacoDiv.style.display = 'block';
@@ -524,27 +537,33 @@ export default {
       changeBaseButton.classList.add('jsIcon');
       changeBaseButton.classList.remove('blockIcon');
     }
-
-    blocklyDiv.style.top = bounds.top;
-    blocklyDiv.style.left = bounds.left;
-    blocklyDiv.style.width = bounds.width;
-    blocklyDiv.style.height = bounds.height;
+    */
+    monacoDiv.style.display = 'block';
     monacoDiv.style.top = bounds.top;
     monacoDiv.style.left = bounds.left;
     monacoDiv.style.width = bounds.width - 20;
     monacoDiv.style.height = bounds.height - 20;
 
-    gm.editor.monacoWs.layout();
+    // REMOVE BEFORE RELEASE
+    /*
+    blocklyDiv.style.top = bounds.top;
+    blocklyDiv.style.left = bounds.left;
+    blocklyDiv.style.width = bounds.width;
+    blocklyDiv.style.height = bounds.height;
     Blockly.svgResize(gm.editor.blocklyWs);
+    */
+
+    gm.editor.monacoWs.layout();
 
     gm.editor.disableLobbyChatbox = true;
   },
   hideGMEWindow: function() {
     gm.editor.disableLobbyChatbox = false;
 
-    gm.editor.blocklyWs.setVisible(false);
     document.getElementById('gmmonacodiv').style.display = 'none';
-    document.getElementById('gmblocklydiv').style.visibility = 'hidden';
+    // REMOVE BEFORE RELEASE
+    // gm.editor.blocklyWs.setVisible(false);
+    // document.getElementById('gmblocklydiv').style.visibility = 'hidden';
     document.getElementById('gmeditor').style.transform = 'scale(0)';
     document.getElementById('newbonklobby').style.transform = 'scale(1)';
   },
@@ -594,9 +613,12 @@ export default {
     gm.editor.genericDialog('Are you sure you want to delete all blocks, reset mode settings and remove all custom images and sounds?', function(confirmed) {
       if (!confirmed) return;
 
+      // REMOVE BEFORE RELEASE
+      /*
       gm.editor.blocklyWs.clear();
       gm.editor.GMEChangeEditor(false);
       document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
+      */
       gm.editor.modeAssets = {images: [], sounds: []};
       gm.editor.resetModeSettings();
     }, {showCancel: true});
@@ -625,6 +647,8 @@ export default {
           gm.editor.modeAssets = mode.assets;
           gm.editor.modeSettings = mode.settings;
 
+          // REMOVE BEFORE RELEASE
+          /*
           gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
           if (gm.editor.modeSettings.isTextMode) {
             document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
@@ -638,6 +662,8 @@ export default {
 
             Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
           }
+          */
+          gm.editor.monacoWs.setValue(mode.content);
         }
       };
     };
@@ -668,6 +694,8 @@ export default {
     gm.editor.modeAssets = gm.editor.modeToImport.assets;
     gm.editor.modeSettings = gm.editor.modeToImport.settings;
 
+    // REMOVE BEFORE RELEASE
+    /*
     gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
     if (gm.editor.modeSettings.isTextMode) {
       document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
@@ -681,6 +709,8 @@ export default {
 
       Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
     }
+    */
+    gm.editor.monacoWs.setValue(gm.editor.modeToImport.content);
 
     document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
   },
@@ -745,6 +775,8 @@ export default {
     gm.editor.modeAssets = backup.assets;
     gm.editor.modeSettings = backup.settings;
 
+    // REMOVE BEFORE RELEASE
+    /*
     gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
     if (gm.editor.modeSettings.isTextMode) {
       document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
@@ -758,6 +790,8 @@ export default {
 
       Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
     }
+    */
+    gm.editor.monacoWs.setValue(backup.content);
   },
   GMESettingsShow: function() {
     document.getElementById('gm_settingswindowcontainer').style.visibility = 'visible';
@@ -1057,6 +1091,7 @@ export default {
 
     input.click();
   },
+  // REMOVE BEFORE RELEASE
   GMEChangeEditor: function(toTextEditor) {
     // this function is the chazziest thing ever
     const blocklyDiv = document.getElementById('gmblocklydiv');

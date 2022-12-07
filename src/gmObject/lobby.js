@@ -25,7 +25,7 @@ export default {
 
       socket.on(7, function(id, packet) {
         // add gm input data to i if it exists
-        if (packet.gm) packet.i = [packet.i, packet.gm];
+        if (packet.gm) packet.i = [packet.i, ...packet.gm];
 
         // process new mode coming from host
         if (id !== gm.lobby.networkEngine.hostID) return;
