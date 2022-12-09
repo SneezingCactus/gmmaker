@@ -32,6 +32,17 @@ export default {
     this.initGMEditor();
     this.resetModeSettings();
   },
+  configApply: function(config) {
+    this.monacoWs._themeService.setTheme(
+      config.editor.darkWorkspace ? 'vs-dark' : 'vs');
+    this.monacoWs.updateOptions({
+      wordWrap: config.editor.wordWrap ? 'on' : 'off',
+      fontSize: config.editor.fontSize,
+      minimap: {
+        enabled: config.editor.showMinimap,
+      },
+    });
+  },
   initGMEditor: function() {
     // create the gm editor div
     const GMEditorWindow = document.createElement('div');
@@ -238,6 +249,22 @@ export default {
       value: '',
       language: 'javascript',
       tabSize: 2,
+    }, {
+      storageService: {
+        get() {},
+        getBoolean(key) {
+          if (key === 'expandSuggestionDocs' && gm.config.saved.editor.forceSideDocs) {
+            return true;
+          }
+
+          return false;
+        },
+        remove() {},
+        store() {},
+        onWillSaveState() {},
+        onDidChangeStorage() {},
+        onDidChangeValue() {},
+      },
     });
 
     gm.editor.monacoWs.getModel().onDidChangeContent(function(event) {

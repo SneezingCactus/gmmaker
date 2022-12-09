@@ -7,11 +7,13 @@
     --gm_window_text: #ffffff;
     --gm_primary_background: #e2e2e2;
     --gm_behind_lobby_background: #1a2733;
+    --gm_list_headers: #a8bcc0;
     --gm_table_color: #c1cdd2;
     --gm_table_alt_color: #d2dbde;
     --gm_button_text: #ffffff;
     --gm_button_primary_color: #795548;
     --gm_button_secondary_color: #4b252b;
+    --gm_button_top_bar_color: #273749c7;
 }
 
 /* SPLASH SCREEN */
@@ -90,13 +92,31 @@
     font-family: 'futurept_book';
 }
 
+/* CONFIG BUTTON */
+
+#pretty_top_settings {
+    border-bottom: 2px solid transparent;
+}
+
+#pretty_top_gmmaker {
+    width: 57px;
+    height: 34px;
+    background-image: url(images/gmmlogo.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 30px;
+    position: absolute;
+    right: 58px;
+    top: 35px;
+    background-color: var(--gm_button_top_bar_color);
+}
+
 /* GAME MODE EDITOR */
 
 #gmeditor {
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: var(--gm_behind_lobby_background);
 }
 
 #gmeditorwindow {
@@ -221,6 +241,7 @@
     flex-grow: 1;
 }
 
+/* REMOVE BEFORE RELEASE */
 #gmblocklydiv {
     position: absolute;
     padding: 10px;
@@ -388,7 +409,7 @@
     height: 30px;
     padding-right: 4px;
     margin-top: 3px;
-    resize: vertical;
+    resize: none;
 }
 
 .gm_horizontalflex {
@@ -407,7 +428,7 @@
     height: 290px;
     flex-direction: column;
     overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
 
 .gm_bartabs {
@@ -444,6 +465,17 @@
     pointer-events: all;
 }
 
+.gm_listheader {
+    background-color: var(--gm_list_headers);
+    border-bottom: 1px solid #00000012;
+    padding-left: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    display: inline-block;
+    font-size: 18px;
+    pointer-events: none;
+}
+
 .gm_listitem {
     display: flex;
     align-items: stretch;
@@ -452,6 +484,10 @@
     box-sizing: border-box;
     width: 100%;
     background-color: var(--gm_table_color);
+}
+
+.gm_listitem.small {
+    padding: 5px 10px;
 }
 
 .gm_listitem:nth-child(odd) {
@@ -507,6 +543,26 @@
     color: var(--gm_secondary_text);
 }
 
+.gm_listitemlabel {
+    flex-basis: 0;
+    flex-grow: 0.75;
+}
+
+.gm_listiteminput::-webkit-outer-spin-button,
+.gm_listiteminput::-webkit-inner-spin-button {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.gm_listiteminput[type=number] {
+    width: 100px;
+    text-align: right;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* REMOVE BEFORE RELEASE */
 /* WORKSPACE SEARCH COLOUR FIX */
 
 path.blocklyPath.blockly-ws-search-highlight {
@@ -515,6 +571,7 @@ path.blocklyPath.blockly-ws-search-highlight {
 }
 
 /* INGAME LOG BOX */
+
 #gm_logbox {
     position: absolute;
     border-radius: 10px;
@@ -538,73 +595,7 @@ path.blocklyPath.blockly-ws-search-highlight {
     resize: both;
 }
 
-/* VAR INSPECTOR */
-
-#gm_varinspector {
-    display: none;
-    position: absolute;
-    z-index: 9999;
-    width: 500px;
-    height: 500px;
-    resize: both;    
-    overflow: auto;
-
-    background-color: var(--gm_primary_background);
-    padding-top: 34px;
-    border-radius: 7px;
-    box-shadow: 1px 1px 5px -2px rgb(0 0 0 / 63%);
-}
-
-#gm_varinspector .windowTopBar {
-    cursor: grab;
-}
-
-#gm_varinspector .windowTopBar:active {
-    cursor: grabbing;
-}
-
-#gmvi_content {
-    flex-direction: column;
-    font-family: 'futurept_b1';
-
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-}
-
-.gmvi_tab_content {
-    display: flex;
-    flex-direction: column;
-
-    width: 100%;
-    color: var(--gm_primary_text);
-    font-family: "futurept_b1";
-}
-
-.gmvi_var {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    align-content: stretch;
-
-    width: 100%;
-    padding: 4px;
-    box-sizing: border-box;
-    background-color: var(--gm_table_color);
-}
-
-.gmvi_var:nth-child(odd) {
-    background-color: var(--gm_table_alt_color);
-}
-
-.gmvi_var div {
-    flex-basis: 0;
-    flex-grow: 1;
-}
-
+/* REMOVE BEFORE RELEASE */
 /* BLOCKLY CLASSES */
 
 .gm_blockly_toolbox_button_bg {

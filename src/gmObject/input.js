@@ -29,7 +29,8 @@ export default {
           mouse = gm.input.lastMouse;
         }
 
-        const scaleRatio = gm.state.gameState.physics.ppm * gm.graphics.rendererClass.scaleRatio;
+        let scaleRatio = gm.state.gameState?.physics.ppm * gm.graphics.rendererClass?.scaleRatio;
+        if (Number.isNaN(scaleRatio)) scaleRatio = 0;
 
         inputs.mouse = {
           pos: [

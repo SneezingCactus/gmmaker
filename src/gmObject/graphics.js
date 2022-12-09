@@ -1112,6 +1112,8 @@ class ImageShape {
     this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
+    this.displayObject.visible = gm.config.saved.ingame.allowImages;
+
     const stringifiedRegionA = JSON.stringify(this.lastDrawDef.region);
     const stringifiedRegionB = JSON.stringify(shapeDefB.region);
 

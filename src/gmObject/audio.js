@@ -38,6 +38,7 @@ export default {
     this.soundsPlaying = [];
   },
   playSound: function(id, volume, panning) {
+    if (!gm.config.saved.ingame.allowSounds) return;
     if (BonkUtils.mute || BonkUtils.preClickMute) return;
     if (window.gmReplaceAccessors.rollbacking) {
       for (let i = 0; i < gm.audio.soundsPlaying.length; i++) {

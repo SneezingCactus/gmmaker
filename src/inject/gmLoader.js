@@ -6,6 +6,7 @@
 import '../gmWindow/style.css';
 import splashHtml from '../gmWindow/splash.html';
 
+import gmConfig from '../gmObject/config.js';
 import gmState from '../gmObject/state.js';
 import gmInput from '../gmObject/input.js';
 import gmGraphics from '../gmObject/graphics.js';
@@ -30,6 +31,7 @@ window.initGM = function() {if (window.gm) return;
     lobby: gmLobby,
     editor: gmEditor,
     encoding: gmEncoding,
+    config: gmConfig,
   };
 
   // init the things inside gm
@@ -39,6 +41,8 @@ window.initGM = function() {if (window.gm) return;
   }
 
   // show epic splash screen
+  if (!gm.config.saved.misc.showSplash) return;
+
   let splashElement = document.createElement('div');
   document.getElementById('newbonkgamecontainer').prepend(splashElement);
   splashElement.outerHTML = splashHtml;

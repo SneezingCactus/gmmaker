@@ -354,7 +354,7 @@ export default {
 
       // fire playerDie events
       for (let i = 0; i < state.discDeaths.length; i++) {
-        if (state.discDeaths[i]?.f === 0) gm.state.fireEvent('playerDie', null, [i]);
+        if (state.discDeaths[i]?.f === 0) gm.state.fireEvent('playerDie', null, [state.discDeaths[i].i, i]);
       }
 
       // fire roundStart events
