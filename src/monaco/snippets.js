@@ -47,7 +47,7 @@ export default function() {
             label: 'sh!eventPlayerDie',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "playerDie".',
-            insertText: 'game.events.addEventListener(\'playerDie\', null, function(id) {\n  //code goes here\n})',
+            insertText: 'game.events.addEventListener(\'playerDie\', null, function(id, discDeathId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'aa',
           },

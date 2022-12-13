@@ -146,12 +146,22 @@ this.game = {
     addEventListener: function(eventName, options, listener) {
       this.eventListeners[eventName]?.push({options: options, listener: listener});
     },
+    removeEventListener: function(listener) {
+      // eslint-disable-next-line guard-for-in
+      for (const eventName in this.eventListeners) {
+        const eventListeners = this.eventListeners[eventName];
+
+        for (let i = 0; i < eventListeners.length; i++) {
+          if (eventListeners[i]?.listener === listener) delete eventListeners[i];
+        }
+      }
+    },
     fireEvent: function(eventName, options, args) {
       try {
         const listeners = this.eventListeners[eventName];
         for (let i = 0; i < listeners.length; i++) {
-          if (listeners[i].options?.perPlayer != options?.perPlayer ||
-              listeners[i].options?.collideWith != options?.collideWith) continue;
+          if (listeners[i]?.options.perPlayer != options?.perPlayer ||
+              listeners[i]?.options.collideWith != options?.collideWith) continue;
 
           listeners[i].listener(...args);
         }
@@ -320,7 +330,6 @@ this.game = {
         noLerp: false,
       }];
     },
-    debugLog: debugLog,
   },
   audio: {
     playSound: playSound,
@@ -334,6 +343,7 @@ this.game = {
     },
     stopAllSounds: stopAllSounds,
   },
+  debugLog: debugLog,
 };
 
 this.staticSetted = false;

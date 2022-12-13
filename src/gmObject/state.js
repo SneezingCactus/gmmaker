@@ -138,6 +138,21 @@ export default {
         state.physics.bodies[i].a *= 180 / Math.PI;
         state.physics.bodies[i].av *= 180 / Math.PI;
       }
+      for (let i = 0; i !== state.physics.joints.length; i++) {
+        if (!state.physics.joints[i]) continue;
+
+        const joint = state.physics.joints[i];
+
+        if (joint.type == 'lpj') {
+          joint.rpa = joint.pa;
+          joint.pa *= 180 / Math.PI;
+        } else if (joint.type == 'rv') {
+          joint.d.rua = joint.ua;
+          joint.d.rla = joint.la;
+          joint.d.ua *= 180 / Math.PI;
+          joint.d.la *= 180 / Math.PI;
+        }
+      }
       /* #endregion ANGLE UNIT DEGREEING */
 
       /* #region DISC NORMALIZING */
@@ -457,6 +472,21 @@ export default {
         }
         if (Math.abs(state.physics.bodies[i].av - state.physics.bodies[i].rav) < 0.000000001) {
           state.physics.bodies[i].av = state.physics.bodies[i].rav;
+        }
+      }
+      for (let i = 0; i !== state.physics.joints.length; i++) {
+        if (!state.physics.joints[i]) continue;
+
+        const joint = state.physics.joints[i];
+
+        if (joint.type == 'lpj') {
+          joint.pa *= Math.PI / 180;
+          if (Math.abs(joint.pa - joint.rpa) < 0.000000001) joint.pa = joint.rpa;
+        } else if (joint.type == 'rv') {
+          joint.d.ua *= Math.PI / 180;
+          joint.d.la *= Math.PI / 180;
+          if (Math.abs(joint.ua - joint.rua) < 0.000000001) joint.ua = joint.rua;
+          if (Math.abs(joint.la - joint.rla) < 0.000000001) joint.la = joint.rla;
         }
       }
       /* #endregion ANGLE UNIT RESTORING */

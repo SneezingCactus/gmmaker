@@ -97,6 +97,7 @@ export default {
         modeDropdown.classList.remove('brownButton', 'brownButton_classic', 'buttonShadow');
         modeDropdown.style.width = 'calc(50% - 22px)';
         modeDropdown.style.bottom = '85px';
+        modeDropdown.style.height = '0px';
       };
     } else if (window.bonkHost) {
       document.getElementById('newbonklobby_modebutton').classList.add('gm_withbonkhost');
@@ -109,6 +110,7 @@ export default {
       modeDropdown.classList.remove('brownButton', 'brownButton_classic', 'buttonShadow');
       modeDropdown.style.width = 'calc(50% - 22px)';
       modeDropdown.style.bottom = '85px';
+      modeDropdown.style.height = '0px';
     } else {
       document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
       window.BonkUtils.setButtonSounds([GMOpenButton]);
@@ -252,6 +254,7 @@ export default {
     }, {
       storageService: {
         get() {},
+        remove() {},
         getBoolean(key) {
           if (key === 'expandSuggestionDocs' && gm.config.saved.editor.forceSideDocs) {
             return true;
@@ -259,7 +262,9 @@ export default {
 
           return false;
         },
-        remove() {},
+        getNumber(key) {
+          return 0;
+        },
         store() {},
         onWillSaveState() {},
         onDidChangeStorage() {},

@@ -24,6 +24,7 @@ window.getDynamicInfo = (game) => {
     inputs: window.parent.gm.state.inputs,
   });
 
+  game.prevState = game.state ?? copied.state;
   game.state = copied.state;
   game.inputs = copied.inputs;
 
