@@ -651,6 +651,7 @@ export default {
       gm.editor.GMEChangeEditor(false);
       document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
       */
+      gm.editor.monacoWs.setValue('');
       gm.editor.modeAssets = {images: [], sounds: []};
       gm.editor.resetModeSettings();
     }, {showCancel: true});
@@ -1159,27 +1160,30 @@ export default {
     const saved = {};
 
     // generate events in host and save content and isEmpty into the mode
-    if (gm.editor.modeSettings.isTextMode) {
-      try {
-        gm.state.generateEvents(gm.editor.monacoWs.getValue());
-      } catch (e) {
-        let report = e.stack;
+    // if (gm.editor.modeSettings.isTextMode) {
+    try {
+      gm.state.generateEvents(gm.editor.monacoWs.getValue());
+    } catch (e) {
+      let report = e.stack;
 
-        report = report.replace(/(at [^\(\n]+) \(eval at .{0,100}.{0,50}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
-        report = report.replace(/Proxy\.eval([^\n]+)(.|\n)*/gm, '<anonymous>$1');
+      report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
+      report = report.replace(/Object\.eval([^\n]+)(.|\n)*/gm, '<anonymous>$1');
 
-        gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. Below is the crash report, which may help you find out what happened.', ()=>{}, {
-          showCode: true,
-          code: report,
-        });
-        throw (e);
-      }
+      gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. Below is the crash report, which may help you find out what happened.', ()=>{}, {
+        showCode: true,
+        code: report,
+      });
 
-      const content = gm.editor.monacoWs.getValue();
+      e.stack = '[GMMaker Error] ' + e.stack;
 
-      saved.content = content;
-      saved.isEmpty = content == '';
-    } else {
+      throw (e);
+    }
+
+    const content = gm.editor.monacoWs.getValue();
+
+    saved.content = content;
+    saved.isEmpty = content == '';
+    /* } else {
       try {
         gm.state.generateEvents(gm.editor.generateCode());
       } catch (e) {
@@ -1191,7 +1195,7 @@ export default {
 
       saved.content = content.innerHTML;
       saved.isEmpty = content.getElementsByTagName('block').length == 0;
-    }
+    }*/
 
     saved.settings = gm.editor.modeSettings;
     saved.assets = gm.editor.modeAssets;

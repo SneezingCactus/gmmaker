@@ -1181,6 +1181,18 @@ declare interface gameGraphics {
    * @param resolution Quality of the newly rendered image
    */
   bakeDrawing(drawingId: number, resolution: number): void
+  /**
+   * Get the current screen size (in GMMaker units), as a 2d vector.
+   * X axis is width, Y axis is height.
+   * 
+   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * 
+   * PD: The formula to calculate screen size is really simple.
+   * 
+   * - width: `730 / game.state.physics.ppm`
+   * - height: `500 / game.state.physics.ppm`
+   */
+  getScreenSize(): number[]
 }
 
 declare interface gameAudio {
@@ -1189,7 +1201,7 @@ declare interface gameAudio {
    * 
    * The ID corresponding to a custom sound can be changed in the Mode Settings menu.
    * You can find a list with all of the vanilla sounds and their respective IDs [here](https://github.com/SneezingCactus/gmmaker/wiki/Built-in-sounds-and-their-IDs).
-   * @param ID The ID of the sound to play.
+   * @param id The ID of the sound to play.
    * @param volume Volume of the sound (0 to 1). You can play sounds with volumes higher than 1.
    * @param panning Panning (balance) of the sound (-1 to 1).
    */
@@ -1199,7 +1211,7 @@ declare interface gameAudio {
    * 
    * The ID corresponding to a custom sound can be changed in the Mode Settings menu.
    * You can find a list with all of the vanilla sounds and their respective IDs [here](https://github.com/SneezingCactus/gmmaker/wiki/Built-in-sounds-and-their-IDs).
-   * @param ID The ID of the sound to play.
+   * @param id The ID of the sound to play.
    * @param volume Volume of the sound (0 to 1). You can play sounds with volumes higher than 1.
    * @param xPos World X position of the sound.
    */
@@ -1366,7 +1378,7 @@ declare interface gameWorld {
    * It's recommended to only call this function once and store the value somewhere
    * if you use it a lot in your code.
    * 
-   * @param ID The ID of the disc.
+   * @param id The ID of the disc.
    */
   getDiscRadius(id: number): number
   /**
@@ -1375,7 +1387,7 @@ declare interface gameWorld {
    * 
    * It's also not possible to kill a disc while the game is frozen (at the start of a round).
    * 
-   * @param ID The ID of the disc to kill.
+   * @param id The ID of the disc to kill.
    * @param allowRespawn When set to true, the disc can respawn (on maps that have "respawn on death" activated). 
    * When set to false, the disc can't respawn even if "respawn on death" is activated, like when someone claims a capzone.
    * True by default.

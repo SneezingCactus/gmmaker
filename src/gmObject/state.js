@@ -13,7 +13,7 @@ export default {
     document.head.appendChild(compContainer);
 
     compContainer.contentWindow.eval(sesCode);
-    compContainer.contentWindow.lockdown({errorTaming: 'unsafe'});
+    compContainer.contentWindow.lockdown({errorTaming: 'unsafe', stackFiltering: 'verbose'});
 
     // mr whiter whee is my 50002 km/h of methé
     // (meth is short for method here)
@@ -500,7 +500,7 @@ export default {
       return state;
     };
     PhysicsClass.prototype.step = function(oldState) {
-      if (gm.graphics.rendererClass?.isReplay === 'replay') {
+      if (gm.graphics.inReplay()) {
         return stepFunction(...arguments);
       }
 
@@ -508,7 +508,7 @@ export default {
         return stepFunction(...arguments);
       } catch (e) {
         if (gm.state.crashed) return oldState;
-        if (gm.graphics.rendererClass.isReplay === 'replay') throw e;
+        if (gm.graphics.inReplay()) throw e;
         gm.state.crashed = true;
         setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!
         return oldState;
@@ -683,7 +683,7 @@ export default {
     if (e.isModeError) {
       let report = e.stack;
 
-      report = report.replace(/(at [^\(\n]+) \(eval at .{0,100}.{0,50}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
+      report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
       report = report.replace(/Object\.eval \[as listener\]([^\n]+)(.|\n)*/gm, '<anonymous>$1');
       report = report.replace(/Proxy./gm, 'function ');
 
@@ -748,6 +748,8 @@ export default {
     if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
       document.getElementById('pretty_top_exit').click();
     }
+
+    e.stack = '[GMMaker Error] ' + e.stack;
 
     throw e;
   },

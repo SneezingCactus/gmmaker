@@ -384,6 +384,7 @@
 .gm_dialogcode {
     background-color: var(--gm_table_color);
     padding: 10px;
+    overflow-wrap: anywhere;
     white-space: pre-wrap;
 }
 

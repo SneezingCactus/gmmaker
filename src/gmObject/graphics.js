@@ -7,6 +7,10 @@
 export default {
   init: function() {
     this.initBonkGraphics();
+
+    // putting it here cause why not
+    const mainMenuElements = document.getElementById('mainmenuelements');
+    this.inReplay = () => mainMenuElements.style.display !== 'none';
   },
   initBonkGraphics: function() {
     BonkGraphics.prototype.render = (function() {
@@ -25,10 +29,12 @@ export default {
         const settings = gm.lobby.mpSession.getGameSettings();
 
         /* #region UPDATE BODIES */
-        if (this.roundGraphics) {
+        if (!this.gmCurrentPPM) this.gmCurrentPPM = stateB.physics.ppm;
+        if (this.roundGraphics && stateB.physics.ppm === this.gmCurrentPPM) {
           const bodyGraphics = this.roundGraphics.bodyGraphics;
           const bodies = stateB.physics.bodies;
           const maxBodiesLength = Math.max(bodyGraphics.length, bodies.length);
+          const roundGraphicsContainer = this.roundGraphics.displayObject;
           for (let i = 0; i < maxBodiesLength; i++) {
             const myBro = stateA.physics.bro.indexOf(i);
 
@@ -43,36 +49,83 @@ export default {
               const bodyBehind = stateA.physics.bro[myBro + 1];
 
               if (bodyBehind) {
-                const index = this.roundGraphics.displayObject.children.indexOf(bodyGraphics[bodyBehind].displayObject) + 1;
+                const index = roundGraphicsContainer.children.indexOf(bodyGraphics[bodyBehind].displayObject) + 1;
 
-                if (newBodyGraphics.jointContainer.children.length > 0) {
-                  this.roundGraphics.displayObject.addChildAt(newBodyGraphics.jointContainer, index);
-                }
-
-                this.roundGraphics.displayObject.addChildAt(newBodyGraphics.displayObject, index);
+                roundGraphicsContainer.addChildAt(newBodyGraphics.jointContainer, index);
+                roundGraphicsContainer.addChildAt(newBodyGraphics.displayObject, index);
               } else {
-                if (newBodyGraphics.jointContainer.children.length > 0) {
-                  this.roundGraphics.displayObject.addChild(newBodyGraphics.jointContainer);
-                }
-
-                this.roundGraphics.displayObject.addChild(newBodyGraphics.displayObject);
+                roundGraphicsContainer.addChild(newBodyGraphics.jointContainer);
+                roundGraphicsContainer.addChild(newBodyGraphics.displayObject);
               }
             }
 
             // body deletion
             if (!bodies[i] && bodyGraphics[i] && !bodyGraphics[i].notActuallyBuilt) {
               const graphic = bodyGraphics[i];
-              this.roundGraphics.displayObject.removeChild(graphic.displayObject);
-              this.roundGraphics.displayObject.removeChild(graphic.jointContainer);
+              roundGraphicsContainer.removeChild(graphic.displayObject);
+              roundGraphicsContainer.removeChild(graphic.jointContainer);
               graphic.destroy();
               delete bodyGraphics[i];
             }
 
-            // fixture appearance modification & body fixture list changing
+            // add joint container to round graphics
+            if (bodyGraphics[i] && !roundGraphicsContainer.children.includes(bodyGraphics[i].jointContainer)) {
+              const bodyBehind = stateA.physics.bro[myBro + 1];
+
+              if (bodyBehind) {
+                const index = roundGraphicsContainer.children.indexOf(bodyGraphics[bodyBehind].displayObject);
+
+                roundGraphicsContainer.addChildAt(bodyGraphics[i].jointContainer, index);
+              } else {
+                roundGraphicsContainer.addChild(bodyGraphics[i].jointContainer);
+              }
+            }
+
             if (!gm.graphics.lastRenderedState?.physics.bodies[i]) continue;
             if (!stateB.physics.bodies[i]) continue;
             if (!bodyGraphics[i]) continue;
 
+            // joint line modification
+            const maxJointsLength = Math.max(stateA.physics.joints.length, stateB.physics.joints.length);
+            for (let j = 0; j < maxJointsLength; j++) {
+              const joint = stateB.physics.joints[j];
+              let line = bodyGraphics[i].otherLines[j];
+
+              if ((line && (joint?.ba !== i || !joint?.d.dl)) ||
+                  (line && line.stateObj?.type !== joint.type)) {
+                bodyGraphics[i].jointContainer.removeChild(line);
+                line.destroy();
+                line = null;
+                delete bodyGraphics[i].otherLines[j];
+              }
+
+              if (!line && joint && joint.ba === i && joint.d.dl && (joint.type == 'd' || joint.type == 'lpj')) {
+                line = new PIXI.Graphics();
+                bodyGraphics[i].jointContainer.addChild(line);
+                bodyGraphics[i].otherLines[j] = line;
+              }
+
+              if (line && joint && joint.type == 'lpj' && (
+                line.stateObj?.pax !== joint.pax ||
+                line.stateObj?.pay !== joint.pay ||
+                line.stateObj?.pa !== joint.pa ||
+                line.stateObj?.plen !== joint.plen
+              )) {
+                const scaleRatio = stateB.physics.ppm * this.scaleRatio;
+
+                line.clear();
+                line.lineStyle(1, 0xcccccc, 0.5);
+                line.moveTo(joint.plen * scaleRatio, 0);
+                line.lineTo(-joint.plen * scaleRatio, 0);
+                line.rotation = joint.pa;
+                line.x = joint.pax * scaleRatio;
+                line.y = joint.pay * scaleRatio;
+              }
+
+              if (line) line.stateObj = joint;
+            }
+
+            // fixture appearance modification & body fixture list changing
             let mustReorder = false;
 
             const lastBodyFx = gm.graphics.lastRenderedState.physics.bodies[i].fx;
@@ -210,6 +263,10 @@ export default {
               bodyGraphics[i].displayObject.addChild(bodyGraphics[i].shapes[shapeId].graphic);
             }
           }
+        } else if (stateB.physics.ppm !== this.gmCurrentPPM) {
+          // and this is why you shouldn't change ppm often
+          window.BonkUtils.resetRenderer = true;
+          this.gmCurrentPPM = stateB.physics.ppm;
         }
         /* #endregion UPDATE BODIES */
 
@@ -257,7 +314,7 @@ export default {
         this.renderer.render(this.stage);
       };
       return function() {
-        if (this.isReplay === 'replay') {
+        if (gm.graphics.inReplay()) {
           return renderFunction.apply(this, arguments);
         }
 
@@ -410,7 +467,7 @@ export default {
         return result;
       };
       return function() {
-        if (this.isReplay === 'replay') {
+        if (gm.graphics.inReplay()) {
           return buildFunction.apply(this, arguments);
         }
 

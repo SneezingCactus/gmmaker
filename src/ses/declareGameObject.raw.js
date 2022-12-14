@@ -160,8 +160,8 @@ this.game = {
       try {
         const listeners = this.eventListeners[eventName];
         for (let i = 0; i < listeners.length; i++) {
-          if (listeners[i]?.options.perPlayer != options?.perPlayer ||
-              listeners[i]?.options.collideWith != options?.collideWith) continue;
+          if (listeners[i]?.options && (listeners[i]?.options.perPlayer != options?.perPlayer ||
+              listeners[i]?.options.collideWith != options?.collideWith)) continue;
 
           listeners[i].listener(...args);
         }
@@ -330,6 +330,7 @@ this.game = {
         noLerp: false,
       }];
     },
+    getScreenSize: () => [730 / game.state.physics.ppm, 500 / game.state.physics.ppm],
   },
   audio: {
     playSound: playSound,
