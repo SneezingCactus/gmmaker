@@ -21,6 +21,8 @@ export default {
       handler.getInputs = function() {
         const inputs = handler.getInputsOLD(...arguments);
 
+        if (!gm.state.gameState?.gmExtra || gm.lobby.data?.quick) return inputs;
+
         let mouse = gm.graphics.rendererClass?.renderer?.plugins.interaction.mouse;
 
         if (mouse) {
@@ -68,7 +70,7 @@ export default {
           decoded.mouse.middle << 2,
         ];
       } else {
-        encoded = BonkUtils.decodeInputsOLD(decoded);
+        encoded = BonkUtils.encodeInputsOLD(decoded);
       }
 
       return encoded;

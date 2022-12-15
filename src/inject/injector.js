@@ -60,7 +60,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(this.renderer.render\\(this.stage\\);)', to: '/*$1*/'},
       // add existance checks where needed
       {regex: '(ppm:.{0,100}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.shapes[$3]) continue;'},
-      {regex: '(updateRodJoints.{0,100} ([^=]+)=\\[argu.{0,2000}?;([^;+]+)\\+\\+\\)\\{)', to: '$1if($2[0][0].physics.joints[$3].type !== "d") continue;'},
+      {regex: '(updateRodJoints.{0,100} ([^=]+)=\\[argu.{0,2000}?;([^;+]+)\\+\\+\\)\\{)', to: '$1if($2[0][0].physics.joints[$3]?.type !== "d") continue;'},
     ],
     inject: {
       regex: ';}\\);}}\\);',
@@ -113,7 +113,7 @@ ${gmRegexes.inject.wrap.right}`,
       throw 'Game Mode Maker injection error';
     }
 
-    newBonkSrc = newBonkSrc.replace(new RegExp(replace.regex, replace.flags), ' /* GMMAKER REPLACE */ ' + replace.to);
+    newBonkSrc = newBonkSrc.replace(new RegExp(replace.regex, replace.flags), ' /* GMMAKER REPLACE START */ ' + replace.to + ' /* GMMAKER REPLACE END */ ');
   }));
 
   return newBonkSrc;

@@ -18,7 +18,7 @@ export default {
         BonkUtils.resetRenderer = true;
         gm.editor.appliedMode = null;
         gm.audio.stopAllSounds();
-        gm.editor.resetAll();
+        gm.state.resetSES();
         gm.editor.hideGMEWindow();
       });
 
@@ -49,7 +49,7 @@ export default {
 
       socket.emitOLD = socket.emit;
       socket.emit = function(id, packet) {
-        if (id === 4 && !packet.gmMode && typeof packet.i === 'object') {
+        if (id === 4 && !packet.gmMode && typeof packet?.i === 'object') {
           const inputArray = packet.i;
           packet.i = inputArray[0];
           inputArray.shift();
@@ -261,7 +261,7 @@ export default {
   },
   processNewMode: function(mode) {
     if (JSON.stringify(gm.editor.appliedMode) !== JSON.stringify(mode)) {
-      gm.editor.resetAll();
+      gm.state.resetSES();
       gm.editor.appliedMode = mode;
       gm.graphics.preloadImages(mode.assets.images);
       gm.audio.preloadSounds(mode.assets.sounds);

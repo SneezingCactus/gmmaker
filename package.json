@@ -1,6 +1,7 @@
 {
   "name": "gmmaker",
   "dependencies": {
+    "acorn": "^8.8.1",
     "file-saver": "^2.0.5",
     "md5": "^2.3.0",
     "monaco-editor": "^0.34.0"

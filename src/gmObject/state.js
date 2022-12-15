@@ -110,33 +110,50 @@ export default {
 
       /* #region ANGLE UNIT DEGREEING */
       // this is where angles represented in radians are turned into degrees for easier manipulation
+      const radToDeg = 180 / Math.PI;
 
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
 
-        state.discs[i].ra = state.discs[i].a;
-        state.discs[i].rav = state.discs[i].av;
+        const disc = state.discs[i];
 
-        state.discs[i].a *= 180 / Math.PI;
-        state.discs[i].av *= 180 / Math.PI;
+        disc.ra = disc.a;
+        disc.rav = disc.av;
+
+        disc.a *= radToDeg;
+        disc.av *= radToDeg;
       }
       for (let i = 0; i !== state.projectiles.length; i++) {
         if (!state.projectiles[i]) continue;
 
-        state.projectiles[i].ra = state.projectiles[i].a;
-        state.projectiles[i].rav = state.projectiles[i].av;
+        const arrow = state.projectiles[i];
 
-        state.projectiles[i].a *= 180 / Math.PI;
-        state.projectiles[i].av *= 180 / Math.PI;
+        arrow.ra = arrow.a;
+        arrow.rav = arrow.av;
+
+        arrow.a *= radToDeg;
+        arrow.av *= radToDeg;
       }
       for (let i = 0; i !== state.physics.bodies.length; i++) {
         if (!state.physics.bodies[i]) continue;
 
-        state.physics.bodies[i].ra = state.physics.bodies[i].a;
-        state.physics.bodies[i].rav = state.physics.bodies[i].av;
+        const body = state.physics.bodies[i];
 
-        state.physics.bodies[i].a *= 180 / Math.PI;
-        state.physics.bodies[i].av *= 180 / Math.PI;
+        body.ra = body.a;
+        body.rav = body.av;
+
+        body.a *= radToDeg;
+        body.av *= radToDeg;
+      }
+      for (let i = 0; i !== state.physics.shapes.length; i++) {
+        if (!state.physics.shapes[i]) continue;
+
+        const shape = state.physics.shapes[i];
+
+        if (shape.type !== 'ci') {
+          shape.ra = shape.a;
+          shape.a *= radToDeg;
+        }
       }
       for (let i = 0; i !== state.physics.joints.length; i++) {
         if (!state.physics.joints[i]) continue;
@@ -436,11 +453,12 @@ export default {
       // turn angles back into radians
       // if an angle didn't change during the event firing, it's set to the pre-degreed value
       // instead of being multiplied, to prevent possible desyncs due to floating point error
+      const degToRad = Math.PI / 180;
 
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
-        state.discs[i].a *= Math.PI / 180;
-        state.discs[i].av *= Math.PI / 180;
+        state.discs[i].a *= degToRad;
+        state.discs[i].av *= degToRad;
 
         if (Math.abs(state.discs[i].a - state.discs[i].ra) < 0.000000001) {
           state.discs[i].a = state.discs[i].ra;
@@ -451,27 +469,42 @@ export default {
       }
       for (let i = 0; i !== state.projectiles.length; i++) {
         if (!state.projectiles[i]) continue;
-        state.projectiles[i].a *= Math.PI / 180;
-        state.projectiles[i].av *= Math.PI / 180;
 
-        if (Math.abs(state.projectiles[i].a - state.projectiles[i].ra) < 0.000000001) {
-          state.projectiles[i].a = state.projectiles[i].ra;
+        const arrow = state.projectiles[i];
+
+        arrow.a *= degToRad;
+        arrow.av *= degToRad;
+
+        if (Math.abs(arrow.a - arrow.ra) < 0.000000001) {
+          arrow.a = arrow.ra;
         }
-        if (Math.abs(state.projectiles[i].av - state.projectiles[i].rav) < 0.000000001) {
-          state.projectiles[i].av = state.projectiles[i].rav;
+        if (Math.abs(arrow.av - arrow.rav) < 0.000000001) {
+          arrow.av = arrow.rav;
         }
       }
       for (let i = 0; i !== state.physics.bodies.length; i++) {
         if (!state.physics.bodies[i]) continue;
 
-        state.physics.bodies[i].a *= Math.PI / 180;
-        state.physics.bodies[i].av *= Math.PI / 180;
+        const body = state.physics.bodies[i];
 
-        if (Math.abs(state.physics.bodies[i].a - state.physics.bodies[i].ra) < 0.000000001) {
-          state.physics.bodies[i].a = state.physics.bodies[i].ra;
+        body.a *= degToRad;
+        body.av *= degToRad;
+
+        if (Math.abs(body.a - body.ra) < 0.000000001) {
+          body.a = body.ra;
         }
-        if (Math.abs(state.physics.bodies[i].av - state.physics.bodies[i].rav) < 0.000000001) {
-          state.physics.bodies[i].av = state.physics.bodies[i].rav;
+        if (Math.abs(body.av - body.rav) < 0.000000001) {
+          body.av = body.rav;
+        }
+      }
+      for (let i = 0; i !== state.physics.shapes.length; i++) {
+        if (!state.physics.shapes[i]) continue;
+
+        const shape = state.physics.shapes[i];
+
+        if (shape.type !== 'ci') {
+          shape.a *= degToRad;
+          if (Math.abs(shape.a - shape.ra) < 0.000000001) shape.a = shape.ra;
         }
       }
       for (let i = 0; i !== state.physics.joints.length; i++) {
