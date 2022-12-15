@@ -192,14 +192,6 @@
     background-image: url(images/gmebackups.png);
 }
 
-#gmeditor_changebasebutton.jsIcon {
-    background-image: url(images/gmejavascript.png);
-}
-
-#gmeditor_changebasebutton.blockIcon {
-    background-image: url(images/gmeblockly.png);
-}
-
 #gmeditor_settingsbutton {
     background-image: url(images/gmesettings.png);
 }
@@ -241,22 +233,11 @@
     flex-grow: 1;
 }
 
-/* REMOVE BEFORE RELEASE */
-#gmblocklydiv {
-    position: absolute;
-    padding: 10px;
-    box-sizing: border-box;
-}
-
 #gmmonacodiv {
     z-index: 999;
     position: absolute;
     padding: 10px;
     box-sizing: border-box;
-}
-
-.blockly-ws-search button {
-    width: 20px;
 }
 
 /* LOBBY MODS */
@@ -563,14 +544,6 @@
     -moz-appearance: textfield;
 }
 
-/* REMOVE BEFORE RELEASE */
-/* WORKSPACE SEARCH COLOUR FIX */
-
-path.blocklyPath.blockly-ws-search-highlight {
-    fill: black;
-    fill-opacity: 1;
-}
-
 /* INGAME LOG BOX */
 
 #gm_logbox {
@@ -594,44 +567,4 @@ path.blocklyPath.blockly-ws-search-highlight {
 #gm_logbox:hover {
     background-color: #00000055;
     resize: both;
-}
-
-/* REMOVE BEFORE RELEASE */
-/* BLOCKLY CLASSES */
-
-.gm_blockly_toolbox_button_bg {
-    position: fixed;
-    width: 109px;
-    height: 30px;
-    pointer-events: none;
-    z-index: -1;
-}
-
-.blocklyTreeSeparator {
-    visibility: hidden;
-}
-
-.blocklyToolboxDiv {
-    background-color: var(--gm_primary_background);
-    padding: 4px 10px 4px 0;
-}
-
-.blocklyTreeRow {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: rgb(0 0 0 / 63%) 1px 1px 5px -2px;
-    height: 30px;
-    padding-left: 8px !important;
-    cursor: pointer;
-}
-
-.blocklyTreeIcon {
-    width: 0px;
-    height: 0px;
-}
-
-.blocklyTreeLabel {
-    color: #fff;
-    font: 15px 'futurept_b1';
 }

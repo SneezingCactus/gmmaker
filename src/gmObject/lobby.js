@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
-import Blockly from 'blockly';
 
 export default {
   init: function() {
@@ -82,17 +81,8 @@ export default {
 
             const modeContent = gm.editor.appliedMode.content;
 
-            if (gm.editor.appliedMode.settings?.isTextMode) {
-              gm.editor.changingToTextEditor = true;
-              gm.editor.monacoWs.setValue(modeContent);
-            } else {
-              gm.editor.blocklyWs.clear();
-
-              const xml = document.createElement('xml');
-              xml.innerHTML = modeContent;
-
-              Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
-            }
+            gm.editor.changingToTextEditor = true;
+            gm.editor.monacoWs.setValue(modeContent);
           } else {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
@@ -111,17 +101,8 @@ export default {
 
             const modeContent = gm.editor.appliedMode.content;
 
-            if (gm.editor.appliedMode.settings?.isTextMode) {
-              gm.editor.changingToTextEditor = true;
-              gm.editor.monacoWs.setValue(modeContent);
-            } else {
-              gm.editor.blocklyWs.clear();
-
-              const xml = document.createElement('xml');
-              xml.innerHTML = modeContent;
-
-              Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
-            }
+            gm.editor.changingToTextEditor = true;
+            gm.editor.monacoWs.setValue(modeContent);
           } else {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
@@ -286,25 +267,10 @@ export default {
       gm.audio.preloadSounds(mode.assets.sounds);
       gm.lobby.bonkLobby.updateGameSettings();
 
-      if (mode.settings.isTextMode) {
-        try {
-          gm.state.generateEvents(mode.content);
-        } catch (e) {
-          console.log(e);
-        }
-      } else {
-        gm.editor.headlessBlocklyWs.clear();
-
-        const xml = document.createElement('xml');
-        xml.innerHTML = mode.content;
-
-        Blockly.Xml.domToWorkspace(xml, gm.editor.headlessBlocklyWs);
-
-        try {
-          gm.state.generateEvents(gm.editor.generateCode());
-        } catch (e) {
-          console.log(e);
-        }
+      try {
+        gm.state.generateEvents(mode.content);
+      } catch (e) {
+        console.log(e);
       }
     }
   },

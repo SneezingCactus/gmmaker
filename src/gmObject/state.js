@@ -13,7 +13,7 @@ export default {
     document.head.appendChild(compContainer);
 
     compContainer.contentWindow.eval(sesCode);
-    compContainer.contentWindow.lockdown({errorTaming: 'unsafe', stackFiltering: 'verbose'});
+    compContainer.contentWindow.lockdown({errorTaming: 'unsafe'});
 
     // mr whiter whee is my 50002 km/h of methé
     // (meth is short for method here)

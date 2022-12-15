@@ -2,17 +2,6 @@
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
 
-// blockly libs
-// REMOVE BEFORE RELEASE
-/*
-import Blockly from 'blockly';
-import {WorkspaceSearch} from '@blockly/plugin-workspace-search';
-import toolbox from '../blockly/toolbox.xml';
-import blockDefs from '../blockly/blockdefs.js';
-import defineBlockCode from '../blockly/blockfuncs.js';
-import defineBlockValidators from '../blockly/blockvalidators.js';
-*/
-
 // text libs
 import * as monaco from 'monaco-editor';
 import monacoWorker from '../monaco/editor.worker.raw.js';
@@ -27,8 +16,6 @@ import md5 from 'md5';
 
 export default {
   init: function() {
-    // REMOVE BEFORE RELEASE
-    // this.blockDefs = blockDefs;
     this.initGMEditor();
     this.resetModeSettings();
   },
@@ -54,8 +41,6 @@ export default {
     document.getElementById('gmeditor_importbutton').addEventListener('click', gm.editor.GMEImport);
     document.getElementById('gmeditor_exportbutton').addEventListener('click', gm.editor.GMEExportShow);
     document.getElementById('gmeditor_backupsbutton').addEventListener('click', gm.editor.GMEBackupsShow);
-    // REMOVE BEFORE RELEASE
-    // document.getElementById('gmeditor_changebasebutton').addEventListener('click', gm.editor.GMEChangeEditor);
     document.getElementById('gmeditor_settingsbutton').addEventListener('click', gm.editor.GMESettingsShow);
     document.getElementById('gmeditor_savebutton').addEventListener('click', gm.editor.GMESave);
     document.getElementById('gmeditor_closebutton').addEventListener('click', gm.editor.hideGMEWindow);
@@ -117,9 +102,8 @@ export default {
     }
 
     // adding button sounds
-    // REMOVE COMMENTED BEFORE RELEASE
     const buttons = [
-      'gmeditor_newbutton', 'gmeditor_importbutton', 'gmeditor_exportbutton', 'gmeditor_savebutton', 'gmeditor_closebutton', 'gmeditor_settingsbutton', 'gmeditor_backupsbutton', // 'gmeditor_changebasebutton',
+      'gmeditor_newbutton', 'gmeditor_importbutton', 'gmeditor_exportbutton', 'gmeditor_savebutton', 'gmeditor_closebutton', 'gmeditor_settingsbutton', 'gmeditor_backupsbutton',
       'gmgeneric_cancel', 'gmgeneric_ok',
       'gmexport_cancel', 'gmexport_ok',
       'gmimportdialog_cancel', 'gmimportdialog_no', 'gmimportdialog_yes',
@@ -165,9 +149,6 @@ export default {
       };
     });
 
-    // init blockly and monaco workspaces
-    // REMOVE BEFORE RELEASE
-    // this.initBlockly();
     this.initMonaco();
 
     this.hideGMEWindow();
@@ -273,34 +254,6 @@ export default {
     });
 
     gm.editor.monacoWs.getModel().onDidChangeContent(function(event) {
-      // the way this is formatted is s^^^^
-
-      // REMOVE BEFORE RELEASE
-      /*
-      if (!gm.editor.modeSettings.isTextMode && !gm.editor.changingToTextEditor) {
-        if (gm.editor.blocklyWs.getTopBlocks().length == 0) {
-          gm.editor.blocklyWs.clear();
-          document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
-
-          gm.editor.modeSettings.isTextMode = true;
-          return;
-        }
-
-        gm.editor.monacoWs.getModel().undo();
-        document.activeElement.blur();
-
-        gm.editor.genericDialog('Once you start typing, the conversion from blocks to text will become permanent and you will no longer be able to go back to the block editor.\n\nAre you sure you want to change to text?', function(confirmed) {
-          if (!confirmed) return;
-
-          gm.editor.blocklyWs.clear();
-          document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
-
-          gm.editor.modeSettings.isTextMode = true;
-        }, {showCancel: true});
-      }
-      gm.editor.changingToTextEditor = false;
-      */
-
       // backup
       if (gm.editor.monacoWs.getValue() == '') return;
       if (!gm.editor.modeSettings.isTextMode) return;
@@ -344,180 +297,6 @@ export default {
       gm.editor.monacoWs.layout();
     }, false);
   },
-  initBlockly: function() {
-    // add block defs into blockly
-    for (let i = 0; i !== this.blockDefs.length; i++) {
-      Blockly.Blocks[this.blockDefs[i].type] = {};
-    }
-
-    defineBlockValidators();
-
-    for (let i = 0; i !== this.blockDefs.length; i++) {
-      Blockly.Blocks[this.blockDefs[i].type].init = function() {
-        this.jsonInit(gm.editor.blockDefs[i]);
-
-        if (this.validatorInit) {
-          this.validatorInit();
-        }
-      };
-    }
-
-    defineBlockCode();
-
-    // eslint-disable-next-line guard-for-in
-    for (const block in Blockly.Blocks) {
-      Blockly.Blocks[block].init = (function() {
-        const initOLD = Blockly.Blocks[block].init;
-
-        return function() {
-          initOLD.apply(this, arguments);
-
-          if (!this.type.startsWith('event_') && !this.type.startsWith('procedures_def')) {
-            const onChangeOLD = this.onchange;
-
-            this.setOnChange(function() {
-              if (onChangeOLD) onChangeOLD.apply(this, arguments);
-
-              if (this.parentBlock_ || this.isInMutator || this.isInFlyout) {
-                this.setWarningText(null);
-              } else {
-                this.setWarningText('The block must be inside an event block (one of the\nblocks in the Bonk Events category), or inside a function definition.');
-              }
-            });
-          }
-        };
-      })();
-    }
-
-    const blocklyToolbox = document.createElement('xml');
-    document.head.appendChild(blocklyToolbox);
-    blocklyToolbox.outerHTML = toolbox;
-
-    // create blockly div
-    const blocklyDiv = document.createElement('div');
-    blocklyDiv.id = 'gmblocklydiv';
-
-    const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
-
-    blocklyDiv.style.top = bounds.top;
-    blocklyDiv.style.left = bounds.left;
-    blocklyDiv.style.width = bounds.width;
-    blocklyDiv.style.height = bounds.height;
-
-    document.getElementById('pagecontainer').appendChild(blocklyDiv);
-
-    // create gmmaker theme
-    gm.editor.lightTheme = Blockly.Theme.defineTheme('gmmaker-light', {
-      'base': Blockly.Themes.Classic,
-      'fontStyle': {
-        'family': 'futurept_b1',
-        'size': 12,
-      },
-    }),
-
-    gm.editor.darkTheme = Blockly.Theme.defineTheme('gmmaker-dark', {
-      'base': Blockly.Themes.Classic,
-      'fontStyle': {
-        'family': 'futurept_b1',
-        'size': 12,
-      },
-      'componentStyles': {
-        'workspaceBackgroundColour': '#1e1e1e',
-        'toolboxBackgroundColour': 'blackBackground',
-        'toolboxForegroundColour': '#fff',
-        'flyoutBackgroundColour': '#252526',
-        'flyoutForegroundColour': '#ccc',
-        'flyoutOpacity': 1,
-        'scrollbarColour': '#797979',
-        'insertionMarkerColour': '#fff',
-        'insertionMarkerOpacity': 0.3,
-        'scrollbarOpacity': 0.4,
-        'cursorColour': '#d0d0d0',
-        'blackBackground': '#333',
-      },
-    });
-
-    // create blockly workspaces
-    gm.editor.blocklyWs = Blockly.inject('gmblocklydiv', {
-      toolbox: document.getElementById('toolbox'),
-      oneBasedIndex: false,
-      zoom: {
-        controls: true,
-        wheel: true,
-        pinch: true,
-      },
-      theme: gm.editor.lightTheme,
-    });
-    gm.editor.headlessBlocklyWs = new Blockly.Workspace();
-
-    // drag surface makes the workspace lag a LOT while dragging on a really big project
-    gm.editor.blocklyWs.useWorkspaceDragSurface_ = false;
-
-    // workspace plugins
-    const workspaceSearch = new WorkspaceSearch(gm.editor.blocklyWs);
-    workspaceSearch.init();
-
-    // workspace dialogs
-    Blockly.dialog.setAlert(function(message, callback) {
-      gm.editor.genericDialog(message, callback);
-    });
-    Blockly.dialog.setConfirm(function(message, callback) {
-      gm.editor.genericDialog(message, callback, {showCancel: true});
-    });
-    Blockly.dialog.setPrompt(function(message, defaultValue, callback) {
-      gm.editor.genericDialog(message, callback, {showCancel: true, showInput: true, inputValue: defaultValue});
-    });
-
-    window.addEventListener('resize', () => {
-      const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
-
-      blocklyDiv.style.top = bounds.top;
-      blocklyDiv.style.left = bounds.left;
-      blocklyDiv.style.width = bounds.width;
-      blocklyDiv.style.height = bounds.height;
-
-      Blockly.svgResize(gm.editor.blocklyWs);
-    }, false);
-
-    gm.editor.blocklyWs.addChangeListener(function() {
-      if (gm.editor.modeSettings.isTextMode) return;
-      if (!gm.editor.canBackup) return;
-      if (!gm.editor.backupDB) return;
-
-      gm.editor.canBackup = false;
-      setTimeout(function() {
-        gm.editor.canBackup = true;
-      }, 30000);
-
-      if (gm.editor.modeBackups.length > 5) {
-        gm.editor.modeBackups.pop();
-      }
-
-      const xml = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true);
-
-      const backup = {};
-      backup.content = xml.innerHTML;
-      backup.isEmpty = xml.getElementsByTagName('block').length == 0;
-      backup.settings = gm.editor.modeSettings;
-      backup.assets = gm.editor.modeAssets;
-
-      gm.editor.modeBackups.unshift({
-        mode: gm.encoding.compressMode(backup).buffer,
-        name: gm.editor.modeSettings.modeName + ' - ' + Date.now().toLocaleString(),
-      });
-
-      const transaction = gm.editor.backupDB.transaction('backups', 'readwrite');
-      transaction.objectStore('backups').put(gm.editor.modeBackups, 1);
-    });
-
-    gm.editor.headlessBlocklyWs.fireChangeListenerOLD = gm.editor.headlessBlocklyWs.fireChangeListener;
-    gm.editor.headlessBlocklyWs.fireChangeListener = function() {
-      if (gm.lobby.networkEngine.getLSID() !== gm.lobby.networkEngine.hostID) return;
-      return gm.editor.headlessBlocklyWs.fireChangeListenerOLD(...arguments);
-    };
-
-    window.blockly = Blockly;
-  },
   modeSettingsDefaults: [
     {name: 'modeName', type: 'string', default: 'Custom'},
     {name: 'modeDescription', type: 'string', default: 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).'},
@@ -536,8 +315,6 @@ export default {
     }
   },
   disableLobbyChatbox: false,
-  blockDefs: null,
-  blocklyWs: null,
   monacoWs: null,
   modeToImport: null,
   appliedMode: null,
@@ -549,41 +326,14 @@ export default {
     document.getElementById('gmeditor').style.transform = 'scale(1)';
     document.getElementById('newbonklobby').style.transform = 'scale(0)';
 
-    // const blocklyDiv = document.getElementById('gmblocklydiv');
     const monacoDiv = document.getElementById('gmmonacodiv');
     const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
 
-    // REMOVE BEFORE RELEASE
-    /*
-    const changeBaseButton = document.getElementById('gmeditor_changebasebutton');
-    if (gm.editor.modeSettings.isTextMode) {
-      monacoDiv.style.display = 'block';
-      gm.editor.blocklyWs.setVisible(false);
-      document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
-      changeBaseButton.classList.remove('jsIcon');
-      changeBaseButton.classList.add('blockIcon');
-    } else {
-      blocklyDiv.style.visibility = 'visible';
-      gm.editor.blocklyWs.setVisible(true);
-      document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
-      changeBaseButton.classList.add('jsIcon');
-      changeBaseButton.classList.remove('blockIcon');
-    }
-    */
     monacoDiv.style.display = 'block';
     monacoDiv.style.top = bounds.top;
     monacoDiv.style.left = bounds.left;
     monacoDiv.style.width = bounds.width - 20;
     monacoDiv.style.height = bounds.height - 20;
-
-    // REMOVE BEFORE RELEASE
-    /*
-    blocklyDiv.style.top = bounds.top;
-    blocklyDiv.style.left = bounds.left;
-    blocklyDiv.style.width = bounds.width;
-    blocklyDiv.style.height = bounds.height;
-    Blockly.svgResize(gm.editor.blocklyWs);
-    */
 
     gm.editor.monacoWs.layout();
 
@@ -593,9 +343,6 @@ export default {
     gm.editor.disableLobbyChatbox = false;
 
     document.getElementById('gmmonacodiv').style.display = 'none';
-    // REMOVE BEFORE RELEASE
-    // gm.editor.blocklyWs.setVisible(false);
-    // document.getElementById('gmblocklydiv').style.visibility = 'hidden';
     document.getElementById('gmeditor').style.transform = 'scale(0)';
     document.getElementById('newbonklobby').style.transform = 'scale(1)';
   },
@@ -642,15 +389,9 @@ export default {
     document.getElementById('gmgeneric_cancel').addEventListener('click', cancelListener);
   },
   GMENew: function() {
-    gm.editor.genericDialog('Are you sure you want to delete all blocks, reset mode settings and remove all custom images and sounds?', function(confirmed) {
+    gm.editor.genericDialog('Are you sure you want to delete all code, reset mode settings and remove all custom images and sounds?', function(confirmed) {
       if (!confirmed) return;
 
-      // REMOVE BEFORE RELEASE
-      /*
-      gm.editor.blocklyWs.clear();
-      gm.editor.GMEChangeEditor(false);
-      document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
-      */
       gm.editor.monacoWs.setValue('');
       gm.editor.modeAssets = {images: [], sounds: []};
       gm.editor.resetModeSettings();
@@ -680,22 +421,6 @@ export default {
           gm.editor.modeAssets = mode.assets;
           gm.editor.modeSettings = mode.settings;
 
-          // REMOVE BEFORE RELEASE
-          /*
-          gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
-          if (gm.editor.modeSettings.isTextMode) {
-            document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
-            gm.editor.monacoWs.setValue(mode.content);
-          } else {
-            document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
-            gm.editor.blocklyWs.clear();
-
-            const xml = document.createElement('xml');
-            xml.innerHTML = mode.content;
-
-            Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
-          }
-          */
           gm.editor.monacoWs.setValue(mode.content);
         }
       };
@@ -707,12 +432,10 @@ export default {
     document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
   },
   GMEImportMapNo: function() {
-    gm.editor.blocklyWs.clear();
+    gm.editor.modeAssets = gm.editor.modeToImport.assets;
+    gm.editor.modeSettings = gm.editor.modeToImport.settings;
 
-    const xml = document.createElement('xml');
-    xml.innerHTML = gm.editor.modeToImport.content;
-
-    Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
+    gm.editor.monacoWs.setValue(gm.editor.modeToImport.content);
 
     document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
   },
@@ -727,22 +450,6 @@ export default {
     gm.editor.modeAssets = gm.editor.modeToImport.assets;
     gm.editor.modeSettings = gm.editor.modeToImport.settings;
 
-    // REMOVE BEFORE RELEASE
-    /*
-    gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
-    if (gm.editor.modeSettings.isTextMode) {
-      document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
-      gm.editor.monacoWs.setValue(gm.editor.modeToImport.content);
-    } else {
-      document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
-      gm.editor.blocklyWs.clear();
-
-      const xml = document.createElement('xml');
-      xml.innerHTML = gm.editor.modeToImport.content;
-
-      Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
-    }
-    */
     gm.editor.monacoWs.setValue(gm.editor.modeToImport.content);
 
     document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
@@ -763,11 +470,7 @@ export default {
     exported.assets = gm.editor.modeAssets;
     exported.settings = gm.editor.modeSettings;
 
-    if (exported.settings.isTextMode) {
-      exported.content = gm.editor.monacoWs.getValue();
-    } else {
-      exported.content = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true).innerHTML;
-    }
+    exported.content = gm.editor.monacoWs.getValue();
 
     if (attachMap) {
       exported.map = MapEncoder.encodeToDatabase(gm.lobby.mpSession.getGameSettings().map);
@@ -808,22 +511,6 @@ export default {
     gm.editor.modeAssets = backup.assets;
     gm.editor.modeSettings = backup.settings;
 
-    // REMOVE BEFORE RELEASE
-    /*
-    gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
-    if (gm.editor.modeSettings.isTextMode) {
-      document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
-      gm.editor.monacoWs.setValue(backup.content);
-    } else {
-      document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
-      gm.editor.blocklyWs.clear();
-
-      const xml = document.createElement('xml');
-      xml.innerHTML = backup.content;
-
-      Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
-    }
-    */
     gm.editor.monacoWs.setValue(backup.content);
   },
   GMESettingsShow: function() {
@@ -1124,34 +811,6 @@ export default {
 
     input.click();
   },
-  // REMOVE BEFORE RELEASE
-  GMEChangeEditor: function(toTextEditor) {
-    // this function is the chazziest thing ever
-    const blocklyDiv = document.getElementById('gmblocklydiv');
-    const monacoDiv = document.getElementById('gmmonacodiv');
-    const moveToTextEditor = typeof toTextEditor === 'boolean' ? toTextEditor : !gm.editor.isInTextEditor;
-    const changeBaseButton = document.getElementById('gmeditor_changebasebutton');
-
-    if (moveToTextEditor) {
-      gm.editor.isInTextEditor = true;
-      gm.editor.changingToTextEditor = true;
-      monacoDiv.style.display = 'block';
-      blocklyDiv.style.visibility = 'hidden';
-      gm.editor.blocklyWs.setVisible(false);
-      gm.editor.monacoWs.layout();
-      gm.editor.monacoWs.setValue(gm.editor.generateCode());
-      changeBaseButton.classList.remove('jsIcon');
-      changeBaseButton.classList.add('blockIcon');
-    } else {
-      gm.editor.isInTextEditor = false;
-      blocklyDiv.style.visibility = 'visible';
-      gm.editor.blocklyWs.setVisible(true);
-      monacoDiv.style.display = 'none';
-      gm.editor.monacoWs.layout();
-      changeBaseButton.classList.remove('blockIcon');
-      changeBaseButton.classList.add('jsIcon');
-    }
-  },
   GMESave: function() {
     if (gm.lobby.networkEngine.getLSID() !== gm.lobby.networkEngine.hostID) return;
 
@@ -1160,7 +819,6 @@ export default {
     const saved = {};
 
     // generate events in host and save content and isEmpty into the mode
-    // if (gm.editor.modeSettings.isTextMode) {
     try {
       gm.state.generateEvents(gm.editor.monacoWs.getValue());
     } catch (e) {
@@ -1183,19 +841,6 @@ export default {
 
     saved.content = content;
     saved.isEmpty = content == '';
-    /* } else {
-      try {
-        gm.state.generateEvents(gm.editor.generateCode());
-      } catch (e) {
-        alert(`An error ocurred while trying to save. Please send SneezingCactus a full screenshot of the console (Ctrl+Shift+I, go to the Console tab) so this error can be diagnosed.`);
-        throw (e);
-      }
-
-      const content = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true);
-
-      saved.content = content.innerHTML;
-      saved.isEmpty = content.getElementsByTagName('block').length == 0;
-    }*/
 
     saved.settings = gm.editor.modeSettings;
     saved.assets = gm.editor.modeAssets;
@@ -1215,29 +860,6 @@ export default {
 
     gm.lobby.bonkLobby.updateGameSettings();
     gm.editor.hideGMEWindow();
-  },
-  generateCode: function() {
-    const workspace = gm.lobby.networkEngine.getLSID() === gm.lobby.networkEngine.hostID ? gm.editor.blocklyWs : gm.editor.headlessBlocklyWs;
-    const topBlocks = workspace.getTopBlocks();
-    let code = '';
-
-    Blockly.JavaScript.init(workspace);
-
-    for (let i = 0; i != topBlocks.length; i++) {
-      if (!topBlocks[i].type.startsWith('event_') && !topBlocks[i].type.startsWith('procedures_def')) continue;
-
-      code += Blockly.JavaScript.blockToCode(topBlocks[i]);
-    }
-
-    code = Blockly.JavaScript.finish(code);
-
-    if (code.startsWith('var ')) {
-      code = code.replace(/var [^\n]+[\n]+/m, '');
-    } else if (code.startsWith('\n\n\n')) {
-      code = code.replace('\n\n\n', '');
-    }
-
-    return code;
   },
   vars: [],
   funcs: {

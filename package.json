@@ -1,12 +1,9 @@
 {
   "name": "gmmaker",
   "dependencies": {
-    "@blockly/plugin-workspace-search": "^5.0.19",
-    "blockly": "^8.0.4",
     "file-saver": "^2.0.5",
     "md5": "^2.3.0",
-    "monaco-editor": "^0.34.0",
-    "pixi.js-legacy": "^6.5.1"
+    "monaco-editor": "^0.34.0"
   },
   "devDependencies": {
     "css-loader": "^5.2.7",
