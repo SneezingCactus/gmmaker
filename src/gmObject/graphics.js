@@ -21,6 +21,18 @@ export default {
 
         // if no mode loaded, no gmm stuff
         if (!stateA.gmExtra || gm.lobby.data.quick) {
+          // reset camera
+          const camera = gm.graphics.camera;
+          if (camera) {
+            camera.x = 0;
+            camera.y = 0;
+            camera.pivot.x = 0;
+            camera.pivot.y = 0;
+            camera.angle = 0;
+            camera.scale.x = 1;
+            camera.scale.y = 1;
+          }
+
           this.renderOLD(...arguments);
           return this.renderer.render(this.stage);
         };

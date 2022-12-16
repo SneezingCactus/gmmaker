@@ -12,7 +12,7 @@ export default function() {
 
           // the other ones
           {
-            label: 'sh!eventStepOnce',
+            label: 'sh!EventStepOnce',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "step" that only happens once.',
             insertText: 'game.events.addEventListener(\'step\', {perPlayer: false}, function() {\n  //code goes here\n})',
@@ -20,7 +20,7 @@ export default function() {
             sortText: 'aa',
           },
           {
-            label: 'sh!eventStepAllPlayers',
+            label: 'sh!EventStepAllPlayers',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "step" that gets called for every player that was in the room when the game started.',
             insertText: 'game.events.addEventListener(\'step\', {perPlayer: true}, function(id) {\n  //code goes here\n})',
@@ -28,7 +28,7 @@ export default function() {
             sortText: 'aa',
           },
           {
-            label: 'sh!eventRoundStartOnce',
+            label: 'sh!EventRoundStartOnce',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "roundStart" that only happens once.',
             insertText: 'game.events.addEventListener(\'roundStart\', {perPlayer: false}, function() {\n  //code goes here\n})',
@@ -36,7 +36,7 @@ export default function() {
             sortText: 'aa',
           },
           {
-            label: 'sh!eventRoundStartAllPlayers',
+            label: 'sh!EventRoundStartAllPlayers',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "roundStart" that gets called for every player that was in the room when the game started.',
             insertText: 'game.events.addEventListener(\'roundStart\', {perPlayer: true}, function(id) {\n  //code goes here\n})',
@@ -44,7 +44,7 @@ export default function() {
             sortText: 'aa',
           },
           {
-            label: 'sh!eventPlayerDie',
+            label: 'sh!EventPlayerDie',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "playerDie".',
             insertText: 'game.events.addEventListener(\'playerDie\', null, function(id, discDeathId) {\n  //code goes here\n})',
@@ -54,7 +54,7 @@ export default function() {
 
           // player collision events
           {
-            label: 'sh!eventDiscCollideDisc',
+            label: 'sh!EventDiscCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "discCollision" targetting collisions with other discs.',
             insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'disc\'}, function(discId, otherPlayerId) {\n  //code goes here\n})',
@@ -62,7 +62,7 @@ export default function() {
             sortText: 'aba',
           },
           {
-            label: 'sh!eventDiscCollideArrow',
+            label: 'sh!EventDiscCollideArrow',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "discCollision" targetting collisions with arrows.',
             insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'arrow\'}, function(discId, arrowId) {\n  //code goes here\n})',
@@ -70,7 +70,7 @@ export default function() {
             sortText: 'abb',
           },
           {
-            label: 'sh!eventDiscCollideBody',
+            label: 'sh!EventDiscCollideBody',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "discCollision" targetting collisions with bodies.',
             insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'body\'}, function(discId, bodyData) {\n  //code goes here\n})',
@@ -80,7 +80,7 @@ export default function() {
 
           // arrow collision events
           {
-            label: 'sh!eventArrowCollideDisc',
+            label: 'sh!EventArrowCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "arrowCollision" targetting collisions with discs.',
             insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'disc\'}, function(arrowId, discId) {\n  //code goes here\n})',
@@ -88,7 +88,7 @@ export default function() {
             sortText: 'aca',
           },
           {
-            label: 'sh!eventArrowCollideArrow',
+            label: 'sh!EventArrowCollideArrow',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "arrowCollision" targetting collisions with other arrows.',
             insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'arrow\'}, function(arrowId, otherArrowId) {\n  //code goes here\n})',
@@ -96,7 +96,7 @@ export default function() {
             sortText: 'acb',
           },
           {
-            label: 'sh!eventArrowCollideBody',
+            label: 'sh!EventArrowCollideBody',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "arrowCollision" targetting collisions with bodies.',
             insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'body\'}, function(arrowId, bodyData) {\n  //code goes here\n})',
@@ -106,7 +106,7 @@ export default function() {
 
           // body collision events
           {
-            label: 'sh!eventBodyCollideDisc',
+            label: 'sh!EventBodyCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "bodyCollision" targetting collisions with discs.',
             insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'disc\'}, function(bodyData, discId) {\n  //code goes here\n})',
@@ -114,7 +114,7 @@ export default function() {
             sortText: 'ada',
           },
           {
-            label: 'sh!eventBodyCollideArrow',
+            label: 'sh!EventBodyCollideArrow',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "bodyCollision" targetting collisions with arrows.',
             insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'arrow\'}, function(bodyData, arrowId) {\n  //code goes here\n})',
@@ -122,7 +122,7 @@ export default function() {
             sortText: 'adb',
           },
           {
-            label: 'sh!eventBodyCollideBody',
+            label: 'sh!EventBodyCollideBody',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "bodyCollision" targetting collisions with bodies.',
             insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'body\'}, function(bodyData, otherBodyData) {\n  //code goes here\n})',
@@ -135,7 +135,7 @@ export default function() {
           // -------------------------------------------------------------------------------------------------------- //
 
           {
-            label: 'sh!graphicsCreateDrawing',
+            label: 'sh!GraphicsCreateDrawing',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for creating a drawing. This defines every single property of the drawing (except attachId since it is set to attach to world), but you can remove the ones that you don\'t need to define right now and GMMaker will fill them in for you with the defaults.',
             insertText: `game.graphics.createDrawing({
@@ -151,7 +151,7 @@ export default function() {
             sortText: 'ba',
           },
           {
-            label: 'sh!graphicsDefineBoxShape',
+            label: 'sh!GraphicsDefineBoxShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a box shape for a drawing.',
             insertText: `{
@@ -166,7 +166,7 @@ export default function() {
             sortText: 'bb',
           },
           {
-            label: 'sh!graphicsDefineCircleShape',
+            label: 'sh!GraphicsDefineCircleShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a circle shape for a drawing.',
             insertText: `{
@@ -181,7 +181,7 @@ export default function() {
             sortText: 'bc',
           },
           {
-            label: 'sh!graphicsDefinePolygonShape',
+            label: 'sh!GraphicsDefinePolygonShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a polygon shape for a drawing. The vertices make up a simple isosceles triangle, as an example.',
             insertText: `{
@@ -201,7 +201,7 @@ export default function() {
             sortText: 'bd',
           },
           {
-            label: 'sh!graphicsDefineLineShape',
+            label: 'sh!GraphicsDefineLineShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a line shape for a drawing.',
             insertText: `{
@@ -216,7 +216,7 @@ export default function() {
             sortText: 'be',
           },
           {
-            label: 'sh!graphicsDefineTextShape',
+            label: 'sh!GraphicsDefineTextShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a text shape for a drawing.',
             insertText: `{
@@ -236,7 +236,7 @@ export default function() {
             sortText: 'bf',
           },
           {
-            label: 'sh!graphicsDefineImageShape',
+            label: 'sh!GraphicsDefineImageShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining an image shape for a drawing.',
             insertText: `{
@@ -259,7 +259,7 @@ export default function() {
           // WORLD
           // -------------------------------------------------------------------------------------------------------- //
           {
-            label: 'sh!worldCreateBody',
+            label: 'sh!WorldCreateBody',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for creating a body, with a red fixture and a box shape.',
             insertText: `game.world.createBody({
@@ -289,7 +289,8 @@ export default function() {
     f_1: true,
     f_2: true,
     f_3: true,
-    f_4: true
+    f_4: true,
+    visible: true
   },
   fixtureDefs: [
     {
@@ -319,7 +320,7 @@ export default function() {
             sortText: 'ca',
           },
           {
-            label: 'sh!worldAddFixtureShapeToBody',
+            label: 'sh!WorldAddFixtureShapeToBody',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for adding a fixture with a box shape to a body with id 0.',
             insertText: `game.world.addFixtureShapeToBody({
@@ -348,7 +349,7 @@ export default function() {
             sortText: 'cab',
           },
           {
-            label: 'sh!worldDefineFixture',
+            label: 'sh!WorldDefineFixture',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a fixture to use in `game.graphics.createBody`.',
             insertText: `{
@@ -367,7 +368,7 @@ export default function() {
             sortText: 'cb',
           },
           {
-            label: 'sh!worldDefineBoxShape',
+            label: 'sh!WorldDefineBoxShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a box shape to use in `game.graphics.createBody`.',
             insertText: `{
@@ -382,7 +383,7 @@ export default function() {
             sortText: 'cc',
           },
           {
-            label: 'sh!worldDefineCircleShape',
+            label: 'sh!WorldDefineCircleShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a circle shape to use in `game.graphics.createBody`.',
             insertText: `{
@@ -395,7 +396,7 @@ export default function() {
             sortText: 'cd',
           },
           {
-            label: 'sh!worldDefinePolygonShape',
+            label: 'sh!WorldDefinePolygonShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Shortcut template for defining a polygon shape to use in `game.graphics.createBody`.',
             insertText: `{

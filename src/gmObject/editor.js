@@ -142,11 +142,24 @@ export default {
         .getElementsByClassName('gm_listitem')[0].cloneNode(true);
 
     // keyboard shortcuts
+    const gmEditorContainer = document.getElementById('gmeditor');
     window.addEventListener('keydown', function(e) {
+      if (gmEditorContainer.style.transform == 'scale(0)') return;
+
       // apply and close
       if (e.ctrlKey && e.key.toLowerCase() == 's') {
         e.preventDefault();
         gm.editor.GMESave();
+      };
+      // export
+      if (e.ctrlKey && e.key.toLowerCase() == 'e') {
+        e.preventDefault();
+        gm.editor.GMEExportShow();
+      };
+      // new
+      if (e.ctrlKey && e.key.toLowerCase() == 'n') {
+        e.preventDefault();
+        gm.editor.GMENew();
       };
     });
 

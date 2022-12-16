@@ -316,6 +316,7 @@
     max-width: 400px;
     height: fit-content;
     background-color: var(--gm_primary_background);
+    color: var(--gm_primary_text);
     margin: auto;
     font-family: "futurept_b1";
     border-radius: 7px;

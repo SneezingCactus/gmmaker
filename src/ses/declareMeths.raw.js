@@ -31,7 +31,7 @@ window.getDynamicInfo = (game) => {
   const gmExtra = copied.state.gmExtra;
 
   // reset stuff on new round
-  if (game.state.rl == 1) {
+  if (game.state.rl == 0) {
     gmExtra.camera = {
       pos: [365 / game.state.physics.ppm,
         250 / game.state.physics.ppm],

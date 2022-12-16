@@ -138,6 +138,17 @@ this.defaults = {
       [0, 1],
     ],
   },
+  arrow: {
+    type: 'arrow',
+    p: [0, 0],
+    lv: [0, 0],
+    a: 0,
+    av: 0,
+    fte: 150,
+    did: -1,
+    ni: false,
+    visible: true,
+  },
 };
 
 this.game = {
@@ -243,12 +254,19 @@ this.game = {
 
       return game.state.physics.fixtures.length - 1;
     },
+    createArrow: function(arrow) {
+      const finalArrow = Object.assign(JSON.parse(JSON.stringify(defaults.arrow)), arrow);
+
+      game.state.projectiles.push(finalArrow);
+
+      return game.state.projectiles.length - 1;
+    },
     killDisc: function(id, allowRespawn = true) {
       game.state.gmExtra.kills.push({id: id, allowRespawn: allowRespawn});
     },
+    getDiscRadius: (id) => game.lobby.settings.bal[id] ? 1 + Math.max(Math.min(game.lobby.settings.bal[id] / 100, 1), -0.94) : 1,
     rayCast: rayCast,
     rayCastAll: rayCastAll,
-    getDiscRadius: (id) => game.lobby.settings.bal[id] ? 1 + Math.max(Math.min(game.lobby.settings.bal[id] / 100, 1), -0.94) : 1,
     disableDeathBarrier: false,
   },
   graphics: {
@@ -338,7 +356,7 @@ this.game = {
       const ppm = game.state.physics.ppm;
 
       let panning = xPos / (365 / ppm) - 1;
-      panning += ((-game.graphics.camera.xPos + 730 / ppm) * game.graphics.camera.xScale) / (365 / ppm) - 1;
+      panning += ((-game.graphics.camera.pos[0] + 730 / ppm) * game.graphics.camera.scale[0]) / (365 / ppm) - 1;
 
       this.playSound(id, volume, panning);
     },

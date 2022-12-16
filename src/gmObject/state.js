@@ -392,7 +392,7 @@ export default {
       // fire roundStart events
       const playerIds = gm.state.staticInfo.lobby.allPlayerIds;
 
-      if (oldState.rl == 0) {
+      if ((state.rc == 0 && oldState.rl == 0) || (state.rc > 0 && state.rl == 0)) {
         gm.state.fireEvent('roundStart', {perPlayer: false}, []);
         for (let i = 0; i < playerIds.length; i++) {
           gm.state.fireEvent('roundStart', {perPlayer: true}, [playerIds[i]]);

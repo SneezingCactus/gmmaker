@@ -618,6 +618,9 @@ declare interface gameState {
   /**
    * Array that contains varied attributes for every arrow, such as their owner and position.
    * Ordered by arrow ID (arrows[0] is arrow with ID 0, arrows[2] is arrow with ID 2, etc.)
+   * 
+   * It's unknown why Chaz named this array `projectiles`. Perhaps he wanted to add different kinds
+   * of projectiles at some point.
    */
   projectiles: projectile[]
   /**
@@ -1405,6 +1408,13 @@ declare interface gameWorld {
    * @returns {number} The ID of the newly created fixture
    */
   addFixtureShapeToBody(options: addFixtureShapeOptions): number
+  /**
+   * Create an arrow with the definition given. In your definition, you can exclude properties
+   * you don't need to define at the moment and GMMaker will fill them in with default values.
+   * 
+   * @returns {number} The ID of the newly created arrow
+   */
+  createArrow(def: projectile): number
   /**
    * Cast a ray from an `origin` point in the world to an `end` point.
    * 
