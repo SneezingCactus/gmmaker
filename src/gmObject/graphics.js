@@ -1201,6 +1201,10 @@ class ImageShape {
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
+    if (this.lastDrawDef.id != shapeDefB.id || this.displayObject.texture.baseTexture.cacheId === null) {
+      this.displayObject.texture = new PIXI.Texture(gm.graphics.imageTextures[shapeDefB.id]);
+    }
+
     this.lastDrawDef = {
       colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
       alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
@@ -1212,10 +1216,6 @@ class ImageShape {
       region: shapeDefB.region,
       id: shapeDefB.id,
     };
-
-    if (this.lastDrawDef.id != shapeDefB.id || this.displayObject.texture.baseTexture.cacheId === null) {
-      this.displayObject.texture = new PIXI.Texture(gm.graphics.imageTextures[shapeDefB.id]);
-    }
 
     if (stringifiedRegionA != stringifiedRegionB || forceUpdate) {
       const frame = this.displayObject.texture.frame;

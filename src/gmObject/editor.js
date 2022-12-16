@@ -137,6 +137,9 @@ export default {
       }
     };
 
+    // make it so that gme closes when you leave the game
+    document.getElementById('leaveconfirmwindow_okbutton').addEventListener('click', gm.editor.hideGMEWindow);
+
     // get settings asset list item node
     gm.editor.settingsImageItem = document.getElementById('gmsettings_assetlist')
         .getElementsByClassName('gm_listitem')[0].cloneNode(true);
@@ -574,6 +577,7 @@ export default {
 
         const soundPlayer = soundItem.getElementsByClassName('gm_listitemimage')[0];
         let soundPlayerHowl = null;
+        soundPlayer.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7'; // blank image to remove white border
         soundPlayer.classList.add('play');
         soundPlayer.addEventListener('click', function() {
           if (soundPlayerHowl) {
@@ -612,6 +616,11 @@ export default {
         soundItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
           saveAs('data:audio/' + soundDef.extension + ';base64,' + soundDef.data, soundItem.getElementsByClassName('gm_listitemname')[0].value + '.' + soundDef.extension);
         });
+
+        window.BonkUtils.setButtonSounds([
+          soundItem.getElementsByClassName('gmeditor_delete')[0],
+          soundItem.getElementsByClassName('gmeditor_download')[0],
+        ]);
 
         document.getElementById('gmsettings_assetlist').appendChild(soundItem);
       }
@@ -668,6 +677,12 @@ export default {
           saveAs('data:image/' + imageDef.extension + ';base64,' + imageDef.data, imageItem.getElementsByClassName('gm_listitemname')[0].value + '.' + imageDef.extension);
         });
 
+        window.BonkUtils.setButtonSounds([
+          filterButton,
+          imageItem.getElementsByClassName('gmeditor_delete')[0],
+          imageItem.getElementsByClassName('gmeditor_download')[0],
+        ]);
+
         document.getElementById('gmsettings_assetlist').appendChild(imageItem);
       }
     }
@@ -719,6 +734,7 @@ export default {
 
           const soundPlayer = soundItem.getElementsByClassName('gm_listitemimage')[0];
           let soundPlayerHowl = null;
+          soundPlayer.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7'; // blank image to remove white border
           soundPlayer.classList.add('play');
           soundPlayer.addEventListener('click', function() {
             if (soundPlayerHowl) {
@@ -757,6 +773,11 @@ export default {
           soundItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
             saveAs('data:audio/' + extension + ';base64,' + data, soundItem.getElementsByClassName('gm_listitemname')[0].value + '.' + extension);
           });
+
+          window.BonkUtils.setButtonSounds([
+            soundItem.getElementsByClassName('gmeditor_delete')[0],
+            soundItem.getElementsByClassName('gmeditor_download')[0],
+          ]);
 
           document.getElementById('gmsettings_assetlist').appendChild(soundItem);
         } else {
@@ -818,6 +839,12 @@ export default {
               saveAs('data:image/' + extension + ';base64,' + data, imageItem.getElementsByClassName('gm_listitemname')[0].value + '.' + extension);
             });
 
+            window.BonkUtils.setButtonSounds([
+              filterButton,
+              imageItem.getElementsByClassName('gmeditor_delete')[0],
+              imageItem.getElementsByClassName('gmeditor_download')[0],
+            ]);
+
             document.getElementById('gmsettings_assetlist').appendChild(imageItem);
           };
         }
@@ -850,6 +877,11 @@ export default {
         report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
         report = report.replace(/Object\.eval([^\n]+)(.|\n)*/gm, '<anonymous>$1');
       }
+
+      const match = /:([0-9]+):([0-9]+)/gm.exec(report);
+
+      gm.editor.monacoWs.revealPositionInCenter({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
+      gm.editor.monacoWs.setPosition({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
 
       gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. Below is the crash report, which may help you find out what happened.', ()=>{}, {
         showCode: true,

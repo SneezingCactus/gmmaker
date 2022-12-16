@@ -58,6 +58,11 @@ export default {
       updateOpenButtonVisibility();
     });
 
+    window.BonkUtils.setButtonSounds([
+      openButton,
+      document.getElementById('gmprefs_cancel'),
+      document.getElementById('gmprefs_save'),
+    ]);
 
     gm.config.apply();
   },
