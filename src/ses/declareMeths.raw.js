@@ -287,7 +287,7 @@ window.Colour = {
     return [h, s, max];
   },
   fromRGBValues: function(rgb) {
-    return (rgb[0] << 16) + (rgb[1] << 8) + rgb[2];
+    return (Math.round(rgb[0]) << 16) + (Math.round(rgb[1]) << 8) + Math.round(rgb[2]);
   },
   fromHSVValues: function(hsv) {
     const c = hsv[1] * hsv[2];
@@ -310,7 +310,7 @@ window.Colour = {
     rgb[1] = Math.floor((rgb[1] + m) * 255);
     rgb[2] = Math.floor((rgb[2] + m) * 255);
 
-    return (rgb[0] << 16) + (rgb[1] << 8) + rgb[2];
+    return (Math.round(rgb[0]) << 16) + (Math.round(rgb[1]) << 8) + Math.round(rgb[2]);
   },
   blend: function(a, b, t) {
     const rgbA = this.toRGBValues(a);

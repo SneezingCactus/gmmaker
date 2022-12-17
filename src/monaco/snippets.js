@@ -410,6 +410,18 @@ export default function() {
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'ce',
           },
+          {
+            label: 'sh!WorldRayCast',
+            kind: monaco.languages.CompletionItemKind.Snippet,
+            documentation: 'Shortcut template for making a raycast.',
+            insertText: `game.world.rayCast([0, 0], [10, 10], function(hit) {
+  // filter code here
+  
+  return true; // replace true with your filter result
+})`,
+            insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+            sortText: 'cd',
+          },
         ],
       };
     },
