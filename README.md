@@ -1,8 +1,6 @@
 # Game Mode Maker
 
-A [bonk.io](https://bonk.io/) mod that lets you create your own game modes using blocks.
-
-This mod uses the [Google Blockly](https://developers.google.com/blockly) library.
+A [bonk.io](https://bonk.io/) mod that lets you create your own game modes using JavaScript code.
 
 [Wiki (Unfinished)](https://github.com/SneezingCactus/gmmaker/wiki)
 

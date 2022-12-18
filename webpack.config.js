@@ -1,5 +1,5 @@
 const path = require('path');
-const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'production',
@@ -8,14 +8,7 @@ module.exports = {
     maxAssetSize: 1e10,
   },
   optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          mangle: false,
-        },
-      }),
-    ],
+    minimize: false,
   },
   module: {
     rules: [
@@ -24,9 +17,6 @@ module.exports = {
         use: [
           {
             loader: 'url-loader',
-            options: {
-              limit: 8192,
-            },
           },
         ],
 
@@ -67,11 +57,20 @@ module.exports = {
         ],
       },
       {
-        test: /\.(xml|html)$/i,
+        test: /\.(raw\.js|xml|html)$/i,
         use: 'raw-loader',
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/inline',
       },
     ],
   },
+  plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
+    }),
+  ],
   entry: {
     'js/injector': './src/inject/injector.js',
     'js/gmLoader': './src/inject/gmLoader.js',

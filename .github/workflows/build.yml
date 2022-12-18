@@ -1,0 +1,33 @@
+name: Build GMM
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build
+    - run: mkdir web-ext-artifacts
+    - run: npm run build-extension
+    - name: Upload Userscript
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: 'gmmaker-userscript'
+        path: 'web-ext-artifacts/gmmaker*.user.js'
+        if-no-files-found: error
+    - run: unzip web-ext-artifacts/game_mode_maker-*.zip -d extension
+    - name: Upload Extension
+      uses: actions/upload-artifact@v3.1.0
+      with:
+        name: 'gmmaker-extension'
+        path: 'extension'
+        if-no-files-found: error

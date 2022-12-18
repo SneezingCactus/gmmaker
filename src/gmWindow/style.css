@@ -7,8 +7,108 @@
     --gm_window_text: #ffffff;
     --gm_primary_background: #e2e2e2;
     --gm_behind_lobby_background: #1a2733;
+    --gm_list_headers: #a8bcc0;
     --gm_table_color: #c1cdd2;
     --gm_table_alt_color: #d2dbde;
+    --gm_button_text: #ffffff;
+    --gm_button_primary_color: #795548;
+    --gm_button_secondary_color: #4b252b;
+    --gm_button_top_bar_color: #273749c7;
+}
+
+/* SPLASH SCREEN */
+
+@keyframes gm_gearspin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.gm_splashcontainer {
+    display: flex;
+    position: absolute;
+    top: -500px;
+    left: 0;
+    z-index: 99;
+
+    margin: 30px;
+    padding: 20px;
+
+    background-color: #00000055;
+    border-radius: 15px;
+    transition: top 2s;
+}
+
+.gm_splashlogo {
+    width: 75px;
+    height: 75px;
+}
+
+.gm_splashgear {
+    position: relative;
+    width: 45px;
+    height: 45px;
+
+    background-image: url(images/gmmgear.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 45px;
+}
+
+.gm_splashgear.one {
+    top: 5px;
+    animation: gm_gearspin 2s linear infinite;
+}
+
+.gm_splashgear.two {
+    left: 25px;
+    bottom: 15px;
+
+    animation: gm_gearspin reverse 2s linear infinite;
+    animation-delay: 1000ms;
+}
+
+.gm_splashtext {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin-left: 15px;
+}
+
+.gm_splashtitle {
+    color: #fff;
+    font-family: 'futurept_demi_oblique';
+    font-size: 36px;
+}
+
+.gm_splashdesc {
+    display: flex;
+    justify-content: space-between;
+    
+    color: #fff;
+    font-family: 'futurept_book';
+}
+
+/* CONFIG BUTTON */
+
+#pretty_top_settings {
+    border-bottom: 2px solid transparent;
+}
+
+#pretty_top_gmmaker {
+    width: 57px;
+    height: 34px;
+    background-image: url(images/gmmlogo.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 30px;
+    position: absolute;
+    right: 58px;
+    top: 35px;
+    background-color: var(--gm_button_top_bar_color);
 }
 
 /* GAME MODE EDITOR */
@@ -17,7 +117,6 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    background-color: var(--gm_behind_lobby_background);
 }
 
 #gmeditorwindow {
@@ -38,6 +137,7 @@
 }
 
 #gmeditor_helptext {
+    color: var(--gm_primary_text);
     font-family: 'futurept_b1';
     font-size: 15px;
     line-height: 25px;
@@ -104,24 +204,47 @@
     background-image: url(images/gmeclose.png);
 }
 
-#gmblocklyarea {
+.gmeditor_filter {
+    background-image: url(images/gmefilter.png);
+    background-size: 18px;
+}
+
+.gmeditor_filter.nearest {
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+}
+
+.gmeditor_filter.bilinear {
+    image-rendering: optimizeQuality;
+}
+
+.gmeditor_download {
+    background-image: url(images/gmedownload.png);
+}
+
+.gmeditor_delete {
+    background-image: url(images/gmeclose2.png);
+}
+
+#gmworkspacearea {
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
     flex-grow: 1;
 }
 
-#gmblocklydiv {
+#gmmonacodiv {
+    z-index: 999;
     position: absolute;
     padding: 10px;
     box-sizing: border-box;
 }
 
-.blockly-ws-search button {
-    width: 20px;
-}
-
 /* LOBBY MODS */
+
+#settingsContainer, #leaveconfirmwindow {
+    z-index: 9999;
+}
 
 .modebuttoncontainer {
     display: flex;
@@ -197,6 +320,7 @@
     max-width: 400px;
     height: fit-content;
     background-color: var(--gm_primary_background);
+    color: var(--gm_primary_text);
     margin: auto;
     font-family: "futurept_b1";
     border-radius: 7px;
@@ -243,9 +367,17 @@
     flex-grow: 1;
 }
 
+.gm_dialogcode {
+    background-color: var(--gm_table_color);
+    padding: 10px;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    user-select: text;
+}
+
 .gm_dialogoptions {
     color: var(--gm_primary_text);
-    text-align: left;
+    text-align: justify;
     left: 0;
     right: 0;
     top: 53px;
@@ -265,79 +397,180 @@
     height: 30px;
     padding-right: 4px;
     margin-top: 3px;
-    resize: vertical;
+    resize: none;
 }
 
-/* WORKSPACE SEARCH COLOUR FIX */
-
-path.blocklyPath.blockly-ws-search-highlight {
-    fill: black;
-    fill-opacity: 1;
+.gm_horizontalflex {
+    display: flex;
 }
 
-/* VAR INSPECTOR */
-
-#gm_varinspector {
-    display: none;
-    position: absolute;
-    z-index: 9999;
-    width: 500px;
-    height: 500px;
-    resize: both;    
-    overflow: auto;
-
-    background-color: var(--gm_primary_background);
-    padding-top: 34px;
-    border-radius: 7px;
-    box-shadow: 1px 1px 5px -2px rgb(0 0 0 / 63%);
+.gm_horizontalsep {
+    background-color: #00000022;
+    width: 3px;
+    margin: 20px;
 }
 
-#gm_varinspector .windowTopBar {
-    cursor: grab;
-}
-
-#gm_varinspector .windowTopBar:active {
-    cursor: grabbing;
-}
-
-#gmvi_content {
+.gm_dialoglist {
+    display: flex;
+    width: 400px;
+    height: 290px;
     flex-direction: column;
-    font-family: 'futurept_b1';
-
     overflow-x: hidden;
     overflow-y: auto;
-
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
 }
 
-.gmvi_tab_content {
-    display: flex;
-    flex-direction: column;
-
+.gm_bartabs {
+    position: relative;
+    margin-top: 5px;
     width: 100%;
-    color: var(--gm_primary_text);
-    font-family: "futurept_b1";
+    height: 30px;
+    display: flex;
 }
 
-.gmvi_var {
+.gm_bartabs span {
+    position: absolute;
+    height: 3px;
+    width: 100%;
+    background-color: var(--gm_button_primary_color);
+    bottom: 0;
+}
+
+.gm_tabbutton {
+    color: var(--gm_button_text);
+    font-family: futurept_b1;
+    text-align: center;
+    background-color: var(--gm_button_primary_color);
+    border-radius: 5px 5px 0 0;
+    margin-right: 5px;
+    padding: 0px 20px;
+    line-height: 2;
+    pointer-events: none;
+}
+
+.gm_tabbutton.inactive {
+    background-color: var(--gm_button_secondary_color);
+    cursor: pointer;
+    pointer-events: all;
+}
+
+.gm_listheader {
+    background-color: var(--gm_list_headers);
+    border-bottom: 1px solid #00000012;
+    padding-left: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    display: inline-block;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.gm_listitem {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: space-between;
-    align-content: stretch;
-
-    width: 100%;
-    padding: 4px;
+    padding: 10px;
     box-sizing: border-box;
+    width: 100%;
     background-color: var(--gm_table_color);
 }
 
-.gmvi_var:nth-child(odd) {
+.gm_listitem.small {
+    padding: 5px 10px;
+}
+
+.gm_listitem:nth-child(odd) {
     background-color: var(--gm_table_alt_color);
 }
 
-.gmvi_var div {
-    flex-basis: 0;
+.gm_listitemimage {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    background-color: var(--gm_primary_text);
+    flex-shrink: 0;
+}
+
+.gm_listitemimage.play {
+    background-color: var(--gm_button_primary_color);
+    background-image: url(images/gmeplay.png);
+    background-size: contain;
+    cursor: pointer;
+}
+
+.gm_listitemimage.stop {
+    background-color: var(--gm_button_primary_color);
+    background-image: url(images/gmestop.png);
+    background-size: contain;
+    cursor: pointer;
+}
+
+.gm_listitemright {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     flex-grow: 1;
+    margin-left: 10px;
+}
+
+.gm_listitemname {
+    min-width: 0px;
+    padding: 10px;
+    border-radius: 4px;
+    font-family: 'futurept_book';
+    font-size: 16px;
+    text-align: left;
+}
+
+.gm_listitemdown {
+    display: flex;
+    justify-content: space-between;
+}
+
+.gm_listitemdetail {
+    flex-grow: 1;
+    color: var(--gm_secondary_text);
+}
+
+.gm_listitemlabel {
+    flex-basis: 0;
+    flex-grow: 0.75;
+}
+
+.gm_listiteminput::-webkit-outer-spin-button,
+.gm_listiteminput::-webkit-inner-spin-button {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.gm_listiteminput[type=number] {
+    width: 100px;
+    text-align: right;
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+/* INGAME LOG BOX */
+
+#gm_logbox {
+    position: absolute;
+    border-radius: 10px;
+    padding: 10px;
+    top: 30px;
+    left: 30px;
+    width: 422px;
+    height: 128px;
+    visibility: hidden;
+    overflow: hidden;
+    overflow-wrap: break-word;
+    font-family: "futurept_book";
+    font-size: 19px;
+    color: #ffffff;
+    text-shadow: 1px 1px black;
+    user-select: text;
+}
+
+#gm_logbox:hover {
+    background-color: #00000055;
+    resize: both;
 }

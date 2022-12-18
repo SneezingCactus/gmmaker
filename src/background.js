@@ -1,6 +1,6 @@
-import browser from 'webextension-polyfill';
+// import browser from 'webextension-polyfill';
 
-browser.webRequest.onBeforeRequest.addListener(
+/* browser.webRequest.onBeforeRequest.addListener(
     (req) => {
       if (req.url.includes('/js/alpha2s.js') && !req.url.includes('?')) {
         return {
@@ -10,4 +10,4 @@ browser.webRequest.onBeforeRequest.addListener(
     },
     {urls: ['*://bonk.io/*']},
     ['blocking'],
-);
+);*/
