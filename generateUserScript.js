@@ -10,7 +10,7 @@ loader = loader.replace(/window.initGM[^\{]+\{/, '{'); // minimized
 loader = 'window.initGM = function() {' + loader + '}';
 
 const content = `// ==UserScript==
-// @name         Game Mode Maker Beta
+// @name         Game Mode Maker
 // @version      ${manifest.version}
 // @author       SneezingCactus
 // @namespace    https://github.com/SneezingCactus
