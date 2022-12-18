@@ -755,14 +755,14 @@ export default {
           'Whoops! Seems like there was an unknown error and the game had to be stopped. ',
           'This might or might not be an issue with the currently applied mode (if any is currently being used), or GMMaker itself.',
           '<br><br>',
-          'If you are using a custom mode, check this <a href="todo">list of reasons why a custom mode could crash the game. (LINK NOT WORKING YET)</a>. ',
+          'If you are using a custom mode, check <a href="https://github.com/SneezingCactus/gmmaker/wiki/How-your-mode-could-be-causing-an-unknown-error">this article</a> explaining how your mode could be causing an unknown error and how you can find a way to fix it. ',
           'It might help you find what\'s wrong and how to fix it.',
           '<br><br>',
           'If not, are you using any other mods/extensions (apart from the Code Injector)? ',
           'Try disabling them, reload, and try again.',
           '<br><br>',
           'If you think this is a GMMaker bug and not something about your custom mode, or any other mods you have installed, ',
-          'don\'t hesitate to ask SneezingCactus about it on the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
+          'don\'t hesitate to ask SneezingCactus about it in the <a href="https://discord.gg/dnBM3N6H8a">SneezingCactus\' mods discord server</a> or the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
         ].join(''), ()=>{}, {});
       } else {
         gm.editor.genericDialog([
@@ -773,7 +773,7 @@ export default {
           'Try disabling them, reload, and try again.',
           '<br><br>',
           'If you think this is a GMMaker bug and not something about the current custom mode, or any other mods you have installed, ',
-          'don\'t hesitate to ask SneezingCactus about it on the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
+          'don\'t hesitate to ask SneezingCactus about it in the <a href="https://discord.gg/dnBM3N6H8a">SneezingCactus\' mods discord server</a> or the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
         ].join(''), ()=>{}, {});
       }
     }

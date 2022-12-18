@@ -240,9 +240,8 @@ window.Vector = {
   rotate2d: (v, a) => {
     let result = [];
 
-    const old = [v[0], v[1]];
-    result[0] = old[0] * newMath.cos(a) - old[1] * newMath.sin(a);
-    result[1] = old[0] * newMath.sin(a) + old[1] * newMath.cos(a);
+    result[0] = v[0] * newMath.cos(a) - v[1] * newMath.sin(a);
+    result[1] = v[0] * newMath.sin(a) + v[1] * newMath.cos(a);
 
     return result;
   },

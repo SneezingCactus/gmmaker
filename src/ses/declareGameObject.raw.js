@@ -190,7 +190,7 @@ this.game = {
       bodyCollision: [],
     },
   },
-  state: {},
+  state: null,
   inputs: {},
   lobby: {},
   world: {
@@ -341,11 +341,11 @@ this.game = {
         region: null,
         colour: 0xffffff,
         alpha: 1,
-        pos: [0, 0],
+        pos: [0.01, 0.01],
         angle: 0,
         size: [baked.width,
           baked.height],
-        noLerp: false,
+        noLerp: true,
       }];
     },
     getScreenSize: () => [730 / game.state.physics.ppm, 500 / game.state.physics.ppm],

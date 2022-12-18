@@ -271,7 +271,7 @@ export default {
       },
     });
 
-    gm.editor.monacoWs.getModel().onDidChangeContent(function(event) {
+    gm.editor.monacoWs.getModel().onDidChangeContent(function() {
       // backup
       if (gm.editor.monacoWs.getValue() == '') return;
       if (!gm.editor.modeSettings.isTextMode) return;
@@ -369,9 +369,9 @@ export default {
 
     document.getElementById('gmgeneric_message').innerHTML = message;
     document.getElementById('gmgeneric_promptcontainer').style.display = options.showInput ? 'block' : 'none';
-    if (options.showInput) document.getElementById('gmgeneric_prompt').focus();
     document.getElementById('gmgeneric_prompt').value = options.inputValue;
     document.getElementById('gmgeneric_cancel').style.display = options.showCancel ? 'block' : 'none';
+    if (options.showInput) document.getElementById('gmgeneric_prompt').focus();
 
     document.getElementById('gmgeneric_code').parentElement.style.display = options.showCode ? 'block' : 'none';
     if (options.showCode) document.getElementById('gmgeneric_code').innerText = options.code;

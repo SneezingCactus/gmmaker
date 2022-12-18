@@ -290,9 +290,6 @@ export default {
         const camera = gm.graphics.camera;
         const scaleMultiplier = stateB.physics.ppm * this.scaleRatio;
 
-        camera.x = 365 * this.scaleRatio;
-        camera.y = 250 * this.scaleRatio;
-
         if (cameraObjB.noLerp) {
           camera.pivot.x = cameraObjB.pos[0] * scaleMultiplier;
           camera.pivot.y = cameraObjB.pos[1] * scaleMultiplier;
@@ -313,6 +310,15 @@ export default {
           camera.scale.x = (1 - arguments[2]) * cameraObjA.scale[0] + arguments[2] * cameraObjB.scale[0];
           camera.scale.y = (1 - arguments[2]) * cameraObjA.scale[1] + arguments[2] * cameraObjB.scale[1];
         }
+
+        camera.x = 365 * this.scaleRatio;
+        camera.y = 250 * this.scaleRatio;
+
+        camera.pivot.x += this.blurContainer.x;
+        camera.pivot.y += this.blurContainer.y;
+
+        this.blurContainer.x = 0;
+        this.blurContainer.y = 0;
         /* #endregion UPDATE CAMERA */
 
         /* #region UPDATE DRAWINGS */
@@ -441,6 +447,7 @@ export default {
           for (let i = 0; i < childAmount; i++) {
             const child = this.blurContainer.children[this.blurContainer.children.length-1];
 
+            if (child.isGMMDrawing) continue;
             if (child == gm.graphics.camera) continue;
 
             this.blurContainer.removeChildOLD(child);
@@ -509,6 +516,15 @@ export default {
         gm.audio.stopAllSounds();
 
         gm.state.crashed = false;
+
+        for (let i = 0; true; i++) {
+          const id = 'BAKED_' + i;
+
+          if (!gm.graphics.imageTextures[id]) break;
+
+          gm.graphics.imageTextures[id].destroy();
+          delete gm.graphics.imageTextures[id];
+        }
 
         for (let i = 0; i < gm.graphics.drawings.length; i++) {
           gm.graphics.drawings[i]?.destroy();
@@ -663,8 +679,8 @@ export default {
 
     const drawing = this.drawings[id].displayObject;
     const bounds = drawing.getLocalBounds();
-    const width = (bounds.x + bounds.width) * 2 * drawing.scale.x;
-    const height = (bounds.y + bounds.height) * 2 * drawing.scale.y;
+    const width = Math.ceil((bounds.x + bounds.width) * 2 * drawing.scale.x / 10) * 10 + 100;
+    const height = Math.ceil((bounds.y + bounds.height) * 2 * drawing.scale.y / 10) * 10 + 100;
     const bakedTex = PIXI.RenderTexture.create({
       width: width,
       height: height,
@@ -693,10 +709,11 @@ export default {
     const ppm = state.physics.ppm;
 
     this.imageTextures[bakedId] = bakedTex.baseTexture;
+    bakedTex.destroy();
     return {
       id: bakedId,
-      width: width / drawing.scale.x / (ppm * this.rendererClass.scaleRatio),
-      height: height / drawing.scale.y / (ppm * this.rendererClass.scaleRatio),
+      width: (width + 1) / drawing.scale.x / (ppm * this.rendererClass.scaleRatio),
+      height: (height + 1) / drawing.scale.y / (ppm * this.rendererClass.scaleRatio),
     };
   },
   debugLog: function(message) {
@@ -775,6 +792,7 @@ const lerpNumber = function(a, b, weight) {
 class Drawing {
   constructor() {
     this.displayObject = new PIXI.Container();
+    this.displayObject.isGMMDrawing = true;
     this.displayObject.sortableChildren = true;
     this.shapes = [];
     this.lastDrawDef = {};

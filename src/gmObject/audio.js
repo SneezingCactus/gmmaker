@@ -33,6 +33,7 @@ export default {
   stopAllSounds: function() {
     for (let i = 0; i < this.soundsPlaying.length; i++) {
       if (!this.soundsPlaying[i]) continue;
+      if (this.soundsPlaying[i].howl._src.includes('sound/')) continue;
       this.soundsPlaying[i].howl._emit('end');
       this.soundsPlaying[i].howl.stop();
       this.soundsPlaying[i].howl.unload();

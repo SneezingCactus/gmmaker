@@ -1226,16 +1226,49 @@ declare interface gameAudio {
 }
 
 declare interface playerInput {
+  /**
+   * `true` if the player is pressing up, `false` otherwise.
+   */
   up: boolean
+  /**
+   * `true` if the player is pressing down, `false` otherwise.
+   */
   down: boolean
+  /**
+   * `true` if the player is pressing left, `false` otherwise.
+   */
   left: boolean
+  /**
+   * `true` if the player is pressing right, `false` otherwise.
+   */
   right: boolean
+  /**
+   * `true` if the player is pressing heavy, `false` otherwise.
+   */
   action: boolean
+  /**
+   * `true` if the player is pressing special, `false` otherwise.
+   */
   action2: boolean
+  /**
+   * Mouse info, such as position and key states for the three mouse buttons (left, right and middle).
+   */
   mouse: {
+    /**
+     * Player's mouse position, in GMMaker units.
+     */
     pos: number[]
+    /**
+     * `true` if the player is pressing the left mouse button, `false` otherwise.
+     */
     left: boolean
+    /**
+     * `true` if the player is pressing the right mouse button, `false` otherwise.
+     */
     right: boolean
+    /**
+     * `true` if the player is pressing the middle mouse button (the scroll wheel), `false` otherwise.
+     */
     middle: boolean
   }
 }
@@ -1251,7 +1284,7 @@ declare interface playerOverride {
 
 declare interface inputMethods {
   /**
-   * An array containing input overrides every player, ordered by player ID.
+   * An array containing input overrides for every player, ordered by player ID.
    * 
    * Each index (except those who don't belong to any player) contains
    * six override keys: `up`, `down`, `left`, `right`, `action`, and `action2`.
