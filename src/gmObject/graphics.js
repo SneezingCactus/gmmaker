@@ -319,6 +319,8 @@ export default {
 
         this.blurContainer.x = 0;
         this.blurContainer.y = 0;
+
+        window.gmReplaceAccessors.addToStereo = ((-camera.pivot.x + 730 * this.scaleRatio) * camera.scale.x) / (365 * this.scaleRatio) - 1;
         /* #endregion UPDATE CAMERA */
 
         /* #region UPDATE DRAWINGS */

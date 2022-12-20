@@ -1,13 +1,31 @@
+/* eslint-disable no-var */
 /* eslint-disable prefer-const */
 
+var isArray = Array.isArray;
+
 /**
- * to avoid clutter
- * @param {*} object
+ * slightly faster than JSON copying, taken from https://github.com/streamich/fastest-json-copy
+ * @param {*} obj
  * @return {*}
  */
-function copy(object) {
-  if (object === undefined) return undefined;
-  return JSON.parse(JSON.stringify(object));
+function copy(obj) {
+  if (!obj) return obj;
+  if (isArray(obj)) {
+    let arr = [];
+    var length = obj.length;
+    for (var i = 0; i < length; i++) arr.push(copy(obj[i]));
+    return arr;
+  } else if (typeof obj === 'object') {
+    let keys = Object.keys(obj);
+    var length = keys.length;
+    let newObject = {};
+    for (var i = 0; i < length; i++) {
+      let key = keys[i];
+      newObject[key] = copy(obj[key]);
+    }
+    return newObject;
+  }
+  return obj;
 }
 
 // pretty self-explanatory
@@ -24,7 +42,6 @@ window.getDynamicInfo = (game) => {
     inputs: window.parent.gm.state.inputs,
   });
 
-  game.prevState = game.state ?? copied.state;
   game.state = copied.state;
   game.inputs = copied.inputs;
 

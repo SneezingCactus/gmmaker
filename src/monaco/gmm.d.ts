@@ -801,12 +801,6 @@ declare interface gameEvents {
   addEventListener(eventName: 'bodyCollision', options: collisionEvent_disc, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
   addEventListener(eventName: 'bodyCollision', options: collisionEvent_arrow, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
   addEventListener(eventName: 'bodyCollision', options: collisionEvent_body, listener: (bodyData: bodyCollisionData, collisionData: bodyCollisionData) => void)
-
-  /**
-   * Detach the function given from all events that it's currently listening to.
-   * @param listener The function to detach.
-   */
-  removeEventListener(listener: () => void)
 }
 
 declare interface lobbyPlayerInfo {
@@ -1484,13 +1478,13 @@ declare interface gameWorld {
 // eslint-disable-next-line no-unused-vars
 declare interface game {
   /**
-   * This object contains the only two event-related methods, addEventListener and removeEventListener.
+   * This object contains the only event-related method, addEventListener.
    * 
    * Read more about events [here](https://github.com/SneezingCactus/gmmaker/wiki/Events).
    */
   events: gameEvents
   /**
-   * The game state corresponding to the previous step.
+   * The game state corresponding to the previous step. Doesn't exist in the first step, so look out for that.
    */
   prevState: gameState
   /**

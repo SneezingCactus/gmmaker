@@ -157,16 +157,6 @@ this.game = {
     addEventListener: function(eventName, options, listener) {
       this.eventListeners[eventName]?.push({options: options, listener: listener});
     },
-    removeEventListener: function(listener) {
-      // eslint-disable-next-line guard-for-in
-      for (const eventName in this.eventListeners) {
-        const eventListeners = this.eventListeners[eventName];
-
-        for (let i = 0; i < eventListeners.length; i++) {
-          if (eventListeners[i]?.listener === listener) delete eventListeners[i];
-        }
-      }
-    },
     fireEvent: function(eventName, options, args) {
       try {
         const listeners = this.eventListeners[eventName];
@@ -375,12 +365,19 @@ this.setStaticInfo = function() {
   getStaticInfo(this.game);
   this.staticSetted = true;
 };
+this.gameStateList = [];
 this.setDynamicInfo = function() {
   getDynamicInfo(this.game);
 
+  const gameLength = game.state.gmExtra.gameLength;
+
+  gameStateList[gameLength] = game.state;
+  game.prevState = gameStateList[gameLength - 1];
+  delete gameStateList[gameLength - 500];
+
+  // random seed manage
   let randomSeed = 0;
 
-  // bring some more randomness to the mix!
   for (let i = 0; i < game.state.discs.length; i++) {
     if (!game.state.discs[i]) continue;
     randomSeed = randomSeed + game.state.discs[i].x + game.state.discs[i].y + game.state.discs[i].xv + game.state.discs[i].yv;

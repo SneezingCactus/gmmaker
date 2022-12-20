@@ -89,7 +89,7 @@ export default {
           right: overrides[i]?.right ?? inputs[i]?.right ?? false,
           action: overrides[i]?.action ?? inputs[i]?.action ?? false,
           action2: overrides[i]?.action2 ?? inputs[i]?.action2 ?? false,
-          mouse: inputs[i]?.mouse,
+          mouse: inputs[i]?.mouse ?? {pos: [0, 0], left: false, right: false, middle: false},
         };
       }
 
@@ -279,8 +279,12 @@ export default {
           oldState.gmExtra.camera.scale[0] != 1 ||
           oldState.gmExtra.camera.scale[1] != 1) state.gmExtra.cameraChanged = true;
 
+      // reset kills array
+      state.gmExtra.kills = [];
+
       // misc
       state.gmExtra.graphicsQuality = BonkUtils.customControls.quality;
+      state.gmExtra.gameLength = window.gmReplaceAccessors.gameLength;
       /* #endregion EXTRA PROPERTY MANAGE */
 
       /* #region SEND STATIC INFO */

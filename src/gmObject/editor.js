@@ -595,7 +595,7 @@ export default {
             soundPlayerHowl.on('end', function() {
               soundPlayer.classList.remove('stop');
               soundPlayer.classList.add('play');
-              soundPlayerHowl.unload();
+              soundPlayerHowl?.unload();
               soundPlayerHowl = null;
             });
             soundPlayerHowl.play();
@@ -752,7 +752,7 @@ export default {
               soundPlayerHowl.on('end', function() {
                 soundPlayer.classList.remove('stop');
                 soundPlayer.classList.add('play');
-                soundPlayerHowl.unload();
+                soundPlayerHowl?.unload();
                 soundPlayerHowl = null;
               });
               soundPlayerHowl.play();

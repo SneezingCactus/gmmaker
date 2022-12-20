@@ -9,13 +9,19 @@ export default {
           loop: options.loop,
         });
         gm.audio.soundsPlaying.push({
-          id: null,
+          id: options.gmId,
           howl: theSound,
         });
         const theSoundIndex = gm.audio.soundsPlaying.length - 1;
 
         theSound.on('end', function() {
           delete gm.audio.soundsPlaying[theSoundIndex];
+        });
+        theSound.on('play', function() {
+          gm.audio.soundsPlaying.push({
+            id: options.gmId,
+            howl: theSound,
+          });
         });
 
         return theSound;
@@ -25,9 +31,15 @@ export default {
   preloadSounds: function(soundList) {
     for (let i = 0; i < soundList.length; i++) {
       const sound = soundList[i];
-      if (!sound) continue;
 
-      this.customSounds[sound.id] = 'data:audio/' + sound.extension + ';base64,' + sound.data;
+      if (!sound) continue;
+      if (this.customSounds[sound.id]?.hash == sound.dataHash) continue;
+
+      if (this.customSounds[sound.id]) this.customSounds[sound.id].howl.unload();
+      this.customSounds[sound.id] = {
+        howl: new Howl({src: 'data:audio/' + sound.extension + ';base64,' + sound.data, id: sound.id}),
+        hash: sound.dataHash,
+      };
     }
   },
   stopAllSounds: function() {
@@ -36,7 +48,6 @@ export default {
       if (this.soundsPlaying[i].howl._src.includes('sound/')) continue;
       this.soundsPlaying[i].howl._emit('end');
       this.soundsPlaying[i].howl.stop();
-      this.soundsPlaying[i].howl.unload();
     }
     this.soundsPlaying = [];
   },
@@ -49,23 +60,15 @@ export default {
       }
     };
 
-    const theSound = new Howl({
-      src: this.customSounds[id] || GameResources.soundStrings[id],
+    const soundHowl = GameResources.soundStrings[id] ? new Howl({
+      src: GameResources.soundStrings[id],
       volume: volume,
-    });
-    theSound.stereo(panning);
-    theSound.play();
+      gmId: id,
+    }) : this.customSounds[id]?.howl;
 
-    gm.audio.soundsPlaying.push({
-      id: id,
-      howl: theSound,
-    });
-
-    const theSoundIndex = gm.audio.soundsPlaying.length - 1;
-
-    theSound.on('end', function() {
-      delete gm.audio.soundsPlaying[theSoundIndex];
-    });
+    const soundId = soundHowl.play();
+    soundHowl.stereo(panning, soundId);
+    soundHowl.volume(volume, soundId);
   },
   customSounds: {},
   soundsPlaying: [],
