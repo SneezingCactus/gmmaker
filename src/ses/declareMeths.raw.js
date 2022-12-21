@@ -47,6 +47,27 @@ window.getDynamicInfo = (game) => {
 
   const gmExtra = copied.state.gmExtra;
 
+  // cam/drawing props
+  for (let i = 0; i < gmExtra.drawings.length; i++) {
+    if (!gmExtra.drawings[i]) continue;
+    gmExtra.drawings[i].noLerp = false;
+  }
+  gmExtra.camera.noLerp = false;
+
+  // cameraChanged, used to determine if offscreen arrows should be rendered or not
+  if (gmExtra.camera.pos[0] != 365 / game.state.physics.ppm ||
+      gmExtra.camera.pos[1] != 250 / game.state.physics.ppm ||
+      gmExtra.camera.angle != 0 ||
+      gmExtra.camera.scale[0] != 1 ||
+      gmExtra.camera.scale[1] != 1) gmExtra.cameraChanged = true;
+
+  // reset kills array
+  gmExtra.kills = [];
+
+  // misc
+  gmExtra.graphicsQuality = window.parent.BonkUtils.customControls.quality;
+  gmExtra.gameLength = window.parent.gmReplaceAccessors.gameLength;
+
   // reset stuff on new round
   if (game.state.rl == 0) {
     gmExtra.camera = {

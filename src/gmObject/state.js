@@ -67,6 +67,7 @@ export default {
       // don't do gmm business when no mode is loaded or if in quickplay
       if (!oldState.gmExtra || gm.lobby.data.quick) {
         const state = stepOLD(...arguments);
+        window.gmReplaceAccessors.disableDeathBarrier = false;
         gm.state.gameState = state;
         gm.state.inputs = inputs;
         return state;
@@ -233,7 +234,7 @@ export default {
       // this is where props added by gmmaker into the state, such as
       // nolerp and visibility of objects, are managed
 
-      state.gmExtra = JSON.parse(JSON.stringify(oldState.gmExtra));
+      state.gmExtra = oldState.gmExtra;
 
       // disc props
       for (let i = 0; i < state.discs.length; i++) {
@@ -263,27 +264,6 @@ export default {
           state.projectiles[i].visible = oldState.projectiles[i]?.visible ?? true;
         }
       }
-
-      // cam/drawing props
-      for (let i = 0; i < state.gmExtra.drawings.length; i++) {
-        if (!state.gmExtra.drawings[i]) continue;
-        state.gmExtra.drawings[i].noLerp = false;
-      }
-      state.gmExtra.camera.noLerp = false;
-
-      // cameraChanged, used to determine if offscreen arrows should be rendered or not
-      if (oldState.gmExtra.camera.pos[0] != 365 / state.physics.ppm ||
-          oldState.gmExtra.camera.pos[1] != 250 / state.physics.ppm ||
-          oldState.gmExtra.camera.angle != 0 ||
-          oldState.gmExtra.camera.scale[0] != 1 ||
-          oldState.gmExtra.camera.scale[1] != 1) state.gmExtra.cameraChanged = true;
-
-      // reset kills array
-      state.gmExtra.kills = [];
-
-      // misc
-      state.gmExtra.graphicsQuality = BonkUtils.customControls.quality;
-      state.gmExtra.gameLength = window.gmReplaceAccessors.gameLength;
       /* #endregion EXTRA PROPERTY MANAGE */
 
       /* #region SEND STATIC INFO */
@@ -578,6 +558,7 @@ export default {
 
       if (!gm.lobby.networkEngine) return state;
       if (gm.lobby.networkEngine.hostID !== gm.lobby.networkEngine.getLSID()) return state;
+      if (!gm.editor.appliedMode || gm.editor.appliedMode?.isEmpty) return state;
 
       /* #region gmInitial CREATION */
       const gmInitial = {};
@@ -716,7 +697,7 @@ export default {
     return theChosenOne;
   },
   crashAbort: function(e) {
-    if (e.isModeError) {
+    if (e.isModeError && gm.editor.browser != 'Firefox') {
       let report = e.stack;
 
       report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
@@ -741,6 +722,38 @@ export default {
           code: report,
         });
       }
+
+      e.stack = '[GMMaker Error] ' + e.stack;
+    } else if (e.isModeError) {
+      let report = e.name + ': ' + e.message;
+
+      let stack = e.stack;
+
+      stack = stack.replace(/([^@\n]+)@.+?line.+?eval:/gm, '  at $1:');
+      stack = stack.replace(/@.+?line.+?eval:([^\n]+)(.|\n)*/gm, '  at <anonymous>:$1');
+
+      report += '\n' + stack;
+
+      if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
+        gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. Below is the crash report, which may help you find out what happened.', ()=>{}, {
+          showCode: true,
+          code: report,
+        });
+
+        gm.editor.showGMEWindow();
+
+        const match = /:([0-9]+):([0-9]+)/gm.exec(report);
+
+        gm.editor.monacoWs.revealPositionInCenter({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
+        gm.editor.monacoWs.setPosition({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
+      } else {
+        gm.editor.genericDialog('Whoops! Seems like something went wrong with the current mode\'s code. Below is the crash report:', ()=>{}, {
+          showCode: true,
+          code: report,
+        });
+      }
+
+      e.message = '[GMMaker Error] ' + e.message;
     } else if (e == 'Assertion Failed') {
       gm.editor.genericDialog([
         'Whoops! Seems like something went wrong with the physics engine. ',
@@ -784,8 +797,6 @@ export default {
     if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
       document.getElementById('pretty_top_exit').click();
     }
-
-    e.stack = '[GMMaker Error] ' + e.stack;
 
     throw e;
   },

@@ -1,6 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
 
+const minimize = true;
+
 module.exports = {
   mode: 'production',
   performance: {
@@ -8,7 +10,7 @@ module.exports = {
     maxAssetSize: 1e10,
   },
   optimization: {
-    minimize: true,
+    minimize: minimize,
   },
   module: {
     rules: [
@@ -66,11 +68,11 @@ module.exports = {
       },
       {
         test: /\.(raw\.js)$/i,
-        use: [
+        use: minimize ? [
           {
             loader: path.resolve('./minify-loader.js'),
           },
-        ],
+        ] : undefined,
         type: 'asset/source',
       },
     ],

@@ -22,6 +22,7 @@ export default {
         // if no mode loaded, no gmm stuff
         if (!stateA.gmExtra || gm.lobby.data.quick) {
           // reset camera
+          window.gmReplaceAccessors.addToStereo = 0;
           const camera = gm.graphics.camera;
           if (camera) {
             camera.x = 0;

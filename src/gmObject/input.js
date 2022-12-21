@@ -4,6 +4,7 @@ export default {
     this.initBonkUtils();
 
     const forceInputFunction = function() {
+      if (!gm.state.gameState?.gmExtra || gm.lobby.data?.quick) return;
       window.gmReplaceAccessors.forceInputRegister = true;
     };
 

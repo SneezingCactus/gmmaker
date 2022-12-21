@@ -45,7 +45,7 @@ export default {
   stopAllSounds: function() {
     for (let i = 0; i < this.soundsPlaying.length; i++) {
       if (!this.soundsPlaying[i]) continue;
-      if (this.soundsPlaying[i].howl._src.includes('sound/')) continue;
+      if (this.soundsPlaying[i].howl._src?.includes('sound/')) continue;
       this.soundsPlaying[i].howl._emit('end');
       this.soundsPlaying[i].howl.stop();
     }
@@ -59,6 +59,9 @@ export default {
         if (gm.audio.soundsPlaying[i]?.id === id) return;
       }
     };
+
+    if (!Number.isFinite(volume)) return;
+    if (!Number.isFinite(panning)) return;
 
     const soundHowl = GameResources.soundStrings[id] ? new Howl({
       src: GameResources.soundStrings[id],

@@ -14,6 +14,7 @@ import windowHtml from '../gmWindow/window.html';
 import {saveAs} from 'file-saver';
 import md5 from 'md5';
 import {Parser as acorn} from 'acorn';
+import bowser from 'bowser';
 
 export default {
   init: function() {
@@ -165,6 +166,9 @@ export default {
         gm.editor.GMENew();
       };
     });
+
+    // current browser for proper error handling
+    this.browser = bowser.parse(window.navigator.userAgent).browser.name;
 
     // init code editor
     this.initMonaco();
@@ -864,19 +868,46 @@ export default {
     try {
       gm.state.generateEvents(gm.editor.monacoWs.getValue());
     } catch (e) {
-      let report = e.stack;
+      let report;
 
-      if (report.includes('SyntaxError:')) {
-        try {
-          acorn.parse(gm.editor.monacoWs.getValue(), {ecmaVersion: 'latest'});
-        } catch (syntaxError) {
-          const location = /\(([0-9:]+)\)/.exec(syntaxError.stack)[1];
-          report = report.replace(/at([^\n]+)(.|\n)*/gm, 'at <anonymous>:' + location);
+      if (gm.editor.browser == 'Firefox') {
+        report = e.name + ': ' + e.message;
+
+        if (e.name == 'SyntaxError') {
+          try {
+            acorn.parse(gm.editor.monacoWs.getValue(), {ecmaVersion: 'latest'});
+          } catch (syntaxError) {
+            const location = /\(([0-9:]+)\)/.exec(syntaxError.message)[1];
+            report += '\n  at <anonymous>:' + location;
+          }
+        } else {
+          let stack = e.stack;
+
+          stack = stack.replace(/([^@\n]+)@.+?line.+?eval:/gm, '  at $1:');
+          stack = stack.replace(/@.+?line.+?eval:([^\n]+)(.|\n)*/gm, '  at <anonymous>:$1');
+
+          report += '\n' + stack;
         }
+
+        e.message = '[GMMaker Error] ' + e.message;
       } else {
-        report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
-        report = report.replace(/Object\.eval([^\n]+)(.|\n)*/gm, '<anonymous>$1');
+        report = e.stack;
+
+        if (report.includes('SyntaxError:')) {
+          try {
+            acorn.parse(gm.editor.monacoWs.getValue(), {ecmaVersion: 'latest'});
+          } catch (syntaxError) {
+            const location = /\(([0-9:]+)\)/.exec(syntaxError.stack)[1];
+            report = report.replace(/at([^\n]+)(.|\n)*/gm, 'at <anonymous>:' + location);
+          }
+        } else {
+          report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
+          report = report.replace(/Object\.eval([^\n]+)(.|\n)*/gm, '<anonymous>$1');
+        }
+
+        e.stack = '[GMMaker Error] ' + e.stack;
       }
+
 
       const match = /:([0-9]+):([0-9]+)/gm.exec(report);
 
@@ -887,8 +918,6 @@ export default {
         showCode: true,
         code: report,
       });
-
-      e.stack = '[GMMaker Error] ' + e.stack;
 
       throw (e);
     }
