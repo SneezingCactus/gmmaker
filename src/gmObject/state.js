@@ -53,8 +53,6 @@ export default {
               PhysicsClass.globalStepVars.discs[kills[i].id].diedThisStep = kills[i].allowRespawn ? 1 : 3;
             }
           }
-
-          // PhysicsClass.globalStepVars.inputState.gmExtra.kills = [];
         }
       }
       return this.StepOLD(...arguments);
@@ -235,7 +233,7 @@ export default {
       // this is where props added by gmmaker into the state, such as
       // nolerp and visibility of objects, are managed
 
-      state.gmExtra = oldState.gmExtra;
+      state.gmExtra = JSON.parse(JSON.stringify(oldState.gmExtra));
 
       // disc props
       for (let i = 0; i < state.discs.length; i++) {
