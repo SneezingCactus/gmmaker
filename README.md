@@ -19,7 +19,7 @@ Other links:
 **Ignore this if you just want to download the mod.**
 
 
-1. Install [Node.js](https://nodejs.org/) (v16.3.0)
+1. Install [Node.js](https://nodejs.org/) (v16.3.0 or later)
 2. Run `npm ci` to install npm dependecies.
 4. Run `npm run build`.
 5. Either:
