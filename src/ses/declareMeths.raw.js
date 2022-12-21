@@ -341,4 +341,4 @@ window.Colour = {
 };
 
 // return list of methods
-['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'bakeDrawing', 'debugLog', 'playSound', 'stopAllSounds', 'rayCast', 'rayCastAll', 'Math', 'Vector', 'Colour'];
+window.methNames = ['getStaticInfo', 'getDynamicInfo', 'getEventArgs', 'bakeDrawing', 'debugLog', 'playSound', 'stopAllSounds', 'rayCast', 'rayCastAll', 'Math', 'Vector', 'Colour'];

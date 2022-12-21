@@ -76,13 +76,15 @@ export default {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
 
-            gm.editor.modeSettings = gm.editor.appliedMode.settings;
-            gm.editor.modeAssets = gm.editor.appliedMode.assets;
+            if (gm.editor.appliedMode) {
+              gm.editor.modeSettings = gm.editor.appliedMode.settings;
+              gm.editor.modeAssets = gm.editor.appliedMode.assets;
 
-            const modeContent = gm.editor.appliedMode.content;
+              const modeContent = gm.editor.appliedMode.content;
 
-            gm.editor.changingToTextEditor = true;
-            gm.editor.monacoWs.setValue(modeContent);
+              gm.editor.changingToTextEditor = true;
+              gm.editor.monacoWs.setValue(modeContent);
+            }
           } else {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
@@ -96,13 +98,15 @@ export default {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
 
-            gm.editor.modeSettings = gm.editor.appliedMode.settings;
-            gm.editor.modeAssets = gm.editor.appliedMode.assets;
+            if (gm.editor.appliedMode) {
+              gm.editor.modeSettings = gm.editor.appliedMode.settings;
+              gm.editor.modeAssets = gm.editor.appliedMode.assets;
 
-            const modeContent = gm.editor.appliedMode.content;
+              const modeContent = gm.editor.appliedMode.content;
 
-            gm.editor.changingToTextEditor = true;
-            gm.editor.monacoWs.setValue(modeContent);
+              gm.editor.changingToTextEditor = true;
+              gm.editor.monacoWs.setValue(modeContent);
+            }
           } else {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }

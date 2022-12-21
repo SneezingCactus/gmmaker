@@ -446,14 +446,17 @@ export default {
         if (this.blurContainer.gmModified) {
           const childAmount = this.blurContainer.children.length;
 
-          for (let i = 0; i < childAmount; i++) {
-            const child = this.blurContainer.children[this.blurContainer.children.length-1];
+          for (let i = childAmount - 1; i >= 0; i--) {
+            const child = this.blurContainer.children[i];
 
             if (child.isGMMDrawing) continue;
             if (child == gm.graphics.camera) continue;
 
+            // blur extending dots
+            if (child.constructor === PIXI.Graphics) continue;
+
             this.blurContainer.removeChildOLD(child);
-            gm.graphics.camera.addChild(child);
+            gm.graphics.camera.addChildAt(child, 0);
           }
 
           return result;
@@ -463,10 +466,16 @@ export default {
           const child = gm.graphics.camera?.children[0];
 
           gm.graphics.camera.removeChild(child);
+
+          // blur extending dots
+          if (child.geometry?.batches[0]?.style.color === 0x1a2733) {
+            this.blurContainer.addChildOLD(child);
+          }
         }
 
         this.blurContainer.addChildOLD = this.blurContainer.addChild;
-        this.blurContainer.addChild = function() {
+        this.blurContainer.addChild = function(child) {
+          if (child.constructor === PIXI.Graphics) return;
           gm.graphics.camera.addChild(...arguments);
         };
         this.blurContainer.removeChildOLD = this.blurContainer.removeChild;
@@ -474,11 +483,19 @@ export default {
           gm.graphics.camera.removeChild(...arguments);
         };
 
-        while (this.blurContainer.children.length > 0) {
-          const child = this.blurContainer.children[0];
+        const childAmount = this.blurContainer.children.length;
+
+        for (let i = childAmount - 1; i >= 0; i--) {
+          const child = this.blurContainer.children[i];
+
+          if (child.isGMMDrawing) continue;
+
+          // blur extending dots
+          if (child.geometry?.batches[0]?.style.color === 0x1a2733) continue;
+          if (child.constructor === PIXI.Graphics) continue;
 
           this.blurContainer.removeChildOLD(child);
-          gm.graphics.camera.addChild(child);
+          gm.graphics.camera.addChildAt(child, 0);
         }
         this.blurContainer.addChildOLD(gm.graphics.camera);
 

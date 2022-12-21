@@ -18,7 +18,8 @@ export default {
     // mr whiter whee is my 50002 km/h of methé
     // (meth is short for method here)
 
-    gm.state.sesMethNames = compContainer.contentWindow.eval(declareMeths);
+    compContainer.contentWindow.eval(declareMeths);
+    gm.state.sesMethNames = compContainer.contentWindow.methNames;
     gm.state.safeEvalWindow = compContainer.contentWindow;
 
     gm.state.resetSES();

@@ -57,12 +57,21 @@ module.exports = {
         ],
       },
       {
-        test: /\.(raw\.js|xml|html)$/i,
+        test: /\.(xml|html)$/i,
         use: 'raw-loader',
       },
       {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/inline',
+      },
+      {
+        test: /\.(raw\.js)$/i,
+        use: [
+          {
+            loader: path.resolve('./minify-loader.js'),
+          },
+        ],
+        type: 'asset/source',
       },
     ],
   },

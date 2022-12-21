@@ -59,7 +59,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(ppm:.{0,100}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.shapes[$3]) continue;'},
       {regex: '(updateRodJoints.{0,100} ([^=]+)=\\[argu.{0,2000}?;([^;+]+)\\+\\+\\)\\{)', to: '$1if($2[0][0].physics.joints[$3]?.type !== "d") continue;'},
       // extend top bar visibility range
-      {regex: '(return.{0,600})< [^ ]{0,10}(.{0,100}ime.+?rue.+?> )[^ ]{0,10}', to: '$1< 100$2100'},
+      {regex: '(return.{0,1000})< [^ ]{0,10}(.{0,100}ime.+?rue.+?> )[^ ]{0,10}', to: '$1< 100$2100'},
     ],
     inject: {
       regex: ';}\\);}}\\);',
