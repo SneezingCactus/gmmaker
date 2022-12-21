@@ -54,7 +54,7 @@ export default {
             }
           }
 
-          PhysicsClass.globalStepVars.inputState.gmExtra.kills = [];
+          // PhysicsClass.globalStepVars.inputState.gmExtra.kills = [];
         }
       }
       return this.StepOLD(...arguments);
