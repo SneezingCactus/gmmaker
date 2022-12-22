@@ -51,7 +51,7 @@ export default {
     }
     this.soundsPlaying = [];
   },
-  playSound: function(id, volume, panning) {
+  playSound: function(id, volume = 0.5, panning = 0) {
     if (!gm.config.saved.ingame.allowSounds) return;
     if (BonkUtils.mute || BonkUtils.preClickMute) return;
     if (window.gmReplaceAccessors.rollbacking) {
