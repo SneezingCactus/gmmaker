@@ -873,7 +873,9 @@ export default {
       if (gm.editor.browser == 'Firefox') {
         report = e.name + ': ' + e.message;
 
-        if (e.name == 'SyntaxError') {
+        if (e.message.includes('delete') && e.message.includes('unqualified')) {
+          report = 'SyntaxError: Delete of an unqualified identifier is not allowed. You can use the delete keyword on array items and object properties, but not on plain variables.';
+        } else if (e.name == 'SyntaxError') {
           try {
             acorn.parse(gm.editor.monacoWs.getValue(), {ecmaVersion: 'latest'});
           } catch (syntaxError) {
@@ -893,7 +895,9 @@ export default {
       } else {
         report = e.stack;
 
-        if (report.includes('SyntaxError:')) {
+        if (e.message.includes('Delete') && e.message.includes('unqualified')) {
+          report = 'SyntaxError: Delete of an unqualified identifier is not allowed. You can use the delete keyword on array items and object properties, but not on plain variables.';
+        } else if (report.includes('SyntaxError:')) {
           try {
             acorn.parse(gm.editor.monacoWs.getValue(), {ecmaVersion: 'latest'});
           } catch (syntaxError) {
@@ -911,8 +915,10 @@ export default {
 
       const match = /:([0-9]+):([0-9]+)/gm.exec(report);
 
-      gm.editor.monacoWs.revealPositionInCenter({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
-      gm.editor.monacoWs.setPosition({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
+      if (match) {
+        gm.editor.monacoWs.revealPositionInCenter({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
+        gm.editor.monacoWs.setPosition({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
+      }
 
       gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. Below is the crash report, which may help you find out what happened.', ()=>{}, {
         showCode: true,

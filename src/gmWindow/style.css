@@ -373,6 +373,7 @@
     overflow-wrap: anywhere;
     white-space: pre-wrap;
     user-select: text;
+    text-align: left;
 }
 
 .gm_dialogoptions {

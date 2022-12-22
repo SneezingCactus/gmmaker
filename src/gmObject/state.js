@@ -193,6 +193,7 @@ export default {
             center: false,
           },
         };
+        inputs[i].mouse ??= {pos: [0, 0], left: false, right: false, middle: false};
 
         if (!state.discs[i].swing) state.discs[i].swing = false;
       }

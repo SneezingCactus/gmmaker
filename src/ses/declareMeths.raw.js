@@ -9,6 +9,7 @@ var isArray = Array.isArray;
  * @return {*}
  */
 function copy(obj) {
+  if (obj === undefined || (typeof obj === 'number' && isNaN(obj))) return null;
   if (!obj) return obj;
   if (isArray(obj)) {
     let arr = [];
