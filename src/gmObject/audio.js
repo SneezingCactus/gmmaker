@@ -37,7 +37,7 @@ export default {
 
       if (this.customSounds[sound.id]) this.customSounds[sound.id].howl.unload();
       this.customSounds[sound.id] = {
-        howl: new Howl({src: 'data:audio/' + sound.extension + ';base64,' + sound.data, id: sound.id}),
+        howl: new Howl({src: 'data:audio/' + sound.extension + ';base64,' + sound.data, gmId: sound.id}),
         hash: sound.dataHash,
       };
     }

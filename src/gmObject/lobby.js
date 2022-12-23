@@ -25,6 +25,7 @@ export default {
       socket.on(7, function(id, packet) {
         // add gm input data to i if it exists
         if (packet.gm) packet.i = [packet.i, ...packet.gm];
+        if (packet.gmMousePos) packet.i = {gmMousePos: true, pos: packet.i};
 
         // process new mode coming from host
         if (id !== gm.lobby.networkEngine.hostID) return;
@@ -49,7 +50,7 @@ export default {
 
       socket.emitOLD = socket.emit;
       socket.emit = function(id, packet) {
-        if (id === 4 && !packet.gmMode && typeof packet?.i === 'object') {
+        if (id === 4 && !packet.gmMode && !packet.gmMousePos && typeof packet?.i === 'object') {
           const inputArray = packet.i;
           packet.i = inputArray[0];
           inputArray.shift();
@@ -194,8 +195,14 @@ export default {
       networkEngine.informInGame = function(a, b) {
         gm.lobby.sendMode(null, true);
 
+        b.gmMousePositions = gm.input.mousePosList;
+
         return networkEngine.informInGameOLD(a, b);
       };
+
+      networkEngine.on('recvInGame', function(theData) {
+        gm.input.mousePosList = theData.gmMousePositions || [];
+      });
 
       return gm.lobby.data = data, gm.lobby.mpSession = mpSession, gm.lobby.networkEngine = networkEngine, networkEngine;
     };
@@ -213,6 +220,7 @@ export default {
           document.getElementById('gm_logbox').innerHTML = '';
           document.getElementById('gm_logbox').style.visibility = 'hidden';
           gm.state.resetStaticInfo();
+          gm.input.mousePosList = [];
 
           window.gmReplaceAccessors.forceInputRegister = true;
 
