@@ -343,12 +343,12 @@ this.game = {
   audio: {
     playSound: playSound,
     playSoundAtWorldPos: function(id, volume, xPos) {
-      const ppm = game.state.physics.ppm;
+      const scaledPPM = game.state.physics.ppm * game.graphics.camera.scale[0];
 
-      let panning = xPos / (365 / ppm) - 1;
-      panning += ((-game.graphics.camera.pos[0] + 730 / ppm) * game.graphics.camera.scale[0]) / (365 / ppm) - 1;
+      let panning = xPos - game.graphics.camera.pos[0] + 365 / scaledPPM;
+      panning = panning / 365 * scaledPPM - 1;
 
-      this.playSound(id, volume, panning);
+      game.audio.playSound(id, volume, panning);
     },
     stopAllSounds: stopAllSounds,
   },
@@ -396,6 +396,11 @@ this.prepareDynamicInfo = function() {
   game.state.gmExtra.drawings = game.graphics.drawings;
   game.state.gmExtra.overrides = game.inputs.overrides;
   game.state.gmExtra.disableDeathBarrier = game.world.disableDeathBarrier;
+
+  for (let i = 0; i < game.inputs.length; i++) {
+    if (!game.inputs[i]) continue;
+    game.state.gmExtra.mousePosSend[i] = game.inputs[i].mouse.allowPosSending;
+  }
 
   return game.state;
 };

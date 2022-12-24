@@ -98,6 +98,7 @@ export default {
 
       let state;
 
+      gm.state.collisionsThisStep = [];
       state = stepOLD(...arguments);
 
       /* #region UPDATE DEATH BARRIER DISABLE */
@@ -194,7 +195,6 @@ export default {
           },
         };
         inputs[i].mouse ??= {pos: [0, 0], left: false, right: false, middle: false};
-        inputs[i].mouse.pos ??= [0, 0];
 
         if (!state.discs[i].swing) state.discs[i].swing = false;
       }
@@ -293,6 +293,8 @@ export default {
 
       // fire collision events
       for (let i = 0; i < gm.state.collisionsThisStep.length; i++) {
+        if (state.ftu !== -1) break;
+
         const collision = gm.state.collisionsThisStep[i];
         const fixtureA = collision.fixtureAData;
         const fixtureB = collision.fixtureBData;
@@ -509,6 +511,15 @@ export default {
       }
       /* #endregion ANGLE UNIT RESTORING */
 
+      /* #region MOUSE POS SENDING ACTIVATION */
+      for (let i = 0; i < state.gmExtra.mousePosSend[i]; i++) {
+        const clientId = state.gmInitial.lobby.clientId;
+        if (state.gmExtra.mousePosSend[clientId] && !oldState.gmExtra.mousePosSend[clientId]) {
+          window.gmReplaceAccessors.forceInputRegister = true;
+        }
+      }
+      /* #endregion MOUSE POS SENDING ACTIVATION */
+
       // make game state publicly accessible
       gm.state.gameState = state;
 
@@ -616,6 +627,7 @@ export default {
         },
         drawings: [],
         overrides: [],
+        mousePosSend: [],
         disableDeathBarrier: false,
         kills: [],
       };
@@ -629,6 +641,7 @@ export default {
           action: null,
           action2: null,
         };
+        gmExtra.mousePosSend[gmInitial.lobby.allPlayerIds[i]] = true;
       }
       state.gmExtra = JSON.parse(JSON.stringify(gmExtra));
       /* #endregion gmExtra CREATION */

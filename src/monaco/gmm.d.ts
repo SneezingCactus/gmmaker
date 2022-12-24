@@ -7,7 +7,7 @@ declare interface swingInfo {
   /**
    * Grappling point relative to the attached body's position.
    */
-  p: number[]
+  p: vector2d
   /**
    * Grapple rod length.
    */
@@ -20,13 +20,13 @@ declare interface disc {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  p: number[]
+  p: vector2d
   /**
   * Linear velocity of the disc, as a 2d vector.
   * 
   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
   */
-  lv: number[]
+  lv: vector2d
   /**
    * Angle in degrees of the disc.
    */
@@ -53,13 +53,13 @@ declare interface disc {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  sp: number[]
+  sp: vector2d
   /**
    * Spawn linear velocity of the disc, as a 2d vector.
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  slv: number[]
+  slv: vector2d
   /**
    * Arrow aim speed (controls how fast an arrow will launch).
    */
@@ -99,13 +99,13 @@ declare interface discDeath {
    *  
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  p: number[]
+  p: vector2d
   /**
    * Linear velocity that the disc had when it died, as a 2d vector.
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  lv: number[]
+  lv: vector2d
 }
 
 declare interface projectile {
@@ -114,13 +114,13 @@ declare interface projectile {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  p: number[]
+  p: vector2d
   /**
    * Linear velocity of the arrow, as a 2d vector.
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  lv: number[]
+  lv: vector2d
   /**
    * Angle in degrees of the arrow.
    */
@@ -227,13 +227,13 @@ declare interface body {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  p: number[]
+  p: vector2d
   /**
    * Linear velocity of the body, as a 2d vector.
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  lv: number[]
+  lv: vector2d
   /**
    * Angle in degrees of the body.
    */
@@ -282,7 +282,7 @@ declare interface body {
   /**
    * Array that contains the IDs of each fixture that makes up this body.
    */
-  fx: number[]
+  fx: vector2d
   /**
    * The collision group of the body.
    * 
@@ -392,7 +392,7 @@ declare interface shape {
   /**
    * [Polygon only] The vertices that make up the polygon.
    */
-  v: (number[])[]
+  v: (vector2d)[]
   /**
    * [Polygon only] The scale of the polygon defined in the map editor. Changing this value will have no effect on the polygon.
    */
@@ -488,14 +488,14 @@ declare interface joint {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  aa: number[]
+  aa: vector2d
   /**
    * [Rotating and soft rod only] Second attachment offset, as a 2d vector. Relative to the second attachment's body.
    * If there's no specified second body (bb == -1), it's absolute (relative to world) instead.
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  ab: number[]
+  ab: vector2d
   /**
    * [Rotating and soft rod only] Max length of the joint.
    */
@@ -773,7 +773,7 @@ declare interface bodyCollisionData {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  normal: number[]
+  normal: vector2d
 }
 
 declare interface gameEvents {
@@ -922,7 +922,7 @@ declare interface drawingShapeBase {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  pos: number[]
+  pos: vector2d
   /**
    * Determines whether any changes made to the drawing (excluding any shape changes) will go through 
    * a smooth transition (as smooth as your screen's refresh rate) or if they will be applied instantly 
@@ -942,7 +942,7 @@ declare interface drawingShapeBox {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  size: number[]
+  size: vector2d
 }
 
 declare interface drawingShapeCircle {
@@ -956,7 +956,7 @@ declare interface drawingShapeCircle {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  size: number[]
+  size: vector2d
 }
 
 declare interface drawingShapePolygon {
@@ -970,13 +970,13 @@ declare interface drawingShapePolygon {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  scale: number[]
+  scale: vector2d
   /**
    * The vertices that make up the polygon, represented as 2d vectors.
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  vertices: number[][]
+  vertices: vector2d[]
 }
 
 declare interface drawingShapeLine {
@@ -986,7 +986,7 @@ declare interface drawingShapeLine {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  end: number[]
+  end: vector2d
   /**
    * Width (thickness) of the line.
    */
@@ -1043,20 +1043,20 @@ declare interface drawingShapeImage {
      * 
      * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
      */
-    pos: number[]
+    pos: vector2d
     /**
      * Size of the image region, in pixels, as a 2d vector. X axis is width, Y axis is height.
      * 
      * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
      */
-    size: number[]
+    size: vector2d
   } | null
   /**
    * Size of the image, as a 2d vector. X axis is width, Y axis is height.
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  size: number[]
+  size: vector2d
 }
 
 declare interface drawing {
@@ -1069,7 +1069,7 @@ declare interface drawing {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  pos: number[]
+  pos: vector2d
   /**
    * Angle of the drawing, in degrees.
    */
@@ -1079,7 +1079,7 @@ declare interface drawing {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  scale: number[]
+  scale: vector2d
   /**
    * Indicates what type of object this drawing is attached to. Whether it appears in front or behind the attached object is determined by isBehind.
    * It can be either of these five types:
@@ -1253,6 +1253,22 @@ declare interface playerInput {
      */
     pos: number[]
     /**
+     * This variable controls whether this player can send their mouse position to the others
+     * in the room or not. Input sending can cause lots of lag, specially for something like mouse position
+     * which has to be sent every time it changes. That's why this is very useful: by denying the player to
+     * send their mouse position, you're reducing lag.
+     * 
+     * If set to `false`, this player will stop sending their mouse pos and the `pos` property will be set to `[0, 0]`.
+     * 
+     * If set to `true`, this player will be able to send their mouse pos again.
+     * 
+     * Important notes: 
+     * - This doesn't affect mouse button inputs, they will get sent normally.
+     * - You must wait a step after modifying this for the changes to happen.
+     * - This is the only value you can edit from inputs.
+     */
+    allowPosSending: boolean
+    /**
      * `true` if the player is pressing the left mouse button, `false` otherwise.
      */
     left: boolean
@@ -1377,13 +1393,13 @@ declare interface rayCastResult {
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  point: number[]
+  point: vector2d
   /**
    * A 2d vector with a length of 1 that represents the direction of the face hit by the raycast.
    * 
    * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
    */
-  normal: number[]
+  normal: vector2d
   /**
    * [Body type hits only] ID of the fixture hit by the raycast.
    */
@@ -1461,7 +1477,7 @@ declare interface gameWorld {
    * @param end  The end point of the ray, as a 2d vector, represented by a number array `[x,y]` 
    * @param filter Filter function that dictates at which point the ray should stop.
    */
-  rayCast(origin: number[], end: number[], filter: (hit: rayCastResult) => boolean): rayCastResult | null
+  rayCast(origin: vector2d, end: vector2d, filter: (hit: rayCastResult) => boolean): rayCastResult | null
   /**
    * It's like a raycast, but it allows you to find multiple objects in the line.
    * 
@@ -1472,7 +1488,7 @@ declare interface gameWorld {
    * @param end  The end point of the ray, as a 2d vector, represented by a number array `[x,y]` 
    * @param filter Filter function that dictates what hits should be ignored and which shouldn't.
    */
-  rayCastAll(origin: number[], end: number[], filter: (hit: rayCastResult) => boolean): rayCastResult[]
+  rayCastAll(origin: vector2d, end: vector2d, filter: (hit: rayCastResult) => boolean): rayCastResult[]
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -1643,12 +1659,12 @@ declare interface Vector {
   /**
    * Rotate a 2d vector by a given angle, taking the point zero (0, 0) as the rotation center.
    */
-  rotate2d(v: number[], a: number): number[]
+  rotate2d(v: vector2d, a: number): vector2d
   /**
    * Get the angle between the 2d vector and (1, 0), taking the point zero (0, 0) as the rotation center.
    * This is the inverse of `Vector.rotate2d([1, 0], angle)`.
    */
-  getAngle2d(v: number[]): number
+  getAngle2d(v: vector2d): number
 }
 
 /** 
@@ -1775,3 +1791,5 @@ declare interface Math {
  * and that trigonometry functions use degrees instead of radians.
  */
 declare var Math: Math;
+
+declare type vector2d = [x: number, y: number]

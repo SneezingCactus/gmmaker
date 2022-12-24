@@ -52,7 +52,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // allow toggling of the death barrier
       {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
       // modify position of sound with camera position
-      {regex: '(=Math.{0,30}Math.{0,30}\\(1[^,]{0,10},)([^,]{0,10},-1)', flags: 'gm', to: '$1(window.gmReplaceAccessors.addToStereo ?? 0) + $2'},
+      {regex: '(=Math.{0,30}Math.{0,30}\\(1[^,]{0,10},)([^,]{0,10},-1)', flags: 'gm', to: '$1(window.gmReplaceAccessors.multToStereo ?? 1) * ((window.gmReplaceAccessors.addToStereo ?? 0) + $2)'},
       // remove pixi render function at the end of BonkGraphics render function to allow for gmm to do stuff before rendering
       {regex: '(this.renderer.render\\(this.stage\\);)', to: '/*$1*/'},
       // add existance checks where needed
@@ -60,13 +60,6 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(updateRodJoints.{0,100} ([^=]+)=\\[argu.{0,2000}?;([^;+]+)\\+\\+\\)\\{)', to: '$1if($2[0][0].physics.joints[$3]?.type !== "d") continue;'},
       // extend top bar visibility range
       {regex: '(return.{0,1000})< [^ ]{0,10}(.{0,100}ime.+?rue.+?> )[^ ]{0,10}', to: '$1< 100$2100'},
-
-      {
-        regex: '(var ([^=]{0,5})=\\[ar.{0,100})(if\\(ty.{0,100}!= 0\\){ret.{0,100}n;\\})(.{0,100}<.{0,100}re.{0,1000}?(if.{0,10}<[^=]{0,50}=[^;]+?;}))',
-        to: '$1console.log($2[0][1]);$3if($2[0][1].gmMousePos){gm.input.mousePosList[$2[0][0]] ??= [];gm.input.mousePosList[$2[0][0]][$2[0][1].f] = $2[0][1].i;$5;return;}$4',
-      },
-      {regex: '(;(([^\\[]{0,10})[^=]{0,5})=\\[\\];for.{0,100}if.{0,100}for.{0,50}Math.{0,100}--.{0,500}break;}}}})', to: '$1return gm.input.insertMousePos($2, $3[0][0]);'},
-      {regex: '(;([^=]{0,10})=7;.{0,20000}\\2,func.[^ ]+ ([^=]+).{0,100}if\\()([^!&{]+\\{)', to: '$1!$3[0][1].gmMousePos&& $4'},
     ],
     inject: {
       regex: ';}\\);}}\\);',

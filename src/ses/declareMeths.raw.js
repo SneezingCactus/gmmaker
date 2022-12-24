@@ -91,6 +91,12 @@ window.getDynamicInfo = (game) => {
     }
   }
 
+  for (let i = 0; i < game.inputs.length; i++) {
+    if (!game.inputs[i]) continue;
+    if (!gmExtra.mousePosSend[i]) game.inputs[i].mouse.pos = [0, 0];
+    game.inputs[i].mouse.allowPosSending = gmExtra.mousePosSend[i];
+  }
+
   game.vars = gmExtra.vars;
   game.inputs.overrides = gmExtra.overrides;
   game.graphics.quality = gmExtra.graphicsQuality;
