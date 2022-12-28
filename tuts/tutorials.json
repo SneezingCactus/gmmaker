@@ -1,0 +1,35 @@
+{
+  "Home": {
+    "title": "Home"
+  },
+  "Fundaments": {
+    "title": "Fundaments",
+    "kind": "category",
+    "children": {
+      "Fundaments-1": {
+        "title": "Events"
+      },
+      "Fundaments-2": {
+        "title": "GMMaker's coordinate system"
+      },
+      "Fundaments-3": {
+        "title": "Vectors"
+      },
+      "Fundaments-4": {
+        "title": "Drawings"
+      }
+    }
+  },
+  "Other": {
+    "title": "Other",
+    "kind": "category",
+    "children": {
+      "Other-1": {
+        "title": "How your mode could be causing an unknown error"
+      },
+      "Other-2": {
+        "title": "Built in sounds and their IDs"
+      }
+    }
+  }
+}

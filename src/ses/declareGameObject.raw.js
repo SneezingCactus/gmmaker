@@ -389,7 +389,7 @@ this.setDynamicInfo = function() {
 
   // eslint-disable-next-line new-cap
   const random = new Math.seedrandom(randomSeed);
-  Math.random = (a) => Math.round(random() * 1000000000) / 1000000000;
+  Math.random = (a) => Math.round(random() * 1000000000) * 0.000000001;
 };
 this.prepareDynamicInfo = function() {
   game.state.gmExtra.camera = game.graphics.camera;

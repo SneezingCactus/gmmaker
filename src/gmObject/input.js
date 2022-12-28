@@ -42,8 +42,8 @@ export default {
 
         inputs.mouse = {
           pos: [
-            Math.round(mouse.global.x / scaleRatio * 1000000) / 1000000,
-            Math.round(mouse.global.y / scaleRatio * 1000000) / 1000000,
+            Math.round(mouse.global.x / scaleRatio * 1000000) * 0.000001,
+            Math.round(mouse.global.y / scaleRatio * 1000000) * 0.000001,
           ],
           left: (mouse.buttons & 0b001) == 0b001,
           right: (mouse.buttons & 0b010) == 0b010,

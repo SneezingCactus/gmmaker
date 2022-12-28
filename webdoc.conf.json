@@ -1,0 +1,24 @@
+{
+  "source": {
+    "include": "./src/monaco/gmm.d.ts",
+    "exclude": "node_modules"
+  },
+  "plugins": [
+    "@webdoc/plugin-markdown",
+    "@webdoc/plugin-format"
+  ],
+  "template": {
+    "readme": "./README.md",
+    "outputSourceFiles": false,
+    "applicationName": "Game Mode Maker",
+    "title": "GMMaker docs",
+    "meta": {
+      "og:title": "GMMaker docs",
+      "og:description": "GMMaker in-game API documentation"
+    }
+  },
+  "opts": {
+    "destination": "docs",
+    "export": "./docs/webdoc.api.json"
+  }
+}

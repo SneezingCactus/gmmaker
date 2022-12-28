@@ -94,7 +94,7 @@ window.getDynamicInfo = (game) => {
   for (let i = 0; i < game.inputs.length; i++) {
     if (!game.inputs[i]) continue;
     if (!gmExtra.mousePosSend[i]) game.inputs[i].mouse.pos = [0, 0];
-    game.inputs[i].mouse.allowPosSending = gmExtra.mousePosSend[i];
+    game.inputs[i].mouse.allowPosSending = gmExtra.mousePosSend[i] ?? false;
   }
 
   game.vars = gmExtra.vars;
@@ -140,20 +140,20 @@ const mathMeths = ['abs', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atanh', 'at
 
 for (const method of mathMeths) {
   if (typeof oldMath[method] === 'number') {
-    newMath[method] = oldMath.round(oldMath[method] * 1000000000) / 1000000000;
+    newMath[method] = oldMath.round(oldMath[method] * 1000000000) * 0.000000001;
   } else {
     newMath[method] = function() {
-      return oldMath.round(oldMath[method](...arguments) * 1000000000) / 1000000000;
+      return oldMath.round(oldMath[method](...arguments) * 1000000000) * 0.000000001;
     };
   }
 }
-newMath.sin = (a) => oldMath.round(oldMath.sin(a * (oldMath.PI / 180)) * 1000000000) / 1000000000;
-newMath.cos = (a) => oldMath.round(oldMath.cos(a * (oldMath.PI / 180)) * 1000000000) / 1000000000;
-newMath.tan = (a) => oldMath.round(oldMath.tan(a * (oldMath.PI / 180)) * 1000000000) / 1000000000;
-newMath.asin = (a) => oldMath.round(oldMath.asin(a) * (180 / oldMath.PI) * 1000000000) / 1000000000;
-newMath.acos = (a) => oldMath.round(oldMath.acos(a) * (180 / oldMath.PI) * 1000000000) / 1000000000;
-newMath.atan = (a) => oldMath.round(oldMath.atan(a) * (180 / oldMath.PI) * 1000000000) / 1000000000;
-newMath.atan2 = (a, b) => oldMath.round(oldMath.atan2(a, b) * (180 / oldMath.PI) * 1000000000) / 1000000000;
+newMath.sin = (a) => oldMath.round(oldMath.sin(a * (oldMath.PI / 180)) * 1000000000) * 0.000000001;
+newMath.cos = (a) => oldMath.round(oldMath.cos(a * (oldMath.PI / 180)) * 1000000000) * 0.000000001;
+newMath.tan = (a) => oldMath.round(oldMath.tan(a * (oldMath.PI / 180)) * 1000000000) * 0.000000001;
+newMath.asin = (a) => oldMath.round(oldMath.asin(a) * (180 / oldMath.PI) * 1000000000) * 0.000000001;
+newMath.acos = (a) => oldMath.round(oldMath.acos(a) * (180 / oldMath.PI) * 1000000000) * 0.000000001;
+newMath.atan = (a) => oldMath.round(oldMath.atan(a) * (180 / oldMath.PI) * 1000000000) * 0.000000001;
+newMath.atan2 = (a, b) => oldMath.round(oldMath.atan2(a, b) * (180 / oldMath.PI) * 1000000000) * 0.000000001;
 newMath.random = () => {};
 newMath.lerpAngle = (a, b, t) => {
   const anglePointA = [newMath.sin(a), newMath.cos(a)];

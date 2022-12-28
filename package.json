@@ -8,6 +8,9 @@
     "monaco-editor": "^0.34.0"
   },
   "devDependencies": {
+    "@webdoc/cli": "^2.2.0",
+    "@webdoc/plugin-format": "^2.2.0",
+    "@webdoc/plugin-markdown": "^2.2.0",
     "css-loader": "^5.2.7",
     "eslint": "^8.21.0",
     "eslint-config-google": "^0.14.0",
@@ -25,6 +28,7 @@
   "scripts": {
     "test": "web-ext run -s ./dist",
     "build": "webpack",
-    "build-extension": "web-ext build -s ./dist --overwrite-dest && node generateUserScript.js"
+    "build-extension": "web-ext build -s ./dist --overwrite-dest && node generateUserScript.js",
+    "build-docs": "npx webdoc --tutorials ./tuts && node monkeyPatchDocs.js"
   }
 }

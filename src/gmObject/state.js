@@ -79,8 +79,8 @@ export default {
       const overrides = oldState.gmExtra.overrides;
       const fakeInputs = [];
 
-      for (let i = 0; i !== oldState.discs.length; i++) {
-        if (!oldState.discs[i]) continue;
+      for (let i = 0; i !== inputs.length; i++) {
+        if (!oldState.discs[i] && !inputs[i]) continue;
 
         fakeInputs[i] = {
           up: overrides[i]?.up ?? inputs[i]?.up ?? false,
@@ -89,8 +89,9 @@ export default {
           right: overrides[i]?.right ?? inputs[i]?.right ?? false,
           action: overrides[i]?.action ?? inputs[i]?.action ?? false,
           action2: overrides[i]?.action2 ?? inputs[i]?.action2 ?? false,
-          mouse: inputs[i]?.mouse ?? {pos: [0, 0], left: false, right: false, middle: false},
         };
+
+        inputs[i].mouse ??= {pos: [0, 0], left: false, right: false, middle: false};
       }
 
       arguments[1] = fakeInputs;
@@ -180,7 +181,7 @@ export default {
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
 
-        inputs[i] = inputs[i] || {
+        inputs[i] ??= {
           left: false,
           right: false,
           up: false,
