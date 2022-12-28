@@ -2,6 +2,15 @@
   "Home": {
     "title": "Home"
   },
+  "GettingStarted": {
+    "title": "Getting Started",
+    "kind": "category",
+    "children": {
+      "GettingStarted-1": {
+        "title": "Downloading and installing"
+      }
+    }
+  },
   "Fundaments": {
     "title": "Fundaments",
     "kind": "category",

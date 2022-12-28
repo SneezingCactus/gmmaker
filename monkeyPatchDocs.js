@@ -35,7 +35,7 @@ walk('./docs', function(err, results) {
 
     let file = fs.readFileSync(url, {encoding: 'utf-8'});
 
-    // file = file.replace(/(\:|=|: )(["'`])\/([^\/][^m][^m][^a])/gm, '$1$2/gmmaker/docs/$3');
+    file = file.replace('<head>', '<head><link rel="shortcut icon" href="/gmmaker/docs/favicon.ico">');
 
     if (file.includes('"current":"tutorials"')) {
       file = file.replace('applicationName: `Game Mode Maker`', 'applicationName: `Game Mode Maker <h6 style="display: inline;">v' + manifest.version + ' wiki</h6>`');

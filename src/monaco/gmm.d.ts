@@ -24,13 +24,13 @@ declare interface disc {
   /**
    * Position of the disc, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public p: vector2d;
   /**
   * Linear velocity of the disc, as a 2d vector.
   * 
-  * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+  * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
   */
   public lv: vector2d;
   /**
@@ -58,13 +58,13 @@ declare interface disc {
   /**
    * Spawn position of the disc, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public sp: vector2d;
   /**
    * Spawn linear velocity of the disc, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public slv: vector2d;
   /**
@@ -108,13 +108,13 @@ declare interface discDeath {
   /**
    * Position that the disc had when it died, as a 2d vector.
    *  
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public p: vector2d;
   /**
    * Linear velocity that the disc had when it died, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public lv: vector2d;
 }
@@ -126,13 +126,13 @@ declare interface projectile {
   /**
    * Position of the arrow, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public p: vector2d;
   /**
    * Linear velocity of the arrow, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public lv: vector2d;
   /**
@@ -249,13 +249,13 @@ declare interface body {
   /**
    * Position of the body, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public p: vector2d;
   /**
    * Linear velocity of the body, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public lv: vector2d;
   /**
@@ -526,14 +526,14 @@ declare interface joint {
   /**
    * [Rotating and soft rod only] First attachment offset, as a 2d vector. Relative to the first attachment's body.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public aa: vector2d;
   /**
    * [Rotating and soft rod only] Second attachment offset, as a 2d vector. Relative to the second attachment's body.
    * If there's no specified second body (bb == -1), it's absolute (relative to world) instead.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public ab: vector2d;
   /**
@@ -858,7 +858,7 @@ declare interface bodyCollisionData {
   /**
    * A 2d vector with a length of 1 that represents the direction of the face hit by the other object.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public normal: vector2d;
 }
@@ -870,7 +870,7 @@ declare interface gameEvents {
   /**
    * Attach a function (listener) to an event. This function will be called when the event happens. An event can have multiple listeners attached to it.
    * 
-   * Read more about events [here](https://github.com/SneezingCactus/gmmaker/wiki/Events).
+   * Read more about events [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-1.html).
    * 
    * @param eventName - The name of the event to attach the listener to.
    * @param options - Unique options to change when and how the listener will be called.
@@ -1027,7 +1027,7 @@ declare interface drawingShapeBase {
   /**
    * Position (offset) of the shape, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public pos: vector2d;
   /**
@@ -1048,7 +1048,7 @@ declare interface drawingShapeBox {
   /**
    * Size of the box, as a 2d vector. X axis is width, Y axis is height.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public size: vector2d;
 }
@@ -1065,7 +1065,7 @@ declare interface drawingShapeCircle {
   /**
    * Size of the circle, as a 2d vector. X axis is width, Y axis is height.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public size: vector2d;
 }
@@ -1082,13 +1082,13 @@ declare interface drawingShapePolygon {
   /**
    * Scale of the polygon, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public scale: vector2d;
   /**
    * The vertices that make up the polygon, represented as 2d vectors.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public vertices: vector2d[];
 }
@@ -1101,7 +1101,7 @@ declare interface drawingShapeLine {
   /**
    * Position at which the line ends, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public end: vector2d;
   /**
@@ -1152,13 +1152,13 @@ declare interface drawingImageRegion {
   /**
    * Position of the image region, in pixels, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public pos: vector2d;
   /**
    * Size of the image region, in pixels, as a 2d vector. X axis is width, Y axis is height.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public size: vector2d;
 }
@@ -1185,7 +1185,7 @@ declare interface drawingShapeImage {
   /**
    * Size of the image, as a 2d vector. X axis is width, Y axis is height.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public size: vector2d;
 }
@@ -1201,7 +1201,7 @@ declare interface drawing {
   /**
    * Position of the drawing, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public pos: vector2d;
   /**
@@ -1211,7 +1211,7 @@ declare interface drawing {
   /**
    * Scale of the drawing, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public scale: vector2d;
   /**
@@ -1250,7 +1250,7 @@ declare interface camera {
   /**
    * Position of the camera, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public pos: number[];
   /**
@@ -1260,7 +1260,7 @@ declare interface camera {
   /**
    * Scale (zoom) of the camera, as a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public scale: number;
   /**
@@ -1320,7 +1320,7 @@ declare interface gameGraphics {
   /**
    * Get the current screen size (in GMMaker units), as a 2d vector. X axis is width, Y axis is height.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    * 
    * PD: The formula to calculate screen size is very simple.
    * 
@@ -1338,7 +1338,7 @@ declare interface gameAudio {
    * Play a sound with a specified volume and panning.
    * 
    * The ID corresponding to a custom sound can be changed in the Mode Settings menu.
-   * You can find a list with all of the vanilla sounds and their respective IDs [here](https://github.com/SneezingCactus/gmmaker/wiki/Built-in-sounds-and-their-IDs).
+   * You can find a list with all of the vanilla sounds and their respective IDs [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Other-2.html).
    * @param id - The ID of the sound to play.
    * @param volume - Volume of the sound (0 to 1). You can play sounds with volumes higher than 1.
    * @param panning - Panning (balance) of the sound (-1 to 1).
@@ -1348,7 +1348,7 @@ declare interface gameAudio {
    * Play a sound with a specified volume at a specified X position in the world.
    * 
    * The ID corresponding to a custom sound can be changed in the Mode Settings menu.
-   * You can find a list with all of the vanilla sounds and their respective IDs [here](https://github.com/SneezingCactus/gmmaker/wiki/Built-in-sounds-and-their-IDs).
+   * You can find a list with all of the vanilla sounds and their respective IDs [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Other-2.html).
    * @param id - The ID of the sound to play.
    * @param volume - Volume of the sound (0 to 1). You can play sounds with volumes higher than 1.
    * @param xPos - World X position of the sound.
@@ -1574,13 +1574,13 @@ declare interface rayCastResult {
   /**
    * Point in space where the raycast hit the object. This is a 2d vector.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public point: vector2d;
   /**
    * A 2d vector with a length of 1 that represents the direction of the face hit by the raycast.
    * 
-   * Read more about vectors [here](https://github.com/SneezingCactus/gmmaker/wiki/Vectors).
+   * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public normal: vector2d;
   /**
@@ -1685,7 +1685,7 @@ declare interface gameWorld {
   /**
    * This object contains the only event-related method, addEventListener.
    * 
-   * Read more about events [here](https://github.com/SneezingCactus/gmmaker/wiki/Events).
+   * Read more about events [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-1.html).
    * 
    * @type {gameEvents}
    * @memberof game

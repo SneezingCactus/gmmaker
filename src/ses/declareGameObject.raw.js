@@ -392,6 +392,7 @@ this.setDynamicInfo = function() {
   Math.random = (a) => Math.round(random() * 1000000000) * 0.000000001;
 };
 this.prepareDynamicInfo = function() {
+  game.state.gmExtra.vars = game.vars;
   game.state.gmExtra.camera = game.graphics.camera;
   game.state.gmExtra.drawings = game.graphics.drawings;
   game.state.gmExtra.overrides = game.inputs.overrides;

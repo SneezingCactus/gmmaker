@@ -787,7 +787,7 @@ export default {
           'Whoops! Seems like there was an unknown error and the game had to be stopped. ',
           'This might or might not be an issue with the currently applied mode (if any is currently being used), or GMMaker itself.',
           '<br><br>',
-          'If you are using a custom mode, check <a href="https://github.com/SneezingCactus/gmmaker/wiki/How-your-mode-could-be-causing-an-unknown-error">this article</a> explaining how your mode could be causing an unknown error and how you can find a way to fix it. ',
+          'If you are using a custom mode, check <a href="https://sneezingcactus.github.io/gmmaker/docs/tutorials/Other-1.html">this article</a> explaining how your mode could be causing an unknown error and how you can find a way to fix it. ',
           'It might help you find what\'s wrong and how to fix it.',
           '<br><br>',
           'If not, are you using any other mods/extensions (apart from the Code Injector)? ',

@@ -2,11 +2,13 @@
 
 A [bonk.io](https://bonk.io/) mod that lets you create your own game modes using JavaScript code.
 
-### [Install guide](https://github.com/SneezingCactus/gmmaker/wiki/Downloading-and-installing)
+### [Install guide](https://sneezingcactus.github.io/gmmaker/docs/tutorials/GettingStarted-1.html)
 
 Other links:
 
-[Wiki (Unfinished)](https://github.com/SneezingCactus/gmmaker/wiki)
+[Wiki (Unfinished)](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Home.html)
+
+[Documentation](https://sneezingcactus.github.io/gmmaker/docs/index.html)
 
 [Game Mode Maker's Discord server](https://discord.gg/dnBM3N6H8a)
 
