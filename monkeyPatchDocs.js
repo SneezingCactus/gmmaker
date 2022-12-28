@@ -25,6 +25,8 @@ const walk = function(dir, done) {
   });
 };
 
+fs.rmSync('./docs/service-worker.js');
+
 walk('./docs', function(err, results) {
   if (err) throw err;
 
@@ -33,8 +35,7 @@ walk('./docs', function(err, results) {
 
     let file = fs.readFileSync(url, {encoding: 'utf-8'});
 
-    // ! comment when developing
-    file = file.replace(/=\"\/([^\/][^m][^m][^a])/gm, '="/gmmaker/$1');
+    // file = file.replace(/(\:|=|: )(["'`])\/([^\/][^m][^m][^a])/gm, '$1$2/gmmaker/docs/$3');
 
     if (file.includes('"current":"tutorials"')) {
       file = file.replace('applicationName: `Game Mode Maker`', 'applicationName: `Game Mode Maker <h6 style="display: inline;">v' + manifest.version + ' wiki</h6>`');

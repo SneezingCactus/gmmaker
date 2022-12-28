@@ -9,6 +9,7 @@
   ],
   "template": {
     "readme": "./README.md",
+    "siteRoot": "/gmmaker/docs/",
     "outputSourceFiles": false,
     "applicationName": "Game Mode Maker",
     "title": "GMMaker docs",
@@ -16,6 +17,9 @@
       "og:title": "GMMaker docs",
       "og:description": "GMMaker in-game API documentation"
     }
+  },
+  "manifest": {
+    "root": "/gmmaker/docs/"
   },
   "opts": {
     "destination": "docs",
