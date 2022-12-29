@@ -91,6 +91,20 @@ export default {
           action2: overrides[i]?.action2 ?? inputs[i]?.action2 ?? false,
         };
 
+        inputs[i] ??= {
+          left: false,
+          right: false,
+          up: false,
+          down: false,
+          action: false,
+          action2: false,
+          mouse: {
+            pos: [0, 0],
+            left: false,
+            right: false,
+            center: false,
+          },
+        };
         inputs[i].mouse ??= {pos: [0, 0], left: false, right: false, middle: false};
       }
 

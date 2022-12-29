@@ -151,7 +151,7 @@ a:hover {
   color: var(--color-primary-light);
 }
 
-img {
+button img, a img {
   filter: invert(1);
 }
 

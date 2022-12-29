@@ -4,7 +4,7 @@
 <html lang="en">
   <head><link rel="shortcut icon" href="/gmmaker/docs/favicon.ico">
     <meta charset="utf-8" />
-    <title>GMMaker docs: dot</title>
+    <title>GMMaker docs: sh! Shortcuts</title>
 
     
 
@@ -26,10 +26,10 @@
     
       <script>
         window.appData = {
-          applicationName: `Game Mode Maker <h6 style="display: inline;">v1.0.2 docs</h6>`,
-          appBar: {"items":{"reference":{"name":"API Reference","uri":"/gmmaker/docs/index.html"},"tutorials":{"name":"Wiki","uri":"/gmmaker/docs/tutorials/Home.html"}},"current":"reference"},
+          applicationName: `Game Mode Maker <h6 style="display: inline;">v1.0.2 wiki</h6>`,
+          appBar: {"items":{"reference":{"name":"API Reference","uri":"/gmmaker/docs/index.html"},"tutorials":{"name":"Wiki","uri":"/gmmaker/docs/tutorials/Home.html"}},"current":"tutorials"},
           pages: {"settings":"/gmmaker/docs/settings.html","relative":{"settings":"settings.html"}},
-          explorerTree: "/gmmaker/docs/explorer/reference.json",
+          explorerTree: "/gmmaker/docs/explorer/tutorials.json",
           siteRoot: "gmmaker/docs",
           integrations: JSON.parse(`{}`),
           manifest: `gmmaker/docs/webdoc.api.json`,
@@ -50,7 +50,7 @@
   color: #fff !important;
 }
 `;document.body.prepend(monkeyStyle);</script>
-    <div class="docs api-docs">
+    <div class="docs tutorials">
       <article class="page">
         <div class="header-content-container">
           <section class="header" id="header-mount-point">
@@ -64,112 +64,49 @@
             
 <main class="page-content">
   <div class="document">
-    <div class="breadcrumb">
-      
-        gmmaker
-        &gt;
-      
-      
-        <a href=/gmmaker/docs/gmmaker/Vector.html>Vector</a>
-        &gt;
-      
-      <span>dot</span>
-    </div>
-    <section class="document__title ">
-      <h1>
-        Vector.dot
-      </h1>
-      
-    </section>
-
     
-<pre class="signature__container"><code class="signature">dot(a: number[], b: number[]) → {number}</code></pre>
+    
+<h1>sh! Shortcuts</h1>
+<p>In GMMaker, there's a series of autocompletion shortcuts meant to aid with the<br>
+use of big functions such as <code>game.graphics.createDrawing</code> and <code>game.events.addEventListener</code>.</p>
+<p>They can be accessed by simply typing <code>sh!</code> in the text editor, navigating the list that shows up<br>
+using the arrow keys and selecting the one you want with Enter.</p>
+<p>Example usage:</p>
+<p><img src="/gmmaker/docs/assets/images/sh_shortcuts.png" alt="Example showing how to create a drawing using sh! shortcuts."></p>
 
 
-    <div class="document__brief">
-<p>Returns the dot product of vector A and vector B.</p>
-</div>
-    <div class="document__description">
-<p>If normalized vectors are given, the function returns 1 if they point in exactly the same direction,
--1 if they point in completely opposite directions and zero if the vectors are perpendicular.</p>
-</div>
-
-    
-
-    
-
-    
-       
-<div class="table-wrapper">
-  <table class="member-parameters">
-    <caption class="member-parameters__caption">Parameters:</caption>
-    <thead class="member-parameters__head">
-      <tr class="member-parameter-header">
-        <th class="member-parameter-header__name">Name</th>
-        <th class="member-parameter-header__type">Type</th>
-        
-        
-        <th class="member-parameter-header__description">Description</th>
-      </tr>
-    </thead>
-    <tbody class="member-parameters__body">
-      <tr class="member-parameter">
-        <td class="member-parameter__name">
-          a
-        </td>
-        <td class="member-parameter__type">
-          number[]
-        </td>
-        
-        
-        <td class="member-parameter__description"></td>
-      </tr><tr class="member-parameter">
-        <td class="member-parameter__name">
-          b
-        </td>
-        <td class="member-parameter__type">
-          number[]
-        </td>
-        
-        
-        <td class="member-parameter__description"></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-       
-<div class="table-wrapper">
-  <table class="member-returns">
-    <caption class="member-returns__caption">Returns:</caption>
-    <thead class="member-returns__head">
-      <tr class="member-returns-header">
-        <th class="member-returns-header__type">Type</th>
-        <th class="member-returns-header__description">Description</th>
-      </tr>
-    </thead>
-    <tbody class="member-returns__body">
-      <tr class="member-return">
-        <td class="member-return__type">
-          number
-        </td>
-        <td class="member-return__description">
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-    
-
-    
-
-    
-    
-    
-    
-    
   </div>
+  
+    <div class="serial-navigation serial-navigation--only-previous">
+      
+        <a class="serial-navigation__previous" href="/gmmaker/docs/tutorials/Fundaments-4.html">
+          <section>
+            <svg
+              class="serial-navigation-arrow"
+              version="1.1" xmlns="http://www.w3.org/2000/svg"
+              xmlns:xlink="http://www.w3.org/1999/xlink"
+              x="0px"
+              y="0px"
+              width="27px"
+              height="14px"
+              viewBox="0 0 23 14"
+              xml:space="preserve"
+            >
+              <line x1="0" y1="7" x2="6" y2="1" />
+              <line x1="0" y1="7" x2="6" y2="13" />
+              <line x1="0" y1="7" x2="23" y2="7" />
+            </svg>
+          </section>
+          <section>
+            <span>PREVIOUS GUIDE</span>
+            Drawings
+          </section>
+        </a>
+      
+      
+      
+    </div>
+  
   <div class="footer-gap" style="min-height: 48px;"></div>
   
 
@@ -177,7 +114,6 @@
   <footer class="footer" id="footer-mount-point"></footer>
 
 </main>
-
 
             <!-- footer in content -->
           </div>

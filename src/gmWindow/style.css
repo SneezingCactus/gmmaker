@@ -242,7 +242,7 @@
 
 /* LOBBY MODS */
 
-#settingsContainer, #leaveconfirmwindow {
+#settingsContainer, #leaveconfirmwindowcontainer, #hostleaveconfirmwindowcontainer {
     z-index: 9999;
 }
 
