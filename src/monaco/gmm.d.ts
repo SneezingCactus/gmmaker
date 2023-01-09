@@ -1637,6 +1637,12 @@ declare interface gameWorld {
    */
   public addFixtureShapeToBody(options: addFixtureShapeOptions): number;
   /**
+   * Delete the specified body, and everything related to it, such as fixtures, shapes, joints, and capzone definitions. Attached drawings aren't deleted.
+   * 
+   * @param id - The ID of the body to delete.
+   */
+  public deleteBody(id: number);
+  /**
    * Create an arrow with the definition given. In your definition, you can exclude properties that you don't need to define at the moment and GMMaker will fill them in with default values.
    * 
    * @returns {number} The ID of the newly created arrow

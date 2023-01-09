@@ -52,7 +52,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // allow toggling of the death barrier
       {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
       // modify position of sound with camera position
-      {regex: '(=Math.{0,30}Math.{0,30}\\(1[^,]{0,10},)([^,]{0,10},-1)', flags: 'gm', to: '$1(window.gmReplaceAccessors.multToStereo ?? 1) * ((window.gmReplaceAccessors.addToStereo ?? 0) + $2)'},
+      {regex: '(=Math.{0,30}Math.{0,30}\\(1[^,]{0,10},)([^,]{0,10}),-1', flags: 'gm', to: '$1(window.gmReplaceAccessors.multToStereo ?? 1) * ((window.gmReplaceAccessors.addToStereo ?? 0) + $2),-1'},
       // remove pixi render function at the end of BonkGraphics render function to allow for gmm to do stuff before rendering
       {regex: '(this.renderer.render\\(this.stage\\);)', to: '/*$1*/'},
       // add existance checks where needed

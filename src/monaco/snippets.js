@@ -57,7 +57,7 @@ export default function() {
             label: 'sh!EventDiscCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
             documentation: 'Creates an event listener for "discCollision" targetting collisions with other discs.',
-            insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'disc\'}, function(discId, otherPlayerId) {\n  //code goes here\n})',
+            insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'disc\'}, function(discId, otherDiscId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'aba',
           },

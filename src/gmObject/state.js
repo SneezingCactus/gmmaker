@@ -189,28 +189,11 @@ export default {
       /* #endregion ANGLE UNIT DEGREEING */
 
       /* #region DISC NORMALIZING */
-      // here, certain conflicting disc props, such as swing and input, are normalized
+      // here, certain conflicting disc props, such as swing, are normalized
       // to prevent some undefined-related errors
 
       for (let i = 0; i !== state.discs.length; i++) {
         if (!state.discs[i]) continue;
-
-        inputs[i] ??= {
-          left: false,
-          right: false,
-          up: false,
-          down: false,
-          action: false,
-          action2: false,
-          mouse: {
-            pos: [0, 0],
-            left: false,
-            right: false,
-            center: false,
-          },
-        };
-        inputs[i].mouse ??= {pos: [0, 0], left: false, right: false, middle: false};
-
         if (!state.discs[i].swing) state.discs[i].swing = false;
       }
       /* #endregion DISC NORMALIZING */
@@ -306,6 +289,8 @@ export default {
       /* #region EVENT FIRING */
       // after all preparations are done, it's time to fire the events set by the mode
 
+      const curState = gm.state.safeEval.globalThis.game.state;
+
       // fire collision events
       for (let i = 0; i < gm.state.collisionsThisStep.length; i++) {
         if (state.ftu !== -1) break;
@@ -338,46 +323,64 @@ export default {
         // epic way of avoiding nesting
         switch (bodyA.type + bodyB.type) {
           case 'discdisc': {
+            if (!curState.discs[bodyA.arrayID]) continue;
+            if (!curState.discs[bodyB.arrayID]) continue;
             gm.state.fireEvent('discCollision', {collideWith: 'disc'}, [bodyA.arrayID, bodyB.arrayID]);
             gm.state.fireEvent('discCollision', {collideWith: 'disc'}, [bodyB.arrayID, bodyA.arrayID]);
             break;
           }
           case 'discarrow': {
+            if (!curState.discs[bodyA.arrayID]) continue;
+            if (!curState.projectiles[bodyB.arrayID]) continue;
             gm.state.fireEvent('discCollision', {collideWith: 'arrow'}, [bodyA.arrayID, bodyB.arrayID]);
             gm.state.fireEvent('arrowCollision', {collideWith: 'disc'}, [bodyB.arrayID, bodyA.arrayID]);
             break;
           }
           case 'discphys': {
+            if (!curState.discs[bodyA.arrayID]) continue;
+            if (!curState.physics.bodies[bodyB.arrayID]) continue;
             gm.state.fireEvent('discCollision', {collideWith: 'body'}, [bodyA.arrayID, bodyBData]);
             gm.state.fireEvent('bodyCollision', {collideWith: 'disc'}, [bodyBData, bodyA.arrayID]);
             break;
           }
           case 'arrowdisc': {
+            if (!curState.projectiles[bodyA.arrayID]) continue;
+            if (!curState.discs[bodyB.arrayID]) continue;
             gm.state.fireEvent('arrowCollision', {collideWith: 'disc'}, [bodyA.arrayID, bodyB.arrayID]);
             gm.state.fireEvent('discCollision', {collideWith: 'arrow'}, [bodyB.arrayID, bodyA.arrayID]);
             break;
           }
           case 'arrowarrow': {
+            if (!curState.projectiles[bodyA.arrayID]) continue;
+            if (!curState.projectiles[bodyB.arrayID]) continue;
             gm.state.fireEvent('arrowCollision', {collideWith: 'arrow'}, [bodyA.arrayID, bodyB.arrayID]);
             gm.state.fireEvent('arrowCollision', {collideWith: 'arrow'}, [bodyB.arrayID, bodyA.arrayID]);
             break;
           }
           case 'arrowphys': {
+            if (!curState.projectiles[bodyA.arrayID]) continue;
+            if (!curState.physics.bodies[bodyB.arrayID]) continue;
             gm.state.fireEvent('arrowCollision', {collideWith: 'body'}, [bodyA.arrayID, bodyBData]);
             gm.state.fireEvent('bodyCollision', {collideWith: 'arrow'}, [bodyBData, bodyA.arrayID]);
             break;
           }
           case 'physdisc': {
+            if (!curState.physics.bodies[bodyA.arrayID]) continue;
+            if (!curState.discs[bodyB.arrayID]) continue;
             gm.state.fireEvent('bodyCollision', {collideWith: 'disc'}, [bodyAData, bodyB.arrayID]);
             gm.state.fireEvent('discCollision', {collideWith: 'body'}, [bodyB.arrayID, bodyAData]);
             break;
           }
           case 'physarrow': {
+            if (!curState.physics.bodies[bodyA.arrayID]) continue;
+            if (!curState.projectiles[bodyB.arrayID]) continue;
             gm.state.fireEvent('bodyCollision', {collideWith: 'arrow'}, [bodyAData, bodyB.arrayID]);
             gm.state.fireEvent('arrowCollision', {collideWith: 'body'}, [bodyB.arrayID, bodyAData]);
             break;
           }
           case 'physphys': {
+            if (!curState.physics.bodies[bodyA.arrayID]) continue;
+            if (!curState.physics.bodies[bodyB.arrayID]) continue;
             gm.state.fireEvent('bodyCollision', {collideWith: 'body'}, [bodyAData, bodyBData]);
             gm.state.fireEvent('bodyCollision', {collideWith: 'body'}, [bodyBData, bodyAData]);
             break;

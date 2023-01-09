@@ -244,6 +244,27 @@ this.game = {
 
       return game.state.physics.fixtures.length - 1;
     },
+    deleteBody: function(id) {
+      const fxList = game.state.physics.bodies[id].fx;
+
+      delete game.state.physics.bodies[id];
+      game.state.physics.bro.splice(game.state.physics.bro.indexOf(id), 1);
+
+      for (const i of fxList) {
+        delete game.state.physics.shapes[game.state.physics.fixtures[i].sh];
+        delete game.state.physics.fixtures[i];
+      }
+
+      for (let i = 0; i < game.state.physics.joints.length; i++) {
+        if (game.state.physics.joints[i]?.ba !== id && game.state.physics.joints[i]?.bb !== id) continue;
+        delete game.state.physics.joints[i];
+      }
+
+      for (let i = 0; i < game.state.capZones.length; i++) {
+        if (!fxList.includes(game.state.capZones[i].i)) continue;
+        delete game.state.capZones[i];
+      }
+    },
     createArrow: function(arrow) {
       const finalArrow = Object.assign(JSON.parse(JSON.stringify(defaults.arrow)), arrow);
 

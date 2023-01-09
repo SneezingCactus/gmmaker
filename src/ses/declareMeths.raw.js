@@ -91,9 +91,27 @@ window.getDynamicInfo = (game) => {
     }
   }
 
+  for (const id of game.lobby.allPlayerIds) {
+    game.inputs[id] ??= {
+      left: false,
+      right: false,
+      up: false,
+      down: false,
+      action: false,
+      action2: false,
+      mouse: {
+        pos: [0, 0],
+        left: false,
+        right: false,
+        center: false,
+      },
+    };
+    game.inputs[id].mouse ??= {pos: [0, 0], left: false, right: false, middle: false};
+  }
+
   for (let i = 0; i < game.inputs.length; i++) {
     if (!game.inputs[i]) continue;
-    if (!gmExtra.mousePosSend[i]) game.inputs[i].mouse.pos = [0, 0];
+    if (!gmExtra?.mousePosSend?.[i]) game.inputs[i].mouse.pos = [0, 0];
     game.inputs[i].mouse.allowPosSending = gmExtra.mousePosSend[i] ?? false;
   }
 
