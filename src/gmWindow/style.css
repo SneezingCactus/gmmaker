@@ -180,10 +180,6 @@
     background-image: url(images/gmenew.png);
 }
 
-#gmeditor_dbbutton {
-    background-image: url(images/gmeglobe.png);
-}
-
 #gmeditor_importbutton {
     background-image: url(images/gmeimport.png);
 }
@@ -487,7 +483,7 @@
     background-color: var(--gm_table_alt_color);
 }
 
-.gm_assetitemimage {
+.gm_listitemimage {
     width: 70px;
     height: 70px;
     object-fit: contain;
@@ -495,21 +491,21 @@
     flex-shrink: 0;
 }
 
-.gm_assetitemimage.play {
+.gm_listitemimage.play {
     background-color: var(--gm_button_primary_color);
     background-image: url(images/gmeplay.png);
     background-size: contain;
     cursor: pointer;
 }
 
-.gm_assetitemimage.stop {
+.gm_listitemimage.stop {
     background-color: var(--gm_button_primary_color);
     background-image: url(images/gmestop.png);
     background-size: contain;
     cursor: pointer;
 }
 
-.gm_assetitemright {
+.gm_listitemright {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -517,7 +513,7 @@
     margin-left: 10px;
 }
 
-.gm_assetitemname {
+.gm_listitemname {
     min-width: 0px;
     padding: 10px;
     border-radius: 4px;
@@ -526,17 +522,17 @@
     text-align: left;
 }
 
-.gm_assetitemdown {
+.gm_listitemdown {
     display: flex;
     justify-content: space-between;
 }
 
-.gm_assetitemdetail {
+.gm_listitemdetail {
     flex-grow: 1;
     color: var(--gm_secondary_text);
 }
 
-.gm_configitemlabel {
+.gm_listitemlabel {
     flex-basis: 0;
     flex-grow: 0.75;
 }

@@ -154,18 +154,15 @@ window.rayCastAll = (origin, end, filter) => copy(window.parent.gm.state.rayCast
 // safe math
 const newMath = {};
 const oldMath = Math;
-const mathMeths = ['abs', 'acosh', 'asinh', 'atanh', 'ceil', 'cbrt', 'expm1', 'clz32', 'cosh', 'exp', 'floor', 'fround', 'hypot', 'imul', 'log', 'log1p', 'log2', 'log10', 'max', 'min', 'pow', 'round', 'sign', 'sinh', 'sqrt', 'tanh', 'trunc', 'E', 'LN10', 'LN2', 'LOG10E', 'LOG2E', 'PI', 'SQRT1_2', 'SQRT2'];
-const ignoreMeths = ['floor', 'ceil', 'round', 'min', 'max', 'sign', 'trunc', 'abs'];
+const mathMeths = ['abs', 'acos', 'acosh', 'asin', 'asinh', 'atan', 'atanh', 'atan2', 'ceil', 'cbrt', 'expm1', 'clz32', 'cos', 'cosh', 'exp', 'floor', 'fround', 'hypot', 'imul', 'log', 'log1p', 'log2', 'log10', 'max', 'min', 'pow', 'random', 'round', 'sign', 'sin', 'sinh', 'sqrt', 'tan', 'tanh', 'trunc', 'E', 'LN10', 'LN2', 'LOG10E', 'LOG2E', 'PI', 'SQRT1_2', 'SQRT2'];
 
 for (const method of mathMeths) {
   if (typeof oldMath[method] === 'number') {
     newMath[method] = oldMath.round(oldMath[method] * 1000000000) * 0.000000001;
-  } else if (!ignoreMeths.includes(method)) {
+  } else {
     newMath[method] = function() {
       return oldMath.round(oldMath[method](...arguments) * 1000000000) * 0.000000001;
     };
-  } else {
-    newMath[method] = oldMath[method];
   }
 }
 newMath.sin = (a) => oldMath.round(oldMath.sin(a * (oldMath.PI / 180)) * 1000000000) * 0.000000001;

@@ -508,7 +508,7 @@ export default {
       };
       return function() {
         if (gm.graphics.inReplay()) {
-          // return buildFunction.apply(this, arguments);
+          return buildFunction.apply(this, arguments);
         }
 
         try {

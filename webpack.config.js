@@ -1,7 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 
-const minimize = false;
+const minimize = true;
 
 module.exports = {
   mode: 'production',

@@ -140,7 +140,7 @@ class BooleanOption {
     addTo.appendChild(this.element);
 
     const nameEl = document.createElement('span');
-    nameEl.classList.add('gm_configitemlabel');
+    nameEl.classList.add('gm_listitemlabel');
     nameEl.innerText = name;
     this.element.appendChild(nameEl);
 
@@ -164,7 +164,7 @@ class NumberOption {
     addTo.appendChild(this.element);
 
     const nameEl = document.createElement('span');
-    nameEl.classList.add('gm_configitemlabel');
+    nameEl.classList.add('gm_listitemlabel');
     nameEl.innerText = name;
     this.element.appendChild(nameEl);
 
