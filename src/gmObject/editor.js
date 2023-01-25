@@ -579,7 +579,7 @@ export default {
         const soundDef = gm.editor.unsavedModeAssets.sounds[i];
         const soundItem = gm.editor.settingsImageItem.cloneNode(true);
 
-        const soundPlayer = soundItem.getElementsByClassName('gm_listitemimage')[0];
+        const soundPlayer = soundItem.getElementsByClassName('gm_assetitemimage')[0];
         let soundPlayerHowl = null;
         soundPlayer.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7'; // blank image to remove white border
         soundPlayer.classList.add('play');
@@ -606,10 +606,10 @@ export default {
           }
         });
 
-        soundItem.getElementsByClassName('gm_listitemname')[0].value = soundDef.id;
-        soundItem.getElementsByClassName('gm_listitemdetail')[0].innerText = soundDef.detail;
-        soundItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
-          gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_listitemname')[0].value;
+        soundItem.getElementsByClassName('gm_assetitemname')[0].value = soundDef.id;
+        soundItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = soundDef.detail;
+        soundItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+          gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_assetitemname')[0].value;
         });
         soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
           soundPlayerHowl?.unload();
@@ -618,7 +618,7 @@ export default {
           document.getElementById('gmsettings_assetlist').removeChild(soundItem);
         });
         soundItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-          saveAs('data:audio/' + soundDef.extension + ';base64,' + soundDef.data, soundItem.getElementsByClassName('gm_listitemname')[0].value + '.' + soundDef.extension);
+          saveAs('data:audio/' + soundDef.extension + ';base64,' + soundDef.data, soundItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + soundDef.extension);
         });
 
         window.BonkUtils.setButtonSounds([
@@ -650,13 +650,13 @@ export default {
           filterButton.title = 'Using bilinear';
         }
 
-        imageItem.getElementsByClassName('gm_listitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
+        imageItem.getElementsByClassName('gm_assetitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
 
-        imageItem.getElementsByClassName('gm_listitemimage')[0].src = 'data:image/' + imageDef.extension + ';base64,' + imageDef.data;
-        imageItem.getElementsByClassName('gm_listitemname')[0].value = imageDef.id;
-        imageItem.getElementsByClassName('gm_listitemdetail')[0].innerText = imageDef.detail;
-        imageItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
-          gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_listitemname')[0].value;
+        imageItem.getElementsByClassName('gm_assetitemimage')[0].src = 'data:image/' + imageDef.extension + ';base64,' + imageDef.data;
+        imageItem.getElementsByClassName('gm_assetitemname')[0].value = imageDef.id;
+        imageItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = imageDef.detail;
+        imageItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+          gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_assetitemname')[0].value;
         });
         filterButton.addEventListener('click', function() {
           const image = gm.editor.unsavedModeAssets.images[imageOrder];
@@ -678,7 +678,7 @@ export default {
           document.getElementById('gmsettings_assetlist').removeChild(imageItem);
         });
         imageItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-          saveAs('data:image/' + imageDef.extension + ';base64,' + imageDef.data, imageItem.getElementsByClassName('gm_listitemname')[0].value + '.' + imageDef.extension);
+          saveAs('data:image/' + imageDef.extension + ';base64,' + imageDef.data, imageItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + imageDef.extension);
         });
 
         window.BonkUtils.setButtonSounds([
@@ -736,7 +736,7 @@ export default {
           // create new sound item
           const soundItem = gm.editor.settingsImageItem.cloneNode(true);
 
-          const soundPlayer = soundItem.getElementsByClassName('gm_listitemimage')[0];
+          const soundPlayer = soundItem.getElementsByClassName('gm_assetitemimage')[0];
           let soundPlayerHowl = null;
           soundPlayer.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7'; // blank image to remove white border
           soundPlayer.classList.add('play');
@@ -763,10 +763,10 @@ export default {
             }
           });
 
-          soundItem.getElementsByClassName('gm_listitemname')[0].value = name;
-          soundItem.getElementsByClassName('gm_listitemdetail')[0].innerText = size;
-          soundItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
-            gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_listitemname')[0].value;
+          soundItem.getElementsByClassName('gm_assetitemname')[0].value = name;
+          soundItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = size;
+          soundItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+            gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_assetitemname')[0].value;
           });
           soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
             soundPlayerHowl?.unload();
@@ -775,7 +775,7 @@ export default {
             document.getElementById('gmsettings_assetlist').removeChild(soundItem);
           });
           soundItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-            saveAs('data:audio/' + extension + ';base64,' + data, soundItem.getElementsByClassName('gm_listitemname')[0].value + '.' + extension);
+            saveAs('data:audio/' + extension + ';base64,' + data, soundItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + extension);
           });
 
           window.BonkUtils.setButtonSounds([
@@ -812,13 +812,13 @@ export default {
             filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
             filterButton.title = 'Using bilinear';
 
-            imageItem.getElementsByClassName('gm_listitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
+            imageItem.getElementsByClassName('gm_assetitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
 
-            imageItem.getElementsByClassName('gm_listitemimage')[0].src = 'data:image/' + extension + ';base64,' + data;
-            imageItem.getElementsByClassName('gm_listitemname')[0].value = name;
-            imageItem.getElementsByClassName('gm_listitemdetail')[0].innerText = detail;
-            imageItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
-              gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_listitemname')[0].value;
+            imageItem.getElementsByClassName('gm_assetitemimage')[0].src = 'data:image/' + extension + ';base64,' + data;
+            imageItem.getElementsByClassName('gm_assetitemname')[0].value = name;
+            imageItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = detail;
+            imageItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+              gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_assetitemname')[0].value;
             });
             filterButton.addEventListener('click', function() {
               const image = gm.editor.unsavedModeAssets.images[imageOrder];
@@ -840,7 +840,7 @@ export default {
               document.getElementById('gmsettings_assetlist').removeChild(imageItem);
             });
             imageItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-              saveAs('data:image/' + extension + ';base64,' + data, imageItem.getElementsByClassName('gm_listitemname')[0].value + '.' + extension);
+              saveAs('data:image/' + extension + ';base64,' + data, imageItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + extension);
             });
 
             window.BonkUtils.setButtonSounds([
