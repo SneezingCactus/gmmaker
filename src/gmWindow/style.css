@@ -90,6 +90,7 @@
     
     color: #fff;
     font-family: 'futurept_book';
+    font-size: 16px;
 }
 
 /* CONFIG BUTTON */
@@ -101,14 +102,22 @@
 #pretty_top_gmmaker {
     width: 57px;
     height: 34px;
-    background-image: url(images/gmmlogo.png);
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 30px;
+
     position: absolute;
     right: 58px;
     top: 35px;
     background-color: var(--gm_button_top_bar_color);
+}
+
+#pretty_top_gmmaker::after {
+    content: '';
+    display: block;
+    background-image: url(images/gmmlogo.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 30px;
+    width: 57px;
+    height: 34px;
 }
 
 /* GAME MODE EDITOR */
@@ -168,61 +177,69 @@
 }
 
 .gmeditor_iconbutton {
-    background-repeat: no-repeat;
-    background-position: center;
     width: 28px;
     height: 24px;
     display: inline-block;
     margin: 0 2px;
 }
 
-#gmeditor_newbutton {
+.gmeditor_iconbutton::after {
+    content: '';
+    display: block;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 28px;
+    height: 24px;
+}
+
+#gmeditor_newbutton::after {
     background-image: url(images/gmenew.png);
 }
 
-#gmeditor_importbutton {
+#gmeditor_importbutton::after {
     background-image: url(images/gmeimport.png);
 }
 
-#gmeditor_exportbutton {
+#gmeditor_exportbutton::after {
     background-image: url(images/gmeexport.png);
 }
 
-#gmeditor_backupsbutton {
+#gmeditor_backupsbutton::after {
     background-image: url(images/gmebackups.png);
 }
 
-#gmeditor_settingsbutton {
+#gmeditor_settingsbutton::after {
     background-image: url(images/gmesettings.png);
 }
 
-#gmeditor_savebutton {
+#gmeditor_savebutton::after {
     background-image: url(images/gmesave.png);
 }
 
-#gmeditor_closebutton {
+#gmeditor_closebutton::after {
     background-image: url(images/gmeclose.png);
 }
 
-.gmeditor_filter {
+.gmeditor_filter::after {
     background-image: url(images/gmefilter.png);
     background-size: 18px;
 }
 
-.gmeditor_filter.nearest {
+.gmeditor_filter.nearest::after {
     image-rendering: crisp-edges;
     image-rendering: pixelated;
 }
 
-.gmeditor_filter.bilinear {
+.gmeditor_filter.bilinear::after {
     image-rendering: optimizeQuality;
 }
 
-.gmeditor_download {
+.gmeditor_download::after {
     background-image: url(images/gmedownload.png);
 }
 
-.gmeditor_delete {
+.gmeditor_delete::after {
     background-image: url(images/gmeclose2.png);
 }
 
@@ -270,9 +287,14 @@
     position: absolute;
     right: 15px;
     bottom: 55px;
-    height: 30px;
     width: 30px;
+    height: 30px;
     margin-left: 5px;
+}
+
+#gmeditor_openbutton::after {
+    width: 30px;
+    height: 30px;
     background-image: url(images/gmmlogo.png);
     background-size: 95%;
     background-repeat: no-repeat;

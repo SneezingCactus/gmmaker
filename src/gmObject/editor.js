@@ -66,7 +66,7 @@ export default {
     // create the button that opens the game mode editor
     const GMOpenButton = document.createElement('div');
     GMOpenButton.id = 'gmeditor_openbutton';
-    GMOpenButton.className = 'newbonklobby_settings_button brownButton brownButton_classic buttonShadow';
+    GMOpenButton.className = 'newbonklobby_settings_button brownButton brownButton_classic buttonShadow gmeditor_iconbutton';
     GMOpenButton.addEventListener('click', gm.editor.showGMEWindow);
 
     // ensure compatibility with bonk-host
@@ -208,10 +208,11 @@ export default {
     // create monaco container div
     const monacoDiv = document.createElement('div');
     monacoDiv.id = 'gmmonacodiv';
+    monacoDiv.classList.add('bl_IgnoreTheme');
 
     const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
 
-    monacoDiv.style.top = bounds.top;
+    monacoDiv.style.top = bounds.top + window.scrollY;
     monacoDiv.style.left = bounds.left;
     monacoDiv.style.width = bounds.width;
     monacoDiv.style.height = bounds.height;
@@ -309,14 +310,16 @@ export default {
     });
 
     window.addEventListener('resize', () => {
-      const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
+      setTimeout(() => {
+        const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
 
-      monacoDiv.style.top = bounds.top;
-      monacoDiv.style.left = bounds.left;
-      monacoDiv.style.width = bounds.width - 20;
-      monacoDiv.style.height = bounds.height - 20;
+        monacoDiv.style.top = bounds.top + window.scrollY;
+        monacoDiv.style.left = bounds.left;
+        monacoDiv.style.width = bounds.width - 20;
+        monacoDiv.style.height = bounds.height - 20;
 
-      gm.editor.monacoWs.layout();
+        gm.editor.monacoWs.layout();
+      }, 1);
     }, false);
   },
   modeSettingsDefaults: [
@@ -352,7 +355,7 @@ export default {
     const bounds = document.getElementById('gmworkspacearea').getBoundingClientRect();
 
     monacoDiv.style.display = 'block';
-    monacoDiv.style.top = bounds.top;
+    monacoDiv.style.top = bounds.top + window.scrollY;
     monacoDiv.style.left = bounds.left;
     monacoDiv.style.width = bounds.width - 20;
     monacoDiv.style.height = bounds.height - 20;
