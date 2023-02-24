@@ -7,15 +7,16 @@ export default {
   init: function() {
     this.initb2Step();
     this.initGameState();
+    this.initCreateState();
   },
   initb2Step: function() {
-    Box2D.Dynamics.b2World.prototype.Step_OLD = Box2D.Dynamics.b2World.prototype.Step;
+    Box2D.Dynamics.b2World.prototype.StepOLD = Box2D.Dynamics.b2World.prototype.Step;
     Box2D.Dynamics.b2World.prototype.Step = function() {
-      if (!PhysicsClass.contactListener.PostSolve_OLD) gm.physics.initContactListener();
+      if (!PhysicsClass.contactListener.PostSolveOLD) gm.physics.initContactListener();
 
       // management of the die
       if (PhysicsClass.globalStepVars?.inputState) {
-        const kills = PhysicsClass.globalStepVars.inputState.physics.bodies[0].cf.kills;
+        const kills = PhysicsClass.globalStepVars.inputState.gmExtra?.kills;
 
         if (kills) {
           for (let i = 0; i !== kills.length; i++) {
@@ -25,26 +26,35 @@ export default {
           }
         }
       }
-      return this.Step_OLD(...arguments);
+      return this.StepOLD(...arguments);
     };
   },
   initGameState: function() {
-    const step_OLD = PhysicsClass.prototype.step;
-    PhysicsClass.prototype.step = function() {
+    const stepOLD = PhysicsClass.prototype.step;
+    PhysicsClass.prototype.step = function(oldState, inputs) {
       // I know, it's kinda dumb to put everything into a try catch,
       // but it works well here
       try {
         // eslint-disable-next-line no-throw-literal
         if (gm.lobby.gameCrashed) throw 'gmAlreadyCrashed';
 
+        // don't do gmm business when no mode is loaded or if in quickplay
+        if (!oldState.gmExtra || gm.lobby.data?.quick) {
+          const state = stepOLD(...arguments);
+          window.gmReplaceAccessors.disableDeathBarrier = false;
+          gm.physics.gameState = state;
+          gm.physics.inputs = inputs;
+          return state;
+        }
+
         gm.inputs.allPlayerInputs = JSON.parse(JSON.stringify(arguments[1]));
 
         // override inputs
-        if (arguments[0]?.physics.bodies[0]?.cf.overrides) {
-          const overrides = arguments[0].physics.bodies[0].cf.overrides;
+        if (oldState?.gmExtra?.overrides) {
+          const overrides = oldState.gmExtra.overrides;
 
-          for (let i = 0; i !== arguments[0].discs.length; i++) {
-            if (!overrides[i] || !arguments[0].discs[i]) continue;
+          for (let i = 0; i !== oldState.discs.length; i++) {
+            if (!overrides[i] || !oldState.discs[i]) continue;
 
             arguments[1][i] = {
               up: overrides[i].up ?? arguments[1][i]?.up ?? false,
@@ -59,99 +69,79 @@ export default {
 
         gm.physics.collisionsThisStep = [];
 
-        gmReplaceAccessors.disableDeathBarrier = !!arguments[0].physics.bodies[0]?.cf.disableDeathBarrier;
+        gmReplaceAccessors.disableDeathBarrier = !!oldState.gmExtra?.disableDeathBarrier;
 
-        if (arguments[0].rl === 0 && arguments[4].GMMode) {
+        if (oldState.rl === 0 && arguments[4].GMMode) {
           gmReplaceAccessors.disableDeathBarrier = true;
         }
 
-        let gst = step_OLD(...arguments);
+        let state = stepOLD(...arguments);
 
-        if (gst.ftu == 0) {
+        if (state.ftu == 0) {
           gm.graphics.renderUpdates = [];
         }
 
         // make seed based on scene element positions and game state seed
         let randomSeed = 0;
-        for (let i = 0; i < gst.physics.bodies.length; i++) {
-          if (gst.physics.bodies[i]) {
-            randomSeed = randomSeed + gst.physics.bodies[i].p[0] + gst.physics.bodies[i].p[1] + gst.physics.bodies[i].a;
+        for (let i = 0; i < state.physics.bodies.length; i++) {
+          if (state.physics.bodies[i]) {
+            randomSeed = randomSeed + state.physics.bodies[i].p[0] + state.physics.bodies[i].p[1] + state.physics.bodies[i].a;
           }
         }
-        for (let i = 0; i < gst.discs.length; i++) {
-          if (gst.discs[i]) {
-            randomSeed = randomSeed + gst.discs[i].x + gst.discs[i].y + gst.discs[i].xv + gst.discs[i].yv;
+        for (let i = 0; i < state.discs.length; i++) {
+          if (state.discs[i]) {
+            randomSeed = randomSeed + state.discs[i].x + state.discs[i].y + state.discs[i].xv + state.discs[i].yv;
           }
         }
-        randomSeed += gst.rl;
-        randomSeed /= gst.seed;
+        randomSeed += state.rl;
+        randomSeed /= state.seed;
         gm.physics.pseudoRandom = new seedrandom(randomSeed);
 
-        if (!gst.physics.bodies[0]) {
-          gst.physics.bodies[0] = {
-            'type': 's',
-            'p': [0, 0],
-            'a': 0,
-            'av': 0,
-            'lv': [0, 0],
-            'ld': 0,
-            'ad': 0,
-            'fr': false,
-            'bu': false,
-            'fx': [],
-            'fric': 0,
-            'fricp': false,
-            'de': 0,
-            're': 0,
-            'f_c': 0,
-            'f_p': false,
-            'f_1': false,
-            'f_2': false,
-            'f_3': false,
-            'f_4': false,
-            'cf': {'x': 0, 'y': 0, 'w': false, 'ct': 0},
-          };
-        }
+        /* #region EXTRA PROPERTY MANAGE */
+        // this is where props added by gmmaker into the state, such as
+        // nolerp and visibility of objects, are managed
 
-        if (!gst.physics.bodies[0].cf.initialPlayers) gst.physics.bodies[0].cf.initialPlayers = gm.blockly.funcs.getAllPlayerIds(gst);
+        state.gmExtra = JSON.parse(JSON.stringify(oldState.gmExtra));
 
-        if (!gst.physics.bodies[0].cf.variables) {
-          gst.physics.bodies[0].cf.variables = {global: {}};
-          gst.physics.bodies[0].cf.keepVariables = [];
+        if (!state.gmExtra.initialPlayers) state.gmExtra.initialPlayers = gm.blockly.funcs.getAllPlayerIds(state);
 
-          const keepVariables = arguments[0].physics.bodies[0]?.cf.keepVariables;
+        if (!state.gmExtra.variables) {
+          state.gmExtra.variables = {global: {}};
+          state.gmExtra.keepVariables = [];
+
+          const keepVariables = oldState.gmExtra?.keepVariables;
 
           if (keepVariables) {
             for (let v = 0; v < keepVariables.length; v++) {
               const varName = keepVariables[v];
-              if (!arguments[0].physics.bodies[0]?.cf.variables?.global[varName]) continue;
+              if (!oldState.gmExtra?.variables?.global[varName]) continue;
 
-              gst.physics.bodies[0].cf.variables.global[varName] = arguments[0].physics.bodies[0].cf.variables.global[varName];
+              state.gmExtra.variables.global[varName] = oldState.gmExtra.variables.global[varName];
             }
           }
 
-          for (let i = 0; i < gst.discs.length; i++) {
-            if (!gst.discs[i]) continue;
+          for (let i = 0; i < state.discs.length; i++) {
+            if (!state.discs[i]) continue;
 
-            gst.physics.bodies[0].cf.variables[i] = {};
+            state.gmExtra.variables[i] = {};
 
             if (!keepVariables) continue;
 
             for (let v = 0; v < keepVariables.length; v++) {
               const varName = keepVariables[v];
-              if (!arguments[0].physics.bodies[0].cf.variables[i][varName]) continue;
+              if (!oldState.gmExtra.variables[i][varName]) continue;
 
-              gst.physics.bodies[0].cf.variables[i][varName] = arguments[0].physics.bodies[0].cf.variables[i][varName];
+              state.gmExtra.variables[i][varName] = oldState.gmExtra.variables[i][varName];
             }
           }
 
-          gst.physics.bodies[0].cf.cameras = [];
-          for (let i = 0; i < gst.discs.length; i++) {
-            if (!gst.discs[i]) continue;
+          state.gmExtra.cameras = [];
+          for (let i = 0; i < state.discs.length; i++) {
+            if (!state.discs[i]) continue;
 
-            gst.physics.bodies[0].cf.cameras[i] = {
-              xpos: 365 / gst.physics.ppm,
-              ypos: 250 / gst.physics.ppm,
+            state.gmExtra.cameras[i] = {
+              xpos: 365 / state.physics.ppm,
+              ypos: 250 / state.physics.ppm,
               angle: 0,
               xscal: 1,
               yscal: 1,
@@ -161,16 +151,16 @@ export default {
             };
           }
 
-          gst.physics.bodies[0].cf.disableDeathBarrier = false;
+          state.gmExtra.disableDeathBarrier = false;
         }
 
         // graphics phys step update
-        gm.graphics.onPhysStep(gst);
+        gm.graphics.onPhysStep(state);
 
         // clean kills list
-        gst.physics.bodies[0].cf.kills = [];
+        state.gmExtra.kills = [];
 
-        gm.physics.gameState = gst;
+        gm.physics.gameState = state;
 
         // collision handling
         for (let i = 0; i !== gm.physics.collisionsThisStep.length; i++) {
@@ -199,11 +189,11 @@ export default {
             collisionFixture = fixtureA;
           }
 
-          if (discBody && gst.discs[discBody.arrayID]) { // check if self element exists
+          if (discBody && state.discs[discBody.arrayID]) { // check if self element exists
             switch (collisionBody.type) {
               case 'disc':
                 if (discBody.team === 1 || discBody.team !== collisionBody.team && // check for self and team collisions
-                    gst.discs[collisionBody.arrayID]) { // check if collided element exists
+                    state.discs[collisionBody.arrayID]) { // check if collided element exists
                   gm.physics.onPlayerPlayerCollision(discBody.arrayID, collisionBody.arrayID);
                   gm.physics.onPlayerPlayerCollision(collisionBody.arrayID, discBody.arrayID);
                 }
@@ -222,13 +212,13 @@ export default {
                 if (arrowNumber === 0) break;
 
                 if (discBody.arrayID !== collisionBody.discID && (discBody.team === 1 || discBody.team !== collisionBody.team) && // check for self and team collisions
-                    gst.projectiles[collisionBody.arrayID]) { // check if collided element exists
+                    state.projectiles[collisionBody.arrayID]) { // check if collided element exists
                   gm.physics.onPlayerArrowCollision(discBody.arrayID, collisionBody.discID, arrowNumber);
                 }
                 break;
               case 'phys':
-                if (gst.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
-                  gm.physics.onPlayerPlatformCollision(discBody.arrayID, collisionBody.arrayID, gst.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
+                if (state.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
+                  gm.physics.onPlayerPlatformCollision(discBody.arrayID, collisionBody.arrayID, state.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
                 }
                 break;
             }
@@ -267,23 +257,23 @@ export default {
             }
           }
 
-          if (arrowBody && gst.projectiles[arrowBody.arrayID] && gst.discs[arrowBody.discID]) { // check if self element exists
+          if (arrowBody && state.projectiles[arrowBody.arrayID] && state.discs[arrowBody.discID]) { // check if self element exists
             switch (collisionBody.type) {
               case 'disc':
                 if (arrowBody.discID !== collisionBody.arrayID && (collisionBody.team === 1 || arrowBody.team !== collisionBody.team) && // check for self and team collisions
-                  gst.discs[collisionBody.arrayID]) { // check if collided element exists
+                  state.discs[collisionBody.arrayID]) { // check if collided element exists
                   gm.physics.onArrowPlayerCollision(arrowBody.discID, arrowNumberA, collisionBody.arrayID);
                 }
                 break;
               case 'arrow':
-                if (gst.projectiles[collisionBody.arrayID] && gst.discs[collisionBody.discID]) { // check if collided element exists
+                if (state.projectiles[collisionBody.arrayID] && state.discs[collisionBody.discID]) { // check if collided element exists
                   gm.physics.onArrowArrowCollision(arrowBody.discID, arrowNumberA, collisionBody.discID, arrowNumberB);
                   gm.physics.onArrowArrowCollision(collisionBody.discID, arrowNumberB, arrowBody.discID, arrowNumberA);
                 }
                 break;
               case 'phys':
-                if (gst.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
-                  gm.physics.onArrowPlatformCollision(arrowBody.discID, arrowNumberA, collisionBody.arrayID, gst.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
+                if (state.physics.bodies[collisionBody.arrayID]?.fx.length > 0) { // check if collided element exists
+                  gm.physics.onArrowPlatformCollision(arrowBody.discID, arrowNumberA, collisionBody.arrayID, state.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
                 }
                 break;
             }
@@ -307,14 +297,14 @@ export default {
             collisionFixture = fixtureA;
           }
 
-          if (platBody && gst.physics.bodies[platBody.arrayID]?.fx.length > 0) { // check if self element exists
-            const ownShapeId = gst.physics.bodies[platBody.arrayID].fx.indexOf(platFixture.arrayID) + 1;
+          if (platBody && state.physics.bodies[platBody.arrayID]?.fx.length > 0) { // check if self element exists
+            const ownShapeId = state.physics.bodies[platBody.arrayID].fx.indexOf(platFixture.arrayID) + 1;
 
-            for (let i = 0; i < gst.discs.length; i++) {
-              if (!gst.discs[i]) continue;
+            for (let i = 0; i < state.discs.length; i++) {
+              if (!state.discs[i]) continue;
               switch (collisionBody.type) {
                 case 'disc':
-                  if (!gst.discs[collisionBody.arrayID]) break; // check if collided element exists
+                  if (!state.discs[collisionBody.arrayID]) break; // check if collided element exists
 
                   gm.physics.onPlatformPlayerCollision(i, platBody.arrayID, ownShapeId, collisionBody.arrayID);
                   break;
@@ -331,14 +321,14 @@ export default {
 
                   if (arrowNumber === 0) break;
 
-                  if (!gst.discs[collisionBody.discID] || !gst.projectiles[collisionBody.arrayID]) break; // check if collided element exists
+                  if (!state.discs[collisionBody.discID] || !state.projectiles[collisionBody.arrayID]) break; // check if collided element exists
 
                   gm.physics.onPlatformArrowCollision(i, platBody.arrayID, ownShapeId, collisionBody.discID, arrowNumber);
                   break;
                 case 'phys':
-                  if (gst.physics.bodies[collisionBody.arrayID]?.fx.length == 0) break; // check if collided element exists
+                  if (state.physics.bodies[collisionBody.arrayID]?.fx.length == 0) break; // check if collided element exists
 
-                  const colShapeId = gst.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1;
+                  const colShapeId = state.physics.bodies[collisionBody.arrayID].fx.indexOf(collisionFixture.arrayID) + 1;
 
                   gm.physics.onPlatformPlatformCollision(i, platBody.arrayID, ownShapeId, collisionBody.arrayID, colShapeId, isFixtureA ? {x: -normal.x, y: -normal.y} : normal);
                   gm.physics.onPlatformPlatformCollision(i, collisionBody.arrayID, colShapeId, platBody.arrayID, ownShapeId, isFixtureA ? normal : {x: -normal.x, y: -normal.y});
@@ -351,18 +341,18 @@ export default {
         // step handling
         if (gm.physics.forceGameState) {
           gm.physics.forceGameState = false;
-          gst = gm.physics.gameState;
+          state = gm.physics.gameState;
         }
 
-        gm.physics.gameState = gst;
+        gm.physics.gameState = state;
 
-        for (let i = 0; i < arguments[0].discs.length; i++) {
-          if (arguments[0].discs[i] && !gst.discs[i]) {
+        for (let i = 0; i < oldState.discs.length; i++) {
+          if (oldState.discs[i] && !state.discs[i]) {
             const currentDisc = gm.physics.gameState.discs[i];
-            gm.physics.gameState.discs[i] = arguments[0].discs[i];
+            gm.physics.gameState.discs[i] = oldState.discs[i];
             gm.physics.onPlayerDie(i);
             gm.physics.gameState.discs[i] = currentDisc;
-          } else if (gst.discDeaths[gst.discDeaths.length - 1]?.i == i && gst.discDeaths[gst.discDeaths.length - 1]?.f == 0) {
+          } else if (state.discDeaths[state.discDeaths.length - 1]?.i == i && state.discDeaths[state.discDeaths.length - 1]?.f == 0) {
             gm.physics.onPlayerDie(i);
           }
         }
@@ -372,8 +362,8 @@ export default {
 
           gm.blockly.funcs.clearGraphics();
 
-          for (let i = 0; i !== gst.physics.bodies[0].cf.initialPlayers.length; i++) {
-            const id = gst.physics.bodies[0].cf.initialPlayers[i];
+          for (let i = 0; i !== state.gmExtra.initialPlayers.length; i++) {
+            const id = state.gmExtra.initialPlayers[i];
 
             if (!gm.inputs.allPlayerInputs[id]) {
               gm.inputs.allPlayerInputs[id] = {left: false, right: false, up: false, down: false, action: false, action2: false};
@@ -382,8 +372,8 @@ export default {
             gm.physics.onFirstStep(id);
           }
         } else if (!gm.physics.forceGameState && gm.physics.gameState.ftu === -1) {
-          for (let i = 0; i !== gst.physics.bodies[0].cf.initialPlayers.length; i++) {
-            const id = gst.physics.bodies[0].cf.initialPlayers[i];
+          for (let i = 0; i !== state.gmExtra.initialPlayers.length; i++) {
+            const id = state.gmExtra.initialPlayers[i];
 
             if (!gm.inputs.allPlayerInputs[id]) {
               gm.inputs.allPlayerInputs[id] = {left: false, right: false, up: false, down: false, action: false, action2: false};
@@ -393,33 +383,22 @@ export default {
           }
         }
 
-        if (gst.ftu > 0) gm.lobby.roundStarting = true;
+        if (state.ftu > 0) gm.lobby.roundStarting = true;
 
         if (gm.physics.forceGameState) {
           gm.physics.forceGameState = false;
-          gst = gm.physics.gameState;
+          state = gm.physics.gameState;
         }
 
-        gm.physics.gameState = gst;
-
-        // The renderer class isn't built at the same time as the first game step gets executed,
-        // so this checks if the renderer has been built, and executes all the previous render updates
-        gst.physics.bodies[0].cf.rendererExists = !!gm.graphics.rendererClass;
-        if (!!gm.graphics.rendererClass && !arguments[0].physics.bodies[0]?.cf.rendererExists) {
-          for (let i = 0; i < gst.rl; i++) {
-            if (!window.gmReplaceAccessors.gameStateList || !window.gmReplaceAccessors.gameStateList[i]) continue;
-            gm.graphics.doRenderUpdates(window.gmReplaceAccessors.gameStateList[i]);
-          }
-        } else if (!!gm.graphics.rendererClass) {
-          gm.graphics.doRenderUpdates(gst);
-        }
+        gm.physics.gameState = state;
 
         gm.physics.collisionsThisStep = [];
 
         if (window.gmReplaceAccessors.endStep) window.gmReplaceAccessors.endStep();
 
-        return gst;
+        return state;
       } catch (e) {
+        if (gm.graphics.inReplay()) throw e;
         if (!gm.lobby.gameCrashed) {
           if (e === 'gmInfiniteLoop') {
             gm.lobby.haltCausedByLoop = true;
@@ -429,12 +408,12 @@ export default {
           gm.lobby.gameCrashed = true;
           setTimeout(gm.lobby.gameHalt, 500); // gotta make sure we're out of the step function!
         }
-        return arguments[0];
+        return oldState;
       }
     };
   },
   initContactListener: function() {
-    PhysicsClass.contactListener.PostSolve_OLD = PhysicsClass.contactListener.PostSolve;
+    PhysicsClass.contactListener.PostSolveOLD = PhysicsClass.contactListener.PostSolve;
     PhysicsClass.contactListener.PostSolve = function(contact, impulses) {
       if (impulses.normalImpulses[0] > 0.1) {
         const worldManifold = new Box2D.Collision.b2WorldManifold();
@@ -449,13 +428,72 @@ export default {
         });
       }
 
-      return PhysicsClass.contactListener.PostSolve_OLD(...arguments);
+      return PhysicsClass.contactListener.PostSolveOLD(...arguments);
+    };
+  },
+  initCreateState: function() {
+    PhysicsClass.createNewStateOLD = PhysicsClass.createNewState;
+
+    PhysicsClass.createNewState = function() {
+      const state = PhysicsClass.createNewStateOLD(...arguments);
+
+      if (!gm.lobby.networkEngine) return state;
+      if (gm.lobby.networkEngine.hostID !== gm.lobby.networkEngine.getLSID()) return state;
+      if (!gm.blockly.savedXml || gm.blockly.savedXml?.getElementsByTagName('block').length == 0) return state;
+
+      /* #region gmInitial CREATION */
+      const gmInitial = {};
+
+      const playerInfo = [];
+      for (let i = 0; i < (gm.lobby.playerArray?.length ?? 0); i++) {
+        const player = gm.lobby.playerArray[i];
+
+        if (!player) continue;
+
+        const playerInfoEntry = {
+          userName: player.userName,
+          guest: player.guest,
+          level: player.level,
+          team: player.team,
+          skinBg: player.avatar.bc,
+          skinColours: [],
+        };
+
+        for (let i = 0; i < player.avatar.layers.length; i++) {
+          if (playerInfoEntry.skinColours.includes(player.avatar.layers[i].color)) continue;
+          playerInfoEntry.skinColours.push(player.avatar.layers[i].color);
+        }
+
+        playerInfo[i] = playerInfoEntry;
+      }
+
+      gmInitial.lobby = {
+        clientId: gm.lobby.networkEngine.getLSID(),
+        hostId: gm.lobby.networkEngine.hostID,
+        allPlayerIds: [],
+        playerInfo: playerInfo,
+        settings: gm.lobby.mpSession.getGameSettings(),
+        seed: Math.round(Math.random() * 1000000),
+      };
+      for (let i = 0; i < (gm.lobby.playerArray?.length ?? 0); i++) {
+        if (!gm.lobby.playerArray[i]) continue;
+        gmInitial.lobby.allPlayerIds.push(i);
+      }
+
+      state.gmInitial = JSON.parse(JSON.stringify(gmInitial));
+      /* #endregion gmInitial CREATION */
+
+      /* #region gmExtra CREATION */
+      state.gmExtra = {};
+      /* #endregion gmExtra CREATION */
+
+      return state;
     };
   },
   gameState: null,
-  setGameState: function(newgst) {
+  setGameState: function(newstate) {
     this.forceGameState = true;
-    this.gameState = newgst;
+    this.gameState = newstate;
   },
   forceGameState: false,
   collisionsThisStep: [],

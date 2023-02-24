@@ -7,8 +7,114 @@
     --gm_window_text: #ffffff;
     --gm_primary_background: #e2e2e2;
     --gm_behind_lobby_background: #1a2733;
+    --gm_list_headers: #a8bcc0;
     --gm_table_color: #c1cdd2;
     --gm_table_alt_color: #d2dbde;
+    --gm_button_top_bar_color: #273749c7;
+}
+
+/* SPLASH SCREEN */
+
+@keyframes gm_gearspin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.gm_splashcontainer {
+    display: flex;
+    position: absolute;
+    top: -500px;
+    left: 0;
+    z-index: 99;
+
+    margin: 30px;
+    padding: 20px;
+
+    background-color: #00000055;
+    border-radius: 15px;
+    transition: top 2s;
+}
+
+.gm_splashlogo {
+    width: 75px;
+    height: 75px;
+}
+
+.gm_splashgear {
+    position: relative;
+    width: 45px;
+    height: 45px;
+
+    background-image: url(images/gmmgear.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 45px;
+}
+
+.gm_splashgear.one {
+    top: 5px;
+    animation: gm_gearspin 2s linear infinite;
+}
+
+.gm_splashgear.two {
+    left: 25px;
+    bottom: 15px;
+
+    animation: gm_gearspin reverse 2s linear infinite;
+    animation-delay: 1000ms;
+}
+
+.gm_splashtext {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    margin-left: 15px;
+}
+
+.gm_splashtitle {
+    color: #fff;
+    font-family: 'futurept_demi_oblique';
+    font-size: 36px;
+}
+
+.gm_splashdesc {
+    display: flex;
+    justify-content: space-between;
+    
+    color: #fff;
+    font-family: 'futurept_book';
+    font-size: 16px;
+}
+
+/* CONFIG BUTTON */
+
+#pretty_top_settings {
+    border-bottom: 2px solid transparent;
+}
+
+#pretty_top_gmmaker {
+    width: 57px;
+    height: 34px;
+
+    position: absolute;
+    right: 58px;
+    top: 35px;
+    background-color: var(--gm_button_top_bar_color);
+}
+
+#pretty_top_gmmaker::after {
+    content: '';
+    display: block;
+    background-image: url(images/gmmlogo.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 30px;
+    width: 57px;
+    height: 34px;
 }
 
 /* GAME MODE EDITOR */
@@ -68,39 +174,47 @@
 }
 
 .gmeditor_iconbutton {
-    background-repeat: no-repeat;
-    background-position: center;
     width: 28px;
     height: 24px;
     display: inline-block;
     margin: 0 2px;
 }
 
-#gmeditor_newbutton {
+.gmeditor_iconbutton::after {
+    content: '';
+    display: block;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 28px;
+    height: 24px;
+}
+
+#gmeditor_newbutton::after {
     background-image: url(images/gmenew.png);
 }
 
-#gmeditor_importbutton {
+#gmeditor_importbutton::after {
     background-image: url(images/gmeimport.png);
 }
 
-#gmeditor_exportbutton {
+#gmeditor_exportbutton::after {
     background-image: url(images/gmeexport.png);
 }
 
-#gmeditor_backupsbutton {
+#gmeditor_backupsbutton::after {
     background-image: url(images/gmebackups.png);
 }
 
-#gmeditor_settingsbutton {
+#gmeditor_settingsbutton::after {
     background-image: url(images/gmesettings.png);
 }
 
-#gmeditor_savebutton {
+#gmeditor_savebutton::after {
     background-image: url(images/gmesave.png);
 }
 
-#gmeditor_closebutton {
+#gmeditor_closebutton::after {
     background-image: url(images/gmeclose.png);
 }
 
@@ -147,9 +261,14 @@
     position: absolute;
     right: 15px;
     bottom: 55px;
-    height: 30px;
     width: 30px;
+    height: 30px;
     margin-left: 5px;
+}
+
+#gmeditor_openbutton::after {
+    width: 30px;
+    height: 30px;
     background-image: url(images/gmmlogo.png);
     background-size: 95%;
     background-repeat: no-repeat;
@@ -268,6 +387,37 @@
     resize: vertical;
 }
 
+.gm_listheader {
+    background-color: var(--gm_list_headers);
+    border-bottom: 1px solid #00000012;
+    padding-left: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    display: inline-block;
+    font-size: 18px;
+    width: 100%;
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.gm_listitem {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    padding: 10px;
+    box-sizing: border-box;
+    width: 100%;
+    background-color: var(--gm_table_color);
+}
+
+.gm_listitem.small {
+    padding: 5px 10px;
+}
+
+.gm_listitem:nth-child(odd) {
+    background-color: var(--gm_table_alt_color);
+}
+
 /* WORKSPACE SEARCH COLOUR FIX */
 
 path.blocklyPath.blockly-ws-search-highlight {
@@ -340,4 +490,52 @@ path.blocklyPath.blockly-ws-search-highlight {
 .gmvi_var div {
     flex-basis: 0;
     flex-grow: 1;
+}
+
+/* BLOCKLY CLASSES */
+
+.blockly-ws-search button {
+    width: 20px;
+}
+
+path.blocklyPath.blockly-ws-search-highlight {
+    fill: black;
+    fill-opacity: 1;
+}
+
+.gm_blockly_toolbox_button_bg {
+    position: absolute;
+    width: 122px;
+    height: 30px;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.blocklyTreeSeparator {
+    visibility: hidden;
+}
+
+.blocklyToolboxDiv {
+    background-color: var(--gm_primary_background);
+    padding: 4px 10px 4px 0;
+}
+
+.blocklyTreeRow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: rgb(0 0 0 / 63%) 1px 1px 5px -2px;
+    height: 30px;
+    padding-left: 8px !important;
+    cursor: pointer;
+}
+
+.blocklyTreeIcon {
+    width: 0px;
+    height: 0px;
+}
+
+.blocklyTreeLabel {
+    color: #fff;
+    font: 15px 'futurept_b1';
 }

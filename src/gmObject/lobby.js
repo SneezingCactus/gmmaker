@@ -10,18 +10,18 @@ export default {
     this.initJoinHandlers();
 
     // not really lobby related, but necessary
-    MapEncoder.decodeFromDatabase_OLD = MapEncoder.decodeFromDatabase;
+    MapEncoder.decodeFromDatabaseOLD = MapEncoder.decodeFromDatabase;
     MapEncoder.decodeFromDatabase = function(map) {
       if (map.startsWith('!!!GMMODE!!!')) {
         return gm.lobby.mpSession.getGameSettings().map;
       } else {
-        return MapEncoder.decodeFromDatabase_OLD(...arguments);
+        return MapEncoder.decodeFromDatabaseOLD(...arguments);
       }
     };
   },
   initSocketio: function() {
     io = function() {
-      const socket = io_OLD(...arguments);
+      const socket = ioOLD(...arguments);
       gm.lobby.socket = socket;
       socket.on('disconnect', function() {
         gm.blockly.savedXml = document.createElement('xml');
@@ -60,8 +60,8 @@ export default {
         const result = cached_bonklobby.apply(this, arguments); // use .apply() to call it
         smObj.bonkLobby = this;
 
-        this.handleHostLeft_OLD = this.handleHostLeft;
-        this.handleHostLeft = function(_oldHostName, newHostId) {
+        this.handleHostLeftOLD = this.handleHostLeft;
+        this.handleHostLeft = function(OLDHostName, newHostId) {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
 
@@ -71,11 +71,11 @@ export default {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
 
-          return this.handleHostLeft_OLD(...arguments);
+          return this.handleHostLeftOLD(...arguments);
         };
 
-        this.handleHostChange_OLD = this.handleHostChange;
-        this.handleHostChange = function(_oldHostName, newHostId) {
+        this.handleHostChangeOLD = this.handleHostChange;
+        this.handleHostChange = function(OLDHostName, newHostId) {
           if (gm.lobby.networkEngine.getLSID() == newHostId) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
 
@@ -85,10 +85,10 @@ export default {
             document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
           }
 
-          return this.handleHostChange_OLD(...arguments);
+          return this.handleHostChangeOLD(...arguments);
         };
 
-        this.setGameSettings_OLD = this.setGameSettings;
+        this.setGameSettingsOLD = this.setGameSettings;
         this.setGameSettings = function(gameSettings) {
           if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
             document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
@@ -114,12 +114,12 @@ export default {
               }
             }
           }
-          return this.setGameSettings_OLD(gameSettings);
+          return this.setGameSettingsOLD(gameSettings);
         };
 
-        this.updateGameSettings_OLD = this.updateGameSettings;
+        this.updateGameSettingsOLD = this.updateGameSettings;
         this.updateGameSettings = function() {
-          const result = this.updateGameSettings_OLD(...arguments);
+          const result = this.updateGameSettingsOLD(...arguments);
 
           const modeName = gm.blockly.savedSettings?.getAttribute('mode_name');
 
@@ -135,12 +135,12 @@ export default {
           return result;
         };
 
-        this.show_OLD = this.show;
+        this.showOLD = this.show;
         this.show = function() {
           gm.lobby.gameCrashed = false;
           gm.lobby.haltCausedByLoop = false;
           gm.blockly.varInspectorContainer.style.display = 'none';
-          return this.show_OLD();
+          return this.showOLD();
         };
 
         return result;
@@ -156,33 +156,33 @@ export default {
     });
   },
   initNetworkEngine: function() {
-    const networkengine_OLD = NetworkEngine;
+    const networkengineOLD = NetworkEngine;
     NetworkEngine = function(mpSession, data) {
-      const networkEngine = new networkengine_OLD(...arguments);
+      const networkEngine = new networkengineOLD(...arguments);
 
-      networkEngine.createRoom_OLD = networkEngine.createRoom;
+      networkEngine.createRoomOLD = networkEngine.createRoom;
       networkEngine.createRoom = function() {
         document.getElementById('gmeditor_openbutton').classList.remove('brownButtonDisabled');
-        return networkEngine.createRoom_OLD(...arguments);
+        return networkEngine.createRoomOLD(...arguments);
       };
 
-      networkEngine.joinRoom_OLD = networkEngine.joinRoom;
+      networkEngine.joinRoomOLD = networkEngine.joinRoom;
       networkEngine.joinRoom = function() {
         document.getElementById('gmeditor_openbutton').classList.add('brownButtonDisabled');
-        return networkEngine.joinRoom_OLD(...arguments);
+        return networkEngine.joinRoomOLD(...arguments);
       };
 
-      networkEngine.informInLobby_OLD = networkEngine.informInLobby;
+      networkEngine.informInLobbyOLD = networkEngine.informInLobby;
 
       networkEngine.informInLobby = function(a, b) {
         const gameSettings = b;
 
         gameSettings.GMMode = gm.blockly.compressXml(gm.blockly.savedXml?.innerHTML || '');
 
-        return networkEngine.informInLobby_OLD(a, gameSettings);
+        return networkEngine.informInLobbyOLD(a, gameSettings);
       };
 
-      networkEngine.informInGame_OLD = networkEngine.informInGame;
+      networkEngine.informInGameOLD = networkEngine.informInGame;
 
       networkEngine.informInGame = function(a, b) {
         const gameSettings = b.gs;
@@ -191,16 +191,16 @@ export default {
 
         b.gs = gameSettings;
 
-        return networkEngine.informInGame_OLD(a, b);
+        return networkEngine.informInGameOLD(a, b);
       };
 
-      networkEngine.sendReturnToLobby_OLD = networkEngine.sendReturnToLobby;
+      networkEngine.sendReturnToLobbyOLD = networkEngine.sendReturnToLobby;
 
       networkEngine.sendReturnToLobby = function() {
         gm.lobby.gameCrashed = false;
         gm.lobby.haltCausedByLoop = false;
         gm.blockly.varInspectorContainer.style.display = 'none';
-        return networkEngine.sendReturnToLobby_OLD();
+        return networkEngine.sendReturnToLobbyOLD();
       };
 
       return gm.lobby.data = data, gm.lobby.mpSession = mpSession, gm.lobby.networkEngine = networkEngine, networkEngine;
@@ -215,7 +215,7 @@ export default {
       return function() {
         const result = cached_GenericGameSessionHandler.apply(this, arguments);
 
-        this.goInProgress_OLD = this.goInProgress;
+        this.goInProgressOLD = this.goInProgress;
         this.goInProgress = function() {
           const gameSettings = arguments[7];
 
@@ -237,7 +237,7 @@ export default {
             }
           }
 
-          return this.goInProgress_OLD(...arguments);
+          return this.goInProgressOLD(...arguments);
         };
 
         smObj.GenericGameSessionHandler = this;

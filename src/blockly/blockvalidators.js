@@ -741,6 +741,36 @@ export default function() {
 
 // blockly built-in
 
+Blockly.ToolboxCategory.prototype.addColourBorder_ = function() {};
+
+Blockly.ToolboxCategory.prototype.initOLD = Blockly.ToolboxCategory.prototype.init;
+Blockly.ToolboxCategory.prototype.init = function() {
+  this.initOLD(...arguments);
+
+  window.BonkUtils.setButtonSounds([this.rowDiv_]);
+
+  this.gm_bgElement = document.createElement('div');
+  this.gm_bgElement.classList.add('gm_blockly_toolbox_button_bg');
+  this.htmlDiv_.prepend(this.gm_bgElement);
+
+  const defaultColour =
+  this.parseColour_(Blockly.ToolboxCategory.defaultBackgroundColour);
+  this.gm_bgElement.style.backgroundColor = this.colour_ || defaultColour;
+};
+
+Blockly.ToolboxCategory.prototype.setSelectedOLD = Blockly.ToolboxCategory.prototype.setSelected;
+Blockly.ToolboxCategory.prototype.setSelected = function(isSelected) {
+  this.setSelectedOLD(isSelected);
+
+  this.rowDiv_.style.backgroundColor = '';
+
+  if (isSelected) {
+    this.gm_bgElement.style.filter = 'brightness(0.5)';
+  } else {
+    this.gm_bgElement.style.filter = '';
+  }
+};
+
 Blockly.Xml.applyInputTagNodes_ = function(xmlChildren, workspace, block, prototypeName) {
   for (let i = 0; i < xmlChildren.length; i++) {
     const xmlChild = xmlChildren[i];
@@ -766,4 +796,38 @@ Blockly.Xml.applyInputTagNodes_ = function(xmlChildren, workspace, block, protot
       input.connection.setShadowDom(childBlockInfo.childShadowElement);
     }
   }
+};
+
+Blockly.Variables.flyoutCategory = function(workspace) {
+  let xmlList = [];
+  const button = document.createElement('button');
+  button.setAttribute('text', '%{BKY_NEW_VARIABLE}');
+  button.setAttribute('callbackKey', 'CREATE_VARIABLE');
+
+  workspace.registerButtonCallback('CREATE_VARIABLE', function(button) {
+    Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace());
+  });
+
+  xmlList.push(button);
+
+  const removeUnusedButton = document.createElement('button');
+  removeUnusedButton.setAttribute('text', 'Delete unused variables');
+  removeUnusedButton.setAttribute('callbackKey', 'DELETE_UNUSED_VARIABLES');
+
+  workspace.registerButtonCallback('DELETE_UNUSED_VARIABLES', function(button) {
+    const workspace = button.getTargetWorkspace();
+    const allVars = workspace.getAllVariables();
+    const usedVars = Blockly.Variables.allUsedVarModels(workspace);
+
+    for (let i = 0; i < allVars.length; i++) {
+      if (usedVars.includes(allVars[i])) continue;
+      gm.editor.blocklyWs.deleteVariableById(allVars[i].id_);
+    }
+  });
+
+  xmlList.push(removeUnusedButton);
+
+  const blockList = Blockly.Variables.flyoutCategoryBlocks(workspace);
+  xmlList = xmlList.concat(blockList);
+  return xmlList;
 };

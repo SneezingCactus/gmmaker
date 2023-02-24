@@ -8,7 +8,7 @@ module.exports = {
     maxAssetSize: 1e10,
   },
   optimization: {
-    minimize: true,
+    minimize: false,
     minimizer: [
       new TerserPlugin({
         terserOptions: {
@@ -24,9 +24,6 @@ module.exports = {
         use: [
           {
             loader: 'url-loader',
-            options: {
-              limit: 8192,
-            },
           },
         ],
 

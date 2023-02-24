@@ -44,14 +44,17 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(shapes:JSON[^,]{0,100},fixtures:)([^,]{0,100})(.{0,400}ppm:)([^}]{0,100})', to: '$1JSON.parse(JSON.stringify($2))$3JSON.parse(JSON.stringify($4))'},
       // make game state list globally accessible
       {regex: '( < 100\\).{0,100}\\+ 1.{0,200}\\+\\+;)([^\\]]+\\])', to: '$1window.gmReplaceAccessors.gameStateList = $2;$2'},
-      // call graphics rollback function
-      {regex: 'if\\(([^ ]+)( != Infinity\\){)(for[^<]+< )([^\\]]+\\])(.{0,400}=Infinity;)', to: 'if($1$2gm.graphics.doRollback($4, $1);$3$4$5'},
       // allow for toggling of the death barrier
       {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
       // modify position of sound with camera position
-      {regex: '(=Math.{0,30}Math.{0,30}\\(1[^,]{0,10},)([^,]{0,10},-1)', flags: 'gm', to: '$1(window.gmReplaceAccessors.addToStereo ?? 0) + $2'},
+      {regex: '(=Math.{0,30}Math.{0,30}\\(1[^,]{0,10},)([^,]{0,10}),-1', flags: 'gm', to: '$1(window.gmReplaceAccessors.multToStereo ?? 1) * ((window.gmReplaceAccessors.addToStereo ?? 0) + $2),-1'},
       // remove pixi render function at the end of BonkGraphics render function to allow for gmm to do stuff before rendering
       {regex: '(this.renderer.render\\(this.stage\\);)', to: '/*$1*/'},
+      // add existance checks where needed
+      {regex: '(ppm:.{0,100}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.shapes[$3]) continue;'},
+      {regex: '(updateRodJoints.{0,100} ([^=]+)=\\[argu.{0,2000}?;([^;+]+)\\+\\+\\)\\{)', to: '$1if($2[0][0].physics.joints[$3]?.type !== "d") continue;'},
+      // extend top bar visibility range
+      {regex: '(return.{0,1000})< [^ ]{0,10}(.{0,100}ime.+?rue.+?> )[^ ]{0,10}', to: '$1< 100$2100'},
     ],
     inject: {
       regex: ';}\\);}}\\);',
@@ -74,7 +77,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
     }
     const funcInBonk = match[1];
     funcNames.push({name: func.name, regex: func.regex, func: funcInBonk});
-    funcHooks += `window.${func.name} = ${funcInBonk}; window.${func.name}_OLD = ${funcInBonk}; ${funcInBonk} = ` + (func.isConstructor ? `new Proxy(${funcInBonk}, {\n	construct(target, args) { \n		return new ${func.name}(...args); \n	}\n});\n` : `function(){\n	return ${func.name}(...arguments);\n};\n`);
+    funcHooks += `window.${func.name} = ${funcInBonk}; window.${func.name}OLD = ${funcInBonk}; ${funcInBonk} = ` + (func.isConstructor ? `new Proxy(${funcInBonk}, {\n	construct(target, args) { \n		return new ${func.name}(...args); \n	}\n});\n` : `function(){\n	return ${func.name}(...arguments);\n};\n`);
   }));
 
   console.log('[Game Mode Maker] Using hooks:', funcNames);

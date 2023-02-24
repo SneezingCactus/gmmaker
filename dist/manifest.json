@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
-  "name": "Game Mode Maker",
+  "name": "Game Mode Maker Legacy",
   "description": "A bonk.io mod that lets you create your own game modes using blocks.",
-  "version": "0.9.8",
+  "version": "0.10.0",
   "homepage_url": "https://github.com/SneezingCactus/gmmaker",
   "permissions": [ "webRequest", "webRequestBlocking", "*://bonk.io/*" ],
   "background": {

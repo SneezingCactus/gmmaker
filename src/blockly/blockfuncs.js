@@ -743,8 +743,8 @@ export default function() {
   // little hack to fix the immense lag when dragging around the workspace
 
   Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
-    if (this.useWorkspaceDragSurface_ && this.isDragSurfaceActive_) {
-      this.workspaceDragSurface_.translateSurface(x, y);
+    if (this.useWorkspaceDragSurface && this.isDragSurfaceActive) {
+      this.workspaceDragSurface?.translateSurface(x, y);
     } else {
       const translation = 'translate(' + x + ',' + y + ') ' +
           'scale(' + this.scale + ')';
@@ -752,12 +752,12 @@ export default function() {
       this.svgBubbleCanvas_.setAttribute('transform', translation);
     }
     // Now update the block drag surface if we're using one.
-    if (this.blockDragSurface_) {
-      this.blockDragSurface_.translateAndScaleGroup(x, y, this.scale);
+    if (this.blockDragSurface) {
+      this.blockDragSurface.translateAndScaleGroup(x, y, this.scale);
     }
     // And update the grid if we're using one.
-    if (this.grid_) {
-      this.grid_.moveTo(x, y);
+    if (this.grid) {
+      this.grid.moveTo(x, y);
     }
 
     // this.maybeFireViewportChangeEvent();
@@ -767,19 +767,20 @@ export default function() {
   Blockly.WorkspaceSvg.prototype.setCachedParentSvgSize = function(width, height) {
     const svg = this.getParentSvg();
     if (width != null) {
-      this.cachedParentSvgSize_.width = width;
+      this.cachedParentSvgSize.width = width;
       // This is set to support the public (but deprecated) Blockly.svgSize
       // method.
       svg.cachedWidth_ = width;
+      svg.setAttribute('data-cached-width', width.toString());
     }
     if (height != null) {
-      this.cachedParentSvgSize_.height = height;
+      this.cachedParentSvgSize.height = height;
       // This is set to support the public (but deprecated) Blockly.svgSize
       // method.
       svg.cachedHeight_ = height;
+      svg.setAttribute('data-cached-height', height.toString());
     }
   };
-
   // htiadg
   Blockly.Variables.nameUsedWithOtherType = function(name, type, workspace) {
     const allVariables = workspace.getVariableMap().getAllVariables();

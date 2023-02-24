@@ -2,6 +2,7 @@
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
 import Blockly from 'blockly';
+import {javascriptGenerator} from 'blockly/javascript';
 import {WorkspaceSearch} from '@blockly/plugin-workspace-search';
 import toolbox from '../blockly/toolbox.xml';
 import windowHtml from '../gmWindow/window.html';
@@ -12,8 +13,13 @@ import {saveAs} from 'file-saver';
 
 export default {
   init: function() {
+    window.shit = Blockly;
+    Blockly.JavaScript = javascriptGenerator;
     this.blockDefs = blockDefs;
     this.initGMEditor();
+  },
+  configApply: function() {
+    
   },
   initGMEditor: function() {
     // create the gm editor div
@@ -46,7 +52,7 @@ export default {
     // create the button that opens the game mode editor
     const GMOpenButton = document.createElement('div');
     GMOpenButton.id = 'gmeditor_openbutton';
-    GMOpenButton.className = 'newbonklobby_settings_button brownButton brownButton_classic buttonShadow';
+    GMOpenButton.className = 'newbonklobby_settings_button brownButton brownButton_classic buttonShadow gmeditor_iconbutton';
     GMOpenButton.addEventListener('click', gm.blockly.showGMEWindow);
 
     // ensure compatibility with bonk-host
@@ -64,6 +70,7 @@ export default {
         modeDropdown.classList.remove('brownButton', 'brownButton_classic', 'buttonShadow');
         modeDropdown.style.width = 'calc(50% - 22px)';
         modeDropdown.style.bottom = '85px';
+        modeDropdown.style.height = '0px';
       };
     } else if (window.bonkHost) {
       document.getElementById('newbonklobby_modebutton').classList.add('gm_withbonkhost');
@@ -76,6 +83,7 @@ export default {
       modeDropdown.classList.remove('brownButton', 'brownButton_classic', 'buttonShadow');
       modeDropdown.style.width = 'calc(50% - 22px)';
       modeDropdown.style.bottom = '85px';
+      modeDropdown.style.height = '0px';
     } else {
       document.getElementById('newbonklobby_settingsbox').appendChild(GMOpenButton);
       window.BonkUtils.setButtonSounds([GMOpenButton]);
@@ -109,10 +117,10 @@ export default {
 
     // hook into chatbox focus method to enable/disable chatbox input
     const chatbox = document.getElementById('newbonklobby_chat_input');
-    chatbox.focus_OLD = chatbox.focus;
+    chatbox.focusOLD = chatbox.focus;
     chatbox.focus = function() {
       if (!gm.blockly.disableLobbyChatbox) {
-        chatbox.focus_OLD();
+        chatbox.focusOLD();
       }
     };
 
@@ -134,9 +142,11 @@ export default {
     this.makeDraggable(this.varInspectorContainer, varInspTopBar);
 
     // add block defs into blockly
+
     for (let i = 0; i !== this.blockDefs.length; i++) {
       Blockly.Blocks[this.blockDefs[i].type] = {};
     }
+
 
     defineBlockValidators();
 
@@ -152,19 +162,20 @@ export default {
 
     defineBlockCode();
 
+
     // eslint-disable-next-line guard-for-in
     for (const block in Blockly.Blocks) {
       Blockly.Blocks[block].init = (function() {
-        const init_OLD = Blockly.Blocks[block].init;
+        const initOLD = Blockly.Blocks[block].init;
 
         return function() {
-          init_OLD.apply(this, arguments);
+          initOLD.apply(this, arguments);
 
           if (!this.type.startsWith('on_') && !this.type.startsWith('procedures_def')) {
-            const onChange_OLD = this.onchange;
+            const onChangeOLD = this.onchange;
 
             this.setOnChange(function() {
-              if (onChange_OLD) onChange_OLD.apply(this, arguments);
+              if (onChangeOLD) onChangeOLD.apply(this, arguments);
 
               if (this.parentBlock_ || this.isInMutator || this.isInFlyout) {
                 this.setWarningText(null);
@@ -184,10 +195,11 @@ export default {
     // create blockly div
     const blocklyDiv = document.createElement('div');
     blocklyDiv.id = 'gmblocklydiv';
+    blocklyDiv.classList.add('bl_IgnoreTheme');
 
     const bounds = document.getElementById('gmblocklyarea').getBoundingClientRect();
 
-    blocklyDiv.style.top = bounds.top;
+    blocklyDiv.style.top = bounds.top + window.scrollY;
     blocklyDiv.style.left = bounds.left;
     blocklyDiv.style.width = bounds.width;
     blocklyDiv.style.height = bounds.height;
@@ -203,6 +215,24 @@ export default {
       },
     }),
 
+    Blockly.Theme.defineTheme('gmmaker-dark', {
+      'base': gm.blockly.theme,
+      'componentStyles': {
+        'workspaceBackgroundColour': '#1e1e1e',
+        'toolboxBackgroundColour': 'blackBackground',
+        'toolboxForegroundColour': '#fff',
+        'flyoutBackgroundColour': '#252526',
+        'flyoutForegroundColour': '#ccc',
+        'flyoutOpacity': 1,
+        'scrollbarColour': '#797979',
+        'insertionMarkerColour': '#fff',
+        'insertionMarkerOpacity': 0.3,
+        'scrollbarOpacity': 0.4,
+        'cursorColour': '#d0d0d0',
+        'blackBackground': '#333',
+      },
+    });
+
     // create blockly workspaces
     gm.blockly.workspace = Blockly.inject('gmblocklydiv', {
       toolbox: document.getElementById('toolbox'),
@@ -216,7 +246,7 @@ export default {
     gm.blockly.headlessWorkspace = new Blockly.Workspace();
 
     // drag surface makes the workspace lag a LOT while dragging on a really big project
-    gm.blockly.workspace.useWorkspaceDragSurface_ = false;
+    gm.blockly.workspace.useWorkspaceDragSurface = false;
 
     // workspace plugins
     const workspaceSearch = new WorkspaceSearch(gm.blockly.workspace);
@@ -239,7 +269,7 @@ export default {
     window.addEventListener('resize', () => {
       const bounds = document.getElementById('gmblocklyarea').getBoundingClientRect();
 
-      blocklyDiv.style.top = bounds.top;
+      blocklyDiv.style.top = bounds.top + window.scrollY;
       blocklyDiv.style.left = bounds.left;
       blocklyDiv.style.width = bounds.width;
       blocklyDiv.style.height = bounds.height;
@@ -314,10 +344,10 @@ export default {
       db.onerror = console.error;
     });
 
-    gm.blockly.headlessWorkspace.fireChangeListener_OLD = gm.blockly.headlessWorkspace.fireChangeListener;
+    gm.blockly.headlessWorkspace.fireChangeListenerOLD = gm.blockly.headlessWorkspace.fireChangeListener;
     gm.blockly.headlessWorkspace.fireChangeListener = function() {
       if (gm.lobby.networkEngine.getLSID() !== gm.lobby.networkEngine.hostID) return;
-      return gm.blockly.headlessWorkspace.fireChangeListener_OLD(...arguments);
+      return gm.blockly.headlessWorkspace.fireChangeListenerOLD(...arguments);
     };
 
     window.blockly = Blockly;
@@ -435,7 +465,7 @@ export default {
     this.varInspector.appendChild(tabContentElement);
   },
   updateVarInspector: function(gameState) {
-    const vars = gameState.physics.bodies[0]?.cf.variables;
+    const vars = gameState.gmExtra?.variables;
 
     // create global tab and players' tabs if they don't exist already
     if (!document.getElementById('gmvi_tab_header_global')) {
@@ -493,7 +523,7 @@ export default {
 
     // blocklyDiv.style.transform = 'scale(1)';
     blocklyDiv.style.visibility = 'visible';
-    blocklyDiv.style.top = bounds.top;
+    blocklyDiv.style.top = bounds.top + window.scrollY;
     blocklyDiv.style.left = bounds.left;
     blocklyDiv.style.width = bounds.width;
     blocklyDiv.style.height = bounds.height;
@@ -512,7 +542,6 @@ export default {
     gm.blockly.disableLobbyChatbox = false;
 
     gm.blockly.workspace.setVisible(false);
-    // document.getElementById('gmblocklydiv').style.transform = 'scale(0)';
     document.getElementById('gmblocklydiv').style.visibility = 'hidden';
     document.getElementById('gmeditor').style.transform = 'scale(0)';
     document.getElementById('newbonklobby').style.transform = 'scale(1)';
@@ -1179,7 +1208,7 @@ export default {
       if (gm.graphics.rendering) return;
       if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
 
-      const cameras = gameState.physics.bodies[0].cf.cameras;
+      const cameras = gameState.gmExtra.cameras;
 
       // convert degrees to radians
       if (property === 'angle') value *= (Math.PI / 180);
@@ -1195,14 +1224,14 @@ export default {
         }
       }
 
-      gameState.physics.bodies[0].cf.cameras = cameras;
-      gameState.physics.bodies[0].cf.cameraChanged = true;
+      gameState.gmExtra.cameras = cameras;
+      gameState.gmExtra.cameraChanged = true;
     },
     changeCameraProperty: function(gameState, discID, property, value) {
       if (gm.graphics.rendering) return;
       if (value === null || value === undefined || !Number.isFinite(value) || Number.isNaN(value)) return;
 
-      const cameras = gameState.physics.bodies[0].cf.cameras;
+      const cameras = gameState.gmExtra.cameras;
 
       // convert degrees to radians
       if (property === 'angle') value *= (Math.PI / 180);
@@ -1218,28 +1247,28 @@ export default {
         }
       }
 
-      gameState.physics.bodies[0].cf.cameras = cameras;
-      gameState.physics.bodies[0].cf.cameraChanged = true;
+      gameState.gmExtra.cameras = cameras;
+      gameState.gmExtra.cameraChanged = true;
     },
     getCameraProperty: function(gameState, discID, property) {
-      if (!gameState.physics.bodies[0].cf.cameras[discID]) return Infinity;
+      if (!gameState.gmExtra.cameras[discID]) return Infinity;
 
       // convert degrees to radians
-      if (property === 'angle') return gameState.physics.bodies[0].cf.cameras[discID][property] * (Math.PI / 180);
-      if (property === 'xskew' || property === 'yskew') return gameState.physics.bodies[0].cf.cameras[discID][property] * (Math.PI / -180);
+      if (property === 'angle') return gameState.gmExtra.cameras[discID][property] * (Math.PI / 180);
+      if (property === 'xskew' || property === 'yskew') return gameState.gmExtra.cameras[discID][property] * (Math.PI / -180);
 
-      return gameState.physics.bodies[0].cf.cameras[discID][property];
+      return gameState.gmExtra.cameras[discID][property];
     },
     enableCameraLerp: function(gameState, enable, discID) {
       if (gm.graphics.rendering) return;
-      if (!gameState.physics.bodies[0].cf.cameras[discID]) return;
+      if (!gameState.gmExtra.cameras[discID]) return;
 
-      gameState.physics.bodies[0].cf.cameras[discID].doLerp = enable;
+      gameState.gmExtra.cameras[discID].doLerp = enable;
     },
     enableDeathBarrier: function(gameState, enable) {
       if (gm.graphics.rendering) return;
 
-      gameState.physics.bodies[0].cf.disableDeathBarrier = !enable;
+      gameState.gmExtra.disableDeathBarrier = !enable;
     },
     rayCast: function(gameState, discID, x1, y1, x2, y2, colA, colB, colC, colD, colP, pointXVar, pointYVar, normalXVar, normalYVar, objectTypeVar, objectIdVar) {
       let maskBits = 65535;
@@ -1307,22 +1336,22 @@ export default {
     },
     overrideInput: function(gameState, discID, input, value) {
       if (gm.graphics.rendering) return;
-      if (gameState.physics.bodies[0].cf.overrides && !gameState.physics.bodies[0].cf.overrides[discID]) {
-        gameState.physics.bodies[0].cf.overrides[discID] = {};
-      } else if (!gameState.physics.bodies[0].cf.overrides) {
-        gameState.physics.bodies[0].cf.overrides = [];
-        gameState.physics.bodies[0].cf.overrides[discID] = {};
+      if (gameState.gmExtra.overrides && !gameState.gmExtra.overrides[discID]) {
+        gameState.gmExtra.overrides[discID] = {};
+      } else if (!gameState.gmExtra.overrides) {
+        gameState.gmExtra.overrides = [];
+        gameState.gmExtra.overrides[discID] = {};
       }
 
-      gameState.physics.bodies[0].cf.overrides[discID][input] = value;
+      gameState.gmExtra.overrides[discID][input] = value;
     },
     killPlayer: function(gameState, discID, allowRespawn) {
       if (gm.graphics.rendering) return;
-      if (gameState.physics.bodies[0].cf.kills && !gameState.physics.bodies[0].cf.kills.includes(discID)) {
-        gameState.physics.bodies[0].cf.kills.push({id: discID, allowRespawn: allowRespawn});
-      } else if (!gameState.physics.bodies[0].cf.kills) {
-        gameState.physics.bodies[0].cf.kills = [];
-        gameState.physics.bodies[0].cf.kills.push({id: discID, allowRespawn: allowRespawn});
+      if (gameState.gmExtra.kills && !gameState.gmExtra.kills.includes(discID)) {
+        gameState.gmExtra.kills.push({id: discID, allowRespawn: allowRespawn});
+      } else if (!gameState.gmExtra.kills) {
+        gameState.gmExtra.kills = [];
+        gameState.gmExtra.kills.push({id: discID, allowRespawn: allowRespawn});
       }
     },
     createRectShape: function(color, xpos, ypos, width, height, angle, noPhys, noGrap, inGrap, death) {
@@ -1686,58 +1715,56 @@ export default {
       gm.graphics.renderUpdates[gameState.rl].push({action: 'update', id: platID});
     },
     playSound: function(gameState, panType, soundName, volume, panning) {
-      panning = Number(panning);
-      volume = Number(volume);
+      let finalSoundName = soundName;
 
-      if (!Number.isFinite(volume) || volume === null || Number.isNaN(volume)) return;
-      if (!Number.isFinite(panning) || panning === null || Number.isNaN(panning)) return;
-
-      if (soundName == 'discDeath') soundName += Math.floor(gm.physics.pseudoRandom() * 2.999);
+      if (soundName === 'discDeath') finalSoundName += Math.floor(gm.physics.pseudoRandom() * 2.999);
 
       if (panType === 'world') {
-        const cameraObj = gameState.physics.bodies[0]?.cf.cameras[gm.lobby.networkEngine?.getLSID()];
-        const ppm = gameState.physics.ppm;
+        const cameraObj = gameState.gmExtra?.cameras[gm.lobby.networkEngine?.getLSID()];
+
         if (!cameraObj) return;
 
-        panning = panning / (365 / ppm) - 1;
-        panning += ((-cameraObj.xpos + 730 / ppm) * cameraObj.xscal) / (365 / ppm) - 1;
+        const scaledPPM = gameState.physics.ppm * cameraObj.xscal;
+
+        let finalPanning = panning - cameraObj.xpos + 365 / scaledPPM;
+        finalPanning = finalPanning / 365 * scaledPPM - 1;
+
+        gm.audio.playSound(finalSoundName, finalPanning, volume);
+      } else {
+        gm.audio.playSound(finalSoundName, panning, volume);
       }
-
-      panning = Math.max(Math.min(panning, 1), -1);
-
-      window.BonkUtils.soundManager.playSound(soundName, panning, volume);
     },
     setVar: function(varName, gameState, discID, value) {
       if (value === null || value === undefined) return;
 
       if (varName.startsWith('GLOBAL_')) {
-        gameState.physics.bodies[0].cf.variables.global[varName] = value;
-      } else if (gameState.physics.bodies[0].cf.variables[discID]) {
-        gameState.physics.bodies[0].cf.variables[discID][varName] = value;
+        gameState.gmExtra.variables.global[varName] = value;
+      } else if (gameState.gmExtra.variables[discID]) {
+        gameState.gmExtra.variables[discID][varName] = value;
       }
     },
     changeVar: function(varName, gameState, discID, value) {
       if (value === null || value === undefined) return;
 
       if (varName.startsWith('GLOBAL_')) {
-        if (!gameState.physics.bodies[0].cf.variables.global[varName]) gameState.physics.bodies[0].cf.variables.global[varName] = 0;
-        gameState.physics.bodies[0].cf.variables.global[varName] += value;
-      } else if (gameState.physics.bodies[0].cf.variables[discID]) {
-        const theVar = gameState.physics.bodies[0].cf.variables[discID][varName];
-        if (theVar === null || theVar === undefined) gameState.physics.bodies[0].cf.variables[discID][varName] = 0;
-        gameState.physics.bodies[0].cf.variables[discID][varName] += value;
+        if (!gameState.gmExtra.variables.global[varName]) gameState.gmExtra.variables.global[varName] = 0;
+        gameState.gmExtra.variables.global[varName] += value;
+      } else if (gameState.gmExtra.variables[discID]) {
+        const theVar = gameState.gmExtra.variables[discID][varName];
+        if (theVar === null || theVar === undefined) gameState.gmExtra.variables[discID][varName] = 0;
+        gameState.gmExtra.variables[discID][varName] += value;
       }
     },
     keepVar: function(varName, gameState) {
-      if (!gameState.physics.bodies[0].cf.keepVariables.includes(varName)) {
-        gameState.physics.bodies[0].cf.keepVariables.push(varName);
+      if (!gameState.gmExtra.keepVariables.includes(varName)) {
+        gameState.gmExtra.keepVariables.push(varName);
       }
     },
     getVar: function(varName, gameState, discID) {
-      if (varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf.variables.global?.[varName] != null) {
-        return gameState.physics.bodies[0].cf.variables.global[varName];
-      } else if (!varName.startsWith('GLOBAL_') && gameState.physics.bodies[0].cf.variables[discID]?.[varName] != null) {
-        return gameState.physics.bodies[0].cf.variables[discID][varName];
+      if (varName.startsWith('GLOBAL_') && gameState.gmExtra.variables.global?.[varName] != null) {
+        return gameState.gmExtra.variables.global[varName];
+      } else if (!varName.startsWith('GLOBAL_') && gameState.gmExtra.variables[discID]?.[varName] != null) {
+        return gameState.gmExtra.variables[discID][varName];
       }
 
       return Infinity;
