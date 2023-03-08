@@ -161,8 +161,8 @@ this.game = {
       try {
         const listeners = this.eventListeners[eventName];
         for (let i = 0; i < listeners.length; i++) {
-          if (listeners[i]?.options && (listeners[i]?.options.perPlayer != options?.perPlayer ||
-              listeners[i]?.options.collideWith != options?.collideWith)) continue;
+          if (listeners[i]?.options && listeners[i]?.options.perPlayer != options?.perPlayer) continue;
+          if (listeners[i]?.options && listeners[i]?.options.collideWith != options?.collideWith) continue;
 
           listeners[i].listener(...args);
         }
@@ -177,13 +177,106 @@ this.game = {
       playerDie: [],
       discCollision: [],
       arrowCollision: [],
-      bodyCollision: [],
+      platformCollision: [],
     },
   },
   state: null,
   inputs: {},
   lobby: {},
   world: {
+    addShapeIntoWorld: function(shapeData) {
+      let fixture;
+      let shape;
+
+      if (shapeData.isProxy) {
+        fixture = Object.assign(JSON.parse(JSON.stringify(defaults.bodyFixture)), game.state.physics.fixtures[shapeData.id]);
+        shape = fixture.geo;
+      } else {
+        fixture = Object.assign(JSON.parse(JSON.stringify(defaults.bodyFixture)), shapeData);
+        shape = fixture.geo ?? {type: 'bx'};
+      }
+
+      switch (shape.type) {
+        case 'bx':
+          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyBoxShape)), shape);
+          break;
+        case 'ci':
+          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyCircleShape)), shape);
+          break;
+        case 'po':
+          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyPolyShape)), shape);
+          break;
+      }
+
+      game.state.physics.shapes.push(shape);
+
+      fixture.sh = game.state.physics.shapes.length - 1;
+      delete fixture.geo;
+      game.state.physics.fixtures.push(fixture);
+
+      return game.state.physics.fixtures.length - 1;
+    },
+    createPlatform: function(viewOrder, platData) {
+      let finalBody;
+
+      if (platData.isProxy) {
+        finalBody = Object.assign(JSON.parse(JSON.stringify(defaults.body)), game.state.physics.bodies[platData.platId]);
+      } else {
+        finalBody = Object.assign(JSON.parse(JSON.stringify(defaults.body)), platData);
+      }
+
+      finalBody.cf = Object.assign(JSON.parse(JSON.stringify(defaults.body.cf)), finalBody.cf);
+      finalBody.fx = [];
+
+      for (let i = 0; i < platData.shapes.length; i++) {
+        finalBody.fx.push(this.addShapeIntoWorld(platData.shapes[i]));
+      }
+
+      delete finalBody.shapes;
+
+      game.state.physics.bodies.push(finalBody);
+      game.state.physics.bro.splice(Math.min(viewOrder ?? 0, game.state.physics.bro.length), 0, game.state.physics.bodies.length - 1);
+
+      return game.state.physics.bodies.length - 1;
+    },
+    deletePlatform: function(id) {
+      const fxList = game.state.physics.bodies[id].fx;
+
+      delete game.state.physics.bodies[id];
+      game.state.physics.bro.splice(game.state.physics.bro.indexOf(id), 1);
+
+      for (const i of fxList) {
+        delete game.state.physics.shapes[game.state.physics.fixtures[i].sh];
+        delete game.state.physics.fixtures[i];
+      }
+
+      for (let i = 0; i < game.state.physics.joints.length; i++) {
+        if (game.state.physics.joints[i]?.ba !== id && game.state.physics.joints[i]?.bb !== id) continue;
+        delete game.state.physics.joints[i];
+      }
+
+      for (let i = 0; i < game.state.capZones.length; i++) {
+        if (!fxList.includes(game.state.capZones[i].i)) continue;
+        delete game.state.capZones[i];
+      }
+    },
+    addShapeToPlat: function(platId, shapeData) {
+      const body = game.state.physics.bodies[platId];
+      body.fx.push(this.addShapeIntoWorld(shapeData));
+
+      return body.fx.length - 1;
+    },
+    movePlatShape: function(platId, fromIndex, toIndex) {
+      const body = game.state.physics.bodies[platId];
+
+      const fxId = body.fx.splice(fromIndex, 1);
+      body.fx.splice(Math.min(toIndex, body.fx.length), 0, fxId);
+
+      return toIndex;
+    },
+    removeShapeFromPlat: function(platId, shapeIndex) {
+      game.state.physics.bodies[platId].fx.splice(shapeIndex, 1);
+    },
     createBody: function(options) {
       const finalBody = Object.assign(JSON.parse(JSON.stringify(defaults.body)), options.bodyDef);
       finalBody.cf = Object.assign(JSON.parse(JSON.stringify(defaults.body.cf)), finalBody.cf);
@@ -276,6 +369,17 @@ this.game = {
       game.state.gmExtra.kills.push({id: id, allowRespawn: allowRespawn});
     },
     getDiscRadius: (id) => game.lobby.settings.bal[id] ? 1 + Math.max(Math.min(game.lobby.settings.bal[id] / 100, 1), -0.94) : 1,
+    triggerWin: function(id) {
+      if (game.state.fte > -1) return;
+
+      game.state.fte = 90;
+      game.state.lscr = id;
+
+      if (id >= 0) {
+        game.state.scores[id] ??= 0;
+        game.state.scores[id]++;
+      }
+    },
     rayCast: rayCast,
     rayCastAll: rayCastAll,
     disableDeathBarrier: false,
@@ -376,6 +480,73 @@ this.game = {
   debugLog: debugLog,
 };
 
+const shapeProxyValidator = {
+  get(fxId, key) {
+    if (key === 'isProxy') return true;
+    if (key === 'id') return fxId[0];
+
+    const fx = game.state.physics.fixtures[fxId[0]];
+    if (key === 'geo') {
+      return game.state.physics.shapes[fx.sh];
+    }
+    return fx[key];
+  },
+  set(fxId, key, value) {
+    game.state.physics.fixtures[fxId[0]][key] = value;
+    return true;
+  },
+};
+
+const shapeListProxyValidator = {
+  get(bodyId, key) {
+    if (key === 'isProxy') return true;
+
+    if (key === 'length') {
+      return game.state.physics.bodies[bodyId[0]].fx.length;
+    }
+    const fxId = game.state.physics.bodies[bodyId[0]].fx[key];
+    if (!shapeProxies[fxId]) {
+      shapeProxies[fxId] = new Proxy([fxId], shapeProxyValidator);
+    }
+    return shapeProxies[fxId];
+  },
+  set(target, key, value) {
+    target[key] = value;
+  },
+};
+
+const platProxyValidator = {
+  get(bodyId, key) {
+    if (key === 'isProxy') return true;
+    if (key === 'id') return bodyId[0];
+
+    bodyId = bodyId[0];
+    if (key === 'shapes') {
+      if (!shapeListProxies[bodyId]) {
+        shapeListProxies[bodyId] = new Proxy([bodyId], shapeListProxyValidator);
+      }
+      return shapeListProxies[bodyId];
+    }
+    return game.state.physics.bodies[bodyId][key];
+  },
+  set(bodyId, key, value) {
+    game.state.physics.bodies[bodyId[0]][key] = value;
+    return true;
+  },
+};
+
+const platProxies = [];
+const shapeListProxies = [];
+const shapeProxies = [];
+const platListProxy = new Proxy({}, {
+  get(_target, key) {
+    if (!platProxies[key]) {
+      platProxies[key] = new Proxy([key], platProxyValidator);
+    }
+    return platProxies[key];
+  },
+});
+
 this.staticSetted = false;
 this.resetStaticInfo = function() {
   this.staticSetted = false;
@@ -389,6 +560,8 @@ this.setStaticInfo = function() {
 this.gameStateList = [];
 this.setDynamicInfo = function() {
   getDynamicInfo(this.game);
+
+  game.state.physics.platforms = platListProxy;
 
   const gameLength = game.state.gmExtra.gameLength;
 

@@ -14,6 +14,7 @@
     --gm_button_primary_color: #795548;
     --gm_button_secondary_color: #4b252b;
     --gm_button_top_bar_color: #273749c7;
+    --gm_scrollbar_thumb: #b8b8b8;
 }
 
 /* SPLASH SCREEN */
@@ -209,11 +210,11 @@
     background-image: url(images/gmebackups.png);
 }
 
-#gmeditor_changebasebutton.jsIcon {
+#gmeditor_changebasebutton.jsIcon::after {
     background-image: url(images/gmejavascript.png);
 }
 
-#gmeditor_changebasebutton.blockIcon {
+#gmeditor_changebasebutton.blockIcon::after {
     background-image: url(images/gmeblockly.png);
 }
 
@@ -590,11 +591,20 @@
 /* BLOCKLY CLASSES */
 
 .gm_blockly_toolbox_button_bg {
-    position: fixed;
-    width: 109px;
+    position: absolute;
+    width: 110px;
     height: 30px;
     pointer-events: none;
     z-index: -1;
+    margin-top: 3px;
+}
+
+.blocklyToolboxCategory[aria-expanded] > .gm_blockly_toolbox_button_bg {
+    filter: none !important;
+}
+
+.blocklyToolboxCategory .blocklyToolboxCategory .gm_blockly_toolbox_button_bg {
+    margin-top: 0;
 }
 
 .blocklyTreeSeparator {
@@ -603,7 +613,10 @@
 
 .blocklyToolboxDiv {
     background-color: var(--gm_primary_background);
-    padding: 4px 10px 4px 0;
+}
+
+.blocklyToolboxDiv > .blocklyToolboxContents {
+    padding: 4px 10px 12px 0;
 }
 
 .blocklyTreeRow {
@@ -611,9 +624,18 @@
     justify-content: center;
     align-items: center;
     box-shadow: rgb(0 0 0 / 63%) 1px 1px 5px -2px;
+    width: 110px;
     height: 30px;
     padding-left: 8px !important;
+    margin-top: 3px;
+    margin-bottom: 0;
+    box-sizing: border-box;
     cursor: pointer;
+}
+
+.blocklyToolboxCategory .blocklyToolboxCategory .blocklyTreeRow {
+    margin-top: 0;
+    box-shadow: none;
 }
 
 .blocklyTreeIcon {
@@ -626,6 +648,20 @@
     font: 15px 'futurept_b1';
 }
 
+.blocklyMainBackground {
+    stroke: none !important;
+}
+
+.blocklyToolboxDiv::-webkit-scrollbar {
+    background: var(--gm_primary_background);
+    width: 10px;
+}
+  
+.blocklyToolboxDiv::-webkit-scrollbar-thumb {
+    background: var(--gm_scrollbar_thumb);
+    border-radius: 50px;
+}
+
 path.blocklyPath.blockly-ws-search-highlight {
     fill: black;
     fill-opacity: 1;
@@ -633,6 +669,15 @@ path.blocklyPath.blockly-ws-search-highlight {
 
 .blockly-ws-search button {
     width: 20px;
+}
+
+.fieldColourSliderLabel {
+    font-family: 'futurept_b1';
+}
+
+.fieldColourSliderContainer > hr,
+.fieldColourSliderContainer > .fieldColourEyedropper {
+    display: none;
 }
 
 /* INGAME LOG BOX */

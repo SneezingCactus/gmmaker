@@ -625,7 +625,7 @@
   <category name="Variables" colour="#a55b80" custom="VARIABLE"></category>
   <category name="Functions" colour="#995ba5" custom="PROCEDURE"></category>
   <sep></sep>
-  <category name="Bonk Events" colour="#a5745b">
+  <category name="Events" colour="#a5745b">
     <block type="event_roundstart">
       <field name="perplayer">TRUE</field>
       <field name="player_id" id="qVR/nG6;5OKwPU|lFF|9">id</field>
@@ -645,167 +645,725 @@
     <block type="if_return_event"></block>
     <block type="return_event"></block>
   </category>
-  <category name="Discs &amp; Arrows" colour="#5b67a5">
-    <block type="state_obj_exists">
-      <field name="obj_type">game.state.discs</field>
-      <value name="obj_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="disc_prop_set">
-      <field name="set_option">set</field>
-      <field name="property">p</field>
+  <category name="Lobby" colour="#5ba5a5">
+    <block type="lobby_all_player_ids"></block>
+    <block type="lobby_host_id"></block>
+    <block type="lobby_client_id"></block>
+    <block type="lobby_playerinfo_get">
       <value name="id">
         <shadow type="math_number">
           <field name="NUM">0</field>
         </shadow>
       </value>
     </block>
-    <block type="disc_prop_get">
-      <field name="property">p</field>
-      <value name="id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="input_pressing">
-      <field name="key">up</field>
-      <value name="player_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="input_override">
-      <field name="key">up</field>
-      <value name="player_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-      <value name="override">
-        <shadow type="logic_boolean">
-          <field name="BOOL">FALSE</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="input_override_stop">
-      <field name="key">up</field>
-      <value name="player_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="input_mouse_pos">
-      <value name="player_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="player_kill">
-      <field name="allow_respawn">true</field>
-      <value name="player_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="arrow_prop_set">
-      <field name="set_option">set</field>
-      <field name="property">p</field>
-      <value name="id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="arrow_prop_get">
-      <field name="property">p</field>
-      <value name="id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="arrow_create">
-      <field name="return_id">FALSE</field>
-      <value name="did">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-      <value name="pos">
-        <shadow type="vector_create">
-          <value name="x">
-            <shadow type="math_number">
-              <field name="NUM">50</field>
-            </shadow>
-          </value>
-          <value name="y">
-            <shadow type="math_number">
-              <field name="NUM">20</field>
-            </shadow>
-          </value>
-        </shadow>
-      </value>
-      <value name="lvel">
-        <shadow type="vector_create">
-          <value name="x">
-            <shadow type="math_number">
-              <field name="NUM">10</field>
-            </shadow>
-          </value>
-          <value name="y">
-            <shadow type="math_number">
-              <field name="NUM">0</field>
-            </shadow>
-          </value>
-        </shadow>
-      </value>
-      <value name="ang">
-        <shadow type="math_number">
-          <field name="NUM">90</field>
-        </shadow>
-      </value>
-      <value name="fte">
-        <shadow type="math_number">
-          <field name="NUM">150</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="arrow_delete">
-      <value name="arrow_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="arrow_player_delete">
-      <value name="player_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="arrow_get_player_last">
-      <value name="player_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
-    <block type="arrow_get_player">
-      <value name="player_id">
-        <shadow type="math_number">
-          <field name="NUM">0</field>
-        </shadow>
-      </value>
-    </block>
+    <block type="lobby_rounds_to_win"></block>
+    <block type="lobby_teams_on"></block>
+    <block type="lobby_teams_locked"></block>
+    <block type="lobby_base_mode_is"></block>
+  </category>
+  <category name="Game World" colour="#5b67a5">
+    <category name="Discs" colour="#777777">
+      <block type="state_obj_exists">
+        <field name="obj_type">game.state.discs</field>
+        <value name="obj_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="disc_prop_set">
+        <field name="set_option">set</field>
+        <field name="property">p</field>
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="disc_prop_get">
+        <field name="property">p</field>
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="input_pressing">
+        <field name="key">up</field>
+        <value name="player_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="input_override">
+        <field name="key">up</field>
+        <value name="player_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="override">
+          <shadow type="logic_boolean">
+            <field name="BOOL">FALSE</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="input_override_stop">
+        <field name="key">up</field>
+        <value name="player_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="input_mouse_pos">
+        <value name="player_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="player_kill">
+        <field name="allow_respawn">true</field>
+        <value name="player_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Arrows" colour="#777777">
+      <block type="state_obj_exists">
+        <field name="obj_type">game.state.projectiles</field>
+        <value name="obj_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="arrow_prop_set">
+        <field name="set_option">set</field>
+        <field name="property">p</field>
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="arrow_prop_get">
+        <field name="property">p</field>
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="arrow_create">
+        <field name="return_id">FALSE</field>
+        <value name="did">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="pos">
+          <shadow type="vector_create">
+            <value name="x">
+              <shadow type="math_number">
+                <field name="NUM">50</field>
+              </shadow>
+            </value>
+            <value name="y">
+              <shadow type="math_number">
+                <field name="NUM">20</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="lvel">
+          <shadow type="vector_create">
+            <value name="x">
+              <shadow type="math_number">
+                <field name="NUM">10</field>
+              </shadow>
+            </value>
+            <value name="y">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="ang">
+          <shadow type="math_number">
+            <field name="NUM">90</field>
+          </shadow>
+        </value>
+        <value name="fte">
+          <shadow type="math_number">
+            <field name="NUM">150</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="arrow_delete">
+        <value name="arrow_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="arrow_player_delete">
+        <value name="player_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="arrow_get_player_last">
+        <value name="player_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="arrow_get_player">
+        <value name="player_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Platforms" colour="#777777">
+      <block type="plat_prop_set">
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="plat_prop_get">
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="plat_shape_prop_set">
+        <field name="set_option">set</field>
+        <field name="property">geo.c</field>
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="shape_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="plat_shape_prop_get">
+        <field name="property">geo.c</field>
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="shape_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="plat_shape_add">
+        <value name="shape">
+          <shadow type="plat_shape">
+            <value name="geo">
+              <shadow type="plat_shape_geo_rect">
+                <value name="pos">
+                  <shadow type="vector_create">
+                    <value name="x">
+                      <shadow type="math_number">
+                        <field name="NUM">0</field>
+                      </shadow>
+                    </value>
+                    <value name="y">
+                      <shadow type="math_number">
+                        <field name="NUM">0</field>
+                      </shadow>
+                    </value>
+                  </shadow>
+                </value>
+                <value name="size">
+                  <shadow type="vector_create">
+                    <value name="x">
+                      <shadow type="math_number">
+                        <field name="NUM">5</field>
+                      </shadow>
+                    </value>
+                    <value name="y">
+                      <shadow type="math_number">
+                        <field name="NUM">5</field>
+                      </shadow>
+                    </value>
+                  </shadow>
+                </value>
+                <value name="angle">
+                  <shadow type="math_number">
+                    <field name="NUM">0</field>
+                  </shadow>
+                </value>
+              </shadow>
+            </value>
+            <value name="colour">
+              <shadow type="colour_picker">
+                <field name="COLOUR">#ff0000</field>
+              </shadow>
+            </value>
+            <value name="nophys">
+              <shadow type="logic_boolean">
+                <field name="BOOL">FALSE</field>
+              </shadow>
+            </value>
+            <value name="nograp">
+              <shadow type="logic_boolean">
+                <field name="BOOL">FALSE</field>
+              </shadow>
+            </value>
+            <value name="ingrap">
+              <shadow type="logic_boolean">
+                <field name="BOOL">FALSE</field>
+              </shadow>
+            </value>
+            <value name="death">
+              <shadow type="logic_boolean">
+                <field name="BOOL">FALSE</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="plat_shape_remove">
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="shape">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="plat_clone">
+        <field name="return_id">TRUE</field>
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="platform_create">
+        <field name="return_id">FALSE</field>
+        <field name="type">s</field>
+        <value name="pos">
+          <shadow type="vector_create">
+            <value name="x">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+            <value name="y">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="angle">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="bounce">
+          <shadow type="math_number">
+            <field name="NUM">0.8</field>
+          </shadow>
+        </value>
+        <value name="density">
+          <shadow type="math_number">
+            <field name="NUM">0.3</field>
+          </shadow>
+        </value>
+        <value name="friction">
+          <shadow type="math_number">
+            <field name="NUM">0.5</field>
+          </shadow>
+        </value>
+        <value name="fricplayers">
+          <shadow type="logic_boolean">
+            <field name="BOOL">FALSE</field>
+          </shadow>
+        </value>
+        <field name="colgroup">1</field>
+        <field name="colp">TRUE</field>
+        <field name="cola">TRUE</field>
+        <field name="colb">TRUE</field>
+        <field name="colc">TRUE</field>
+        <field name="cold">TRUE</field>
+        <value name="shapes">
+          <block type="lists_create_with">
+            <mutation items="2"></mutation>
+            <value name="ADD0">
+              <block type="plat_shape">
+                <value name="geo">
+                  <shadow type="plat_shape_geo_rect">
+                    <value name="pos">
+                      <shadow type="vector_create">
+                        <value name="x">
+                          <shadow type="math_number">
+                            <field name="NUM">0</field>
+                          </shadow>
+                        </value>
+                        <value name="y">
+                          <shadow type="math_number">
+                            <field name="NUM">0</field>
+                          </shadow>
+                        </value>
+                      </shadow>
+                    </value>
+                    <value name="size">
+                      <shadow type="vector_create">
+                        <value name="x">
+                          <shadow type="math_number">
+                            <field name="NUM">5</field>
+                          </shadow>
+                        </value>
+                        <value name="y">
+                          <shadow type="math_number">
+                            <field name="NUM">5</field>
+                          </shadow>
+                        </value>
+                      </shadow>
+                    </value>
+                    <value name="angle">
+                      <shadow type="math_number">
+                        <field name="NUM">0</field>
+                      </shadow>
+                    </value>
+                  </shadow>
+                </value>
+                <value name="colour">
+                  <shadow type="colour_picker">
+                    <field name="COLOUR">#ff0000</field>
+                  </shadow>
+                </value>
+                <value name="nophys">
+                  <shadow type="logic_boolean">
+                    <field name="BOOL">FALSE</field>
+                  </shadow>
+                </value>
+                <value name="nograp">
+                  <shadow type="logic_boolean">
+                    <field name="BOOL">FALSE</field>
+                  </shadow>
+                </value>
+                <value name="ingrap">
+                  <shadow type="logic_boolean">
+                    <field name="BOOL">FALSE</field>
+                  </shadow>
+                </value>
+                <value name="death">
+                  <shadow type="logic_boolean">
+                    <field name="BOOL">FALSE</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+            <value name="ADD1">
+              <block type="plat_shape">
+                <value name="geo">
+                  <shadow type="plat_shape_geo_circ">
+                    <value name="pos">
+                      <shadow type="vector_create">
+                        <value name="x">
+                          <shadow type="math_number">
+                            <field name="NUM">5</field>
+                          </shadow>
+                        </value>
+                        <value name="y">
+                          <shadow type="math_number">
+                            <field name="NUM">5</field>
+                          </shadow>
+                        </value>
+                      </shadow>
+                    </value>
+                    <value name="radius">
+                      <shadow type="math_number">
+                        <field name="NUM">2</field>
+                      </shadow>
+                    </value>
+                  </shadow>
+                </value>
+                <value name="colour">
+                  <shadow type="colour_picker">
+                    <field name="COLOUR">#00ff00</field>
+                  </shadow>
+                </value>
+                <value name="nophys">
+                  <shadow type="logic_boolean">
+                    <field name="BOOL">FALSE</field>
+                  </shadow>
+                </value>
+                <value name="nograp">
+                  <shadow type="logic_boolean">
+                    <field name="BOOL">FALSE</field>
+                  </shadow>
+                </value>
+                <value name="ingrap">
+                  <shadow type="logic_boolean">
+                    <field name="BOOL">FALSE</field>
+                  </shadow>
+                </value>
+                <value name="death">
+                  <shadow type="logic_boolean">
+                    <field name="BOOL">FALSE</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+      <block type="plat_shape">
+        <value name="geo">
+          <shadow type="plat_shape_geo_rect">
+            <value name="pos">
+              <shadow type="vector_create">
+                <value name="x">
+                  <shadow type="math_number">
+                    <field name="NUM">0</field>
+                  </shadow>
+                </value>
+                <value name="y">
+                  <shadow type="math_number">
+                    <field name="NUM">0</field>
+                  </shadow>
+                </value>
+              </shadow>
+            </value>
+            <value name="size">
+              <shadow type="vector_create">
+                <value name="x">
+                  <shadow type="math_number">
+                    <field name="NUM">5</field>
+                  </shadow>
+                </value>
+                <value name="y">
+                  <shadow type="math_number">
+                    <field name="NUM">5</field>
+                  </shadow>
+                </value>
+              </shadow>
+            </value>
+            <value name="angle">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="colour">
+          <shadow type="colour_picker">
+            <field name="COLOUR">#ff0000</field>
+          </shadow>
+        </value>
+        <value name="nophys">
+          <shadow type="logic_boolean">
+            <field name="BOOL">FALSE</field>
+          </shadow>
+        </value>
+        <value name="nograp">
+          <shadow type="logic_boolean">
+            <field name="BOOL">FALSE</field>
+          </shadow>
+        </value>
+        <value name="ingrap">
+          <shadow type="logic_boolean">
+            <field name="BOOL">FALSE</field>
+          </shadow>
+        </value>
+        <value name="death">
+          <shadow type="logic_boolean">
+            <field name="BOOL">FALSE</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="plat_shape_geo_rect">
+        <value name="pos">
+          <shadow type="vector_create">
+            <value name="x">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+            <value name="y">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="size">
+          <shadow type="vector_create">
+            <value name="x">
+              <shadow type="math_number">
+                <field name="NUM">5</field>
+              </shadow>
+            </value>
+            <value name="y">
+              <shadow type="math_number">
+                <field name="NUM">5</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="angle">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="plat_shape_geo_circ">
+        <value name="pos">
+          <shadow type="vector_create">
+            <value name="x">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+            <value name="y">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="radius">
+          <shadow type="math_number">
+            <field name="NUM">2</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="plat_shape_geo_poly">
+        <value name="vertices">
+          <block type="lists_create_with">
+            <mutation items="3"></mutation>
+            <value name="ADD0">
+              <block type="vector_create">
+                <value name="x">
+                  <shadow type="math_number">
+                    <field name="NUM">0</field>
+                  </shadow>
+                </value>
+                <value name="y">
+                  <shadow type="math_number">
+                    <field name="NUM">0</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+            <value name="ADD1">
+              <block type="vector_create">
+                <value name="x">
+                  <shadow type="math_number">
+                    <field name="NUM">5</field>
+                  </shadow>
+                </value>
+                <value name="y">
+                  <shadow type="math_number">
+                    <field name="NUM">0</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+            <value name="ADD2">
+              <block type="vector_create">
+                <value name="x">
+                  <shadow type="math_number">
+                    <field name="NUM">0</field>
+                  </shadow>
+                </value>
+                <value name="y">
+                  <shadow type="math_number">
+                    <field name="NUM">5</field>
+                  </shadow>
+                </value>
+              </block>
+            </value>
+          </block>
+        </value>
+      </block>
+    </category>
+    <category name="Joints" colour="#777777">
+    </category>
+    <category name="Misc" colour="#777777">
+      <block type="state_misc_set">
+        <field name="to">true</field>
+      </block>
+      <block type="state_misc_get"></block>
+      <block type="state_round_starting_ending"></block>
+      <block type="state_trigger_player_win">
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="state_trigger_team_win"></block>
+      <block type="state_trigger_draw_win"></block>
+      <block type="state_misc_raycast">
+        <value name="from">
+          <shadow type="vector_create">
+            <value name="x">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+            <value name="y">
+              <shadow type="math_number">
+                <field name="NUM">0</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="to">
+          <shadow type="vector_create">
+            <value name="x">
+              <shadow type="math_number">
+                <field name="NUM">10</field>
+              </shadow>
+            </value>
+            <value name="y">
+              <shadow type="math_number">
+                <field name="NUM">10</field>
+              </shadow>
+            </value>
+          </shadow>
+        </value>
+        <value name="filter">
+          <shadow type="logic_boolean">
+            <field name="BOOL">TRUE</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
   </category>
   <category name="Graphics" colour="#5ba55b">
     <block type="obj_no_lerp">
@@ -828,6 +1386,15 @@
         </shadow>
       </value>
     </block>
+    <block type="graphics_map_size"></block>
+    <block type="graphics_screen_size"></block>
+    <block type="camera_prop_set">
+      <field name="set_option">set</field>
+      <field name="property">pos</field>
+    </block>
+    <block type="camera_prop_get">
+      <field name="property">pos</field>
+    </block>
     <block type="drawing_prop_set">
       <field name="set_option">set</field>
       <field name="property">alpha</field>
@@ -845,9 +1412,77 @@
         </shadow>
       </value>
     </block>
-    <block type="drawing_shape_prop_set">
+    <block type="drawing_shape_re_prop_set">
       <field name="set_option">set</field>
       <field name="property">colour</field>
+      <value name="id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="shape_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="drawing_shape_p_prop_set">
+      <field name="set_option">set</field>
+      <field name="property">colour</field>
+      <value name="id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="shape_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="drawing_shape_l_prop_set">
+      <field name="set_option">set</field>
+      <field name="property">colour</field>
+      <value name="id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="shape_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="drawing_shape_i_prop_set">
+      <field name="set_option">set</field>
+      <field name="property">colour</field>
+      <value name="id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="shape_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="drawing_shape_t_prop_set">
+      <field name="set_option">set</field>
+      <field name="property">colour</field>
+      <value name="id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="shape_id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="drawing_shape_t_align_set">
       <value name="id">
         <shadow type="math_number">
           <field name="NUM">0</field>
@@ -881,7 +1516,8 @@
     </block>
     <block type="drawing_add_shape"></block>
     <block type="drawing_create">
-      <field name="return_id">TRUE</field>
+      <mutation return_id="false" attach_to="world"></mutation>
+      <field name="return_id">FALSE</field>
       <field name="attach_to">world</field>
       <value name="alpha">
         <shadow type="math_number">
@@ -1376,5 +2012,24 @@
         </shadow>
       </value>
     </block>
+  </category>
+  <category name="Audio" colour="#a55b5b">
+    <block type="audio_play_sound">
+      <field name="name">discDisc</field>
+      <value name="volume">
+        <shadow type="math_number">
+          <field name="NUM">0.5</field>
+        </shadow>
+      </value>
+      <value name="panning">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="audio_stop_all"></block>
+  </category>
+  <category name="Other" colour="#808080">
+    <block type="other_comment"></block>
   </category>
 </xml>

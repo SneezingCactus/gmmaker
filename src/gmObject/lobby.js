@@ -305,7 +305,7 @@ export default {
         Blockly.Xml.domToWorkspace(xml, gm.editor.headlessBlocklyWs);
 
         try {
-          gm.state.generateEvents(gm.editor.generateCode());
+          gm.state.generateEvents(gm.editor.generateBlocklyCode());
         } catch (e) {
           console.log(e);
         }

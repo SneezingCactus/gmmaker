@@ -70,10 +70,10 @@ export default function() {
             sortText: 'abb',
           },
           {
-            label: 'sh!EventDiscCollideBody',
+            label: 'sh!EventDiscCollidePlatform',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "discCollision" targetting collisions with bodies.',
-            insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'body\'}, function(discId, bodyData) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "discCollision" targetting collisions with platforms.',
+            insertText: 'game.events.addEventListener(\'discCollision\', {collideWith: \'platform\'}, function(discId, platData) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'abc',
           },
@@ -96,36 +96,36 @@ export default function() {
             sortText: 'acb',
           },
           {
-            label: 'sh!EventArrowCollideBody',
+            label: 'sh!EventArrowCollidePlatform',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "arrowCollision" targetting collisions with bodies.',
-            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'body\'}, function(arrowId, bodyData) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "arrowCollision" targetting collisions with platforms.',
+            insertText: 'game.events.addEventListener(\'arrowCollision\', {collideWith: \'platform\'}, function(arrowId, platData) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'acc',
           },
 
-          // body collision events
+          // platform collision events
           {
-            label: 'sh!EventBodyCollideDisc',
+            label: 'sh!EventPlatformCollideDisc',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "bodyCollision" targetting collisions with discs.',
-            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'disc\'}, function(bodyData, discId) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "platformCollision" targetting collisions with discs.',
+            insertText: 'game.events.addEventListener(\'platformCollision\', {collideWith: \'disc\'}, function(platData, discId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'ada',
           },
           {
-            label: 'sh!EventBodyCollideArrow',
+            label: 'sh!EventPlatformCollideArrow',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "bodyCollision" targetting collisions with arrows.',
-            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'arrow\'}, function(bodyData, arrowId) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "platformCollision" targetting collisions with arrows.',
+            insertText: 'game.events.addEventListener(\'platformCollision\', {collideWith: \'arrow\'}, function(platData, arrowId) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'adb',
           },
           {
-            label: 'sh!EventBodyCollideBody',
+            label: 'sh!EventPlatformCollidePlatform',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Creates an event listener for "bodyCollision" targetting collisions with bodies.',
-            insertText: 'game.events.addEventListener(\'bodyCollision\', {collideWith: \'body\'}, function(bodyData, otherBodyData) {\n  //code goes here\n})',
+            documentation: 'Creates an event listener for "platformCollision" targetting collisions with platforms.',
+            insertText: 'game.events.addEventListener(\'platformCollision\', {collideWith: \'platform\'}, function(platData, otherPlatData) {\n  //code goes here\n})',
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'adc',
           },
@@ -259,41 +259,46 @@ export default function() {
           // WORLD
           // -------------------------------------------------------------------------------------------------------- //
           {
-            label: 'sh!WorldCreateBody',
+            label: 'sh!WorldCreatePlatform',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Shortcut template for creating a body, with a red fixture and a box shape.',
-            insertText: `game.world.createBody({
-  viewOrder: 0,
-  bodyDef: {
-    type: 'd',
-    p: [0, 0],
-    lv: [0, 0],
-    a: 0,
-    av: 0,
-    fricp: false,
-    fric: 1,
-    de: 0.3,
-    re: 0.8,
-    ld: 0,
-    ad: 0,
-    fr: false,
-    bu: false,
-    cf: {
-      x: 0,
-      y: 0,
-      w: true,
-      ct: 0,
-    },
-    f_c: 1,
-    f_p: true,
-    f_1: true,
-    f_2: true,
-    f_3: true,
-    f_4: true,
-    visible: true
+            documentation: 'Shortcut template for creating a platform, with a red box shape.',
+            insertText: `game.world.createPlatform(null, {
+  type: 'd',
+  p: [0, 0],
+  lv: [0, 0],
+  a: 0,
+  av: 0,
+  fricp: false,
+  fric: 1,
+  de: 0.3,
+  re: 0.8,
+  ld: 0,
+  ad: 0,
+  fr: false,
+  bu: false,
+  cf: {
+    x: 0,
+    y: 0,
+    w: true,
+    ct: 0,
   },
-  fixtureDefs: [
+  f_c: 1,
+  f_p: true,
+  f_1: true,
+  f_2: true,
+  f_3: true,
+  f_4: true,
+  visible: true,
+  shapes: [
     {
+      geo: {
+        type: 'bx',
+        c: [0, 0],
+        a: 0,
+        w: 5,
+        h: 5,
+        sk: false
+      },
       f: 0xff0000,
       fp: null,
       fr: null,
@@ -304,39 +309,17 @@ export default function() {
       ng: false,
       ig: false
     }
-  ],
-  shapeDefs: [
-    {
-      type: 'bx',
-      c: [0, 0],
-      a: 0,
-      w: 5,
-      h: 5,
-      sk: false
-    }
-  ],
+  ]
 });`,
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'ca',
           },
           {
-            label: 'sh!WorldAddFixtureShapeToBody',
+            label: 'sh!WorldAddShapeToPlatform',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Shortcut template for adding a fixture with a box shape to a body with id 0.',
-            insertText: `game.world.addFixtureShapeToBody({
-  bodyId: 0,
-  fixtureDef: {
-    f: 0xff0000,
-    fp: null,
-    fr: null,
-    re: null,
-    de: null,
-    d: false,
-    np: false,
-    ng: false,
-    ig: false
-  },
-  shapeDef: {
+            documentation: 'Shortcut template for adding a fixture with a box shape to a platform with id 0.',
+            insertText: `game.world.addShapeToPlat(0, {
+  geo: {
     type: 'bx',
     c: [0, 0],
     a: 0,
@@ -344,16 +327,26 @@ export default function() {
     h: 5,
     sk: false
   },
+  f: 0xff0000,
+  fp: null,
+  fr: null,
+  re: null,
+  de: null,
+  d: false,
+  np: false,
+  ng: false,
+  ig: false
 });`,
             insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
             sortText: 'cab',
           },
           {
-            label: 'sh!WorldDefineFixture',
+            label: 'sh!WorldDefineShape',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Shortcut template for defining a fixture to use in `game.graphics.createBody`.',
+            documentation: 'Shortcut template for defining a shape to use in `game.graphics.createPlatform`.',
             insertText: `{
-  n: 'fixture',
+  geo: null, // make sure to replace this with a proper shape geometry definition!
+  n: 'shape',
   f: 0xff0000,
   fp: null,
   fr: null,
@@ -368,9 +361,9 @@ export default function() {
             sortText: 'cb',
           },
           {
-            label: 'sh!WorldDefineBoxShape',
+            label: 'sh!WorldDefineBoxShapeGeometry',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Shortcut template for defining a box shape to use in `game.graphics.createBody`.',
+            documentation: 'Shortcut template for defining a box shape geometry definition to use in `game.graphics.createPlatform`.',
             insertText: `{
   type: 'bx',
   c: [0, 0],
@@ -383,9 +376,9 @@ export default function() {
             sortText: 'cc',
           },
           {
-            label: 'sh!WorldDefineCircleShape',
+            label: 'sh!WorldDefineCircleShapeGeometry',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Shortcut template for defining a circle shape to use in `game.graphics.createBody`.',
+            documentation: 'Shortcut template for defining a circle shape geometry definition to use in `game.graphics.createPlatform`.',
             insertText: `{
   type: 'ci',
   c: [0, 0],
@@ -396,9 +389,9 @@ export default function() {
             sortText: 'cd',
           },
           {
-            label: 'sh!WorldDefinePolygonShape',
+            label: 'sh!WorldDefinePolygonShapeGeometry',
             kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Shortcut template for defining a polygon shape to use in `game.graphics.createBody`.',
+            documentation: 'Shortcut template for defining a polygon shape geometry definition to use in `game.graphics.createPlatform`.',
             insertText: `{
   type: 'po',
   v: [

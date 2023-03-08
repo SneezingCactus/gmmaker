@@ -11,6 +11,98 @@ import {javascriptGenerator as JavaScript} from 'blockly/javascript';
 export default function() {
   const NameType = Names.NameType;
 
+  /**
+   * Add extra indent to a piece of code
+   * @param {String} code
+   * @return {String}
+   */
+  function addIndent(code) {
+    return code.replace(/\n/g, '\n  ');
+  }
+
+  /**
+   * Helper function used by setter blocks (set disc prop, set arrow prop, etc.)
+   * @param {String} object Object path
+   * @param {String} property Property name
+   * @param {String} setOption Set option
+   * @param {String} to Value to set property to
+   * @param {String[]} vectorProps Array of properties that are vectors
+   * @return {String}
+   */
+  function makeSetterCode(object, property, setOption, to, vectorProps) {
+    var code = `${object}.${property}`;
+
+    if (vectorProps.includes(property)) {
+      if (to.startsWith('[0,')) {
+        const slicedVec = to.slice(4, -1);
+        switch (setOption) {
+          case 'set':
+            code += `[1] = ${slicedVec};`;
+            break;
+          case 'change':
+            code += `[1] += ${slicedVec};`;
+            break;
+          case 'multiply':
+            code += `[1] *= ${slicedVec};`;
+            break;
+          case 'divide':
+            code += `[1] /= ${slicedVec};`;
+            break;
+        }
+      } else if (to.endsWith(', 0]')) {
+        const slicedVec = to.slice(1, -4);
+        switch (setOption) {
+          case 'set':
+            code += `[0] = ${slicedVec};`;
+            break;
+          case 'change':
+            code += `[0] += ${slicedVec};`;
+            break;
+          case 'multiply':
+            code += `[0] *= ${slicedVec};`;
+            break;
+          case 'divide':
+            code += `[0] /= ${slicedVec};`;
+            break;
+        }
+      } else {
+        switch (setOption) {
+          case 'set':
+            code += ` = ${to};`;
+            break;
+          case 'change':
+            code += ` = Vector.add(${object}.${property}, ${to});`;
+            break;
+          case 'multiply':
+            code += ` = Vector.multiply(${object}.${property}, ${to});`;
+            break;
+          case 'divide':
+            code += ` = Vector.divide(${object}.${property}, ${to});`;
+            break;
+        }
+      }
+    } else {
+      switch (setOption) {
+        case 'set':
+          code += ` = ${to};`;
+          break;
+        case 'change':
+          code += ` += ${to};`;
+          break;
+        case 'multiply':
+          code += ` *= ${to};`;
+          break;
+        case 'divide':
+          code += ` /= ${to};`;
+          break;
+      }
+    }
+
+    code += '\n';
+
+    return code;
+  }
+
   JavaScript['event_roundstart'] = function(block) {
     var perplayer = block.getFieldValue('perplayer') === 'TRUE';
     var insideCode = JavaScript.statementToCode(block, 'code');
@@ -72,12 +164,12 @@ ${insideCode}});\n`;
   };
 
   JavaScript['if_return_event'] = function(block) {
-    const bool = JavaScript.valueToCode(block, 'bool', JavaScript.ORDER_ATOMIC);
+    const bool = JavaScript.valueToCode(block, 'bool', JavaScript.ORDER_NONE);
 
     return `if (${bool}) return;\n`;
   };
 
-  JavaScript['return_event'] = function(block) {
+  JavaScript['return_event'] = function() {
     return 'return;\n';
   };
 
@@ -89,43 +181,7 @@ ${insideCode}});\n`;
 
     const vectorProps = ['p', 'lv', 'sp', 'slv', 'swing.p'];
 
-    var code = `game.state.discs[${id}].${property} `;
-
-    if (vectorProps.includes(property)) {
-      switch (set_option) {
-        case 'set':
-          code += `= ${to};`;
-          break;
-        case 'change':
-          code += `= Vector.add(game.state.discs[${id}].${property}, ${to});`;
-          break;
-        case 'multiply':
-          code += `= Vector.multiply(game.state.discs[${id}].${property}, ${to});`;
-          break;
-        case 'divide':
-          code += `= Vector.divide(game.state.discs[${id}].${property}, ${to});`;
-          break;
-      }
-    } else {
-      switch (set_option) {
-        case 'set':
-          code += `= ${to};`;
-          break;
-        case 'change':
-          code += `+= ${to};`;
-          break;
-        case 'multiply':
-          code += `*= ${to};`;
-          break;
-        case 'divide':
-          code += `/= ${to};`;
-          break;
-      }
-    }
-
-    code += '\n';
-
-    return code;
+    return makeSetterCode(`game.state.discs[${id}]`, property, set_option, to, vectorProps);
   };
 
   JavaScript['disc_prop_get'] = function(block) {
@@ -145,43 +201,7 @@ ${insideCode}});\n`;
 
     const vectorProps = ['p', 'lv'];
 
-    var code = `game.state.projectiles[${id}].${property} `;
-
-    if (vectorProps.includes(property)) {
-      switch (set_option) {
-        case 'set':
-          code += `= ${to};`;
-          break;
-        case 'change':
-          code += `= Vector.add(game.state.projectiles[${id}].${property}, ${to});`;
-          break;
-        case 'multiply':
-          code += `= Vector.multiply(game.state.projectiles[${id}].${property}, ${to});`;
-          break;
-        case 'divide':
-          code += `= Vector.divide(game.state.projectiles[${id}].${property}, ${to});`;
-          break;
-      }
-    } else {
-      switch (set_option) {
-        case 'set':
-          code += `= ${to};`;
-          break;
-        case 'change':
-          code += `+= ${to};`;
-          break;
-        case 'multiply':
-          code += `*= ${to};`;
-          break;
-        case 'divide':
-          code += `/= ${to};`;
-          break;
-      }
-    }
-
-    code += '\n';
-
-    return code;
+    return makeSetterCode(`game.state.projectiles[${id}]`, property, set_option, to, vectorProps);
   };
 
   JavaScript['arrow_prop_get'] = function(block) {
@@ -199,7 +219,15 @@ ${insideCode}});\n`;
 
     var code = `${name}[${obj_id}]`;
 
-    return [code, JavaScript.ORDER_ATOMIC];
+    return [code, JavaScript.ORDER_MEMBER];
+  };
+
+  JavaScript['disc_radius_get'] = function(block) {
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, JavaScript.ORDER_NONE];
   };
 
   JavaScript['player_kill'] = function(block) {
@@ -301,6 +329,122 @@ ${insideCode}});\n`;
     return [code, JavaScript.ORDER_ATOMIC];
   };
 
+  JavaScript['state_misc_set'] = function(block) {
+    var property = block.getFieldValue('property');
+    var to = block.getFieldValue('to');
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...;\n';
+    return code;
+  };
+
+  JavaScript['state_trigger_player_win'] = function(block) {
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+    return 'game.world.triggerWin(' + id + ');\n';
+  };
+
+  JavaScript['state_trigger_team_win'] = function(block) {
+    var team = block.getFieldValue('team');
+    return 'game.world.triggerWin(' + team + ');\n';
+  };
+
+  JavaScript['state_trigger_draw_win'] = function(block) {
+    return 'game.world.triggerWin(-1);\n';
+  };
+
+  JavaScript['state_round_starting_ending'] = function(block) {
+    var property = block.getFieldValue('property');
+    return ['game.state.' + property + ' > -1', JavaScript.ORDER_RELATIONAL];
+  };
+
+  JavaScript['state_misc_get'] = function(block) {
+    var property = block.getFieldValue('property');
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, JavaScript.ORDER_NONE];
+  };
+
+  JavaScript['state_misc_raycast'] = function(block) {
+    var from = JavaScript.valueToCode(block, 'from', JavaScript.ORDER_ATOMIC);
+    var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
+    var hit_type = JavaScript.nameDB_.getName(block.getFieldValue('hit_type'), Variables.NAME_TYPE);
+    var hit_id = JavaScript.nameDB_.getName(block.getFieldValue('hit_id'), Variables.NAME_TYPE);
+    var hit_point = JavaScript.nameDB_.getName(block.getFieldValue('hit_point'), Variables.NAME_TYPE);
+    var hit_normal = JavaScript.nameDB_.getName(block.getFieldValue('hit_normal'), Variables.NAME_TYPE);
+    var hit_fixtureid = JavaScript.nameDB_.getName(block.getFieldValue('hit_fixtureid'), Variables.NAME_TYPE);
+    var hit_iscapzone = JavaScript.nameDB_.getName(block.getFieldValue('hit_iscapzone'), Variables.NAME_TYPE);
+    var filter = JavaScript.valueToCode(block, 'filter', JavaScript.ORDER_ATOMIC);
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, JavaScript.ORDER_NONE];
+  };
+
+  JavaScript['platform_create'] = function(block) {
+    var return_id = block.getFieldValue('return_id') === 'TRUE';
+    var type = block.getFieldValue('type');
+    var pos = JavaScript.valueToCode(block, 'pos', JavaScript.ORDER_ATOMIC);
+    var angle = JavaScript.valueToCode(block, 'angle', JavaScript.ORDER_ATOMIC);
+    var bounce = JavaScript.valueToCode(block, 'bounce', JavaScript.ORDER_ATOMIC);
+    var density = JavaScript.valueToCode(block, 'density', JavaScript.ORDER_ATOMIC);
+    var friction = JavaScript.valueToCode(block, 'friction', JavaScript.ORDER_ATOMIC);
+    var fricplayers = JavaScript.valueToCode(block, 'fricplayers', JavaScript.ORDER_ATOMIC);
+    var colgroup = block.getFieldValue('colgroup');
+    var colp = block.getFieldValue('colp') === 'TRUE';
+    var cola = block.getFieldValue('cola') === 'TRUE';
+    var colb = block.getFieldValue('colb') === 'TRUE';
+    var colc = block.getFieldValue('colc') === 'TRUE';
+    var cold = block.getFieldValue('cold') === 'TRUE';
+    var shapes = JavaScript.valueToCode(block, 'shapes', JavaScript.ORDER_ATOMIC);
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...;\n';
+    return code;
+  };
+
+  JavaScript['plat_shape'] = function(block) {
+    var geo = JavaScript.valueToCode(block, 'geo', JavaScript.ORDER_ATOMIC);
+    var colour = JavaScript.valueToCode(block, 'colour', JavaScript.ORDER_ATOMIC);
+    var density = JavaScript.valueToCode(block, 'density', JavaScript.ORDER_ATOMIC);
+    var bounce = JavaScript.valueToCode(block, 'bounce', JavaScript.ORDER_ATOMIC);
+    var friction = JavaScript.valueToCode(block, 'friction', JavaScript.ORDER_ATOMIC);
+    var fricplayers = JavaScript.valueToCode(block, 'fricplayers', JavaScript.ORDER_ATOMIC);
+    var nophys = JavaScript.valueToCode(block, 'nophys', JavaScript.ORDER_ATOMIC);
+    var nograp = JavaScript.valueToCode(block, 'nograp', JavaScript.ORDER_ATOMIC);
+    var ingrap = JavaScript.valueToCode(block, 'ingrap', JavaScript.ORDER_ATOMIC);
+    var death = JavaScript.valueToCode(block, 'death', JavaScript.ORDER_ATOMIC);
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, JavaScript.ORDER_NONE];
+  };
+
+  JavaScript['plat_shape_geo_rect'] = function(block) {
+    var pos = JavaScript.valueToCode(block, 'pos', JavaScript.ORDER_ATOMIC);
+    var size = JavaScript.valueToCode(block, 'size', JavaScript.ORDER_ATOMIC);
+    var angle = JavaScript.valueToCode(block, 'angle', JavaScript.ORDER_ATOMIC);
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, JavaScript.ORDER_NONE];
+  };
+
+  JavaScript['plat_shape_geo_circ'] = function(block) {
+    var pos = JavaScript.valueToCode(block, 'pos', JavaScript.ORDER_ATOMIC);
+    var radius = JavaScript.valueToCode(block, 'radius', JavaScript.ORDER_ATOMIC);
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, JavaScript.ORDER_NONE];
+  };
+
+  JavaScript['plat_shape_geo_poly'] = function(block) {
+    var vertices = JavaScript.valueToCode(block, 'vertices', JavaScript.ORDER_ATOMIC);
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, JavaScript.ORDER_NONE];
+  };
+
   JavaScript['input_pressing'] = function(block) {
     var player_id = JavaScript.valueToCode(block, 'player_id', JavaScript.ORDER_ATOMIC);
     var key = block.getFieldValue('key');
@@ -335,6 +479,20 @@ ${insideCode}});\n`;
     return [code, JavaScript.ORDER_ATOMIC];
   };
 
+  JavaScript['graphics_map_size'] = function(block) {
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, JavaScript.ORDER_NONE];
+  };
+
+  JavaScript['graphics_screen_size'] = function(block) {
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...';
+    // TODO: Change ORDER_NONE to the correct strength.
+    return [code, JavaScript.ORDER_NONE];
+  };
+
   JavaScript['drawing_create'] = function(block) {
     var return_id = block.getFieldValue('return_id') === 'TRUE';
     var alpha = JavaScript.valueToCode(block, 'alpha', JavaScript.ORDER_ATOMIC);
@@ -345,9 +503,28 @@ ${insideCode}});\n`;
     var attach_id = JavaScript.valueToCode(block, 'attach_id', JavaScript.ORDER_ATOMIC);
     var is_behind = JavaScript.valueToCode(block, 'is_behind', JavaScript.ORDER_ATOMIC);
     var shapes = JavaScript.valueToCode(block, 'shapes', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...;\n';
-    return code;
+
+    var code = 'game.graphics.createDrawing({\n';
+
+    code += '  alpha: ' + alpha + ',\n';
+    code += '  pos: ' + pos + ',\n';
+    code += '  scale: ' + scale + ',\n';
+    code += '  angle: ' + angle + ',\n';
+    code += '  attachTo: \'' + attach_to + '\',\n';
+    if (attach_to == 'body' || attach_to == 'disc') {
+      code += '  attachId: ' + attach_id + ',\n';
+    }
+    if (attach_to != 'screen' && is_behind !== '') {
+      code += '  isBehind: ' + is_behind + ',\n';
+    }
+    code += '  shapes: ' + addIndent(shapes) + '\n})';
+
+    if (return_id) {
+      return [code, JavaScript.ORDER_FUNCTION_CALL];
+    } else {
+      code += ';\n';
+      return code;
+    }
   };
 
   JavaScript['drawing_shape_rect'] = function(block) {
@@ -356,9 +533,15 @@ ${insideCode}});\n`;
     var pos = JavaScript.valueToCode(block, 'pos', JavaScript.ORDER_ATOMIC);
     var size = JavaScript.valueToCode(block, 'size', JavaScript.ORDER_ATOMIC);
     var angle = JavaScript.valueToCode(block, 'angle', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
+
+    var code = '{\n';
+    code += '  type: \'bx\',\n';
+    code += '  colour: ' + colour + ',\n';
+    code += '  alpha: ' + alpha + ',\n';
+    code += '  pos: ' + pos + ',\n';
+    code += '  size: ' + size + ',\n';
+    code += '  angle: ' + angle + '\n}';
+
     return [code, JavaScript.ORDER_NONE];
   };
 
@@ -368,9 +551,15 @@ ${insideCode}});\n`;
     var pos = JavaScript.valueToCode(block, 'pos', JavaScript.ORDER_ATOMIC);
     var size = JavaScript.valueToCode(block, 'size', JavaScript.ORDER_ATOMIC);
     var angle = JavaScript.valueToCode(block, 'angle', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
+
+    var code = '{\n';
+    code += '  type: \'ci\',\n';
+    code += '  colour: ' + colour + ',\n';
+    code += '  alpha: ' + alpha + ',\n';
+    code += '  pos: ' + pos + ',\n';
+    code += '  size: ' + size + ',\n';
+    code += '  angle: ' + angle + '\n}';
+
     return [code, JavaScript.ORDER_NONE];
   };
 
@@ -381,9 +570,16 @@ ${insideCode}});\n`;
     var scale = JavaScript.valueToCode(block, 'scale', JavaScript.ORDER_ATOMIC);
     var angle = JavaScript.valueToCode(block, 'angle', JavaScript.ORDER_ATOMIC);
     var vertices = JavaScript.valueToCode(block, 'vertices', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
+
+    var code = '{\n';
+    code += '  type: \'po\',\n';
+    code += '  colour: ' + colour + ',\n';
+    code += '  alpha: ' + alpha + ',\n';
+    code += '  pos: ' + pos + ',\n';
+    code += '  scale: ' + scale + ',\n';
+    code += '  angle: ' + angle + ',\n';
+    code += '  vertices: ' + vertices + '\n}';
+
     return [code, JavaScript.ORDER_NONE];
   };
 
@@ -393,9 +589,15 @@ ${insideCode}});\n`;
     var pos = JavaScript.valueToCode(block, 'pos', JavaScript.ORDER_ATOMIC);
     var end = JavaScript.valueToCode(block, 'end', JavaScript.ORDER_ATOMIC);
     var width = JavaScript.valueToCode(block, 'width', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
+
+    var code = '{\n';
+    code += '  type: \'li\',\n';
+    code += '  colour: ' + colour + ',\n';
+    code += '  alpha: ' + alpha + ',\n';
+    code += '  pos: ' + pos + ',\n';
+    code += '  end: ' + end + ',\n';
+    code += '  width: ' + width + '\n}';
+
     return [code, JavaScript.ORDER_NONE];
   };
 
@@ -410,9 +612,20 @@ ${insideCode}});\n`;
     var bold = block.getFieldValue('bold') === 'TRUE';
     var italic = block.getFieldValue('italic') === 'TRUE';
     var shadow = block.getFieldValue('shadow') === 'TRUE';
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
+
+    var code = '{\n';
+    code += '  type: \'tx\',\n';
+    code += '  colour: ' + colour + ',\n';
+    code += '  alpha: ' + alpha + ',\n';
+    code += '  pos: ' + pos + ',\n';
+    code += '  angle: ' + angle + ',\n';
+    code += '  text: ' + text + ',\n';
+    code += '  size: ' + size + ',\n';
+    code += '  align: \'' + align + '\',\n';
+    code += '  bold: ' + bold + ',\n';
+    code += '  italic: ' + italic + ',\n';
+    code += '  shadow: ' + shadow + '\n}';
+
     return [code, JavaScript.ORDER_NONE];
   };
 
@@ -424,18 +637,28 @@ ${insideCode}});\n`;
     var pos = JavaScript.valueToCode(block, 'pos', JavaScript.ORDER_ATOMIC);
     var size = JavaScript.valueToCode(block, 'size', JavaScript.ORDER_ATOMIC);
     var angle = JavaScript.valueToCode(block, 'angle', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
+
+    var code = '{\n';
+    code += '  type: \'im\',\n';
+    code += '  id: ' + id + ',\n';
+    code += '  colour: ' + colour + ',\n';
+    code += '  alpha: ' + alpha + ',\n';
+    code += '  pos: ' + pos + ',\n';
+    code += '  size: ' + size + ',\n';
+    code += '  angle: ' + angle + ',\n';
+    code += '  region: ' + addIndent(region) + '\n}';
+
     return [code, JavaScript.ORDER_NONE];
   };
 
   JavaScript['drawing_shape_image_region'] = function(block) {
     var pos = JavaScript.valueToCode(block, 'pos', JavaScript.ORDER_ATOMIC);
     var size = JavaScript.valueToCode(block, 'size', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
+
+    var code = '{\n';
+    code += '  pos: ' + pos + ',\n';
+    code += '  size: ' + size + ',\n}';
+
     return [code, JavaScript.ORDER_NONE];
   };
 
@@ -444,9 +667,10 @@ ${insideCode}});\n`;
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
     var property = block.getFieldValue('property');
     var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...;\n';
-    return code;
+
+    const vectorProps = ['pos', 'scale'];
+
+    return makeSetterCode(`game.graphics.drawings[${id}]`, property, set_option, to, vectorProps);
   };
 
   JavaScript['drawing_prop_get'] = function(block) {
@@ -458,15 +682,88 @@ ${insideCode}});\n`;
     return [code, JavaScript.ORDER_NONE];
   };
 
-  JavaScript['drawing_shape_prop_set'] = function(block) {
+  JavaScript['drawing_shape_re_prop_set'] = function(block) {
     var set_option = block.getFieldValue('set_option');
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
     var shape_id = JavaScript.valueToCode(block, 'shape_id', JavaScript.ORDER_ATOMIC);
     var property = block.getFieldValue('property');
     var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...;\n';
-    return code;
+
+    const vectorProps = ['pos', 'size'];
+
+    return makeSetterCode(`game.graphics.drawings[${id}].shapes[${shape_id}]`, property, set_option, to, vectorProps);
+  };
+
+  JavaScript['drawing_shape_p_prop_set'] = function(block) {
+    var set_option = block.getFieldValue('set_option');
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+    var shape_id = JavaScript.valueToCode(block, 'shape_id', JavaScript.ORDER_ATOMIC);
+    var property = block.getFieldValue('property');
+    var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
+
+    const vectorProps = ['pos', 'scale'];
+
+    return makeSetterCode(`game.graphics.drawings[${id}].shapes[${shape_id}]`, property, set_option, to, vectorProps);
+  };
+
+  JavaScript['drawing_shape_l_prop_set'] = function(block) {
+    var set_option = block.getFieldValue('set_option');
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+    var shape_id = JavaScript.valueToCode(block, 'shape_id', JavaScript.ORDER_ATOMIC);
+    var property = block.getFieldValue('property');
+    var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
+
+    const vectorProps = ['pos', 'end'];
+
+    return makeSetterCode(`game.graphics.drawings[${id}].shapes[${shape_id}]`, property, set_option, to, vectorProps);
+  };
+
+  JavaScript['drawing_shape_t_prop_set'] = function(block) {
+    var set_option = block.getFieldValue('set_option');
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+    var shape_id = JavaScript.valueToCode(block, 'shape_id', JavaScript.ORDER_ATOMIC);
+    var property = block.getFieldValue('property');
+    var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
+
+    const vectorProps = ['pos'];
+
+    return makeSetterCode(`game.graphics.drawings[${id}].shapes[${shape_id}]`, property, set_option, to, vectorProps);
+  };
+
+  JavaScript['drawing_shape_i_prop_set'] = function(block) {
+    var set_option = block.getFieldValue('set_option');
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+    var shape_id = JavaScript.valueToCode(block, 'shape_id', JavaScript.ORDER_ATOMIC);
+    var property = block.getFieldValue('property');
+    var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
+
+    const vectorProps = ['pos', 'size', 'region.pos', 'region.size'];
+
+    return makeSetterCode(`game.graphics.drawings[${id}].shapes[${shape_id}]`, property, set_option, to, vectorProps);
+  };
+
+  JavaScript['drawing_shape_t_align_set'] = function(block) {
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+    var shape_id = JavaScript.valueToCode(block, 'shape_id', JavaScript.ORDER_ATOMIC);
+    var to = block.getFieldValue('to');
+
+    return `game.graphics.drawings[${id}].shapes[${shape_id}].align = '${to}'`;
+  };
+
+  JavaScript['camera_prop_set'] = function(block) {
+    var set_option = block.getFieldValue('set_option');
+    var property = block.getFieldValue('property');
+    var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
+
+    const vectorProps = ['pos', 'scale'];
+
+    return makeSetterCode(`game.graphics.camera`, property, set_option, to, vectorProps);
+  };
+
+  JavaScript['camera_prop_get'] = function(block) {
+    var property = block.getFieldValue('property');
+
+    return ['game.graphics.camera.' + property, JavaScript.ORDER_MEMBER];
   };
 
   JavaScript['drawing_shape_prop_get'] = function(block) {
@@ -481,42 +778,35 @@ ${insideCode}});\n`;
 
   JavaScript['drawing_exists'] = function(block) {
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
-    return [code, JavaScript.ORDER_NONE];
+
+    return [`game.graphics.drawings[${id}]`, JavaScript.ORDER_MEMBER];
   };
 
   JavaScript['drawing_shape_exists'] = function(block) {
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
     var shape_id = JavaScript.valueToCode(block, 'shape_id', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
-    return [code, JavaScript.ORDER_NONE];
+
+    return [`game.graphics.drawings[${id}].shapes[${shape_id}]`, JavaScript.ORDER_MEMBER];
   };
 
   JavaScript['drawing_add_shape'] = function(block) {
     var shape = JavaScript.valueToCode(block, 'shape', JavaScript.ORDER_ATOMIC);
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...;\n';
-    return code;
+
+    return `game.graphics.addShapeToDrawing(${id}, ${shape});\n`;
   };
 
   JavaScript['drawing_shape_amount'] = function(block) {
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
-    // TODO: Assemble JavaScript into code variable.
-    var code = '...';
-    // TODO: Change ORDER_NONE to the correct strength.
-    return [code, JavaScript.ORDER_NONE];
+
+    return [`game.graphics.drawings[${id}].shapes.length`, JavaScript.ORDER_MEMBER];
   };
 
   JavaScript['obj_no_lerp'] = function(block) {
     var obj_type = block.getFieldValue('obj_type');
     var obj_id = JavaScript.valueToCode(block, 'obj_id', JavaScript.ORDER_ATOMIC);
     // TODO: Assemble JavaScript into code variable.
-    var code = '...;\n';
+    var code = obj_type + '';
     return code;
   };
 
@@ -526,6 +816,57 @@ ${insideCode}});\n`;
     // TODO: Assemble JavaScript into code variable.
     var code = '...;\n';
     return code;
+  };
+
+  JavaScript['lobby_all_player_ids'] = function(block) {
+    return ['game.lobby.allPlayerIds', JavaScript.ORDER_MEMBER];
+  };
+
+  JavaScript['lobby_host_id'] = function(block) {
+    return ['game.lobby.hostId', JavaScript.ORDER_MEMBER];
+  };
+
+  JavaScript['lobby_client_id'] = function(block) {
+    return ['game.lobby.clientId', JavaScript.ORDER_MEMBER];
+  };
+
+  JavaScript['lobby_playerinfo_get'] = function(block) {
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+    var property = block.getFieldValue('property');
+
+    return [`game.lobby.playerInfo[${id}].${property}`, JavaScript.ORDER_MEMBER];
+  };
+
+  JavaScript['lobby_rounds_to_win'] = function(block) {
+    return ['game.lobby.settings.wl', JavaScript.ORDER_MEMBER];
+  };
+
+  JavaScript['lobby_teams_on'] = function(block) {
+    return ['game.lobby.settings.tea', JavaScript.ORDER_MEMBER];
+  };
+
+  JavaScript['lobby_teams_locked'] = function(block) {
+    return ['game.lobby.settings.tl', JavaScript.ORDER_MEMBER];
+  };
+
+  JavaScript['lobby_base_mode_is'] = function(block) {
+    var name = block.getFieldValue('NAME');
+
+    return ['game.lobby.settings.mo == \'' + name + '\'', JavaScript.ORDER_EQUALITY];
+  };
+
+  JavaScript['audio_play_sound'] = function(block) {
+    var name = block.getFieldValue('NAME');
+    var volume = JavaScript.valueToCode(block, 'volume', JavaScript.ORDER_ATOMIC);
+    var panning_type = block.getFieldValue('panning_type');
+    var panning = JavaScript.valueToCode(block, 'panning', JavaScript.ORDER_ATOMIC);
+    // TODO: Assemble JavaScript into code variable.
+    var code = '...;\n';
+    return code;
+  };
+
+  JavaScript['audio_stop_all'] = function() {
+    return 'game.audio.stopAllSounds();\n';
   };
 
   JavaScript['vector_create'] = function(block) {
@@ -633,8 +974,7 @@ ${insideCode}});\n`;
         JavaScript.ORDER_ADDITION) || '0';
     const varName = JavaScript.nameDB_.getName(
         block.getFieldValue('VAR'), NameType.VARIABLE);
-    return 'game.vars.' + varName + ' = (typeof ' + varName + ' === \'number\' ? ' + varName +
-        ' : 0) + ' + argument0 + ';\n';
+    return 'game.vars.' + varName + ' += ' + argument0 + ';\n';
   };
 
   JavaScript['variables_get'] = function(block) {
@@ -782,6 +1122,35 @@ ${insideCode}});\n`;
         '];\n' + branch;
     code += 'for (var ' + indexVar + ' in ' + listVar + ') {\n' + branch + '}\n';
     return code;
+  };
+
+  JavaScript['colour_picker'] = function(block) {
+    // Colour picker.
+    const code = '0x' + block.getFieldValue('COLOUR').slice(1);
+    return [code, JavaScript.ORDER_ATOMIC];
+  };
+
+  JavaScript['colour_random'] = function(block) {
+    // Generate a random colour.
+    const functionName = JavaScript.provideFunction_('randomColour', `
+function ${JavaScript.FUNCTION_NAME_PLACEHOLDER_}() {
+  return Math.round(Math.random() * 0xFFFFFF);
+}
+`);
+    const code = functionName + '()';
+    return [code, JavaScript.ORDER_FUNCTION_CALL];
+  };
+
+  JavaScript['colour_rgb'] = function(block) {
+    // Compose a colour from RGB components expressed as percentages.
+    const red = JavaScript.valueToCode(block, 'RED', JavaScript.ORDER_NONE) || 0;
+    const green =
+        JavaScript.valueToCode(block, 'GREEN', JavaScript.ORDER_NONE) || 0;
+    const blue =
+        JavaScript.valueToCode(block, 'BLUE', JavaScript.ORDER_NONE) || 0;
+
+    const code = 'Colour.fromRGBValues([' + red + ', ' + green + ', ' + blue + '])';
+    return [code, JavaScript.ORDER_FUNCTION_CALL];
   };
   /* #endregion BLOCKLY MONKEYPATCHES */
 }

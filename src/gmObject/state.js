@@ -305,7 +305,7 @@ export default {
         // body data used if object A or object B is a body
         const bodyAData = {
           id: bodyA.arrayID,
-          fixtureId: fixtureA.arrayID,
+          shapeIndex: gm.state.gameState.physics.bodies[bodyA.arrayID].fx.indexOf(fixtureA.arrayID),
           normal: [
             -normal.x,
             -normal.y,
@@ -313,7 +313,7 @@ export default {
         };
         const bodyBData = {
           id: bodyB.arrayID,
-          fixtureId: fixtureB.arrayID,
+          shapeIndex: gm.state.gameState.physics.bodies[bodyB.arrayID].fx.indexOf(fixtureB.arrayID),
           normal: [
             normal.x,
             normal.y,
@@ -339,8 +339,8 @@ export default {
           case 'discphys': {
             if (!curState.discs[bodyA.arrayID]) continue;
             if (!curState.physics.bodies[bodyB.arrayID]) continue;
-            gm.state.fireEvent('discCollision', {collideWith: 'body'}, [bodyA.arrayID, bodyBData]);
-            gm.state.fireEvent('bodyCollision', {collideWith: 'disc'}, [bodyBData, bodyA.arrayID]);
+            gm.state.fireEvent('discCollision', {collideWith: 'platform'}, [bodyA.arrayID, bodyBData]);
+            gm.state.fireEvent('platformCollision', {collideWith: 'disc'}, [bodyBData, bodyA.arrayID]);
             break;
           }
           case 'arrowdisc': {
@@ -360,29 +360,29 @@ export default {
           case 'arrowphys': {
             if (!curState.projectiles[bodyA.arrayID]) continue;
             if (!curState.physics.bodies[bodyB.arrayID]) continue;
-            gm.state.fireEvent('arrowCollision', {collideWith: 'body'}, [bodyA.arrayID, bodyBData]);
-            gm.state.fireEvent('bodyCollision', {collideWith: 'arrow'}, [bodyBData, bodyA.arrayID]);
+            gm.state.fireEvent('arrowCollision', {collideWith: 'platform'}, [bodyA.arrayID, bodyBData]);
+            gm.state.fireEvent('platformCollision', {collideWith: 'arrow'}, [bodyBData, bodyA.arrayID]);
             break;
           }
           case 'physdisc': {
             if (!curState.physics.bodies[bodyA.arrayID]) continue;
             if (!curState.discs[bodyB.arrayID]) continue;
-            gm.state.fireEvent('bodyCollision', {collideWith: 'disc'}, [bodyAData, bodyB.arrayID]);
-            gm.state.fireEvent('discCollision', {collideWith: 'body'}, [bodyB.arrayID, bodyAData]);
+            gm.state.fireEvent('platformCollision', {collideWith: 'disc'}, [bodyAData, bodyB.arrayID]);
+            gm.state.fireEvent('discCollision', {collideWith: 'platform'}, [bodyB.arrayID, bodyAData]);
             break;
           }
           case 'physarrow': {
             if (!curState.physics.bodies[bodyA.arrayID]) continue;
             if (!curState.projectiles[bodyB.arrayID]) continue;
-            gm.state.fireEvent('bodyCollision', {collideWith: 'arrow'}, [bodyAData, bodyB.arrayID]);
-            gm.state.fireEvent('arrowCollision', {collideWith: 'body'}, [bodyB.arrayID, bodyAData]);
+            gm.state.fireEvent('platformCollision', {collideWith: 'arrow'}, [bodyAData, bodyB.arrayID]);
+            gm.state.fireEvent('arrowCollision', {collideWith: 'platform'}, [bodyB.arrayID, bodyAData]);
             break;
           }
           case 'physphys': {
             if (!curState.physics.bodies[bodyA.arrayID]) continue;
             if (!curState.physics.bodies[bodyB.arrayID]) continue;
-            gm.state.fireEvent('bodyCollision', {collideWith: 'body'}, [bodyAData, bodyBData]);
-            gm.state.fireEvent('bodyCollision', {collideWith: 'body'}, [bodyBData, bodyAData]);
+            gm.state.fireEvent('platformCollision', {collideWith: 'platform'}, [bodyAData, bodyBData]);
+            gm.state.fireEvent('platformCollision', {collideWith: 'platform'}, [bodyBData, bodyAData]);
             break;
           }
         }
@@ -465,10 +465,10 @@ export default {
         state.discs[i].a *= degToRad;
         state.discs[i].av *= degToRad;
 
-        if (Math.abs(state.discs[i].a - state.discs[i].ra) < 0.000000001) {
+        if (Math.abs(state.discs[i].a - state.discs[i].ra) < 0.0000001) {
           state.discs[i].a = state.discs[i].ra;
         }
-        if (Math.abs(state.discs[i].av - state.discs[i].rav) < 0.000000001) {
+        if (Math.abs(state.discs[i].av - state.discs[i].rav) < 0.0000001) {
           state.discs[i].av = state.discs[i].rav;
         }
       }
@@ -480,10 +480,10 @@ export default {
         arrow.a *= degToRad;
         arrow.av *= degToRad;
 
-        if (Math.abs(arrow.a - arrow.ra) < 0.000000001) {
+        if (Math.abs(arrow.a - arrow.ra) < 0.0000001) {
           arrow.a = arrow.ra;
         }
-        if (Math.abs(arrow.av - arrow.rav) < 0.000000001) {
+        if (Math.abs(arrow.av - arrow.rav) < 0.0000001) {
           arrow.av = arrow.rav;
         }
       }
@@ -495,10 +495,10 @@ export default {
         body.a *= degToRad;
         body.av *= degToRad;
 
-        if (Math.abs(body.a - body.ra) < 0.000000001) {
+        if (Math.abs(body.a - body.ra) < 0.0000001) {
           body.a = body.ra;
         }
-        if (Math.abs(body.av - body.rav) < 0.000000001) {
+        if (Math.abs(body.av - body.rav) < 0.0000001) {
           body.av = body.rav;
         }
       }
@@ -509,7 +509,7 @@ export default {
 
         if (shape.type !== 'ci') {
           shape.a *= degToRad;
-          if (Math.abs(shape.a - shape.ra) < 0.000000001) shape.a = shape.ra;
+          if (Math.abs(shape.a - shape.ra) < 0.0000001) shape.a = shape.ra;
         }
       }
       for (let i = 0; i !== state.physics.joints.length; i++) {
@@ -519,12 +519,12 @@ export default {
 
         if (joint.type == 'lpj') {
           joint.pa *= Math.PI / 180;
-          if (Math.abs(joint.pa - joint.rpa) < 0.000000001) joint.pa = joint.rpa;
+          if (Math.abs(joint.pa - joint.rpa) < 0.0000001) joint.pa = joint.rpa;
         } else if (joint.type == 'rv') {
           joint.d.ua *= Math.PI / 180;
           joint.d.la *= Math.PI / 180;
-          if (Math.abs(joint.ua - joint.rua) < 0.000000001) joint.ua = joint.rua;
-          if (Math.abs(joint.la - joint.rla) < 0.000000001) joint.la = joint.rla;
+          if (Math.abs(joint.d.ua - joint.rua) < 0.0000001) joint.d.ua = joint.rua;
+          if (Math.abs(joint.d.la - joint.rla) < 0.0000001) joint.d.la = joint.rla;
         }
       }
       /* #endregion ANGLE UNIT RESTORING */
@@ -694,8 +694,8 @@ export default {
           hit.type = 'arrow';
           break;
         case 'phys':
-          hit.type = 'body';
-          hit.fixtureId = fixtureData.arrayID;
+          hit.type = 'platform';
+          hit.shapeIndex = gm.state.gameState.physics.bodies[hit.id].fx.indexOf(fixtureData.arrayID);
           hit.isCapzone = fixtureData.capzone;
           break;
       }

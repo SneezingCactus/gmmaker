@@ -118,10 +118,11 @@ export default {
   rules: [
     {key: 'editor', name: 'Editor', content: [
       {type: 'boolean', key: 'darkWorkspace', text: 'Dark workspace (meant for use alongside Bonk Themes)', default: false},
-      {type: 'number', key: 'fontSize', text: 'Font size (default 14)', default: 14},
-      {type: 'boolean', key: 'wordWrap', text: 'Word wrap', default: false},
-      {type: 'boolean', key: 'forceSideDocs', text: 'Always show docs next to autocomplete tab', default: true},
-      {type: 'boolean', key: 'showMinimap', text: 'Show minimap', default: true},
+      {type: 'boolean', key: 'showGrid', text: '[Blocks] Show grid', default: false},
+      {type: 'number', key: 'fontSize', text: '[JS] Font size (default 14)', default: 14},
+      {type: 'boolean', key: 'wordWrap', text: '[JS] Word wrap', default: false},
+      {type: 'boolean', key: 'forceSideDocs', text: '[JS] Always show docs next to autocomplete tab', default: true},
+      {type: 'boolean', key: 'showMinimap', text: '[JS] Show minimap', default: true},
     ]},
     {key: 'ingame', name: 'In-game', content: [
       {type: 'boolean', key: 'allowImages', text: 'Allow modes to show images', default: true},

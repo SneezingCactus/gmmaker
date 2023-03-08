@@ -185,6 +185,259 @@ export default function() {
       this.getSourceBlock().updateShape_(colADropdown.getValue(), colBDropdown.getValue(), newValue === 'TRUE');
     });
   };
+
+  const setterMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+
+      const setOption = this.getFieldValue('set_option');
+      const setProperty = this.getFieldValue('property');
+
+      container.setAttribute('set_option', setOption);
+      container.setAttribute('set_property', setProperty);
+
+      this.updateShape_(setOption, setProperty);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      this.updateShape_(xmlElement.getAttribute('set_option'), xmlElement.getAttribute('set_property'));
+    },
+    updateShape_: function(setOption, setProperty) {
+      const toInput = this.getInput('to');
+
+      if (this.propTypes[setProperty] == 'Boolean') {
+        this.getField('set_option').doValueUpdate_('set');
+        this.getField('set_option').forceRerender();
+        this.getField('set_option').setEnabled(false);
+      } else {
+        this.getField('set_option').setEnabled(true);
+      }
+
+      toInput.fieldRow[toInput.fieldRow.length - 1].setValue(setOption === 'set' ? 'to' : 'by');
+      toInput.setCheck(this.propTypes[setProperty]);
+    },
+  };
+
+  /**
+   * Create a validator for a setter block.
+   * @param {String} blockId id of the block
+   * @param {Object} propTypes type for each property
+   */
+  function setterBlockValidator(blockId, propTypes) {
+    Blockly.Blocks[blockId].validatorInit = function() {
+      this.mixin(setterMixin);
+
+      this.propTypes = propTypes;
+
+      const setOptionDropdown = this.getField('set_option');
+      const propertyDropdown = this.getField('property');
+
+      setOptionDropdown.setValidator(function(newValue) {
+        this.getSourceBlock().updateShape_(newValue, propertyDropdown.getValue());
+      });
+      propertyDropdown.setValidator(function(newValue) {
+        this.getSourceBlock().updateShape_(setOptionDropdown.getValue(), newValue);
+      });
+    };
+  }
+
+  setterBlockValidator('disc_prop_set', {
+    'p': 'Vector', 'lv': 'Vector', 'swing.p': 'Vector',
+    'a': 'Number', 'av': 'Number', 'a1a': 'Number', 'da': 'Number', 'ds': 'Number', 'swing.b': 'Number', 'swing.l': 'Number',
+  });
+  setterBlockValidator('arrow_prop_set', {
+    'p': 'Vector', 'lv': 'Vector',
+    'a': 'Number', 'av': 'Number', 'did': 'Number', 'fte': 'Number',
+  });
+  setterBlockValidator('camera_prop_set', {
+    'pos': 'Vector', 'scale': 'Vector',
+    'angle': 'Number',
+  });
+  setterBlockValidator('drawing_prop_set', {
+    'pos': 'Vector', 'scale': 'Vector',
+    'alpha': 'Number', 'angle': 'Number',
+  });
+  setterBlockValidator('drawing_shape_re_prop_set', {
+    'colour': 'Colour',
+    'pos': 'Vector', 'size': 'Vector',
+    'alpha': 'Number', 'angle': 'Number',
+  });
+  setterBlockValidator('drawing_shape_p_prop_set', {
+    'colour': 'Colour',
+    'pos': 'Vector', 'scale': 'Vector',
+    'alpha': 'Number', 'angle': 'Number',
+    'vertices': 'Array',
+  });
+  setterBlockValidator('drawing_shape_l_prop_set', {
+    'colour': 'Colour',
+    'pos': 'Vector', 'end': 'Vector',
+    'alpha': 'Number', 'width': 'Number',
+  });
+  setterBlockValidator('drawing_shape_t_prop_set', {
+    'colour': 'Colour',
+    'pos': 'Vector',
+    'alpha': 'Number', 'angle': 'Number', 'size': 'Number',
+    'bold': 'Boolean', 'italic': 'Boolean', 'shadow': 'Boolean',
+    'text': 'String',
+  });
+  setterBlockValidator('drawing_shape_i_prop_set', {
+    'colour': 'Colour',
+    'pos': 'Vector', 'size': 'Vector', 'region.pos': 'Vector', 'region.size': 'Vector',
+    'alpha': 'Number', 'angle': 'Number',
+    'id': 'String',
+    'region': 'DrawingImageRegion',
+  });
+
+  const createDrawingMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+
+      const returnId = this.getFieldValue('return_id') !== 'FALSE';
+      const attachTo = this.getFieldValue('attach_to');
+
+      container.setAttribute('return_id', returnId);
+      container.setAttribute('attach_to', attachTo);
+
+      this.updateShape_(returnId, attachTo);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      this.updateShape_(xmlElement.getAttribute('return_id') !== 'false', xmlElement.getAttribute('attach_to'));
+    },
+    updateShape_: function(returnId, attachTo) {
+      if (returnId !== null) {
+        const oldReturnId = !!this.outputConnection;
+        if (returnId !== oldReturnId) {
+          this.unplug(true, true);
+          if (returnId) {
+            this.setPreviousStatement(false);
+            this.setNextStatement(false);
+            this.setOutput('Number');
+          } else {
+            this.setOutput(false);
+            this.setPreviousStatement(true);
+            this.setNextStatement(true);
+          }
+        }
+      }
+
+      if (!attachTo) return;
+
+      const attachIdExists = this.getInput('attach_id');
+      const isBehindExists = this.getInput('is_behind');
+
+      if (attachTo == 'disc' || attachTo == 'platform') {
+        if (!attachIdExists) {
+          this.appendValueInput('attach_id')
+              .setCheck('Number')
+              .setAlign(1)
+              .appendField(new Blockly.FieldLabel('attach id'));
+
+          const shadowBlock = this.workspace.newBlock('math_number');
+          shadowBlock.setShadow(true);
+
+          shadowBlock.initSvg();
+          shadowBlock.render();
+
+          this.getInput('attach_id').connection.connect(shadowBlock.outputConnection);
+        }
+        if (isBehindExists) {
+          this.moveInputBefore('attach_id', 'is_behind');
+        } else {
+          this.moveInputBefore('attach_id', 'pre_shape_dum');
+        }
+      } else if (attachIdExists) {
+        this.getInput('attach_id').connection.targetBlock().checkAndDelete();
+        this.removeInput('attach_id');
+      }
+
+      if (attachTo != 'screen') {
+        if (!isBehindExists) {
+          this.appendValueInput('is_behind')
+              .setCheck('Boolean')
+              .setAlign(1)
+              .appendField(new Blockly.FieldLabel('is behind'));
+
+          const shadowBlock = this.workspace.newBlock('logic_boolean');
+          shadowBlock.setShadow(true);
+          shadowBlock.getField('BOOL').setValue('FALSE');
+
+          shadowBlock.initSvg();
+          shadowBlock.render();
+
+          this.getInput('is_behind').connection.connect(shadowBlock.outputConnection);
+        }
+        this.moveInputBefore('is_behind', 'pre_shape_dum');
+      } else if (isBehindExists) {
+        this.getInput('is_behind').connection.targetBlock().checkAndDelete();
+        this.removeInput('is_behind');
+      }
+    },
+  };
+
+  Blockly.Blocks['drawing_create'].validatorInit = function() {
+    this.mixin(createDrawingMixin);
+
+    const returnIdCheck = this.getField('return_id');
+    const attachToDropdown = this.getField('attach_to');
+
+    returnIdCheck.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue === 'TRUE');
+    });
+    attachToDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(null, newValue);
+    });
+  };
+
+  const returnIdMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+
+      const returnId = this.getFieldValue('return_id') !== 'FALSE';
+
+      container.setAttribute('return_id', returnId);
+
+      this.updateShape_(returnId);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      this.updateShape_(xmlElement.getAttribute('return_id') !== 'false');
+    },
+    updateShape_: function(returnId) {
+      const oldReturnId = !!this.outputConnection;
+      if (returnId !== oldReturnId) {
+        this.unplug(true, true);
+        if (returnId) {
+          this.setPreviousStatement(false);
+          this.setNextStatement(false);
+          this.setOutput('Number');
+        } else {
+          this.setOutput(false);
+          this.setPreviousStatement(true);
+          this.setNextStatement(true);
+        }
+      }
+    },
+  };
+
+  Blockly.Blocks['arrow_create'].validatorInit = function() {
+    this.mixin(returnIdMixin);
+
+    const returnIdCheck = this.getField('return_id');
+
+    returnIdCheck.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue === 'TRUE');
+    });
+  };
+  Blockly.Blocks['platform_create'].validatorInit = function() {
+    this.mixin(returnIdMixin);
+
+    const returnIdCheck = this.getField('return_id');
+
+    returnIdCheck.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue === 'TRUE');
+    });
+  };
   return;
   const playerIdMixin = {
     mutationToDom: function() {
@@ -918,7 +1171,6 @@ export default function() {
 }
 
 // blockly built-in
-
 Blockly.ToolboxCategory.prototype.addColourBorder_ = function() {};
 
 Blockly.ToolboxCategory.prototype.initOLD = Blockly.ToolboxCategory.prototype.init;
@@ -979,21 +1231,21 @@ Blockly.Xml.applyInputTagNodes_ = function(xmlChildren, workspace, block, protot
 // little hack to fix the immense lag when dragging around the workspace
 
 Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
-  if (this.useWorkspaceDragSurface_ && this.isDragSurfaceActive_) {
-    this.workspaceDragSurface_.translateSurface(x, y);
+  if (this.useWorkspaceDragSurface && this.isDragSurfaceActive) {
+    this.workspaceDragSurface?.translateSurface(x, y);
   } else {
     const translation = 'translate(' + x + ',' + y + ') ' +
-        'scale(' + this.scale + ')';
+          'scale(' + this.scale + ')';
     this.svgBlockCanvas_.setAttribute('transform', translation);
     this.svgBubbleCanvas_.setAttribute('transform', translation);
   }
   // Now update the block drag surface if we're using one.
-  if (this.blockDragSurface_) {
-    this.blockDragSurface_.translateAndScaleGroup(x, y, this.scale);
+  if (this.blockDragSurface) {
+    this.blockDragSurface.translateAndScaleGroup(x, y, this.scale);
   }
   // And update the grid if we're using one.
-  if (this.grid_) {
-    this.grid_.moveTo(x, y);
+  if (this.grid) {
+    this.grid.moveTo(x, y);
   }
 
   // this.maybeFireViewportChangeEvent();
@@ -1003,50 +1255,17 @@ Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
 Blockly.WorkspaceSvg.prototype.setCachedParentSvgSize = function(width, height) {
   const svg = this.getParentSvg();
   if (width != null) {
-    this.cachedParentSvgSize_.width = width;
+    this.cachedParentSvgSize.width = width;
     // This is set to support the public (but deprecated) Blockly.svgSize
     // method.
     svg.cachedWidth_ = width;
+    svg.setAttribute('data-cached-width', width.toString());
   }
   if (height != null) {
-    this.cachedParentSvgSize_.height = height;
+    this.cachedParentSvgSize.height = height;
     // This is set to support the public (but deprecated) Blockly.svgSize
     // method.
     svg.cachedHeight_ = height;
+    svg.setAttribute('data-cached-height', height.toString());
   }
-};
-
-
-Blockly.Variables.flyoutCategory = function(workspace) {
-  let xmlList = [];
-  const button = document.createElement('button');
-  button.setAttribute('text', '%{BKY_NEW_VARIABLE}');
-  button.setAttribute('callbackKey', 'CREATE_VARIABLE');
-
-  workspace.registerButtonCallback('CREATE_VARIABLE', function(button) {
-    Blockly.Variables.createVariableButtonHandler(button.getTargetWorkspace());
-  });
-
-  xmlList.push(button);
-
-  const removeUnusedButton = document.createElement('button');
-  removeUnusedButton.setAttribute('text', 'Delete unused variables');
-  removeUnusedButton.setAttribute('callbackKey', 'DELETE_UNUSED_VARIABLES');
-
-  workspace.registerButtonCallback('DELETE_UNUSED_VARIABLES', function(button) {
-    const workspace = button.getTargetWorkspace();
-    const allVars = workspace.getAllVariables();
-    const usedVars = Blockly.Variables.allUsedVarModels(workspace);
-
-    for (let i = 0; i < allVars.length; i++) {
-      if (usedVars.includes(allVars[i])) continue;
-      gm.editor.blocklyWs.deleteVariableById(allVars[i].id_);
-    }
-  });
-
-  xmlList.push(removeUnusedButton);
-
-  const blockList = Blockly.Variables.flyoutCategoryBlocks(workspace);
-  xmlList = xmlList.concat(blockList);
-  return xmlList;
 };

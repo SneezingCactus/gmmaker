@@ -4,11 +4,11 @@
  */
 declare interface swingInfo {
   /**
-   * Attached platform's ID.
+   * Attached body's ID.
    */
   public b: number;
   /**
-   * Grappling point relative to the attached platform's position.
+   * Grappling point relative to the attached body's position.
    */
   public p: vector2d;
   /**
@@ -214,7 +214,7 @@ declare interface capZone {
 /**
  * Body apply force parameters.
  */
-declare interface platformForces {
+declare interface bodyForces {
   /**
    * Amount of force applied in the X axis.
    */
@@ -233,20 +233,12 @@ declare interface platformForces {
   public ct: number;
 }
 
-interface platformList {
-  [index: number]: platform;
-}
-
-interface physShapeList {
-  [index: number]: physShape;
-}
-
 /**
- * Definition of a platform.
+ * Definition of a body.
  */
-declare interface platform {
+declare interface body {
   /**
-   * Platform type.
+   * Body type.
    * 
    * Can be:
    * - "s": Stationary,
@@ -255,159 +247,156 @@ declare interface platform {
    */
   public type: 's' | 'k' | 'd';
   /**
-   * Position of the platform, as a 2d vector.
+   * Position of the body, as a 2d vector.
    * 
    * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public p: vector2d;
   /**
-   * Linear velocity of the platform, as a 2d vector.
+   * Linear velocity of the body, as a 2d vector.
    * 
    * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public lv: vector2d;
   /**
-   * Angle in degrees of the platform.
+   * Angle in degrees of the body.
    */
   public a: number;
   /**
-   * Angular velocity of the platform.
+   * Angular velocity of the body.
    */
   public av: number;
   /**
-   * `true` if this platform can apply friction on players (Fric players), `false` otherwise.
+   * `true` if this body can apply friction on players (Fric players), `false` otherwise.
    */
   public fricp: boolean;
   /**
-   * Friction of the platform surface.
+   * Friction of the body surface.
    */
   public fric: number;
   /**
-   * Density of the platform.
+   * Density of the body.
    */
   public de: number;
   /**
-   * Restitution (bounciness) of the platform.
+   * Restitution (bounciness) of the body.
    */
   public re: number;
   /**
-   * The amount of linear drag on the platform.
+   * The amount of linear drag on the body.
    */
   public ld: number;
   /**
-   * The amount of angular drag on the platform.
+   * The amount of angular drag on the body.
    */
   public ad: number;
   /**
-   * `true` if this platform has a fixed rotation, `false` otherwise.
+   * `true` if this body has a fixed rotation, `false` otherwise.
    */
   public fr: boolean;
   /**
-   * `true` if this platform has bullet physics (Anti Tunnel), `false` otherwise.
+   * `true` if this body has bullet physics (Anti Tunnel), `false` otherwise.
    */
   public bu: boolean;
   /**
-   * Object that contains the values of the three forces that get constantly applied to the platform: Apply Force X (`cf.x`), Apply Force Y (`cf.y`) and Apply Torque (`cf.ct`).
+   * Object that contains the values of the three forces that get constantly applied to the body: Apply Force X (`cf.x`), Apply Force Y (`cf.y`) and Apply Torque (`cf.ct`).
    */
-  public cf: platformForces;
+  public cf: bodyForces;
   /**
-   * Array that contains the shapes that constitute the platform.
-   * 
-   * NOTE: This is not an ordinary array! You can't manually add or remove shapes from this object. You
-   * must use the `game.world.addShapeToPlat` and `game.world.removeShapeFromPlat` methods.
+   * Array that contains the IDs of each fixture that makes up this body.
    */
-  public shapes: physShapeList;
+  public fx: vector2d;
   /**
-   * The collision group of the platform.
+   * The collision group of the body.
    * 
    * Instead of being represented by a letter, here it's represented by a number.
    * That way, collision groups A-D are represented by numbers 1-4.
    */
   public f_c: 1 | 2 | 3 | 4;
   /**
-   * `true` if this platform can collide with players, `false` otherwise.
+   * `true` if this body can collide with players, `false` otherwise.
    */
   public f_p: boolean;
   /**
-   * `true` if this platform can collide with group A, `false` otherwise.
+   * `true` if this body can collide with group A, `false` otherwise.
    */
   public f_1: boolean;
   /**
-   * `true` if this platform can collide with group B, `false` otherwise.
+   * `true` if this body can collide with group B, `false` otherwise.
    */
   public f_2: boolean;
   /**
-   * `true` if this platform can collide with group C, `false` otherwise.
+   * `true` if this body can collide with group C, `false` otherwise.
    */
   public f_3: boolean;
   /**
-   * `true` if this platform can collide with group D, `false` otherwise.
+   * `true` if this body can collide with group D, `false` otherwise.
    */
   public f_4: boolean;
   /**
-   * Determines whether the platform is visible or not.
+   * Determines whether the body is visible or not.
    */
   public visible: boolean;
 }
 
 /**
- * Definition of a shape.
+ * Definition of a fixture.
  */
-declare interface physShape {
+declare interface fixture {
   /**
-   * The shape's geometry parameters.
+   * ID of the shape that corresponds to this fixture.
    */
-  public geo: physShapeGeometry;
+  public sh: number;
   /**
-   * Name of the shape.
+   * Name of the fixture.
    */
   public n: string;
   /**
-   * Colour of the shape.
+   * Colour of the fixture.
    */
   public f: number;
   /**
-   * `true` if this shape can apply friction on players (Fric players), `false` otherwise.
+   * `true` if this fixture can apply friction on players (Fric players), `false` otherwise.
    * 
-   * If set to `null`, the platform's fric players will be used here.
+   * If set to `null`, the body's fricp will be used here.
    */
   public fp: boolean | null;
   /**
-   * Friction of the shape's surface. If set to `null`, the platform's friction will be used here.
+   * Friction of the fixture's surface. If set to `null`, the body's friction will be used here.
    */
   public fr: number | null;
   /**
-   * Restitution (bounciness) of the shape. If set to `null`, the platform's restitution will be used here.
+   * Restitution (bounciness) of the fixture. If set to `null`, the body's restitution will be used here.
    */
   public re: number | null;
   /**
-   * Density of the shape. If set to `null`, the platform's density will be used here.
+   * Density of the fixture. If set to `null`, the body's density will be used here.
    */
   public de: number | null;
   /**
-   * `true` if this shape can kill players, `false` otherwise.
+   * `true` if this fixture can kill players, `false` otherwise.
    */
   public d: boolean;
   /**
-   * `true` if this shape is no physics, `false` otherwise.
+   * `true` if this fixture is no physics, `false` otherwise.
    */
   public np: boolean;
   /**
-   * `true` if this shape can't be grappled, `false` otherwise.
+   * `true` if this fixture can't be grappled, `false` otherwise.
    */
   public ng: boolean;
   /**
-   * `true` if this shape can be grappled from the inside, `false` otherwise.
+   * `true` if this fixture can be grappled from the inside, `false` otherwise.
    */
   public ig: boolean;
 }
 
 /**
- * Definition of a shape's geometry data.
+ * Definition of a (fixture) shape.
  */
-declare interface physShapeGeometry {
+declare interface shape {
   /**
-   * Geometry type. 
+   * Shape type. 
    * 
    * Can be:
    * - "bx": A box (rectangle)
@@ -524,25 +513,25 @@ declare interface joint {
    */
   public d: jointD;
   /**
-   * ID of the first platform attached.
+   * ID of the first body attached.
    */
   public ba: number;
   /**
-   * ID of the second platform attached.
+   * ID of the second body attached.
    * 
    * To make the joint have no second attachment, set this value to -1.
    * Path and springy joints should also have it set to -1.
    */
   public bb: number;
   /**
-   * [Rotating and soft rod only] First attachment offset, as a 2d vector. Relative to the first attachment's platform.
+   * [Rotating and soft rod only] First attachment offset, as a 2d vector. Relative to the first attachment's body.
    * 
    * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
   public aa: vector2d;
   /**
-   * [Rotating and soft rod only] Second attachment offset, as a 2d vector. Relative to the second attachment's platform.
-   * If there's no specified second platform (bb == -1), it's absolute (relative to world) instead.
+   * [Rotating and soft rod only] Second attachment offset, as a 2d vector. Relative to the second attachment's body.
+   * If there's no specified second body (bb == -1), it's absolute (relative to world) instead.
    * 
    * Read more about vectors [here](https://sneezingcactus.github.io/gmmaker/docs/tutorials/Fundaments-3.html).
    */
@@ -655,18 +644,27 @@ declare interface mapMetadata {
 }
 
 /**
- * This is where map platforms and joints are stored.
+ * This is where map objects (called bodies), as well as their fixtures, shapes and joints, are stored.
  */
 declare interface statePhysics {
   /**
-   * Array that contains the definitions of every platform in the world.
+   * Array that contains the definitions of every body in the world.
    * 
-   * Ordered by ID (platform[0] is platform with ID 0, platform[2] is platform with ID 2, etc.)
-   * 
-   * NOTE: This is not an ordinary array! You can't manually add or remove platforms from this object. You
-   * must use the `game.world.createPlatform` and `game.world.removePlatform` methods.
+   * Ordered by ID (bodies[0] is body with ID 0, bodies[2] is body with ID 2, etc.)
    */
-  public platforms: platformList;
+  public bodies: body[];
+  /**
+   * Array that contains the definitions of every fixture in the world. Bodies are made of fixtures.
+   * 
+   * Ordered by ID (fixtures[0] is fixture with ID 0, fixtures[2] is fixture with ID 2, etc.)
+   */
+  public fixtures: fixture[];
+  /**
+   * Array that contains the definitions of every shape in the world. Shapes define the geometry of each fixture. 
+   * 
+   * Ordered by ID (shapes[0] is shape with ID 0, shapes[2] is shape with ID 2, etc.)
+   */
+  public shapes: shape[];
   /**
    * Array that contains the definitions of every joint in the world.
    * 
@@ -674,13 +672,13 @@ declare interface statePhysics {
    */
   public joints: joint[];
   /**
-   * Likely stands for "platform render order".
+   * Likely stands for "body render order".
    * 
-   * As the name may suggest, this is an array that determines the order at which platforms are rendered.
+   * As the name suggests, this is an array that determines the order at which bodies are rendered.
    * 
-   * Each item contains a platform ID: the first platform in the list is the one that gets rendered first
-   * (and as such is the farthest platform from the camera) and the last platform in the list is the one
-   * that renders last (and as such is the nearest platform).
+   * Each item contains a body ID: the first body in the list is the one that gets rendered first
+   * (and as such is the farthest body from the camera) and the last body in the list is the one
+   * that renders last (and as such is the nearest body).
    */
   public bro: number[];
   /**
@@ -741,7 +739,7 @@ declare interface gameState {
    */
   public capZones: capZone[];
   /**
-   * This is where map platforms and joints are stored.
+   * This is where map objects (called bodies), as well as their fixtures, shapes and joints, are stored.
    */
   public physics: statePhysics;
   /**
@@ -821,9 +819,9 @@ declare interface stepEventOptions {
  */
 declare interface collisionEventOptions {
   /**
-   * Indicates what collision needs to happen for the event to fire: collision with a player, an arrow or a platform.
+   * Indicates what collision needs to happen for the event to fire: collision with a player, an arrow or a body.
    */
-  public collideWith: 'disc' | 'arrow' | 'platform';
+  public collideWith: 'disc' | 'arrow' | 'body';
 }
 
 /**
@@ -841,22 +839,22 @@ declare interface collisionEvent_arrow extends collisionEventOptions {
 /**
  * 
  */
-declare interface collisionEvent_platform extends collisionEventOptions {
-  public collideWith: 'platform';
+declare interface collisionEvent_body extends collisionEventOptions {
+  public collideWith: 'body';
 }
 
 /**
- * Additional collision data that only platform collisions possess.
+ * Additional collision data that only body collisions possess.
  */
-declare interface platformCollisionData {
+declare interface bodyCollisionData {
   /**
-   * ID of the platform hit.
+   * ID of the body hit.
    */
   public id: number;
   /**
-   * Index of the platform shape hit.
+   * ID of the fixture hit.
    */
-  public shapeIndex: number;
+  public fixtureId: number;
   /**
    * A 2d vector with a length of 1 that represents the direction of the face hit by the other object.
    * 
@@ -884,15 +882,15 @@ declare interface gameEvents {
 
   public addEventListener(eventName: 'discCollision', options: collisionEvent_disc, listener: (discId: number, collisionId: number) => void)
   public addEventListener(eventName: 'discCollision', options: collisionEvent_arrow, listener: (discId: number, collisionId: number) => void)
-  public addEventListener(eventName: 'discCollision', options: collisionEvent_platform, listener: (discId: number, collisionData: platformCollisionData) => void)
+  public addEventListener(eventName: 'discCollision', options: collisionEvent_body, listener: (discId: number, collisionData: bodyCollisionData) => void)
 
   public addEventListener(eventName: 'arrowCollision', options: collisionEvent_disc, listener: (arrowId: number, collisionId: number) => void)
   public addEventListener(eventName: 'arrowCollision', options: collisionEvent_arrow, listener: (arrowId: number, collisionId: number) => void)
-  public addEventListener(eventName: 'arrowCollision', options: collisionEvent_platform, listener: (arrowId: number, collisionData: platformCollisionData) => void)
+  public addEventListener(eventName: 'arrowCollision', options: collisionEvent_body, listener: (arrowId: number, collisionData: bodyCollisionData) => void)
 
-  public addEventListener(eventName: 'platformCollision', options: collisionEvent_disc, listener: (platformData: platformCollisionData, collisionId: number) => void)
-  public addEventListener(eventName: 'platformCollision', options: collisionEvent_arrow, listener: (platformData: platformCollisionData, collisionId: number) => void)
-  public addEventListener(eventName: 'platformCollision', options: collisionEvent_platform, listener: (platformData: platformCollisionData, collisionData: platformCollisionData) => void)
+  public addEventListener(eventName: 'bodyCollision', options: collisionEvent_disc, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
+  public addEventListener(eventName: 'bodyCollision', options: collisionEvent_arrow, listener: (bodyData: bodyCollisionData, collisionId: number) => void)
+  public addEventListener(eventName: 'bodyCollision', options: collisionEvent_body, listener: (bodyData: bodyCollisionData, collisionData: bodyCollisionData) => void)
 }
 
 /**
@@ -1227,11 +1225,11 @@ declare interface drawing {
    * 
    * "disc" attaches the drawing to a disc. Position, angle and scale of the disc affects it. The drawing can appear in front of/behind the specified disc. This option requires you to put the disc's ID in attachId. 
    * 
-   * "platform" attaches the drawing to a platform. Position and angle of the platform affects it. The drawing can appear in front of/behind the specified platform. This option requires you to put the platform's ID in attachId. 
+   * "body" attaches the drawing to a body. Position and angle of the body affects it. The drawing can appear in front of/behind the specified body. This option requires you to put the body's ID in attachId. 
    */
-  public attachTo: 'screen' | 'world' | 'disc' | 'platform';
+  public attachTo: 'screen' | 'world' | 'disc' | 'body';
   /**
-   * An ID, used by the "disc" and "platform" attachment types.
+   * An ID, used by the "disc" and "body" attachment types.
    */
   public attachId: number;
   /**
@@ -1492,11 +1490,83 @@ declare type gameInputs = playerInput[] & inputExtra;
 /**
  * 
  */
+declare interface createBodyOptions {
+  /**
+   * Indicates where in game.state.physics.bro the body ID should be placed.
+   * 
+   * In other words, it indicates the layer at which the body will be drawn,
+   * where the layer with the biggest number is the farthest layer, and the
+   * layer with the smallest number (down to 0) is the nearest layer.
+   * 
+   * If you don't specify this, the body will be placed at the nearest layer (0).
+   */
+  public viewOrder: number;
+  /**
+   * The body to be created.
+   * 
+   * It's not necessary to specify every property of the body here, any
+   * missing properties will be replaced with default values, so you can
+   * remove property definitions for stuff you don't need. For example:
+   * velocity, drag, fixed rotation, apply forces, and some others are not
+   * used on static bodies, so you can remove those when creating one.
+   */
+  public bodyDef: body;
+  /**
+   * The fixtures that will be making up the body, from farthest to nearest.
+   * 
+   * It's not necessary to specify every property of every fixture here, any
+   * missing properties will be replaced with default values, so you can
+   * remove property definitions for stuff you don't need. For example:
+   * physical properties, as well as death, no grapple and inner grapple are
+   * not used in a no-physics fixture, so you can remove those when defining one.
+   */
+  public fixtureDefs: fixture[];
+  /**
+   * The shapes that make up each fixture. Each shape corresponds to their respective item; the first shape defined here corresponds to the first fixture, the second to the second, and so on.
+   * 
+   * It's not necessary to specify every property of every shape here, any
+   * missing properties will be replaced with default values, so you can
+   * remove property definitions for stuff you don't need to specify right now.
+   */
+  public shapeDefs: shape[];
+}
+
+/**
+ * 
+ */
+declare interface addFixtureShapeOptions {
+  /**
+   * The ID of the body to attach the fixture to.
+   */
+  public bodyId: body;
+  /**
+   * The fixture to be created.
+   * 
+   * It's not necessary to specify every property of the fixture here, any
+   * missing properties will be replaced with default values, so you can
+   * remove property definitions for stuff you don't need. For example:
+   * physical properties, as well as death, no grapple and inner grapple are
+   * not used in a no-physics fixture, so you can remove those when defining one.
+   */
+  public fixtureDefs: fixture[];
+  /**
+   * The shape that makes up the fixture.
+   * 
+   * It's not necessary to specify every property of the shape here, any
+   * missing properties will be replaced with default values, so you can
+   * remove property definitions for stuff you don't need to specify right now.
+   */
+  public shapeDefs: shape[];
+}
+
+/**
+ * 
+ */
 declare interface rayCastResult {
   /**
-   * Type of object hit by the raycast. Can be "disc", "arrow" or "platform".
+   * Type of object hit by the raycast. Can be "disc", "arrow" or "body".
    */
-  public type: 'disc' | 'arrow' | 'platform';
+  public type: 'disc' | 'arrow' | 'body';
   /**
    * ID of the object.
    */
@@ -1514,11 +1584,11 @@ declare interface rayCastResult {
    */
   public normal: vector2d;
   /**
-   * [Platform type hits only] Index of the platform shape hit by the raycast.
+   * [Body type hits only] ID of the fixture hit by the raycast.
    */
-  public shapeIndex: number;
+  public fixtureId: number;
   /**
-   * [Platform type hits only] `true` if the shape hit is a capture zone, `false` otherwise.
+   * [Body type hits only] `true` if the fixture hit is a capture zone, `false` otherwise.
    */
   public isCapzone: boolean;
 }
@@ -1555,41 +1625,23 @@ declare interface gameWorld {
    */
   public killDisc(id: number, allowRespawn: boolean);
   /**
-   * Create a platform.
+   * Create a body with the specified body, fixture and shape definitions.
    * 
-   * @param viewOrder - Indicates where in game.state.physics.bro the platform ID should be placed. In other words, it indicates the layer at which the platform will be drawn, where the layer with the biggest number is the farthest layer, and the layer with the smallest number (down to 0) is the nearest layer. If you set this to null, the platform will be placed at the nearest layer (0).
-   * @param platformDef - The platform to be created. It's not necessary to specify every property of the platform here, any missing properties will be replaced with default values, so you can remove property definitions for stuff you don't need. For example: velocity, drag, fixed rotation, apply forces, and some others are not sed on static platforms, so you can remove those when creating one.
-   * @returns {number} The ID of the newly created platform
+   * @returns {number} The ID of the newly created body
    */
-  public createPlatform(viewOrder: number, platformDef: platform): number;
+  public createBody(options: createBodyOptions): number;
   /**
-   * Add a shape to a platform.
+   * Create a fixture-shape combo with the specified definitions, and add it to a specified body.
    * 
-   * @param platId - The ID of the platform
-   * @param shapeDef - The shape to be added. It's not necessary to specify every property of the shape here, any missing properties will be replaced with default values, so you can remove property definitions for stuff you don't need. For example: physical properties, as well as death, no grapple and inner grapple are not used in a no-physics shape, so you can remove those when defining one.
-   * @returns {number} The index at which the shape is located in the platform's `shapes` array.
+   * @returns {number} The ID of the newly created fixture
    */
-  public addShapeToPlat(platId: number, shapeDef: physShape): number;
+  public addFixtureShapeToBody(options: addFixtureShapeOptions): number;
   /**
-   * Move a platform shape from an index to another.
+   * Delete the specified body, and everything related to it, such as fixtures, shapes, joints, and capzone definitions. Attached drawings aren't deleted.
    * 
-   * @param platId - The ID of the platform
-   * @param fromIndex - The index of the shape to be moved
-   * @param toIndex - The shape's new index
+   * @param id - The ID of the body to delete.
    */
-  public movePlatShape(platId: number, fromIndex: number, toIndex: number);
-  /**
-   * Remove a shape from a platform.
-   * @param platId - The ID of the platform
-   * @param shapeIndex - The index of the shape to be removed
-   */
-  public removeShapeFromPlat(platId: number, shapeIndex: number);
-  /**
-   * Delete the specified platform, and everything related to it, such as joints and capzone definitions. Drawings attached to the platform aren't deleted.
-   * 
-   * @param id - The ID of the platform to delete.
-   */
-  public deletePlatform(id: number);
+  public deleteBody(id: number);
   /**
    * Create an arrow with the definition given. In your definition, you can exclude properties that you don't need to define at the moment and GMMaker will fill them in with default values.
    * 
@@ -1623,7 +1675,7 @@ declare interface gameWorld {
    * If the ray reaches the end position without the filter ever returning `true`, meaning that there's nothing
    * left to hit, the raycast stops anyways and returns `null`.
    * 
-   * Note: the shapeIndex and isCapzone properties in the hit results are only for type platform hits,
+   * Note: the fixtureId and isCapzone properties in the hit results are only for type body hits,
    * and therefore are `undefined` in type disc and type arrow hits.
    * 
    * @param origin - The start point of the ray, as a 2d vector, represented by a number array `[x,y]` 
@@ -1759,7 +1811,7 @@ namespace Colour {
    */
   export function toHSVValues(colour: number): number[];
   /**
-   * Turn red, green and blue into a hex colour to use in drawings, platform shapes, etc.
+   * Turn red, green and blue into a hex colour to use in drawings, fixtures, etc.
    * 
    * The RGB values must be given in the form of an array ordered by `[red, green, blue]`.
    * 
@@ -1767,7 +1819,7 @@ namespace Colour {
    */
   export function fromRGBValues(rgb: number[]): number[];
   /**
-   * Turn hue, saturation and value into a hex colour to use in drawings, platform shapes, etc.
+   * Turn hue, saturation and value into a hex colour to use in drawings, fixtures, etc.
    * 
    * The HSV values must be given in the form of an array ordered by `[hue, saturation, value]`.
    * 

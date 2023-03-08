@@ -6,10 +6,13 @@
 import Blockly from 'blockly';
 import {javascriptGenerator} from 'blockly/javascript';
 import {WorkspaceSearch} from '@blockly/plugin-workspace-search';
+import '@blockly/field-colour-hsv-sliders';
 import toolbox from '../blockly/toolbox.xml';
 import blockDefs from '../blockly/blockdefs.js';
 import defineBlockCode from '../blockly/blockfuncs.js';
 import defineBlockValidators from '../blockly/blockvalidators.js';
+import afterWsPatches from '../blockly/afterwspatches.js';
+import gmBlockRenderer from '../blockly/renderer.js';
 
 // text libs
 import * as monaco from 'monaco-editor';
@@ -27,11 +30,13 @@ import bowser from 'bowser';
 
 export default {
   init: function() {
+    window.blockly = Blockly;
     this.blockDefs = blockDefs;
     this.initGMEditor();
     this.resetModeSettings();
   },
   configApply: function(config) {
+    // monaco settings
     this.monacoWs._themeService.setTheme(
       config.editor.darkWorkspace ? 'vs-dark' : 'vs');
     this.monacoWs.updateOptions({
@@ -41,6 +46,24 @@ export default {
         enabled: config.editor.showMinimap,
       },
     });
+
+    // blockly settings
+    this.blocklyWs.setTheme(
+      config.editor.darkWorkspace ? this.darkTheme : this.lightTheme);
+
+    if (config.editor.darkWorkspace) {
+      this.blocklyWs.grid.line1.setAttribute('stroke', '#555');
+      this.blocklyWs.grid.line2.setAttribute('stroke', '#555');
+    } else {
+      this.blocklyWs.grid.line1.setAttribute('stroke', '#ccc');
+      this.blocklyWs.grid.line2.setAttribute('stroke', '#ccc');
+    }
+
+    if (config.editor.showGrid) {
+      this.blocklyWs.grid.pattern.style.visibility = 'visible';
+    } else {
+      this.blocklyWs.grid.pattern.style.visibility = 'hidden';
+    }
   },
   initGMEditor: function() {
     // create the gm editor div
@@ -291,7 +314,7 @@ export default {
     gm.editor.monacoWs.getModel().onDidChangeContent(function() {
       // the way this is formatted is s^^^^
 
-      if (!gm.editor.modeSettings.isTextMode && !gm.editor.changingToTextEditor) {
+      if (!gm.editor.modeSettings.isTextMode && !gm.editor.changingToTextEditor && !gm.editor.blocklyWs.isVisible()) {
         if (gm.editor.blocklyWs.getTopBlocks().length == 0) {
           gm.editor.blocklyWs.clear();
           document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
@@ -419,6 +442,78 @@ export default {
     // create gmmaker theme
     gm.editor.lightTheme = Blockly.Theme.defineTheme('gmmaker-light', {
       'base': Blockly.Themes.Classic,
+      'blockStyles': {
+        'colour_blocks': {
+          'colourPrimary': '#a5745b',
+          'colourSecondary': '#dbc7bd',
+          'colourTertiary': '#845d49',
+        },
+        'list_blocks': {
+          'colourPrimary': '#745ba5',
+          'colourSecondary': '#c7bddb',
+          'colourTertiary': '#5d4984',
+        },
+        'logic_blocks': {
+          'colourPrimary': '#5b80a5',
+          'colourSecondary': '#bdccdb',
+          'colourTertiary': '#496684',
+        },
+        'loop_blocks': {
+          'colourPrimary': '#5ba55b',
+          'colourSecondary': '#bddbbd',
+          'colourTertiary': '#498449',
+        },
+        'math_blocks': {
+          'colourPrimary': '#5b67a5',
+          'colourSecondary': '#bdc2db',
+          'colourTertiary': '#495284',
+        },
+        'procedure_blocks': {
+          'colourPrimary': '#995ba5',
+          'colourSecondary': '#d6bddb',
+          'colourTertiary': '#7a4984',
+        },
+        'text_blocks': {
+          'colourPrimary': '#5ba58c',
+          'colourSecondary': '#bddbd1',
+          'colourTertiary': '#498470',
+        },
+        'variable_blocks': {
+          'colourPrimary': '#a55b99',
+          'colourSecondary': '#dbbdd6',
+          'colourTertiary': '#84497a',
+        },
+        'gm_audio': {
+          'colourPrimary': '#a55b5b',
+          'colourSecondary': '#dbbdbd',
+          'colourTertiary': '#844949',
+        },
+        'gm_events': {
+          'colourPrimary': '#a5805b',
+          'colourSecondary': '#dbcdbd',
+          'colourTertiary': '#846649',
+        },
+        'gm_graphics': {
+          'colourPrimary': '#5ba56d',
+          'colourSecondary': '#bddbc5',
+          'colourTertiary': '#498457',
+        },
+        'gm_lobby': {
+          'colourPrimary': '#5ba5a5',
+          'colourSecondary': '#bddbdb',
+          'colourTertiary': '#498484',
+        },
+        'gm_world': {
+          'colourPrimary': '#5b67a5',
+          'colourSecondary': '#bdc2db',
+          'colourTertiary': '#495284',
+        },
+        'gm_vector': {
+          'colourPrimary': '#805ba5',
+          'colourSecondary': '#cdbddb',
+          'colourTertiary': '#4d3763',
+        },
+      },
       'fontStyle': {
         'family': 'futurept_b1',
         'size': 12,
@@ -427,13 +522,84 @@ export default {
 
     gm.editor.darkTheme = Blockly.Theme.defineTheme('gmmaker-dark', {
       'base': Blockly.Themes.Classic,
+      'blockStyles': {
+        'colour_blocks': {
+          'colourPrimary': '#a5745b',
+          'colourSecondary': '#845d49',
+          'colourTertiary': '#845d49',
+        },
+        'list_blocks': {
+          'colourPrimary': '#745ba5',
+          'colourSecondary': '#5d4984',
+          'colourTertiary': '#5d4984',
+        },
+        'logic_blocks': {
+          'colourPrimary': '#5b80a5',
+          'colourSecondary': '#496684',
+          'colourTertiary': '#496684',
+        },
+        'loop_blocks': {
+          'colourPrimary': '#5ba55b',
+          'colourSecondary': '#498449',
+          'colourTertiary': '#498449',
+        },
+        'math_blocks': {
+          'colourPrimary': '#5b67a5',
+          'colourSecondary': '#373e63',
+          'colourTertiary': '#373e63',
+        },
+        'procedure_blocks': {
+          'colourPrimary': '#995ba5',
+          'colourSecondary': '#7a4984',
+          'colourTertiary': '#7a4984',
+        },
+        'text_blocks': {
+          'colourPrimary': '#5ba58c',
+          'colourSecondary': '#498470',
+          'colourTertiary': '#498470',
+        },
+        'variable_blocks': {
+          'colourPrimary': '#a55b99',
+          'colourSecondary': '#84497a',
+          'colourTertiary': '#84497a',
+        },
+        'gm_audio': {
+          'colourPrimary': '#a55b5b',
+          'colourSecondary': '#844949',
+          'colourTertiary': '#844949',
+        },
+        'gm_events': {
+          'colourPrimary': '#a5805b',
+          'colourSecondary': '#846649',
+          'colourTertiary': '#846649',
+        },
+        'gm_graphics': {
+          'colourPrimary': '#5ba56d',
+          'colourSecondary': '#498457',
+          'colourTertiary': '#498457',
+        },
+        'gm_lobby': {
+          'colourPrimary': '#5ba5a5',
+          'colourSecondary': '#498484',
+          'colourTertiary': '#498484',
+        },
+        'gm_world': {
+          'colourPrimary': '#5b67a5',
+          'colourSecondary': '#495284',
+          'colourTertiary': '#495284',
+        },
+        'gm_vector': {
+          'colourPrimary': '#805ba5',
+          'colourSecondary': '#4d3763',
+          'colourTertiary': '#4d3763',
+        },
+      },
       'fontStyle': {
         'family': 'futurept_b1',
         'size': 12,
       },
       'componentStyles': {
         'workspaceBackgroundColour': '#1e1e1e',
-        'toolboxBackgroundColour': 'blackBackground',
         'toolboxForegroundColour': '#fff',
         'flyoutBackgroundColour': '#252526',
         'flyoutForegroundColour': '#ccc',
@@ -447,18 +613,30 @@ export default {
       },
     });
 
+    // register renderer
+    Blockly.blockRendering.register('gm_renderer', gmBlockRenderer);
+
     // create blockly workspaces
     gm.editor.blocklyWs = Blockly.inject('gmblocklydiv', {
       toolbox: document.getElementById('toolbox'),
       oneBasedIndex: false,
+      renderer: 'gm_renderer',
       zoom: {
         controls: true,
         wheel: true,
         pinch: true,
       },
+      grid: {
+        spacing: 20,
+        length: 3,
+        colour: '#ccc',
+        snap: true,
+      },
       theme: gm.editor.lightTheme,
     });
     gm.editor.headlessBlocklyWs = new Blockly.Workspace();
+
+    afterWsPatches();
 
     // drag surface makes the workspace lag a LOT while dragging on a really big project
     gm.editor.blocklyWs.useWorkspaceDragSurface_ = false;
@@ -513,7 +691,7 @@ export default {
 
       gm.editor.modeBackups.unshift({
         mode: gm.encoding.compressMode(backup).buffer,
-        name: gm.editor.modeSettings.modeName + ' - ' + Date.now().toLocaleString(),
+        name: gm.editor.modeSettings.modeName + ' - ' + new Date(Date.now()).toLocaleString(),
       });
 
       const transaction = gm.editor.backupDB.transaction('backups', 'readwrite');
@@ -532,7 +710,7 @@ export default {
     {name: 'modeName', type: 'string', default: 'Custom'},
     {name: 'modeDescription', type: 'string', default: 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).'},
     {name: 'baseMode', type: 'string', default: 'any'},
-    {name: 'isTextMode', type: 'bool', default: true},
+    {name: 'isTextMode', type: 'bool', default: false},
   ],
   modeSettings: {},
   modeAssets: {images: [], sounds: []},
@@ -578,13 +756,12 @@ export default {
       changeBaseButton.classList.remove('blockIcon');
     }
 
-    monacoDiv.style.display = 'block';
     monacoDiv.style.top = bounds.top + window.scrollY;
     monacoDiv.style.left = bounds.left;
     monacoDiv.style.width = bounds.width - 20;
     monacoDiv.style.height = bounds.height - 20;
 
-    blocklyDiv.style.top = bounds.top;
+    blocklyDiv.style.top = bounds.top + window.scrollY;
     blocklyDiv.style.left = bounds.left;
     blocklyDiv.style.width = bounds.width;
     blocklyDiv.style.height = bounds.height;
@@ -1161,7 +1338,7 @@ export default {
       blocklyDiv.style.visibility = 'hidden';
       gm.editor.blocklyWs.setVisible(false);
       gm.editor.monacoWs.layout();
-      gm.editor.monacoWs.setValue(gm.editor.generateCode());
+      gm.editor.monacoWs.setValue(gm.editor.generateBlocklyCode());
       changeBaseButton.classList.remove('jsIcon');
       changeBaseButton.classList.add('blockIcon');
     } else {
@@ -1182,18 +1359,20 @@ export default {
     const saved = {};
 
     // generate events in host and save content and isEmpty into the mode
-    let content;
-
     if (gm.editor.modeSettings.isTextMode) {
-      content = gm.editor.monacoWs.getValue();
-      this.tryEventGenMonaco(content);
-    } else {
-      content = gm.editor.generateBlocklyCode();
-      this.tryEventGenBlockly(content);
-    }
+      const content = gm.editor.monacoWs.getValue();
+      gm.editor.tryEventGenMonaco(content);
 
-    saved.content = content;
-    saved.isEmpty = content == '';
+      saved.content = content;
+      saved.isEmpty = content == '';
+    } else {
+      gm.editor.tryEventGenBlockly(gm.editor.generateBlocklyCode());
+
+      const content = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true);
+
+      saved.content = content.innerHTML;
+      saved.isEmpty = content.getElementsByTagName('block').length == 0;
+    }
 
     saved.settings = gm.editor.modeSettings;
     saved.assets = gm.editor.modeAssets;
@@ -1285,9 +1464,6 @@ export default {
       alert(`An error ocurred while trying to save. Please send SneezingCactus a full screenshot of the console (Ctrl+Shift+I, go to the Console tab) so this error can be diagnosed.`);
       throw (e);
     }
-    const content = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true);
-    saved.content = content.innerHTML;
-    saved.isEmpty = content.getElementsByTagName('block').length == 0;
   },
   generateBlocklyCode: function() {
     const workspace = gm.lobby.networkEngine.getLSID() === gm.lobby.networkEngine.hostID ? gm.editor.blocklyWs : gm.editor.headlessBlocklyWs;
