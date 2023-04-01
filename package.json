@@ -11,6 +11,7 @@
     "@webdoc/cli": "^2.2.0",
     "@webdoc/plugin-format": "^2.2.0",
     "@webdoc/plugin-markdown": "^2.2.0",
+    "arraybuffer-loader": "^1.0.8",
     "css-loader": "^5.2.7",
     "eslint": "^8.21.0",
     "eslint-config-google": "^0.14.0",

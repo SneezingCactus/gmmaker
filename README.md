@@ -1,6 +1,8 @@
-# Game Mode Maker
+# Game Mode
 
-A [bonk.io](https://bonk.io/) mod that lets you create your own game modes using JavaScript code.
+A [bonk.io](https://bonk.io/) that adds 5 new awesome game modes for you and your peers to enjoy.
+
+## Happy April Fools 2023!!!
 
 ### [Install guide](https://sneezingcactus.github.io/gmmaker/docs/tutorials/GettingStarted-1.html)
 

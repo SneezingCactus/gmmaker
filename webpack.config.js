@@ -67,6 +67,10 @@ module.exports = {
         type: 'asset/inline',
       },
       {
+        test: /\.gmm$/,
+        use: ['arraybuffer-loader'],
+      },
+      {
         test: /\.(raw\.js)$/i,
         use: minimize ? [
           {

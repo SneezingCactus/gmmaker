@@ -1,9 +1,9 @@
 {
   "manifest_version": 2,
-  "name": "Game Mode Maker",
-  "description": "A bonk.io mod that lets you create your own game modes using JavaScript code.",
-  "version": "1.0.4",
-  "homepage_url": "https://github.com/SneezingCactus/gmmaker",
+  "name": "Game Mode",
+  "description": "A bonk.io mod that adds 5 new awesome game modes for you and your peers to enjoy.",
+  "version": "0.0.1",
+  "homepage_url": "https://github.com/SneezingCactus/gmmaker/tree/april",
   "permissions": [ "webRequest", "webRequestBlocking", "*://bonk.io/*" ],
   "background": {
     "scripts": [ "background.js" ]
@@ -17,9 +17,9 @@
   ],
   "web_accessible_resources": [ "js/injector.js", "js/gmLoader.js", "js/runInjectors.js" ],
   "icons": {
-    "16": "icons/gmmaker16.png",
-    "32": "icons/gmmaker32.png",
-    "48": "icons/gmmaker48.png",
-    "128": "icons/gmmaker128.png"
+    "16": "icons/gmode16.png",
+    "32": "icons/gmode32.png",
+    "48": "icons/gmode48.png",
+    "128": "icons/gmode128.png"
   }
 }

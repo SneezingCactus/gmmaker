@@ -41,7 +41,6 @@ window.initGM = function() {if (window.gm) return;
   }
 
   // show epic splash screen
-  if (!gm.config.saved.misc.showSplash) return;
 
   let splashElement = document.createElement('div');
   document.getElementById('newbonkgamecontainer').prepend(splashElement);

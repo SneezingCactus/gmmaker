@@ -210,8 +210,6 @@ export default {
         // reset static info when game start
         this.goOLD = this.go;
         this.go = function() {
-          document.getElementById('gm_logbox').innerHTML = '';
-          document.getElementById('gm_logbox').style.visibility = 'hidden';
           gm.state.resetStaticInfo();
 
           window.gmReplaceAccessors.forceInputRegister = true;
@@ -221,8 +219,6 @@ export default {
 
         this.goInProgressOLD = this.goInProgress;
         this.goInProgress = function() {
-          document.getElementById('gm_logbox').innerHTML = '';
-          document.getElementById('gm_logbox').style.visibility = 'hidden';
           gm.state.resetStaticInfo();
 
           return this.goInProgressOLD(...arguments);

@@ -49,26 +49,14 @@
 
 .gm_splashgear {
     position: relative;
-    width: 45px;
-    height: 45px;
+    width: 80px;
+    height: 80px;
 
     background-image: url(images/gmmgear.png);
     background-repeat: no-repeat;
     background-position: center;
-    background-size: 45px;
-}
-
-.gm_splashgear.one {
-    top: 5px;
+    background-size: 80px;
     animation: gm_gearspin 2s linear infinite;
-}
-
-.gm_splashgear.two {
-    left: 25px;
-    bottom: 15px;
-
-    animation: gm_gearspin reverse 2s linear infinite;
-    animation-delay: 1000ms;
 }
 
 .gm_splashtext {
@@ -295,7 +283,7 @@
 #gmeditor_openbutton::after {
     width: 30px;
     height: 30px;
-    background-image: url(images/gmmlogo.png);
+    background-image: url(images/gmmgear.png);
     background-size: 95%;
     background-repeat: no-repeat;
     background-position-x: center;

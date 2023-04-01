@@ -531,9 +531,6 @@ export default {
     BonkGraphics.prototype.destroy = (function() {
       BonkGraphics.prototype.destroyOLD = BonkGraphics.prototype.destroy;
       return function() {
-        document.getElementById('gm_logbox').innerHTML = '';
-        document.getElementById('gm_logbox').style.visibility = 'hidden';
-
         gm.audio.stopAllSounds();
 
         gm.state.crashed = false;
@@ -738,20 +735,6 @@ export default {
     };
   },
   debugLog: function(message) {
-    const messageDiv = document.createElement('div');
-
-    if (typeof message === 'string') {
-      messageDiv.innerText = message;
-    } else {
-      messageDiv.innerText = JSON.stringify(message);
-    }
-
-    const logBox = document.getElementById('gm_logbox');
-
-    logBox.appendChild(messageDiv);
-    logBox.style.visibility = 'visible';
-    if (logBox.childElementCount > 30) logBox.removeChild(logBox.children[0]);
-    logBox.scrollTop = logBox.scrollHeight;
   },
   lastRenderedState: null,
   rendererClass: null,
@@ -1220,8 +1203,6 @@ class ImageShape {
     this.lastDrawDef = {};
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
-    this.displayObject.visible = gm.config.saved.ingame.allowImages;
-
     const stringifiedRegionA = JSON.stringify(this.lastDrawDef.region);
     const stringifiedRegionB = JSON.stringify(shapeDefB.region);
 
