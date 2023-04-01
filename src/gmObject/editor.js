@@ -4,11 +4,13 @@
 
 // blockly libs
 import Blockly from 'blockly';
-import {javascriptGenerator} from 'blockly/javascript';
+import * as LexicalVariables from '@mit-app-inventor/blockly-block-lexical-variables';
 import {WorkspaceSearch} from '@blockly/plugin-workspace-search';
 import '@blockly/field-colour-hsv-sliders';
+import {javascriptGenerator} from 'blockly/javascript';
 import toolbox from '../blockly/toolbox.xml';
 import blockDefs from '../blockly/blockdefs.js';
+import defineComplexBlocks from '../blockly/complexblockdefs.js';
 import defineBlockCode from '../blockly/blockfuncs.js';
 import defineBlockValidators from '../blockly/blockvalidators.js';
 import afterWsPatches from '../blockly/afterwspatches.js';
@@ -27,10 +29,13 @@ import {saveAs} from 'file-saver';
 import md5 from 'md5';
 import {Parser as acorn} from 'acorn';
 import bowser from 'bowser';
+import prettier from 'prettier';
+import prettierBabel from 'prettier/parser-babel';
 
 export default {
   init: function() {
     window.blockly = Blockly;
+    window.blocklyJsGen = javascriptGenerator;
     this.blockDefs = blockDefs;
     this.initGMEditor();
     this.resetModeSettings();
@@ -61,8 +66,10 @@ export default {
 
     if (config.editor.showGrid) {
       this.blocklyWs.grid.pattern.style.visibility = 'visible';
+      this.blocklyWs.grid.snapToGrid = true;
     } else {
       this.blocklyWs.grid.pattern.style.visibility = 'hidden';
+      this.blocklyWs.grid.snapToGrid = false;
     }
   },
   initGMEditor: function() {
@@ -383,6 +390,8 @@ export default {
       Blockly.Blocks[this.blockDefs[i].type] = {};
     }
 
+    defineComplexBlocks();
+
     defineBlockValidators();
 
     for (let i = 0; i !== this.blockDefs.length; i++) {
@@ -396,31 +405,6 @@ export default {
     }
 
     defineBlockCode();
-
-    // eslint-disable-next-line guard-for-in
-    for (const block in Blockly.Blocks) {
-      Blockly.Blocks[block].init = (function() {
-        const initOLD = Blockly.Blocks[block].init;
-
-        return function() {
-          initOLD.apply(this, arguments);
-
-          if (!this.type.startsWith('event_') && !this.type.startsWith('procedures_def')) {
-            const onChangeOLD = this.onchange;
-
-            this.setOnChange(function() {
-              if (onChangeOLD) onChangeOLD.apply(this, arguments);
-
-              if (this.parentBlock_ || this.isInMutator || this.isInFlyout) {
-                this.setWarningText(null);
-              } else {
-                this.setWarningText('The block must be inside an event block (one of the\nblocks in the Bonk Events category), or inside a function definition.');
-              }
-            });
-          }
-        };
-      })();
-    }
 
     const blocklyToolbox = document.createElement('xml');
     document.head.appendChild(blocklyToolbox);
@@ -636,6 +620,8 @@ export default {
     });
     gm.editor.headlessBlocklyWs = new Blockly.Workspace();
 
+    LexicalVariables.init(gm.editor.blocklyWs);
+
     afterWsPatches();
 
     // drag surface makes the workspace lag a LOT while dragging on a really big project
@@ -688,6 +674,8 @@ export default {
       backup.isEmpty = xml.getElementsByTagName('block').length == 0;
       backup.settings = gm.editor.modeSettings;
       backup.assets = gm.editor.modeAssets;
+
+      if (backup.isEmpty) return;
 
       gm.editor.modeBackups.unshift({
         mode: gm.encoding.compressMode(backup).buffer,
@@ -1338,7 +1326,7 @@ export default {
       blocklyDiv.style.visibility = 'hidden';
       gm.editor.blocklyWs.setVisible(false);
       gm.editor.monacoWs.layout();
-      gm.editor.monacoWs.setValue(gm.editor.generateBlocklyCode());
+      gm.editor.monacoWs.setValue(gm.editor.generateBlocklyCode(true));
       changeBaseButton.classList.remove('jsIcon');
       changeBaseButton.classList.add('blockIcon');
     } else {
@@ -1358,6 +1346,9 @@ export default {
 
     const saved = {};
 
+    // un-highlight errored block
+    gm.editor.blocklyWs.highlightBlock(null);
+
     // generate events in host and save content and isEmpty into the mode
     if (gm.editor.modeSettings.isTextMode) {
       const content = gm.editor.monacoWs.getValue();
@@ -1366,7 +1357,11 @@ export default {
       saved.content = content;
       saved.isEmpty = content == '';
     } else {
-      gm.editor.tryEventGenBlockly(gm.editor.generateBlocklyCode());
+      const blocklyResult = gm.editor.generateBlocklyCode();
+
+      gm.editor.blockCodeMap = blocklyResult[1];
+      gm.editor.generatedCode = blocklyResult[0];
+      gm.editor.tryEventGenBlockly(blocklyResult[0]);
 
       const content = Blockly.Xml.workspaceToDom(gm.editor.blocklyWs, true);
 
@@ -1431,7 +1426,7 @@ export default {
             acorn.parse(content, {ecmaVersion: 'latest'});
           } catch (syntaxError) {
             const location = /\(([0-9:]+)\)/.exec(syntaxError.stack)[1];
-            report = report.replace(/at([^\n]+)(.|\n)*/gm, 'at <anonymous>:' + location);
+            report = report.replace(/at ([^\n]+)(.|\n)*/gm, 'at <anonymous>:' + location);
           }
         } else {
           report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
@@ -1465,10 +1460,14 @@ export default {
       throw (e);
     }
   },
-  generateBlocklyCode: function() {
+  generateBlocklyCode: function(pretty) {
     const workspace = gm.lobby.networkEngine.getLSID() === gm.lobby.networkEngine.hostID ? gm.editor.blocklyWs : gm.editor.headlessBlocklyWs;
     const topBlocks = workspace.getTopBlocks();
     let code = '';
+
+    // blocks use this to figure out if they should add their id to their code output
+    // to be later used to generate block code range data
+    gm.editor.generatingPrettyCode = pretty;
 
     javascriptGenerator.init(workspace);
 
@@ -1486,6 +1485,44 @@ export default {
       code = code.replace('\n\n\n', '');
     }
 
-    return code;
+    gm.editor.generatingPrettyCode = false;
+
+    if (pretty) {
+      return prettier.format(code, {parser: 'babel', plugins: [prettierBabel], bracketSpacing: false});
+    } else {
+      const blockRanges = [];
+
+      while (true) {
+        const match = /"""([^"]+)"""S/gm.exec(code);
+        if (!match) break;
+
+        const start = match.index;
+
+        const end = code.indexOf('"""' + match[1] + '"""E');
+
+        for (const range of blockRanges) {
+          if (range.start > start && range.start > end) {
+            range.start -= match[0].length * 2;
+          } else if (range.start > start || range.start > end) {
+            range.start -= match[0].length;
+          }
+          if (range.end > start && range.end > end) {
+            range.end -= match[0].length * 2;
+          } else if (range.end > start || range.end > end) {
+            range.end -= match[0].length;
+          }
+        }
+
+        blockRanges.push({
+          start: start,
+          end: end - 1 - match[0].length,
+          id: match[1],
+        });
+
+        code = code.slice(0, start) + code.slice(start + match[0].length, end) + code.slice(end + match[0].length);
+      }
+
+      return [code, blockRanges];
+    }
   },
 };

@@ -1,19 +1,23 @@
 {
   "name": "gmmaker",
+  "version": "2.0.0",
   "dependencies": {
     "@blockly/field-colour-hsv-sliders": "^2.0.11",
     "@blockly/plugin-workspace-search": "^6.0.9",
+    "@mit-app-inventor/blockly-block-lexical-variables": "^0.0.13",
     "acorn": "^8.8.1",
     "blockly": "^9.2.1",
     "bowser": "^2.11.0",
     "file-saver": "^2.0.5",
     "md5": "^2.3.0",
-    "monaco-editor": "^0.34.0"
+    "monaco-editor": "^0.34.0",
+    "prettier": "^2.8.6"
   },
   "devDependencies": {
     "@webdoc/cli": "^2.2.0",
     "@webdoc/plugin-format": "^2.2.0",
     "@webdoc/plugin-markdown": "^2.2.0",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^5.2.7",
     "eslint": "^8.21.0",
     "eslint-config-google": "^0.14.0",

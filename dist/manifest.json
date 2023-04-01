@@ -1,25 +1,51 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Game Mode Maker",
-  "description": "A bonk.io mod that lets you create your own game modes using JavaScript code.",
-  "version": "1.0.4",
+  "description": "A bonk.io mod that lets you create your own game modes using Scratch-like blocks or plain JavaScript code.",
   "homepage_url": "https://github.com/SneezingCactus/gmmaker",
-  "permissions": [ "webRequest", "webRequestBlocking", "*://bonk.io/*" ],
-  "background": {
-    "scripts": [ "background.js" ]
+  "permissions": [
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "*://bonk.io/*"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "js/injector.js",
+        "js/gmLoader.js",
+        "js/runInjectors.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "gm_ruleset",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
   },
   "content_scripts": [
     {
-      "matches": ["*://bonk.io/gameframe-release.html"],
-      "js": ["js/loadInjector.js"],
+      "matches": [
+        "*://bonk.io/gameframe-release.html"
+      ],
+      "js": [
+        "js/loadInjector.js"
+      ],
       "all_frames": true
     }
   ],
-  "web_accessible_resources": [ "js/injector.js", "js/gmLoader.js", "js/runInjectors.js" ],
   "icons": {
     "16": "icons/gmmaker16.png",
     "32": "icons/gmmaker32.png",
     "48": "icons/gmmaker48.png",
     "128": "icons/gmmaker128.png"
-  }
+  },
+  "version": "2.0.0"
 }

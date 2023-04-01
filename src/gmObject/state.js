@@ -6,6 +6,8 @@ import declareGameObject from '../ses/declareGameObject.raw.js';
 import seedrandomCode from '../ses/seedrandom.raw.js';
 import sesCode from '../ses/ses.raw.js';
 
+import blocklyErrors from '../blockly/errormessages.js';
+
 export default {
   init: function() {
     // we must first init the SES part then the rest
@@ -13,7 +15,7 @@ export default {
     document.head.appendChild(compContainer);
 
     compContainer.contentWindow.eval(sesCode);
-    compContainer.contentWindow.lockdown({errorTaming: 'unsafe'});
+    compContainer.contentWindow.lockdown({errorTaming: 'unsafe', evalTaming: 'unsafeEval'});
 
     // mr whiter whee is my 50002 km/h of methé
     // (meth is short for method here)
@@ -228,6 +230,20 @@ export default {
         arrow.p = [arrow.x, arrow.y];
         arrow.lv = [arrow.xv, arrow.yv];
       }
+      for (let i = 0; i !== state.physics.bodies.length; i++) {
+        if (!state.physics.bodies[i]) continue;
+
+        const body = state.physics.bodies[i];
+
+        body.cf.lf = [body.cf.x, body.cf.y];
+      }
+      for (let i = 0; i !== state.physics.shapes.length; i++) {
+        if (!state.physics.shapes[i] || state.physics.shapes[i].type !== 'bx') continue;
+
+        const shape = state.physics.shapes[i];
+
+        shape.s = [shape.w, shape.h];
+      }
       /* #endregion CHANGE XY TO VECTORS */
 
       /* #region EXTRA PROPERTY MANAGE */
@@ -305,7 +321,7 @@ export default {
         // body data used if object A or object B is a body
         const bodyAData = {
           id: bodyA.arrayID,
-          shapeIndex: gm.state.gameState.physics.bodies[bodyA.arrayID].fx.indexOf(fixtureA.arrayID),
+          shapeIndex: gm.state.gameState.physics.bodies[bodyA.arrayID]?.fx.indexOf(fixtureA.arrayID),
           normal: [
             -normal.x,
             -normal.y,
@@ -313,7 +329,7 @@ export default {
         };
         const bodyBData = {
           id: bodyB.arrayID,
-          shapeIndex: gm.state.gameState.physics.bodies[bodyB.arrayID].fx.indexOf(fixtureB.arrayID),
+          shapeIndex: gm.state.gameState.physics.bodies[bodyB.arrayID]?.fx.indexOf(fixtureB.arrayID),
           normal: [
             normal.x,
             normal.y,
@@ -451,6 +467,22 @@ export default {
         arrow.y = arrow.p[1];
         arrow.xv = arrow.lv[0];
         arrow.yv = arrow.lv[1];
+      }
+      for (let i = 0; i !== state.physics.bodies.length; i++) {
+        if (!state.physics.bodies[i]) continue;
+
+        const body = state.physics.bodies[i];
+
+        body.cf.x = body.cf.lf[0];
+        body.cf.y = body.cf.lf[1];
+      }
+      for (let i = 0; i !== state.physics.shapes.length; i++) {
+        if (!state.physics.shapes[i] || state.physics.shapes[i].type !== 'bx') continue;
+
+        const shape = state.physics.shapes[i];
+
+        shape.w = shape.s[0];
+        shape.h = shape.s[1];
       }
       /* #endregion VECTORS TO XY */
 
@@ -730,6 +762,150 @@ export default {
     return theChosenOne;
   },
   crashAbort: function(e) {
+    let wasModeError = false;
+
+    if (gm.editor.appliedMode && !gm.editor.appliedMode.isEmpty) {
+      if (gm.editor.appliedMode.settings.isTextMode) {
+        wasModeError = gm.state.crashAbortJavaScript(e);
+      } else {
+        wasModeError = gm.state.crashAbortBlockly(e);
+      }
+    }
+
+    if (!wasModeError) {
+      if (e == 'Assertion Failed') {
+        gm.editor.genericDialog([
+          'Whoops! Seems like something went wrong with the physics engine. ',
+          'This might or might not be an issue with the currently applied mode, or GMMaker itself.',
+          '<br><br>',
+          'Are you sure you\'re not playing a map that intentionally crashes the game using invalid polygons? ',
+          'Does the custom mode manipulate physical polygon shapes (if any custom mode is currently being used)?',
+          '<br><br>',
+          'Physical polygons are quite unstable and can cause crashes if used incorrectly, for example, ',
+          'a physical polygon should not end on the same point as the start point.',
+        ].join(''), ()=>{}, {});
+      } else {
+        if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
+          gm.editor.genericDialog([
+            'Whoops! Seems like there was an unknown error and the game had to be stopped. ',
+            'This might or might not be an issue with the currently applied mode (if any is currently being used), or GMMaker itself.',
+            '<br><br>',
+            'If you are using a custom mode, check <a href="https://sneezingcactus.github.io/gmmaker/docs/tutorials/Other-1.html">this article</a> explaining how your mode could be causing an unknown error and how you can find a way to fix it. ',
+            'It might help you find what\'s wrong and how to fix it.',
+            '<br><br>',
+            'If not, are you using any other mods/extensions (apart from the Code Injector)? ',
+            'Try disabling them, reload, and try again.',
+            '<br><br>',
+            'If you think this is a GMMaker bug and not something about your custom mode, or any other mods you have installed, ',
+            'don\'t hesitate to ask SneezingCactus about it in the <a href="https://discord.gg/dnBM3N6H8a">SneezingCactus\' mods discord server</a> or the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
+          ].join(''), ()=>{}, {});
+        } else {
+          gm.editor.genericDialog([
+            'Whoops! Seems like there was an unknown error and the game had to be stopped. ',
+            'This might or might not be an issue with the currently applied mode (if any is currently being used), or GMMaker itself.',
+            '<br><br>',
+            'Are you using any other mods/extensions (apart from the Code Injector)? ',
+            'Try disabling them, reload, and try again.',
+            '<br><br>',
+            'If you think this is a GMMaker bug and not something about the current custom mode, or any other mods you have installed, ',
+            'don\'t hesitate to ask SneezingCactus about it in the <a href="https://discord.gg/dnBM3N6H8a">SneezingCactus\' mods discord server</a> or the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
+          ].join(''), ()=>{}, {});
+        }
+      }
+    }
+
+    if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
+      document.getElementById('pretty_top_exit').click();
+    }
+
+    throw e;
+  },
+  crashAbortBlockly: function(e) {
+    if (e.isModeError) {
+      let report;
+
+      if (gm.editor.browser != 'Firefox') {
+        report = e.stack;
+
+        report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
+        report = report.replace(/Object\.eval \[as listener\]([^\n]+)(.|\n)*/gm, '<anonymous>$1');
+        report = report.replace(/Proxy./gm, 'function ');
+
+        e.stack = '[GMMaker Mode Error] ' + e.stack;
+      } else {
+        report = e.name + ': ' + e.message;
+
+        let stack = e.stack;
+
+        stack = stack.replace(/([^@\n]+)@.+?line.+?eval:/gm, '  at $1:');
+        stack = stack.replace(/@.+?line.+?eval:([^\n]+)(.|\n)*/gm, '  at <anonymous>:$1');
+
+        report += '\n' + stack;
+
+        e.message = '[GMMaker Mode Error] ' + e.message;
+      }
+
+      const match = /:([0-9]+):([0-9]+)/gm.exec(report);
+
+      const targetLine = Number(match[1]);
+      const targetChar = Number(match[2]);
+
+      let lineCounter = 1;
+      let charCounter = 1;
+
+      const code = gm.editor.generatedCode;
+
+      let targetAbsolutePos = 0;
+
+      for (let i = 0; i < code.length; i++) {
+        if (targetLine == lineCounter && targetChar == charCounter) {
+          targetAbsolutePos = i;
+        }
+
+        charCounter++;
+
+        if (code[i] === '\n') {
+          lineCounter += 1;
+          charCounter = 1;
+        }
+      }
+
+      for (let i = gm.editor.blockCodeMap.length - 1; i >= 0; i--) {
+        let rangeInfo = gm.editor.blockCodeMap[i];
+
+        if (rangeInfo.start > targetAbsolutePos) continue;
+        if (rangeInfo.end < targetAbsolutePos) continue;
+
+        // special case for max stack size which for some reason blames the first line of code of the function instead of the function itself
+        if (report.includes('call stack size') || report.includes('recursion')) {
+          console.log(i);
+          rangeInfo = gm.editor.blockCodeMap[i - 1] ?? gm.editor.blockCodeMap[i];
+        }
+
+        const block = gm.editor.blocklyWs.getBlockById(rangeInfo.id);
+
+        gm.editor.showGMEWindow();
+        gm.editor.blocklyWs.highlightBlock(rangeInfo.id);
+        gm.editor.blocklyWs.centerOnBlock(rangeInfo.id);
+
+        let error;
+
+        if (blocklyErrors[block.type]) {
+          error = blocklyErrors[block.type](report);
+        } else {
+          error = 'Unknown error! Sorry :(';
+        }
+
+        gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. The faulty block has been highlighted with red, and will stop being highlighted once you re-apply the mode. Below is the reason for the crash:', ()=>{}, {
+          showCode: true,
+          code: error,
+        });
+
+        return true;
+      }
+    }
+  },
+  crashAbortJavaScript: function(e) {
     if (e.isModeError && gm.editor.browser != 'Firefox') {
       let report = e.stack;
 
@@ -756,7 +932,9 @@ export default {
         });
       }
 
-      e.stack = '[GMMaker Error] ' + e.stack;
+      e.stack = '[GMMaker Mode Error] ' + e.stack;
+
+      return true;
     } else if (e.isModeError) {
       let report = e.name + ': ' + e.message;
 
@@ -786,52 +964,10 @@ export default {
         });
       }
 
-      e.message = '[GMMaker Error] ' + e.message;
-    } else if (e == 'Assertion Failed') {
-      gm.editor.genericDialog([
-        'Whoops! Seems like something went wrong with the physics engine. ',
-        'This might or might not be an issue with the currently applied mode, or GMMaker itself.',
-        '<br><br>',
-        'Are you sure you\'re not playing a map that intentionally crashes the game using invalid polygons? ',
-        'Does the custom mode manipulate physical polygon shapes (if any custom mode is currently being used)?',
-        '<br><br>',
-        'Physical polygons are quite unstable and can cause crashes if used incorrectly, for example, ',
-        'a physical polygon should not end on the same point as the start point.',
-      ].join(''), ()=>{}, {});
-    } else {
-      if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
-        gm.editor.genericDialog([
-          'Whoops! Seems like there was an unknown error and the game had to be stopped. ',
-          'This might or might not be an issue with the currently applied mode (if any is currently being used), or GMMaker itself.',
-          '<br><br>',
-          'If you are using a custom mode, check <a href="https://sneezingcactus.github.io/gmmaker/docs/tutorials/Other-1.html">this article</a> explaining how your mode could be causing an unknown error and how you can find a way to fix it. ',
-          'It might help you find what\'s wrong and how to fix it.',
-          '<br><br>',
-          'If not, are you using any other mods/extensions (apart from the Code Injector)? ',
-          'Try disabling them, reload, and try again.',
-          '<br><br>',
-          'If you think this is a GMMaker bug and not something about your custom mode, or any other mods you have installed, ',
-          'don\'t hesitate to ask SneezingCactus about it in the <a href="https://discord.gg/dnBM3N6H8a">SneezingCactus\' mods discord server</a> or the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
-        ].join(''), ()=>{}, {});
-      } else {
-        gm.editor.genericDialog([
-          'Whoops! Seems like there was an unknown error and the game had to be stopped. ',
-          'This might or might not be an issue with the currently applied mode (if any is currently being used), or GMMaker itself.',
-          '<br><br>',
-          'Are you using any other mods/extensions (apart from the Code Injector)? ',
-          'Try disabling them, reload, and try again.',
-          '<br><br>',
-          'If you think this is a GMMaker bug and not something about the current custom mode, or any other mods you have installed, ',
-          'don\'t hesitate to ask SneezingCactus about it in the <a href="https://discord.gg/dnBM3N6H8a">SneezingCactus\' mods discord server</a> or the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
-        ].join(''), ()=>{}, {});
-      }
-    }
+      e.message = '[GMMaker Mode Error] ' + e.message;
 
-    if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
-      document.getElementById('pretty_top_exit').click();
+      return true;
     }
-
-    throw e;
   },
   generateEvents: function(code) {
     this.resetSES();

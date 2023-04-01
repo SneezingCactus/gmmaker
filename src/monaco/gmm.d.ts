@@ -212,7 +212,7 @@ declare interface capZone {
 }
 
 /**
- * Body apply force parameters.
+ * Platform apply force parameters.
  */
 declare interface platformForces {
   /**
@@ -418,15 +418,11 @@ declare interface physShapeGeometry {
   /**
    * Shape offset. Changing this coordinate will have no effect on polygons, only on circles and boxes.
    */
-  public c: number[];
+  public c: vector2d;
   /**
-   * [Box only] Width of the box.
+   * [Box only] Size of the box, as a vector (x axis is width, y axis is height).
    */
-  public w: number;
-  /**
-   * [Box only] Height of the box.
-   */
-  public h: number;
+  public s: vector2d;
   /**
    * [Box and polygon only] Angle in degrees. Changing it does not affect polygons, as their vertices have already been affected by it beforehand.
    */
@@ -490,7 +486,7 @@ declare interface jointD {
   public dr: number;
 
   /**
-   * `true` if the attached bodies can collide, `false` otherwise.
+   * `true` if the attached platforms can collide, `false` otherwise.
    */
   public cc: boolean;
   /**
@@ -674,7 +670,7 @@ declare interface statePhysics {
    */
   public joints: joint[];
   /**
-   * Likely stands for "platform render order".
+   * Likely stands for "body (platform) render order".
    * 
    * As the name may suggest, this is an array that determines the order at which platforms are rendered.
    * 
@@ -1695,7 +1691,7 @@ declare interface gameWorld {
   /**
     * A collection of methods and parameters related to the game world.
     * 
-    * Such as raycasts, death barrier enabling/disabling, helper functions for creating bodies, etc.
+    * Such as raycasts, death barrier enabling/disabling, helper functions for creating platforms, etc.
     * 
     * @type {gameWorld}
     * @memberof game

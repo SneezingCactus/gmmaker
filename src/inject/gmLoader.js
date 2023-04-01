@@ -47,6 +47,8 @@ window.initGM = function() {if (window.gm) return;
   document.getElementById('newbonkgamecontainer').prepend(splashElement);
   splashElement.outerHTML = splashHtml;
 
+  document.getElementById('gm_splashversion').innerText = 'v' + require('../../package.json').version;
+
   // yes this is needed
   splashElement = document.getElementsByClassName('gm_splashcontainer')[0];
 

@@ -4,11 +4,19 @@
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
 import Blockly from 'blockly';
+import * as LexicalVariables from '@mit-app-inventor/blockly-block-lexical-variables';
 
 /**
 * Sets up the blocks' validators
 */
 export default function() {
+  // msg replacing for lexical var blocks
+  Blockly.Msg.LANG_VARIABLES_SET_TITLE_SET = 'set local';
+  Blockly.Msg.LANG_VARIABLES_GET_TITLE_GET = 'local';
+
+  // msg replacing for other things
+  Blockly.Msg.COLOUR_RGB_TOOLTIP = 'Create a colour with the specified amount of red, green, and blue. All values must be between 0 and 255.';
+
   // why does this not exist???
   Blockly.Block.prototype.removeInputAt = function(index, opt_quiet) {
     const input = this.inputList[index];
@@ -32,6 +40,105 @@ export default function() {
     throw Error('Input not found at: ' + index);
   };
 
+  function createLexiVar(name) {
+    return new LexicalVariables.FieldParameterFlydown(name, true, LexicalVariables.FieldFlydown.DISPLAY_BELOW);
+  }
+
+  const shadowBlocks = {
+    'Boolean': {
+      'type': 'logic_boolean',
+      'fields': {'BOOL': 'TRUE'},
+    },
+    'Number': {
+      'type': 'math_number',
+      'fields': {'NUM': 0},
+    },
+    'String': {
+      'type': 'text',
+      'fields': {'TEXT': 'Hello World!'},
+    },
+    'Colour': {
+      'type': 'colour_picker',
+      'fields': {'COLOUR': '#ff0000'},
+    },
+    'Array': {
+      'type': 'lists_create_with',
+      'extraState': {'itemCount': 0},
+    },
+    'Vector': {
+      'type': 'vector_create',
+      'inputs': {
+        'x': {
+          'shadow': {
+            'type': 'math_number',
+            'fields': {'NUM': 0},
+          },
+        },
+        'y': {
+          'shadow': {
+            'type': 'math_number',
+            'fields': {'NUM': 0},
+          },
+        },
+      },
+    },
+    'DrawingImageRegion': {
+      'type': 'drawing_shape_image_region',
+      'inputs': {
+        'pos': {
+          'shadow': {
+            'type': 'vector_create',
+            'inputs': {
+              'x': {
+                'shadow': {
+                  'type': 'math_number',
+                  'fields': {'NUM': 0},
+                },
+              },
+              'y': {
+                'shadow': {
+                  'type': 'math_number',
+                  'fields': {'NUM': 0},
+                },
+              },
+            },
+          },
+        },
+        'size': {
+          'shadow': {
+            'type': 'vector_create',
+            'inputs': {
+              'x': {
+                'shadow': {
+                  'type': 'math_number',
+                  'fields': {'NUM': 32},
+                },
+              },
+              'y': {
+                'shadow': {
+                  'type': 'math_number',
+                  'fields': {'NUM': 32},
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+
+  function createShadow(target, type) {
+    if (!shadowBlocks[type]) return;
+
+    const shadowBlock = Blockly.serialization.blocks.append(shadowBlocks[type], target.getSourceBlock().workspace);
+    shadowBlock.setShadow(true);
+
+    shadowBlock.initSvg();
+    shadowBlock.render();
+
+    target.connection.connect(shadowBlock.outputConnection);
+  }
+
   const eventStepMixin = {
     mutationToDom: function() {
       const container = Blockly.utils.xml.createElement('mutation');
@@ -49,7 +156,7 @@ export default function() {
       if (perPlayer && !inputExists) {
         this.appendDummyInput('')
             .appendField('store player id in var')
-            .appendField(new Blockly.FieldVariable('id'), 'player_id');
+            .appendField(createLexiVar('id'), 'player_id');
 
         this.moveNumberedInputBefore(3, 2);
       } else if (!perPlayer && inputExists) {
@@ -114,26 +221,26 @@ export default function() {
 
       switch (colA) {
         case 'disc':
-          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A disc id'), 'a_discid');
+          appendFieldIfNotExist(this.inputList[2], createLexiVar('hitA_discId'), 'a_discid');
           this.inputList[2].removeField('a_arrowid', true);
-          this.inputList[2].removeField('a_bodyid', true);
+          this.inputList[2].removeField('a_platformid', true);
           this.inputList[2].removeField('a_fixtureid', true);
           this.inputList[2].removeField('a_normal', true);
           this.inputList[2].removeField('a_capzone', true);
           break;
         case 'arrow':
-          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A arrow id'), 'a_arrowid');
+          appendFieldIfNotExist(this.inputList[2], createLexiVar('hitA_arrowId'), 'a_arrowid');
           this.inputList[2].removeField('a_discid', true);
-          this.inputList[2].removeField('a_bodyid', true);
+          this.inputList[2].removeField('a_platformid', true);
           this.inputList[2].removeField('a_fixtureid', true);
           this.inputList[2].removeField('a_normal', true);
           this.inputList[2].removeField('a_capzone', true);
           break;
-        case 'body':
-          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A body id'), 'a_bodyid');
-          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A fixture id'), 'a_fixtureid');
-          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A normal'), 'a_normal');
-          appendFieldIfNotExist(this.inputList[2], new Blockly.FieldVariable('hit A is capzone'), 'a_capzone');
+        case 'platform':
+          appendFieldIfNotExist(this.inputList[2], createLexiVar('hitA_platformId'), 'a_platformid');
+          appendFieldIfNotExist(this.inputList[2], createLexiVar('hitA_shapeIndex'), 'a_fixtureid');
+          appendFieldIfNotExist(this.inputList[2], createLexiVar('hitA_normal'), 'a_normal');
+          appendFieldIfNotExist(this.inputList[2], createLexiVar('hitA_isCapzone'), 'a_capzone');
           this.inputList[2].removeField('a_discid', true);
           this.inputList[2].removeField('a_arrowid', true);
           break;
@@ -141,26 +248,26 @@ export default function() {
 
       switch (colB) {
         case 'disc':
-          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B disc id'), 'b_discid');
+          appendFieldIfNotExist(this.inputList[3], createLexiVar('hitB_discId'), 'b_discid');
           this.inputList[3].removeField('b_arrowid', true);
-          this.inputList[3].removeField('b_bodyid', true);
+          this.inputList[3].removeField('b_platformid', true);
           this.inputList[3].removeField('b_fixtureid', true);
           this.inputList[3].removeField('b_normal', true);
           this.inputList[3].removeField('b_capzone', true);
           break;
         case 'arrow':
-          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B arrow id'), 'b_arrowid');
+          appendFieldIfNotExist(this.inputList[3], createLexiVar('hitB_arrowId'), 'b_arrowid');
           this.inputList[3].removeField('b_discid', true);
-          this.inputList[3].removeField('b_bodyid', true);
+          this.inputList[3].removeField('b_platformid', true);
           this.inputList[3].removeField('b_fixtureid', true);
           this.inputList[3].removeField('b_normal', true);
           this.inputList[3].removeField('b_capzone', true);
           break;
-        case 'body':
-          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B body id'), 'b_bodyid');
-          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B fixture id'), 'b_fixtureid');
-          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B normal'), 'b_normal');
-          appendFieldIfNotExist(this.inputList[3], new Blockly.FieldVariable('hit B is capzone'), 'b_capzone');
+        case 'platform':
+          appendFieldIfNotExist(this.inputList[3], createLexiVar('hitB_platformId'), 'b_platformid');
+          appendFieldIfNotExist(this.inputList[3], createLexiVar('hitB_shapeIndex'), 'b_fixtureid');
+          appendFieldIfNotExist(this.inputList[3], createLexiVar('hitB_normal'), 'b_normal');
+          appendFieldIfNotExist(this.inputList[3], createLexiVar('hitB_isCapzone'), 'b_capzone');
           this.inputList[3].removeField('b_discid', true);
           this.inputList[3].removeField('b_arrowid', true);
           break;
@@ -205,7 +312,13 @@ export default function() {
     updateShape_: function(setOption, setProperty) {
       const toInput = this.getInput('to');
 
-      if (this.propTypes[setProperty] == 'Boolean') {
+      if (setOption) {
+        toInput.fieldRow[toInput.fieldRow.length - 1].setValue(setOption === 'set' ? 'to' : 'by');
+      }
+
+      if (!setProperty) return;
+
+      if (this.propTypes[setProperty] != 'Number' && this.propTypes[setProperty] != 'Vector') {
         this.getField('set_option').doValueUpdate_('set');
         this.getField('set_option').forceRerender();
         this.getField('set_option').setEnabled(false);
@@ -213,80 +326,315 @@ export default function() {
         this.getField('set_option').setEnabled(true);
       }
 
-      toInput.fieldRow[toInput.fieldRow.length - 1].setValue(setOption === 'set' ? 'to' : 'by');
+      if (this.propTypes[setProperty] !== toInput.connection.check_?.[0]) {
+        toInput.connection.setShadowStateInternal_();
+      }
+
       toInput.setCheck(this.propTypes[setProperty]);
+
+      if (!toInput.connection.shadowState_) createShadow(toInput, this.propTypes[setProperty]);
+    },
+  };
+
+  const getterMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+
+      const setProperty = this.getFieldValue('property');
+
+      container.setAttribute('set_property', setProperty);
+
+      this.updateShape_(setProperty);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      this.updateShape_(xmlElement.getAttribute('set_property'));
+    },
+    updateShape_: function(setProperty) {
+      this.setOutput(true, this.propTypes[setProperty]);
     },
   };
 
   /**
-   * Create a validator for a setter block.
-   * @param {String} blockId id of the block
+   * Create a validator for a setter block, and the getter block.
+   * @param {String} setterBlockId id of the setter block
+   * @param {String} getterBlockId id of the getter block
    * @param {Object} propTypes type for each property
    */
-  function setterBlockValidator(blockId, propTypes) {
-    Blockly.Blocks[blockId].validatorInit = function() {
-      this.mixin(setterMixin);
+  function setterBlockValidator(setterBlockId, getterBlockId, propTypes) {
+    if (setterBlockId) {
+      Blockly.Blocks[setterBlockId].validatorInit = function() {
+        this.mixin(setterMixin);
 
-      this.propTypes = propTypes;
+        this.propTypes = propTypes;
 
-      const setOptionDropdown = this.getField('set_option');
-      const propertyDropdown = this.getField('property');
+        const setOptionDropdown = this.getField('set_option');
+        const propertyDropdown = this.getField('property');
 
-      setOptionDropdown.setValidator(function(newValue) {
-        this.getSourceBlock().updateShape_(newValue, propertyDropdown.getValue());
-      });
-      propertyDropdown.setValidator(function(newValue) {
-        this.getSourceBlock().updateShape_(setOptionDropdown.getValue(), newValue);
-      });
-    };
+        setOptionDropdown.setValidator(function(newValue) {
+          this.getSourceBlock().updateShape_(newValue);
+        });
+        propertyDropdown.setValidator(function(newValue) {
+          this.getSourceBlock().updateShape_(null, newValue);
+        });
+      };
+    }
+
+    if (getterBlockId) {
+      Blockly.Blocks[getterBlockId].validatorInit = function() {
+        this.mixin(getterMixin);
+
+        this.propTypes = propTypes;
+
+        const propertyDropdown = this.getField('property');
+
+        propertyDropdown.setValidator(function(newValue) {
+          this.getSourceBlock().updateShape_(newValue);
+        });
+      };
+    }
   }
 
-  setterBlockValidator('disc_prop_set', {
+  setterBlockValidator('disc_prop_set', 'disc_prop_get', {
     'p': 'Vector', 'lv': 'Vector', 'swing.p': 'Vector',
-    'a': 'Number', 'av': 'Number', 'a1a': 'Number', 'da': 'Number', 'ds': 'Number', 'swing.b': 'Number', 'swing.l': 'Number',
+    'a': 'Number', 'av': 'Number', 'a1a': 'Number', 'da': 'Number', 'ds': 'Number', 'swing.b': 'Number', 'swing.l': 'Number', 'radius': 'Number',
   });
-  setterBlockValidator('arrow_prop_set', {
+  setterBlockValidator('arrow_prop_set', 'arrow_prop_get', {
     'p': 'Vector', 'lv': 'Vector',
     'a': 'Number', 'av': 'Number', 'did': 'Number', 'fte': 'Number',
   });
-  setterBlockValidator('camera_prop_set', {
+  setterBlockValidator('plat_prop_set', 'plat_prop_get', {
+    'p': 'Vector', 'lv': 'Vector',
+    'a': 'Number', 'de': 'Number', 're': 'Number', 'fric': 'Number', 'ld': 'Number', 'ad': 'Number', 'cf.x': 'Number', 'cf.y': 'Number', 'cf.ct': 'Number',
+    'fricp': 'Boolean', 'visible': 'Boolean', 'fr': 'Boolean', 'bu': 'Boolean', 'f_p': 'Boolean', 'f_1': 'Boolean', 'f_2': 'Boolean', 'f_3': 'Boolean', 'f_4': 'Boolean',
+  });
+  setterBlockValidator('plat_shape_prop_set', 'plat_shape_prop_get', {
+    'geo.c': 'Vector', 'geo.s': 'Vector',
+    'geo.a': 'Number', 'geo.r': 'Number', 're': 'Number', 'de': 'Number', 'fr': 'Number',
+    'fp': 'Boolean', 'np': 'Boolean', 'ng': 'Boolean', 'ig': 'Boolean', 'd': 'Boolean',
+    'f': 'Colour',
+    'geo.v': 'Array',
+  });
+  setterBlockValidator('camera_prop_set', 'camera_prop_get', {
     'pos': 'Vector', 'scale': 'Vector',
     'angle': 'Number',
   });
-  setterBlockValidator('drawing_prop_set', {
+  setterBlockValidator('drawing_prop_set', 'drawing_prop_get', {
     'pos': 'Vector', 'scale': 'Vector',
     'alpha': 'Number', 'angle': 'Number',
   });
-  setterBlockValidator('drawing_shape_re_prop_set', {
-    'colour': 'Colour',
-    'pos': 'Vector', 'size': 'Vector',
-    'alpha': 'Number', 'angle': 'Number',
+  setterBlockValidator(null, 'lobby_playerinfo_get', {
+    'userName': 'String',
+    'level': 'Number',
+    'skinBg': 'Colour',
+    'skinColours': 'Array',
+    'guest': 'Boolean', 'team == 0': 'Boolean', 'team == 1': 'Boolean', 'team == 2': 'Boolean', 'team == 3': 'Boolean', 'team == 4': 'Boolean', 'team == 5': 'Boolean',
   });
-  setterBlockValidator('drawing_shape_p_prop_set', {
-    'colour': 'Colour',
-    'pos': 'Vector', 'scale': 'Vector',
-    'alpha': 'Number', 'angle': 'Number',
-    'vertices': 'Array',
+  setterBlockValidator(null, 'state_map_prop_get', {
+    'n': 'String', 'a': 'String',
+    'vu': 'Number', 'vd': 'Number',
   });
-  setterBlockValidator('drawing_shape_l_prop_set', {
-    'colour': 'Colour',
-    'pos': 'Vector', 'end': 'Vector',
-    'alpha': 'Number', 'width': 'Number',
+  setterBlockValidator(null, 'state_misc_get', {
+    'rl': 'Number', 'rc': 'Number',
+    'ms.fl': 'Boolean', 'ms.nc': 'Boolean', 'ms.re': 'Boolean',
   });
-  setterBlockValidator('drawing_shape_t_prop_set', {
-    'colour': 'Colour',
-    'pos': 'Vector',
-    'alpha': 'Number', 'angle': 'Number', 'size': 'Number',
-    'bold': 'Boolean', 'italic': 'Boolean', 'shadow': 'Boolean',
-    'text': 'String',
-  });
-  setterBlockValidator('drawing_shape_i_prop_set', {
-    'colour': 'Colour',
-    'pos': 'Vector', 'size': 'Vector', 'region.pos': 'Vector', 'region.size': 'Vector',
-    'alpha': 'Number', 'angle': 'Number',
-    'id': 'String',
-    'region': 'DrawingImageRegion',
-  });
+
+  const drawingShapeSetterProps = {
+    bxci: [
+      ['colour', 'colour'],
+      ['alpha', 'alpha'],
+      ['position', 'pos'],
+      ['size', 'size'],
+      ['angle', 'angle'],
+    ],
+    po: [
+      ['colour', 'colour'],
+      ['alpha', 'alpha'],
+      ['position', 'pos'], ['scale', 'scale'],
+      ['angle', 'angle'],
+      ['vertices', 'vertices'],
+    ],
+    li: [
+      ['colour', 'colour'],
+      ['alpha', 'alpha'],
+      ['"from" point', 'pos'],
+      ['"to" point', 'end'],
+      ['width', 'width'],
+    ],
+    tx: [
+      ['colour', 'colour'],
+      ['alpha', 'alpha'],
+      ['position', 'pos'],
+      ['angle', 'angle'],
+      ['text', 'text'],
+      ['size', 'size'],
+      ['bold', 'bold'],
+      ['italic', 'italic'],
+      ['shadow', 'shadow'],
+    ],
+    im: [
+      ['image name', 'id'],
+      ['image region', 'region'],
+      ['image region pos', 'region.pos'],
+      ['image region size', 'region.size'],
+      ['colour', 'colour'],
+      ['alpha', 'alpha'],
+      ['position', 'pos'],
+      ['size', 'size'],
+      ['angle', 'angle'],
+    ],
+  };
+
+  const drawingShapeSetterPropTypes = {
+    bxci: {
+      'colour': 'Colour',
+      'pos': 'Vector', 'size': 'Vector',
+      'alpha': 'Number', 'angle': 'Number',
+    },
+    po: {
+      'colour': 'Colour',
+      'pos': 'Vector', 'scale': 'Vector',
+      'alpha': 'Number', 'angle': 'Number',
+      'vertices': 'Array',
+    },
+    li: {
+      'colour': 'Colour',
+      'pos': 'Vector', 'end': 'Vector',
+      'alpha': 'Number', 'width': 'Number',
+    },
+    tx: {
+      'colour': 'Colour',
+      'pos': 'Vector',
+      'alpha': 'Number', 'angle': 'Number', 'size': 'Number',
+      'bold': 'Boolean', 'italic': 'Boolean', 'shadow': 'Boolean',
+      'text': 'String',
+    },
+    im: {
+      'colour': 'Colour',
+      'pos': 'Vector', 'size': 'Vector', 'region.pos': 'Vector', 'region.size': 'Vector',
+      'alpha': 'Number', 'angle': 'Number',
+      'id': 'String',
+      'region': 'DrawingImageRegion',
+    },
+  };
+
+  const drawingShapeSetterMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+
+      const setOption = this.getFieldValue('set_option');
+      const shapeType = this.getFieldValue('shape_type');
+      const setProperty = this.getFieldValue('property');
+
+      container.setAttribute('set_option', setOption);
+      container.setAttribute('shape_type', shapeType);
+      container.setAttribute('set_property', setProperty);
+
+      this.updateShape_(setOption, shapeType, setProperty);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      this.updateShape_(xmlElement.getAttribute('set_option'), xmlElement.getAttribute('shape_type'), xmlElement.getAttribute('set_property'));
+    },
+    updateShape_: function(setOption, shapeType, setProperty) {
+      const toInput = this.getInput('to');
+
+      if (setOption) {
+        toInput.fieldRow[toInput.fieldRow.length - 1].setValue(setOption === 'set' ? 'to' : 'by');
+      }
+
+      const props = drawingShapeSetterProps[shapeType];
+      const propTypes = drawingShapeSetterPropTypes[shapeType];
+
+      this.getField('property').menuGenerator_ = props;
+      if (!propTypes[setProperty]) {
+        setProperty = props[0][1];
+        this.getField('property').doValueUpdate_(props[0][1]);
+        this.getField('property').selectedOption_ = props[0];
+        this.getField('property').forceRerender();
+      }
+
+      if (!setProperty) return;
+
+      if (propTypes[setProperty] != 'Number' && propTypes[setProperty] != 'Vector') {
+        this.getField('set_option').doValueUpdate_('set');
+        this.getField('set_option').forceRerender();
+        this.getField('set_option').setEnabled(false);
+      } else {
+        this.getField('set_option').setEnabled(true);
+      }
+
+      if (propTypes[setProperty] !== toInput.connection.check_?.[0]) {
+        toInput.connection.setShadowStateInternal_();
+      }
+
+      toInput.setCheck(propTypes[setProperty]);
+
+      if (!toInput.connection.shadowState_) createShadow(toInput, propTypes[setProperty]);
+    },
+  };
+
+  const drawingShapeGetterMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+
+      const shapeType = this.getFieldValue('shape_type');
+      const setProperty = this.getFieldValue('property');
+
+      container.setAttribute('shape_type', shapeType);
+      container.setAttribute('set_property', setProperty);
+
+      this.updateShape_(shapeType, setProperty);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      this.updateShape_(xmlElement.getAttribute('shape_type'), xmlElement.getAttribute('set_property'));
+    },
+    updateShape_: function(shapeType, setProperty) {
+      const props = drawingShapeSetterProps[shapeType];
+      const propTypes = drawingShapeSetterPropTypes[shapeType];
+
+      this.getField('property').menuGenerator_ = props;
+      if (!propTypes[this.getFieldValue('property')]) {
+        this.getField('property').doValueUpdate_(props[0][0]);
+        this.getField('property').forceRerender();
+      }
+
+      this.setOutput(true, propTypes[setProperty]);
+    },
+  };
+
+  Blockly.Blocks['drawing_shape_prop_set'].validatorInit = function() {
+    this.mixin(drawingShapeSetterMixin);
+
+    const setOptionDropdown = this.getField('set_option');
+    const shapeTypeDropdown = this.getField('shape_type');
+    const propertyDropdown = this.getField('property');
+
+    setOptionDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue, shapeTypeDropdown.getValue(), propertyDropdown.getValue());
+    });
+    shapeTypeDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(setOptionDropdown.getValue(), newValue, propertyDropdown.getValue());
+    });
+    propertyDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(setOptionDropdown.getValue(), shapeTypeDropdown.getValue(), newValue);
+    });
+  };
+
+  Blockly.Blocks['drawing_shape_prop_get'].validatorInit = function() {
+    this.mixin(drawingShapeGetterMixin);
+
+    const shapeTypeDropdown = this.getField('shape_type');
+    const propertyDropdown = this.getField('property');
+
+    shapeTypeDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue, propertyDropdown.getValue());
+    });
+    propertyDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(shapeTypeDropdown.getValue(), newValue);
+    });
+  };
 
   const createDrawingMixin = {
     mutationToDom: function() {
@@ -347,7 +695,7 @@ export default function() {
           this.moveInputBefore('attach_id', 'pre_shape_dum');
         }
       } else if (attachIdExists) {
-        this.getInput('attach_id').connection.targetBlock().checkAndDelete();
+        this.getInput('attach_id').connection.setShadowStateInternal_();
         this.removeInput('attach_id');
       }
 
@@ -369,7 +717,7 @@ export default function() {
         }
         this.moveInputBefore('is_behind', 'pre_shape_dum');
       } else if (isBehindExists) {
-        this.getInput('is_behind').connection.targetBlock().checkAndDelete();
+        this.getInput('is_behind').connection.setShadowStateInternal_();
         this.removeInput('is_behind');
       }
     },
@@ -386,6 +734,79 @@ export default function() {
     });
     attachToDropdown.setValidator(function(newValue) {
       this.getSourceBlock().updateShape_(null, newValue);
+    });
+  };
+
+  const attachDrawingMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+      const attachTo = this.getFieldValue('attach_to');
+
+      container.setAttribute('attach_to', attachTo);
+
+      this.updateShape_(attachTo);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      this.updateShape_(xmlElement.getAttribute('attach_to'));
+    },
+    updateShape_: function(attachTo) {
+      const attachIdExists = this.getInput('attach_id');
+      const isBehindExists = this.getInput('is_behind');
+
+      if (attachTo == 'disc' || attachTo == 'platform') {
+        if (!attachIdExists) {
+          this.appendValueInput('attach_id')
+              .setCheck('Number')
+              .setAlign(1)
+              .appendField(new Blockly.FieldLabel('attach id'));
+
+          const shadowBlock = this.workspace.newBlock('math_number');
+          shadowBlock.setShadow(true);
+
+          shadowBlock.initSvg();
+          shadowBlock.render();
+
+          this.getInput('attach_id').connection.connect(shadowBlock.outputConnection);
+        }
+        if (isBehindExists) {
+          this.moveInputBefore('attach_id', 'is_behind');
+        }
+      } else if (attachIdExists) {
+        this.getInput('attach_id').connection.setShadowStateInternal_();
+        this.removeInput('attach_id');
+      }
+
+      if (attachTo != 'screen') {
+        if (!isBehindExists) {
+          this.appendValueInput('is_behind')
+              .setCheck('Boolean')
+              .setAlign(1)
+              .appendField(new Blockly.FieldLabel('is behind'));
+
+          const shadowBlock = this.workspace.newBlock('logic_boolean');
+          shadowBlock.setShadow(true);
+          shadowBlock.getField('BOOL').setValue('FALSE');
+
+          shadowBlock.initSvg();
+          shadowBlock.render();
+
+          this.getInput('is_behind').connection.connect(shadowBlock.outputConnection);
+        }
+      } else if (isBehindExists) {
+        this.getInput('is_behind').connection.setShadowStateInternal_();
+        this.removeInput('is_behind');
+      }
+    },
+  };
+
+  Blockly.Blocks['drawing_attach'].validatorInit = function() {
+    this.mixin(attachDrawingMixin);
+
+    const attachToDropdown = this.getField('attach_to');
+
+    attachToDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue);
     });
   };
 
@@ -436,6 +857,100 @@ export default function() {
 
     returnIdCheck.setValidator(function(newValue) {
       this.getSourceBlock().updateShape_(newValue === 'TRUE');
+    });
+  };
+
+  const playSoundMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+
+      const audioName = this.getFieldValue('name');
+
+      container.setAttribute('audio_name', audioName);
+
+      this.updateShape_(audioName);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      this.updateShape_(xmlElement.getAttribute('audio_name'));
+    },
+    updateShape_: function(audioName) {
+      const inputExists = this.getInput('id');
+
+      if (audioName === 'custom') {
+        if (!inputExists) {
+          this.appendValueInput('id')
+              .setCheck('String')
+              .setAlign(1)
+              .appendField(new Blockly.FieldLabel('name'));
+
+          const shadowBlock = this.workspace.newBlock('text');
+          shadowBlock.setShadow(true);
+          shadowBlock.getField('TEXT').setValue('audio');
+
+          shadowBlock.initSvg();
+          shadowBlock.render();
+
+          this.getInput('id').connection.connect(shadowBlock.outputConnection);
+        }
+        this.moveInputBefore('id', 'volume');
+      } else if (inputExists) {
+        this.getInput('id').connection.setShadowStateInternal_();
+        this.removeInput('id');
+      }
+    },
+  };
+
+  Blockly.Blocks['audio_play_sound'].validatorInit = function() {
+    this.mixin(playSoundMixin);
+
+    const audioNameDropdown = this.getField('name');
+
+    audioNameDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue);
+    });
+  };
+
+  const noLerpMixin = {
+    mutationToDom: function() {
+      const container = Blockly.utils.xml.createElement('mutation');
+
+      const audioName = this.getFieldValue('obj_type');
+
+      container.setAttribute('obj_type', audioName);
+
+      this.updateShape_(audioName);
+      return container;
+    },
+    domToMutation: function(xmlElement) {
+      this.updateShape_(xmlElement.getAttribute('obj_type'));
+    },
+    updateShape_: function(objType) {
+      const inputExists = this.getInput('id');
+
+      if (objType !== 'game.graphics.camera') {
+        if (!inputExists) {
+          this.appendValueInput('id')
+              .setCheck('Number')
+              .setAlign(1);
+
+          createShadow(this.getInput('id'), 'Number');
+        }
+        this.moveInputBefore('id', 'post_id_dum');
+      } else if (inputExists) {
+        this.getInput('id').connection.setShadowStateInternal_();
+        this.removeInput('id');
+      }
+    },
+  };
+
+  Blockly.Blocks['obj_no_lerp'].validatorInit = function() {
+    this.mixin(noLerpMixin);
+
+    const objTypeDropdown = this.getField('obj_type');
+
+    objTypeDropdown.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue);
     });
   };
   return;
@@ -1171,6 +1686,7 @@ export default function() {
 }
 
 // blockly built-in
+
 Blockly.ToolboxCategory.prototype.addColourBorder_ = function() {};
 
 Blockly.ToolboxCategory.prototype.initOLD = Blockly.ToolboxCategory.prototype.init;
@@ -1228,6 +1744,57 @@ Blockly.Xml.applyInputTagNodes_ = function(xmlChildren, workspace, block, protot
   }
 };
 
+Blockly.WorkspaceSvg.prototype.centerOnBlock = function(id) {
+  if (!this.isMovable()) {
+    console.warn(
+        'Tried to move a non-movable workspace. This could result' +
+        ' in blocks becoming inaccessible.');
+    return;
+  }
+
+  const block = id ? this.getBlockById(id) : null;
+  if (!block) {
+    return;
+  }
+
+  // XY is in workspace coordinates.
+  const xy = block.getRelativeToSurfaceXY();
+  // Height/width is in workspace units.
+  const heightWidth = {width: block.width, height: block.height};
+
+  // Find the enter of the block in workspace units.
+  const blockCenterY = xy.y + heightWidth.height / 2;
+
+  // In RTL the block's position is the top right of the block, not top left.
+  const multiplier = this.RTL ? -1 : 1;
+  const blockCenterX = xy.x + multiplier * heightWidth.width / 2;
+
+  // Workspace scale, used to convert from workspace coordinates to pixels.
+  const scale = this.scale;
+
+  // Center of block in pixels, relative to workspace origin (center 0,0).
+  // Scrolling to here would put the block in the top-left corner of the
+  // visible workspace.
+  const pixelX = blockCenterX * scale;
+  const pixelY = blockCenterY * scale;
+
+  const metrics = this.getMetrics();
+
+  // viewHeight and viewWidth are in pixels.
+  const halfViewWidth = metrics.viewWidth / 2;
+  const halfViewHeight = metrics.viewHeight / 2;
+
+  // Put the block in the center of the visible workspace instead.
+  const scrollToCenterX = pixelX - halfViewWidth;
+  const scrollToCenterY = pixelY - halfViewHeight;
+
+  // Convert from workspace directions to canvas directions.
+  const x = -scrollToCenterX;
+  const y = -scrollToCenterY;
+
+  this.scroll(x, y);
+};
+
 // little hack to fix the immense lag when dragging around the workspace
 
 Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
@@ -1251,7 +1818,7 @@ Blockly.WorkspaceSvg.prototype.translate = function(x, y) {
   // this.maybeFireViewportChangeEvent();
 };
 
-// (not) temporary fix to the disappearing blocks problem
+// fix to the disappearing blocks problem
 Blockly.WorkspaceSvg.prototype.setCachedParentSvgSize = function(width, height) {
   const svg = this.getParentSvg();
   if (width != null) {

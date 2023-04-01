@@ -17,156 +17,34 @@ module.exports = [
     'extensions': ['parent_tooltip_when_inline'],
   },
   {
-    'type': 'event_roundstart',
-    'message0': 'on round start %1 run per player? %2 %3 store player id in var %4 %5 %6',
+    'type': 'colour_hsv',
+    'message0': 'colour with hue %1 saturation %2 value %3',
     'args0': [
       {
-        'type': 'input_dummy',
-      },
-      {
-        'type': 'field_checkbox',
-        'name': 'perplayer',
-        'checked': true,
-      },
-      {
-        'type': 'input_dummy',
-      },
-      {
-        'type': 'field_variable',
-        'name': 'player_id',
-        'variable': 'id',
-      },
-      {
-        'type': 'input_dummy',
+        'type': 'input_value',
+        'name': 'HUE',
+        'check': 'Number',
         'align': 'RIGHT',
       },
       {
-        'type': 'input_statement',
-        'name': 'code',
-      },
-    ],
-    'style': 'gm_events',
-    'tooltip': '',
-    'helpUrl': '',
-  },
-  {
-    'type': 'event_step',
-    'message0': 'on game step (30fps) %1 run per player? %2 %3 store player id in var %4 %5 %6',
-    'args0': [
-      {
-        'type': 'input_dummy',
-      },
-      {
-        'type': 'field_checkbox',
-        'name': 'perplayer',
-        'checked': true,
-      },
-      {
-        'type': 'input_dummy',
-      },
-      {
-        'type': 'field_variable',
-        'name': 'player_id',
-        'variable': 'id',
-      },
-      {
-        'type': 'input_dummy',
+        'type': 'input_value',
+        'name': 'SATURATION',
+        'check': 'Number',
         'align': 'RIGHT',
       },
       {
-        'type': 'input_statement',
-        'name': 'code',
-      },
-    ],
-    'style': 'gm_events',
-    'tooltip': '',
-    'helpUrl': '',
-  },
-  {
-    'type': 'event_collision',
-    'message0': 'on collision between %1 and %2 %3 store info in variables? %4 %5 %6',
-    'args0': [
-      {
-        'type': 'field_dropdown',
-        'name': 'col_a',
-        'options': [
-          [
-            'disc',
-            'disc',
-          ],
-          [
-            'arrow',
-            'arrow',
-          ],
-          [
-            'body',
-            'body',
-          ],
-        ],
-      },
-      {
-        'type': 'field_dropdown',
-        'name': 'col_b',
-        'options': [
-          [
-            'disc',
-            'disc',
-          ],
-          [
-            'arrow',
-            'arrow',
-          ],
-          [
-            'body',
-            'body',
-          ],
-        ],
-      },
-      {
-        'type': 'input_dummy',
-      },
-      {
-        'type': 'field_checkbox',
-        'name': 'store_info',
-        'checked': true,
-      },
-      {
-        'type': 'input_dummy',
-      },
-      {
-        'type': 'input_statement',
-        'name': 'code',
-      },
-    ],
-    'style': 'gm_events',
-    'tooltip': '',
-    'helpUrl': '',
-  },
-  {
-    'type': 'event_playerdie',
-    'message0': 'on player die %1 store player id in var %2 %3 %4',
-    'args0': [
-      {
-        'type': 'input_dummy',
-      },
-      {
-        'type': 'field_variable',
-        'name': 'player_id',
-        'variable': 'id',
-      },
-      {
-        'type': 'input_dummy',
+        'type': 'input_value',
+        'name': 'VALUE',
+        'check': 'Number',
         'align': 'RIGHT',
       },
-      {
-        'type': 'input_statement',
-        'name': 'code',
-      },
     ],
-    'style': 'gm_events',
-    'tooltip': '',
+    'output': 'Colour',
     'helpUrl': '',
+    'style': 'colour_blocks',
+    'tooltip': 'Create a colour with the specified hue, saturation and value (brightness). Hue is an angle in degrees, saturation and value must be in the range of 0 to 1.',
   },
+
   {
     'type': 'disc_prop_set',
     'message0': '%1 disc %2 \'s %3 to %4',
@@ -231,7 +109,7 @@ module.exports = [
             'ds',
           ],
           [
-            'grapple attached body id',
+            'grapple attached platform id',
             'swing.b',
           ],
           [
@@ -299,7 +177,7 @@ module.exports = [
             'ds',
           ],
           [
-            'grapple attached body id',
+            'grapple attached platform id',
             'swing.b',
           ],
           [
@@ -456,16 +334,8 @@ module.exports = [
             'game.state.projectiles',
           ],
           [
-            'body',
-            'game.state.physics.bodies',
-          ],
-          [
-            'fixture',
-            'game.state.physics.fixtures',
-          ],
-          [
-            'shape',
-            'game.state.physics.shapes',
+            'platform',
+            'game.state.physics.platforms',
           ],
         ],
       },
@@ -482,8 +352,8 @@ module.exports = [
     'helpUrl': '',
   },
   {
-    'type': 'player_kill',
-    'message0': 'kill player %1 , %2 respawn',
+    'type': 'disc_kill',
+    'message0': 'kill disc %1 , %2 respawn',
     'args0': [
       {
         'type': 'input_value',
@@ -778,6 +648,37 @@ module.exports = [
       },
     ],
     'output': 'Vector',
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'input_disable_mouse_pos',
+    'message0': '%1 mouse position for player %2',
+    'args0': [
+      {
+        'type': 'field_dropdown',
+        'name': 'to',
+        'options': [
+          [
+            'enable',
+            'true',
+          ],
+          [
+            'disable',
+            'false',
+          ],
+        ],
+      },
+      {
+        'type': 'input_value',
+        'name': 'player_id',
+        'check': 'Number',
+      },
+    ],
+    'inputsInline': true,
+    'previousStatement': null,
+    'nextStatement': null,
     'style': 'gm_world',
     'tooltip': '',
     'helpUrl': '',
@@ -1168,7 +1069,7 @@ module.exports = [
   },
   {
     'type': 'drawing_shape_rect',
-    'message0': 'rectangle drawing shape %1 colour %2 alpha %3 position %4 size %5 angle %6',
+    'message0': 'box drawing shape %1 colour %2 alpha %3 position %4 size %5 angle %6',
     'args0': [
       {
         'type': 'input_dummy',
@@ -1621,18 +1522,6 @@ module.exports = [
             'angle',
             'angle',
           ],
-          [
-            'attachment type',
-            'attachTo',
-          ],
-          [
-            'attachment id (attached to body/disc)',
-            'attachId',
-          ],
-          [
-            'is behind attachment (attached to body/disc)',
-            'isBehind',
-          ],
         ],
       },
     ],
@@ -1644,12 +1533,38 @@ module.exports = [
   },
   {
     'type': 'drawing_shape_prop_get',
-    'message0': 'drawing %1 \'s shape # %2 \'s %3',
+    'message0': 'drawing %1 \'s %2 shape # %3 \'s %4',
     'args0': [
       {
         'type': 'input_value',
         'name': 'id',
         'check': 'Number',
+      },
+      {
+        'type': 'field_dropdown',
+        'name': 'shape_type',
+        'options': [
+          [
+            'box/ellipse',
+            'bxci',
+          ],
+          [
+            'polygon',
+            'po',
+          ],
+          [
+            'line',
+            'li',
+          ],
+          [
+            'text',
+            'tx',
+          ],
+          [
+            'image',
+            'im',
+          ],
+        ],
       },
       {
         'type': 'input_value',
@@ -1661,60 +1576,8 @@ module.exports = [
         'name': 'property',
         'options': [
           [
-            'colour',
-            'colour',
-          ],
-          [
-            'alpha',
-            'alpha',
-          ],
-          [
-            'angle',
-            'angle',
-          ],
-          [
-            'position ("from point" in lines)',
-            'pos',
-          ],
-          [
-            'size (not in lines)',
-            'size',
-          ],
-          [
-            'scale (only polygons)',
-            'scale',
-          ],
-          [
-            'vertices (only polygons)',
-            'vertices',
-          ],
-          [
-            'to point (only lines)',
-            'end',
-          ],
-          [
-            'width (only lines)',
-            'width',
-          ],
-          [
-            'text (only text)',
-            'text',
-          ],
-          [
-            'align (only text)',
-            'align',
-          ],
-          [
-            'bold (only text)',
-            'bold',
-          ],
-          [
-            'italic (only text)',
-            'italic',
-          ],
-          [
-            'shadow (only text)',
-            'shadow',
+            'position',
+            'default',
           ],
         ],
       },
@@ -1785,6 +1648,23 @@ module.exports = [
     'helpUrl': '',
   },
   {
+    'type': 'drawing_delete',
+    'message0': 'delete drawing %1',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'id',
+        'check': 'Number',
+      },
+    ],
+    'inputsInline': false,
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'gm_graphics',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
     'type': 'drawing_shape_amount',
     'message0': 'drawing %1 \'s shape amount',
     'args0': [
@@ -1802,7 +1682,7 @@ module.exports = [
   },
   {
     'type': 'obj_no_lerp',
-    'message0': 'don\'t interpolate %1 %2 until next step',
+    'message0': 'don\'t interpolate %1 %2 until next step %3',
     'args0': [
       {
         'type': 'field_dropdown',
@@ -1817,8 +1697,8 @@ module.exports = [
             'game.state.projectiles',
           ],
           [
-            'body',
-            'game.state.physics.bodies',
+            'platform',
+            'game.state.physics.platforms',
           ],
           [
             'drawing',
@@ -1831,9 +1711,12 @@ module.exports = [
         ],
       },
       {
-        'type': 'input_value',
-        'name': 'obj_id',
-        'check': 'Number',
+        'type': 'input_dummy',
+        'name': 'pre_id_dum',
+      },
+      {
+        'type': 'input_dummy',
+        'name': 'post_id_dum',
       },
     ],
     'inputsInline': true,
@@ -1892,8 +1775,8 @@ module.exports = [
             'disc',
           ],
           [
-            'body',
-            'body',
+            'platform',
+            'platform',
           ],
         ],
       },
@@ -2075,7 +1958,7 @@ module.exports = [
             'discDisc',
           ],
           [
-            'disc-body collision',
+            'disc-platform collision',
             'platBounce',
           ],
           [
@@ -2190,8 +2073,8 @@ module.exports = [
     'helpUrl': '',
   },
   {
-    'type': 'drawing_shape_re_prop_set',
-    'message0': '%1 drawing %2 \'s shape # %3 (rectangle/ellipse type) \'s %4 to %5',
+    'type': 'drawing_shape_prop_set',
+    'message0': '%1 drawing %2 \'s %3 shape # %4 \'s %5 to %6',
     'args0': [
       {
         'type': 'field_dropdown',
@@ -2221,324 +2104,30 @@ module.exports = [
         'check': 'Number',
       },
       {
-        'type': 'input_value',
-        'name': 'shape_id',
-        'check': 'Number',
-      },
-      {
         'type': 'field_dropdown',
-        'name': 'property',
+        'name': 'shape_type',
         'options': [
           [
-            'colour',
-            'colour',
+            'box/ellipse',
+            'bxci',
           ],
           [
-            'alpha',
-            'alpha',
+            'polygon',
+            'po',
           ],
           [
-            'position',
-            'pos',
-          ],
-          [
-            'size',
-            'size',
-          ],
-          [
-            'angle',
-            'angle',
-          ],
-        ],
-      },
-      {
-        'type': 'input_value',
-        'name': 'to',
-        'align': 'RIGHT',
-      },
-    ],
-    'inputsInline': true,
-    'previousStatement': null,
-    'nextStatement': null,
-    'style': 'gm_graphics',
-    'tooltip': '',
-    'helpUrl': '',
-  },
-  {
-    'type': 'drawing_shape_p_prop_set',
-    'message0': '%1 drawing %2 \'s shape # %3 (polygon type) \'s %4 to %5',
-    'args0': [
-      {
-        'type': 'field_dropdown',
-        'name': 'set_option',
-        'options': [
-          [
-            'set',
-            'set',
-          ],
-          [
-            'change',
-            'change',
-          ],
-          [
-            'multiply',
-            'multiply',
-          ],
-          [
-            'divide',
-            'divide',
-          ],
-        ],
-      },
-      {
-        'type': 'input_value',
-        'name': 'id',
-        'check': 'Number',
-      },
-      {
-        'type': 'input_value',
-        'name': 'shape_id',
-        'check': 'Number',
-      },
-      {
-        'type': 'field_dropdown',
-        'name': 'property',
-        'options': [
-          [
-            'colour',
-            'colour',
-          ],
-          [
-            'alpha',
-            'alpha',
-          ],
-          [
-            'position',
-            'pos',
-          ],
-          [
-            'scale',
-            'scale',
-          ],
-          [
-            'angle',
-            'angle',
-          ],
-          [
-            'vertices',
-            'vertices',
-          ],
-        ],
-      },
-      {
-        'type': 'input_value',
-        'name': 'to',
-        'align': 'RIGHT',
-      },
-    ],
-    'inputsInline': true,
-    'previousStatement': null,
-    'nextStatement': null,
-    'style': 'gm_graphics',
-    'tooltip': '',
-    'helpUrl': '',
-  },
-  {
-    'type': 'drawing_shape_l_prop_set',
-    'message0': '%1 drawing %2 \'s shape # %3 (line type) \'s %4 to %5',
-    'args0': [
-      {
-        'type': 'field_dropdown',
-        'name': 'set_option',
-        'options': [
-          [
-            'set',
-            'set',
-          ],
-          [
-            'change',
-            'change',
-          ],
-          [
-            'multiply',
-            'multiply',
-          ],
-          [
-            'divide',
-            'divide',
-          ],
-        ],
-      },
-      {
-        'type': 'input_value',
-        'name': 'id',
-        'check': 'Number',
-      },
-      {
-        'type': 'input_value',
-        'name': 'shape_id',
-        'check': 'Number',
-      },
-      {
-        'type': 'field_dropdown',
-        'name': 'property',
-        'options': [
-          [
-            'colour',
-            'colour',
-          ],
-          [
-            'alpha',
-            'alpha',
-          ],
-          [
-            '"from" point',
-            'pos',
-          ],
-          [
-            '"to" point',
-            'end',
-          ],
-          [
-            'width',
-            'width',
-          ],
-        ],
-      },
-      {
-        'type': 'input_value',
-        'name': 'to',
-        'align': 'RIGHT',
-      },
-    ],
-    'inputsInline': true,
-    'previousStatement': null,
-    'nextStatement': null,
-    'style': 'gm_graphics',
-    'tooltip': '',
-    'helpUrl': '',
-  },
-  {
-    'type': 'drawing_shape_t_prop_set',
-    'message0': '%1 drawing %2 \'s shape # %3 (text type) \'s %4 to %5',
-    'args0': [
-      {
-        'type': 'field_dropdown',
-        'name': 'set_option',
-        'options': [
-          [
-            'set',
-            'set',
-          ],
-          [
-            'change',
-            'change',
-          ],
-          [
-            'multiply',
-            'multiply',
-          ],
-          [
-            'divide',
-            'divide',
-          ],
-        ],
-      },
-      {
-        'type': 'input_value',
-        'name': 'id',
-        'check': 'Number',
-      },
-      {
-        'type': 'input_value',
-        'name': 'shape_id',
-        'check': 'Number',
-      },
-      {
-        'type': 'field_dropdown',
-        'name': 'property',
-        'options': [
-          [
-            'colour',
-            'colour',
-          ],
-          [
-            'alpha',
-            'alpha',
-          ],
-          [
-            'position',
-            'pos',
-          ],
-          [
-            'angle',
-            'angle',
+            'line',
+            'li',
           ],
           [
             'text',
-            'text',
+            'tx',
           ],
           [
-            'size',
-            'size',
-          ],
-          [
-            'bold',
-            'bold',
-          ],
-          [
-            'italic',
-            'italic',
-          ],
-          [
-            'shadow',
-            'shadow',
+            'image',
+            'im',
           ],
         ],
-      },
-      {
-        'type': 'input_value',
-        'name': 'to',
-        'align': 'RIGHT',
-      },
-    ],
-    'inputsInline': true,
-    'previousStatement': null,
-    'nextStatement': null,
-    'style': 'gm_graphics',
-    'tooltip': '',
-    'helpUrl': '',
-  },
-  {
-    'type': 'drawing_shape_i_prop_set',
-    'message0': '%1 drawing %2 \'s shape # %3 (image type) \'s %4 to %5',
-    'args0': [
-      {
-        'type': 'field_dropdown',
-        'name': 'set_option',
-        'options': [
-          [
-            'set',
-            'set',
-          ],
-          [
-            'change',
-            'change',
-          ],
-          [
-            'multiply',
-            'multiply',
-          ],
-          [
-            'divide',
-            'divide',
-          ],
-        ],
-      },
-      {
-        'type': 'input_value',
-        'name': 'id',
-        'check': 'Number',
       },
       {
         'type': 'input_value',
@@ -2548,89 +2137,15 @@ module.exports = [
       {
         'type': 'field_dropdown',
         'name': 'property',
-        'options': [
-          [
-            'image name',
-            'id',
-          ],
-          [
-            'image region',
-            'region',
-          ],
-          [
-            'image region pos',
-            'region.pos',
-          ],
-          [
-            'image region size',
-            'region.size',
-          ],
-          [
-            'colour',
-            'colour',
-          ],
-          [
-            'alpha',
-            'alpha',
-          ],
-          [
-            'position',
-            'pos',
-          ],
-          [
-            'size',
-            'size',
-          ],
-          [
-            'angle',
-            'angle',
-          ],
-        ],
+        'options': [[
+          'position',
+          'default',
+        ]],
       },
       {
         'type': 'input_value',
         'name': 'to',
         'align': 'RIGHT',
-      },
-    ],
-    'inputsInline': true,
-    'previousStatement': null,
-    'nextStatement': null,
-    'style': 'gm_graphics',
-    'tooltip': '',
-    'helpUrl': '',
-  },
-  {
-    'type': 'drawing_shape_t_align_set',
-    'message0': 'set drawing %1 \'s shape # %2 (text type) \'s alignment to %3',
-    'args0': [
-      {
-        'type': 'input_value',
-        'name': 'id',
-        'check': 'Number',
-      },
-      {
-        'type': 'input_value',
-        'name': 'shape_id',
-        'check': 'Number',
-      },
-      {
-        'type': 'field_dropdown',
-        'name': 'to',
-        'options': [
-          [
-            'left',
-            'left',
-          ],
-          [
-            'center',
-            'center',
-          ],
-          [
-            'right',
-            'right',
-          ],
-        ],
       },
     ],
     'inputsInline': true,
@@ -2734,7 +2249,7 @@ module.exports = [
         'name': 'property',
         'options': [
           [
-            'death barrier disable',
+            'disable death barrier',
             'game.world.disableDeathBarrier',
           ],
           [
@@ -2868,7 +2383,7 @@ module.exports = [
   },
   {
     'type': 'state_misc_raycast',
-    'message0': 'raycast %1 from point %2 to point %3 %4 %5 %6 %7 %8 %9 %10 %11 filter %12',
+    'message0': 'raycast %1 from point %2 to point %3 store results in global vars:%4 %5 %6 %7 %8 %9 %10 %11 %12 %13 %14 filter %15',
     'args0': [
       {
         'type': 'input_dummy',
@@ -2884,6 +2399,17 @@ module.exports = [
         'name': 'to',
         'check': 'Vector',
         'align': 'RIGHT',
+      },
+      {
+        'type': 'input_dummy',
+      },
+      {
+        'type': 'field_variable',
+        'name': 'hit_detected',
+        'variable': 'ray hit detected',
+      },
+      {
+        'type': 'input_dummy',
       },
       {
         'type': 'field_variable',
@@ -2910,13 +2436,13 @@ module.exports = [
       },
       {
         'type': 'field_variable',
-        'name': 'hit_fixtureid',
-        'variable': 'ray hit body fixture id',
+        'name': 'hit_shapeindex',
+        'variable': 'ray hit plat shape index',
       },
       {
         'type': 'field_variable',
         'name': 'hit_iscapzone',
-        'variable': 'ray hit body is capzone',
+        'variable': 'ray hit plat is capzone',
       },
       {
         'type': 'input_dummy',
@@ -2929,7 +2455,8 @@ module.exports = [
       },
     ],
     'inputsInline': false,
-    'output': null,
+    'previousStatement': null,
+    'nextStatement': null,
     'style': 'gm_world',
     'tooltip': '',
     'helpUrl': '',
@@ -2945,7 +2472,7 @@ module.exports = [
       },
     ],
     'inputsInline': true,
-    'output': null,
+    'output': 'Number',
     'style': 'gm_world',
     'tooltip': '',
     'helpUrl': '',
@@ -2993,18 +2520,34 @@ module.exports = [
     'helpUrl': '',
   },
   {
-    'type': 'other_comment',
-    'message0': '// %1',
+    'type': 'state_map_prop_get',
+    'message0': 'current map\'s %1',
     'args0': [
       {
-        'type': 'field_input',
-        'name': 'text',
-        'text': 'comment',
+        'type': 'field_dropdown',
+        'name': 'property',
+        'options': [
+          [
+            'name',
+            'n',
+          ],
+          [
+            'author',
+            'a',
+          ],
+          [
+            'upvotes',
+            'vu',
+          ],
+          [
+            'downvotes',
+            'vd',
+          ],
+        ],
       },
     ],
-    'previousStatement': null,
-    'nextStatement': null,
-    'style': 'gm_other',
+    'output': 'Boolean',
+    'style': 'gm_world',
     'tooltip': '',
     'helpUrl': '',
   },
@@ -3449,7 +2992,7 @@ module.exports = [
   },
   {
     'type': 'plat_shape_geo_rect',
-    'message0': 'rectangle geometry %1 position %2 size %3 angle %4',
+    'message0': 'box (rectangle) geometry %1 position %2 size %3 angle %4',
     'args0': [
       {
         'type': 'input_dummy',
@@ -3574,19 +3117,15 @@ module.exports = [
             'geo.a',
           ],
           [
-            '(box only) geo width',
-            'geo.w',
-          ],
-          [
-            '(box only) geo height',
-            'geo.h',
+            '(box only) geo size',
+            'geo.s',
           ],
           [
             '(circle only) geo radius',
             'geo.r',
           ],
           [
-            '(polygon only) geo vertices',
+            '(polygon only) geo vertex list',
             'geo.v',
           ],
           [
@@ -3737,7 +3276,7 @@ module.exports = [
         'check': 'Number',
       },
     ],
-    'output': null,
+    'output': 'Number',
     'style': 'gm_world',
     'tooltip': '',
     'helpUrl': '',
@@ -3806,6 +3345,107 @@ module.exports = [
     'previousStatement': null,
     'nextStatement': null,
     'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'plat_delete',
+    'lastDummyAlign0': 'RIGHT',
+    'message0': 'delete platform %1',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'id',
+        'check': 'Number',
+      },
+    ],
+    'inputsInline': false,
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'grouped_variable_set',
+    'message0': 'set group %1 \'s %2 to %3',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'GROUP',
+      },
+      {
+        'type': 'field_variable',
+        'name': 'VAR',
+      },
+      {
+        'type': 'input_value',
+        'name': 'TO',
+      },
+    ],
+    'inputsInline': true,
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'variable_blocks',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'grouped_variable_change',
+    'message0': 'change group %1 \'s %2 by %3',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'GROUP',
+      },
+      {
+        'type': 'field_variable',
+        'name': 'VAR',
+      },
+      {
+        'type': 'input_value',
+        'name': 'DELTA',
+      },
+    ],
+    'inputsInline': true,
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'variable_blocks',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'grouped_variable_get',
+    'message0': 'group %1 \'s %2',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'GROUP',
+      },
+      {
+        'type': 'field_variable',
+        'name': 'VAR',
+      },
+    ],
+    'inputsInline': true,
+    'output': null,
+    'style': 'variable_blocks',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'create_variable_group',
+    'message0': 'create variable group %1',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'GROUP',
+      },
+    ],
+    'inputsInline': false,
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'variable_blocks',
     'tooltip': '',
     'helpUrl': '',
   },

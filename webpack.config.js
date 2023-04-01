@@ -1,5 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
+const CopyPlugin = require('copy-webpack-plugin');
+
+const {version} = require('./package.json');
 
 const minimize = false;
 
@@ -80,6 +83,22 @@ module.exports = {
   plugins: [
     new webpack.optimize.LimitChunkCountPlugin({
       maxChunks: 1,
+    }),
+    new CopyPlugin({
+      patterns: [
+        {from: 'src/icons', to: 'icons'},
+        {from: 'src/rules.json', to: 'rules.json'},
+        {
+          from: 'src/manifest.json',
+          to: 'manifest.json',
+          transform: (content) => {
+            const jsonContent = JSON.parse(content);
+            jsonContent.version = version;
+
+            return JSON.stringify(jsonContent, null, 2);
+          },
+        },
+      ],
     }),
   ],
   entry: {

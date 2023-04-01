@@ -590,6 +590,12 @@
 
 /* BLOCKLY CLASSES */
 
+.gmBlocklyError > .blocklyPath {
+    filter: drop-shadow(0px 0px 8px #f22b);
+    stroke: rgb(255, 51, 51);
+    stroke-width: 2px;
+}
+
 .gm_blockly_toolbox_button_bg {
     position: absolute;
     width: 110px;
@@ -678,6 +684,22 @@ path.blocklyPath.blockly-ws-search-highlight {
 .fieldColourSliderContainer > hr,
 .fieldColourSliderContainer > .fieldColourEyedropper {
     display: none;
+}
+
+.gm_blockly_label_2 > .blocklyFlyoutLabelText {
+    transform: translate(0px, -20px);
+}
+
+.gm_blockly_label_3 > .blocklyFlyoutLabelText {
+    transform: translate(0px, -40px);
+}
+
+.gm_blockly_label_header > .blocklyFlyoutLabelText {
+    text-decoration: underline;
+}
+
+.goog-menuitem {
+    font-family: 'futurept_b1';
 }
 
 /* INGAME LOG BOX */

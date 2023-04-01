@@ -574,6 +574,12 @@ export default {
 
       // deletion of drawings that suddenly disappear
       if (!drawingB && drawingList[i]) {
+        // for deletion in blurContainer which has a modified removeChild
+        const parent = drawingList[i].displayObject.parent;
+        if (parent?.removeChildOLD) {
+          parent.removeChildOLD(drawingList[i].displayObject);
+        }
+
         drawingList[i].destroy();
         drawingList[i] = null;
       }
@@ -613,7 +619,7 @@ export default {
             disc.container.sortableChildren = true;
             disc.container.addChild(drawingList[i].displayObject);
             break;
-          case 'body':
+          case 'platform':
             const body = renderer.roundGraphics.bodyGraphics[drawingB.attachId];
             if (!body) break;
             body.displayObject.sortableChildren = true;
@@ -649,7 +655,7 @@ export default {
               disc.container.sortableChildren = true;
               disc.container.addChild(drawingList[i].displayObject);
               break;
-            case 'body':
+            case 'platform':
               const body = renderer.roundGraphics.bodyGraphics[drawingB.attachId];
               if (!body) break;
               body.displayObject.sortableChildren = true;
@@ -675,6 +681,7 @@ export default {
       if (this.imageTextures[image.id]?.hash !== image.dataHash || this.imageTextures[image.id].gmUseNearest !== image.useNearest) {
         this.imageTextures[image.id]?.destroy();
         this.imageTextures[image.id] = new PIXI.BaseTexture.from('data:image/' + image.extension + ';base64,' + image.data);
+        this.imageTextures[image.id].wrapMode = PIXI.WRAP_MODES.REPEAT;
         this.imageTextures[image.id].scaleMode = image.useNearest ? 0 : 1;
         this.imageTextures[image.id].gmUseNearest = image.useNearest;
         this.imageTextures[image.id].hash = image.dataHash;
