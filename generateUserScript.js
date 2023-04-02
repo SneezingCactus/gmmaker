@@ -1,5 +1,6 @@
 const fs = require('fs');
 const manifest = require('./dist/manifest.json');
+const npmPackage = require('./package.json');
 
 const injector = fs.readFileSync('./dist/js/injector.js', {encoding: 'utf-8'});
 let loader = fs.readFileSync('./dist/js/gmLoader.js', {encoding: 'utf-8'});
@@ -10,8 +11,8 @@ loader = loader.replace(/window.initGM[^\{]+\{/, '{'); // minimized
 loader = 'window.initGM = function() {' + loader + '}';
 
 const content = `// ==UserScript==
-// @name         Game Mode Maker
-// @version      ${manifest.version}
+// @name         Game Mode Maker Beta
+// @version      ${npmPackage.version}
 // @author       SneezingCactus
 // @namespace    https://github.com/SneezingCactus
 // @description  ${manifest.description}
@@ -27,4 +28,4 @@ const content = `// ==UserScript==
 
 ${injector}\n${loader}`;
 
-fs.writeFileSync(`./web-ext-artifacts/gmmaker-${manifest.version}.user.js`, content);
+fs.writeFileSync(`./web-ext-artifacts/gmmaker-${npmPackage.version}.user.js`, content);

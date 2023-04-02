@@ -1626,7 +1626,7 @@ module.exports = [
     'helpUrl': '',
   },
   {
-    'type': 'drawing_add_shape',
+    'type': 'drawing_shape_add',
     'message0': 'add shape %1 to drawing %2',
     'args0': [
       {
@@ -1641,6 +1641,28 @@ module.exports = [
       },
     ],
     'inputsInline': false,
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'gm_graphics',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'drawing_shape_remove',
+    'message0': 'remove drawing %1\'s shape #%2',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'id',
+        'check': 'Number',
+      },
+      {
+        'type': 'input_value',
+        'name': 'shape_id',
+        'check': 'Number',
+      },
+    ],
+    'inputsInline': true,
     'previousStatement': null,
     'nextStatement': null,
     'style': 'gm_graphics',

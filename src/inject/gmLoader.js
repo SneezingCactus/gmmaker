@@ -40,6 +40,8 @@ window.initGM = function() {if (window.gm) return;
     gm[key].init();
   }
 
+  gm.version = require('../../package.json').version;
+
   // show epic splash screen
   if (!gm.config.saved.misc.showSplash) return;
 
@@ -47,7 +49,7 @@ window.initGM = function() {if (window.gm) return;
   document.getElementById('newbonkgamecontainer').prepend(splashElement);
   splashElement.outerHTML = splashHtml;
 
-  document.getElementById('gm_splashversion').innerText = 'v' + require('../../package.json').version;
+  document.getElementById('gm_splashversion').innerText = 'v' + gm.version;
 
   // yes this is needed
   splashElement = document.getElementsByClassName('gm_splashcontainer')[0];

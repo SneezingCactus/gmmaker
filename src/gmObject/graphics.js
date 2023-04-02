@@ -935,6 +935,8 @@ class BoxShape {
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
+    if (!shapeDefA.pos || !shapeDefB.pos || !shapeDefA.size || !shapeDefB.size) return;
+
     this.lastDrawDef = {
       colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
       alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
@@ -985,6 +987,8 @@ class CircleShape {
     if (propsNoChange && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
+    if (!shapeDefA.pos || !shapeDefB.pos || !shapeDefA.size || !shapeDefB.size) return;
 
     this.lastDrawDef = {
       colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
@@ -1046,6 +1050,8 @@ class PolyShape {
     if (propsNoChange && vertsNoChange && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
+    if (!shapeDefA.pos || !shapeDefB.pos || !shapeDefA.scale || !shapeDefB.scale) return;
 
     this.lastDrawDef = {
       colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
@@ -1114,6 +1120,8 @@ class LineShape {
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
+    if (!shapeDefA.pos || !shapeDefB.pos || !shapeDefA.end || !shapeDefB.end) return;
+
     this.lastDrawDef = {
       colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
       alpha: lerpNumber(shapeDefA.alpha, shapeDefB.alpha, weight),
@@ -1166,6 +1174,8 @@ class TextShape {
     if (propsNoChange && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
+
+    if (!shapeDefA.pos || !shapeDefB.pos) return;
 
     this.lastDrawDef = {
       colour: lerpColor(shapeDefA.colour, shapeDefB.colour, weight),
@@ -1228,6 +1238,8 @@ class ImageShape {
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     this.displayObject.visible = gm.config.saved.ingame.allowImages;
+
+    if (!shapeDefA.pos || !shapeDefB.pos || !shapeDefA.size || !shapeDefB.size) return;
 
     const stringifiedRegionA = JSON.stringify(this.lastDrawDef.region);
     const stringifiedRegionB = JSON.stringify(shapeDefB.region);

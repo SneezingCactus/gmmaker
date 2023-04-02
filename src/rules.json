@@ -1,6 +1,6 @@
 [{
   "id": 1,
   "priority": 1,
-  "action": {"type": "redirect", "redirect": {"extensionPath": "js/runInjectors.js"}},
+  "action": {"type": "redirect", "redirect": {"extensionPath": "/js/runInjectors.js"}},
   "condition": {"urlFilter": "*://bonk.io/js/alpha2s.js", "resourceTypes": ["script"]}
 }]

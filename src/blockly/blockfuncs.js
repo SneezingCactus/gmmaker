@@ -1003,11 +1003,18 @@ export default function() {
     return [`game.graphics.drawings[${id}]?.shapes[${shape_id}]`, JavaScript.ORDER_MEMBER];
   };
 
-  JavaScript['drawing_add_shape'] = function(block) {
+  JavaScript['drawing_shape_add'] = function(block) {
     var shape = JavaScript.valueToCode(block, 'shape', JavaScript.ORDER_ATOMIC);
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
 
     return `game.graphics.addShapeToDrawing(${id}, ${shape});\n`;
+  };
+
+  JavaScript['drawing_shape_remove'] = function(block) {
+    var shape_id = JavaScript.valueToCode(block, 'shape_id', JavaScript.ORDER_ATOMIC);
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+
+    return `game.graphics.drawings[${id}].shapes.splice(${shape_id}, 1);\n`;
   };
 
   JavaScript['drawing_shape_amount'] = function(block) {
@@ -1269,7 +1276,7 @@ export default function() {
   };
 
   const forceString = function(value) {
-    if (strRegExp.test(value)) {
+    if (/^\s*'([^']|\\')*'\s*$/.test(value)) {
       return [value, JavaScript.ORDER_ATOMIC];
     }
     return ['String(' + value + ')', JavaScript.ORDER_FUNCTION_CALL];

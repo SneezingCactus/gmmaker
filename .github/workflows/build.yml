@@ -24,7 +24,7 @@ jobs:
         name: 'gmmaker-userscript'
         path: 'web-ext-artifacts/gmmaker*.user.js'
         if-no-files-found: error
-    - run: unzip web-ext-artifacts/game_mode_maker-*.zip -d extension
+    - run: unzip web-ext-artifacts/game_mode_maker*.zip -d extension
     - name: Upload Extension
       uses: actions/upload-artifact@v3.1.0
       with:

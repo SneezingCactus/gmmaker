@@ -435,14 +435,6 @@
     <block type="text_join">
       <mutation items="2"></mutation>
     </block>
-    <block type="text_append">
-      <field name="VAR" id="sPH`o%A9nu/#U`iz|p[E">item</field>
-      <value name="TEXT">
-        <shadow type="text">
-          <field name="TEXT"></field>
-        </shadow>
-      </value>
-    </block>
     <block type="text_length">
       <value name="VALUE">
         <shadow type="text">
@@ -870,6 +862,14 @@
       </block>
     </category>
     <category name="Platforms" colour="#777777">
+      <block type="state_obj_exists">
+        <field name="obj_type">game.state.physics.platforms</field>
+        <value name="obj_id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
       <block type="plat_prop_set">
         <value name="id">
           <shadow type="math_number">
@@ -1520,7 +1520,7 @@
         </shadow>
       </value>
     </block>
-    <block type="drawing_add_shape">
+    <block type="drawing_shape_add">
       <value name="shape">
         <shadow type="drawing_shape_rect">
           <value name="colour">
@@ -1569,6 +1569,18 @@
         </shadow>
       </value>
       <value name="id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+    </block>
+    <block type="drawing_shape_remove">
+      <value name="id">
+        <shadow type="math_number">
+          <field name="NUM">0</field>
+        </shadow>
+      </value>
+      <value name="shape_id">
         <shadow type="math_number">
           <field name="NUM">0</field>
         </shadow>
