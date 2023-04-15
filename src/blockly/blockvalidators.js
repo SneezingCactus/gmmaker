@@ -1693,6 +1693,8 @@ Blockly.ToolboxCategory.prototype.initOLD = Blockly.ToolboxCategory.prototype.in
 Blockly.ToolboxCategory.prototype.init = function() {
   this.initOLD(...arguments);
 
+  this.htmlDiv_.setAttribute('aria-expanded', 'false');
+
   window.BonkUtils.setButtonSounds([this.rowDiv_]);
 
   this.gm_bgElement = document.createElement('div');

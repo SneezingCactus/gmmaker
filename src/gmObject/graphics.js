@@ -681,7 +681,7 @@ export default {
       if (this.imageTextures[image.id]?.hash !== image.dataHash || this.imageTextures[image.id].gmUseNearest !== image.useNearest) {
         this.imageTextures[image.id]?.destroy();
         this.imageTextures[image.id] = new PIXI.BaseTexture.from('data:image/' + image.extension + ';base64,' + image.data);
-        this.imageTextures[image.id].wrapMode = PIXI.WRAP_MODES.REPEAT;
+        // this.imageTextures[image.id].wrapMode = PIXI.WRAP_MODES.REPEAT;
         this.imageTextures[image.id].scaleMode = image.useNearest ? 0 : 1;
         this.imageTextures[image.id].gmUseNearest = image.useNearest;
         this.imageTextures[image.id].hash = image.dataHash;

@@ -5,6 +5,8 @@
         <div class="windowTopBar windowTopBar_classic" style="top: -1px;">Game Mode Editor</div>
         <div id="gmeditor_buttoncontainer">
             <div id="gmeditor_leftbuttons">
+                <div id="gmeditor_dbbutton" title="GMDatabase"
+                    class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
                 <div id="gmeditor_newbutton" title="New"
                     class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
                 <div id="gmeditor_importbutton" title="Import"
@@ -102,12 +104,12 @@
                 </div>
                 <div id="gmsettings_assetlist" class="gm_dialoglist">
                     <div class="gm_listitem">
-                        <img class="gm_listitemimage">
-                        <div class="gm_listitemright">
-                            <input class="whiteInputField windowShadow gm_dialogtextfield gm_listitemname" type="text"
+                        <img class="gm_assetitemimage">
+                        <div class="gm_assetitemright">
+                            <input class="whiteInputField windowShadow gm_dialogtextfield gm_assetitemname" type="text"
                                 value="test_id">
-                            <div class="gm_listitemdown">
-                                <div class="gm_listitemdetail">128x128, 604.26KB</div>
+                            <div class="gm_assetitemdown">
+                                <div class="gm_assetitemdetail">128x128, 604.26KB</div>
                                 <div title="Download image"
                                     class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_download">
                                 </div>
@@ -164,29 +166,44 @@
         </div>
     </div>
 </div>
-<div id="gm_imageswindowcontainer" class="gm_dialogwindowcontainer">
+<div id="gm_dbwindowcontainer" class="gm_dialogwindowcontainer">
     <div class="gm_behindblocker"></div>
-    <div class="gm_dialogwindow">
-        <div class="gm_dialogtopbar">Image Manager</div>
-        <div id="gmimagesdialog_list" class="gm_dialoglist">
-            <div class="gm_listitem">
-                <img class="gm_listitemimage">
-                <div class="gm_listitemright">
-                    <input class="whiteInputField windowShadow gm_dialogtextfield gm_listitemname" type="text"
-                        value="test_id">
-                    <div class="gm_listitemdown">
-                        <div class="gm_listitemdetail">128x128, 604.26KB</div>
-                        <div title="Download image"
-                            class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
-                        <div title="Delete image"
-                            class="brownButton brownButton_classic buttonShadow gmeditor_iconbutton"></div>
-                    </div>
-                </div>
-            </div>
+    <div class="gm_dialogwindow" style="max-width: calc(100% - 30px); max-height: calc(100% - 30px); width: 800px; height: 650px;">
+        <div class="gm_dialogtopbar">GMDatabase</div>
+        <div id="gmdb_close" class="windowCloseButton brownButton brownButton_classic buttonShadow"></div>
+        <span style="margin: 2px 0;">Want to upload your own game modes? Use the /submit command in the <a href="https://discord.gg/dnBM3N6H8a">SneezingCactus' mods</a> Discord server!</span>
+        <div class="gm_bartabs">
+            <div id="gmdb_newesttab" class="gm_tabbutton">Newest</div>
+            <div id="gmdb_oldesttab" class="gm_tabbutton inactive">Oldest</div>
+            <div id="gmdb_searchtab" class="gm_tabbutton" style="visibility: hidden;">Search</div>
+            <div id="gmdb_searchbox">
+                <input id="gmdb_searchinput" class="whiteInputField windowShadow gm_listiteminput" type="text">
+                <div id="gmdb_searchbutton" class="brownButton brownButton_classic buttonShadow">Search</div>
+             </div>
+            <span></span>
         </div>
-        <div class="gm_dialogbuttoncontainer">
-            <div id="gmbackups_cancel" class="brownButton brownButton_classic buttonShadow">Close</div>
-            <div id="gmbackups_load" class="brownButton brownButton_classic buttonShadow">Import New</div>
+        <div id="gmdb_modelist" class="gm_dialoglist" style="width: 100%; height: 100%;">
+            <div class="gm_listitem gmdb_modeitem">
+                <div class="mode_image gm_dbitemimage">
+                    <div class="gm_dbnoimageicon"></div>
+                </div>
+                
+                <div class="gm_horizontalflex" style="flex-grow: 1;">
+                    <div class="gm_verticalflex" style="width: 100%">
+                        <div class="gm_horizontalflex">
+                            <div class="mode_name gm_dbitemname">Default</div>
+                            <div class="mode_id gm_dbitemdetail">default</div>
+                        </div>
+                        <div class="gm_horizontalflex">
+                            <div class="mode_author gm_dbitemdetail">default</div>
+                            <div class="mode_time gm_dbitemdetail">default</div>
+                        </div>
+                        <div class="mode_desc gm_dbitemdescription">
+                            default
+                        </div>
+                      </div>
+                </div>
+              </div>
         </div>
     </div>
 </div>

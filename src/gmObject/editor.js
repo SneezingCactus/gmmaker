@@ -23,6 +23,11 @@ import monacoTypescript from '../monaco/ts.worker.raw.js';
 import monacoDefs from '!raw-loader!../monaco/gmm.d.ts';
 import monacoDefSnippets from '../monaco/snippets.js';
 
+// firebase
+import {initializeApp} from 'firebase/app';
+import * as storage from 'firebase/storage';
+import * as firestore from 'firebase/firestore';
+
 // misc
 import windowHtml from '../gmWindow/window.html';
 import {saveAs} from 'file-saver';
@@ -79,6 +84,7 @@ export default {
     GMEditorWindow.outerHTML = windowHtml;
 
     // set button functions
+    document.getElementById('gmeditor_dbbutton').addEventListener('click', gm.editor.GMEDatabaseShow);
     document.getElementById('gmeditor_newbutton').addEventListener('click', gm.editor.GMENew);
     document.getElementById('gmeditor_importbutton').addEventListener('click', gm.editor.GMEImport);
     document.getElementById('gmeditor_exportbutton').addEventListener('click', gm.editor.GMEExportShow);
@@ -103,6 +109,16 @@ export default {
     document.getElementById('gmimportdialog_cancel').addEventListener('click', gm.editor.GMEImportMapCancel);
     document.getElementById('gmimportdialog_no').addEventListener('click', gm.editor.GMEImportMapNo);
     document.getElementById('gmimportdialog_yes').addEventListener('click', gm.editor.GMEImportMapYes);
+
+    document.getElementById('gmdb_close').addEventListener('click', gm.editor.GMEDatabaseHide);
+    document.getElementById('gmdb_newesttab').addEventListener('click', () => gm.editor.GMEDatabaseChangeTab(false));
+    document.getElementById('gmdb_oldesttab').addEventListener('click', () => gm.editor.GMEDatabaseChangeTab(true));
+    document.getElementById('gmdb_searchbutton').addEventListener('click', gm.editor.GMEDatabaseSearch);
+    document.getElementById('gmdb_searchinput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        gm.editor.GMEDatabaseSearch();
+      }
+    });
 
     // create the button that opens the game mode editor
     const GMOpenButton = document.createElement('div');
@@ -146,12 +162,13 @@ export default {
 
     // adding button sounds
     const buttons = [
-      'gmeditor_newbutton', 'gmeditor_importbutton', 'gmeditor_exportbutton', 'gmeditor_savebutton', 'gmeditor_closebutton', 'gmeditor_settingsbutton', 'gmeditor_backupsbutton', 'gmeditor_changebasebutton',
+      'gmeditor_dbbutton', 'gmeditor_newbutton', 'gmeditor_importbutton', 'gmeditor_exportbutton', 'gmeditor_savebutton', 'gmeditor_closebutton', 'gmeditor_settingsbutton', 'gmeditor_backupsbutton', 'gmeditor_changebasebutton',
       'gmgeneric_cancel', 'gmgeneric_ok',
       'gmexport_cancel', 'gmexport_ok',
       'gmimportdialog_cancel', 'gmimportdialog_no', 'gmimportdialog_yes',
       'gmsettings_cancel', 'gmsettings_save', 'gmsettings_importasset',
       'gmbackups_cancel', 'gmbackups_load',
+      'gmdb_close', 'gmdb_searchbutton',
     ];
 
     for (let i = 0; i < buttons.length; i++) {
@@ -186,6 +203,10 @@ export default {
     gm.editor.settingsImageItem = document.getElementById('gmsettings_assetlist')
         .getElementsByClassName('gm_listitem')[0].cloneNode(true);
 
+    // get db mode item node
+    gm.editor.dbModeItem = document.getElementById('gmdb_modelist')
+        .getElementsByClassName('gm_listitem')[0].cloneNode(true);
+
     // keyboard shortcuts
     const gmEditorContainer = document.getElementById('gmeditor');
     window.addEventListener('keydown', function(e) {
@@ -214,6 +235,9 @@ export default {
     // init workspaces
     this.initBlockly();
     this.initMonaco();
+
+    // init firebase
+    this.initFirebase();
 
     this.hideGMEWindow();
 
@@ -694,6 +718,23 @@ export default {
 
     window.blockly = Blockly;
   },
+  initFirebase: function() {
+    // these won't grant you write access or anything which is why
+    // i didn't bother to hide them
+    const firebaseConfig = {
+      apiKey: 'AIzaSyC0Z88AFPJmjts90VXxFdZoxfYhEYcdE7E',
+      authDomain: 'scactus-gmmaker.firebaseapp.com',
+      projectId: 'scactus-gmmaker',
+      storageBucket: 'scactus-gmmaker.appspot.com',
+      messagingSenderId: '2162735473',
+      appId: '1:2162735473:web:90889ffcb2fa8a29439ed0',
+    };
+
+    // Initialize Firebase
+    gm.editor.fireApp = initializeApp(firebaseConfig);
+    gm.editor.fireStorage = storage.getStorage(gm.editor.fireApp);
+    gm.editor.fireDatabase = firestore.getFirestore(gm.editor.fireApp);
+  },
   modeSettingsDefaults: [
     {name: 'modeName', type: 'string', default: 'Custom'},
     {name: 'modeDescription', type: 'string', default: 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).'},
@@ -721,6 +762,7 @@ export default {
   canBackup: true,
   changingToTextEditor: false,
   isInTextEditor: false,
+  dbImageCache: {},
   showGMEWindow: function() {
     document.getElementById('gmeditor').style.transform = 'scale(1)';
     document.getElementById('newbonklobby').style.transform = 'scale(0)';
@@ -768,8 +810,20 @@ export default {
     document.getElementById('gmeditor').style.transform = 'scale(0)';
     document.getElementById('newbonklobby').style.transform = 'scale(1)';
   },
+  showDialogWindow: function(id) {
+    const el = document.getElementById(id);
+    el.style.opacity = 1;
+    el.style.visibility = 'visible';
+  },
+  hideDialogWindow: function(id) {
+    const el = document.getElementById(id);
+    el.style.opacity = 0;
+    setTimeout(function() {
+      el.style.visibility = 'hidden';
+    }, 150);
+  },
   genericDialog: function(message = '', callback = ()=>{}, options) {
-    document.getElementById('gm_genericdialogcontainer').style.visibility = 'visible';
+    gm.editor.showDialogWindow('gm_genericdialogcontainer');
 
     document.getElementById('gmgeneric_message').innerHTML = message;
     document.getElementById('gmgeneric_promptcontainer').style.display = options.showInput ? 'block' : 'none';
@@ -800,7 +854,7 @@ export default {
     };
 
     closeDialog = function() {
-      document.getElementById('gm_genericdialogcontainer').style.visibility = 'hidden';
+      gm.editor.hideDialogWindow('gm_genericdialogcontainer');
       document.getElementById('gmgeneric_ok').removeEventListener('click', okListener);
       document.getElementById('gmgeneric_prompt').removeEventListener('keydown', okInputListener);
       document.getElementById('gmgeneric_cancel').removeEventListener('click', cancelListener);
@@ -843,7 +897,7 @@ export default {
 
         if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID && mode.map) {
           gm.editor.modeToImport = mode;
-          document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'visible';
+          gm.editor.showDialogWindow('gm_importdialogwindowcontainer');
         } else {
           gm.editor.modeAssets = mode.assets;
           gm.editor.modeSettings = mode.settings;
@@ -868,7 +922,7 @@ export default {
     input.click();
   },
   GMEImportMapCancel: function() {
-    document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_importdialogwindowcontainer');
   },
   GMEImportMapNo: function() {
     gm.editor.modeAssets = gm.editor.modeToImport.assets;
@@ -887,7 +941,7 @@ export default {
       Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
     }
 
-    document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_importdialogwindowcontainer');
   },
   GMEImportMapYes: function() {
     const gameSettings = gm.lobby.mpSession.getGameSettings();
@@ -913,14 +967,14 @@ export default {
       Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
     }
 
-    document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_importdialogwindowcontainer');
   },
   GMEExportShow: function() {
-    document.getElementById('gm_exportwindowcontainer').style.visibility = 'visible';
+    gm.editor.showDialogWindow('gm_exportwindowcontainer');
     document.getElementById('gmexport_name').focus();
   },
   GMEExportCancel: function() {
-    document.getElementById('gm_exportwindowcontainer').style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_exportwindowcontainer');
   },
   GMEExportSave: function() {
     const filename = document.getElementById('gmexport_name').value;
@@ -943,10 +997,10 @@ export default {
 
     const blob = new Blob([gm.encoding.compressMode(exported).buffer], {type: 'application/octet-stream'});
     saveAs(blob, `${filename}.gmm`);
-    document.getElementById('gm_exportwindowcontainer').style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_exportwindowcontainer');
   },
   GMEBackupsShow: function() {
-    document.getElementById('gm_backupswindowcontainer').style.visibility = 'visible';
+    gm.editor.showDialogWindow('gm_backupswindowcontainer');
 
     const backupSelect = document.getElementById('gmbackups_backupselect');
     backupSelect.innerHTML = '';
@@ -961,10 +1015,10 @@ export default {
     }
   },
   GMEBackupsCancel: function() {
-    document.getElementById('gm_backupswindowcontainer').style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_backupswindowcontainer');
   },
   GMEBackupsLoad: function() {
-    document.getElementById('gm_backupswindowcontainer').style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_backupswindowcontainer');
 
     const compressedBackup = gm.editor.modeBackups[document.getElementById('gmbackups_backupselect').value].mode;
     if (!compressedBackup) return;
@@ -990,8 +1044,173 @@ export default {
 
     gm.editor.monacoWs.setValue(backup.content);
   },
+  GMEDatabaseShow: function() {
+    gm.editor.showDialogWindow('gm_dbwindowcontainer');
+    gm.editor.GMEDatabaseChangeTab(false);
+  },
+  GMEDatabaseHide: function() {
+    gm.editor.hideDialogWindow('gm_dbwindowcontainer');
+  },
+  GMEDatabaseSearch: async function() {
+    document.getElementById('gmdb_newesttab').classList.add('inactive');
+    document.getElementById('gmdb_oldesttab').classList.add('inactive');
+    document.getElementById('gmdb_searchtab').style.visibility = 'visible';
+
+    const modeList = document.getElementById('gmdb_modelist');
+    modeList.innerHTML = 'Looking for modes...';
+    modeList.classList.add('empty');
+
+    const modes = firestore.collection(gm.editor.fireDatabase, 'modes');
+
+    let prompt = document.getElementById('gmdb_searchinput').value;
+    prompt = prompt.replace(/[.,:;$!?'"\-/#_]/gm, ' '); // get rid of punctuation
+    prompt = prompt.replace(/([a-z])([A-Z])/gm, '$1 $2'); // separate pascal case words
+    prompt = prompt.replace(/ {2,}/gm, ' '); // get rid of excess spaces
+    let terms = prompt.toLowerCase().split(' '); // lowercase the whole thing and split by spaces
+    terms = [...new Set(terms)]; // get rid of duplicates
+
+    const query = firestore.query(
+        modes,
+        firestore.where('searchTerms', 'array-contains-any', terms),
+        firestore.limit(10),
+    );
+
+    const results = await firestore.getDocs(query);
+
+    if (!results.empty) {
+      modeList.classList.remove('empty');
+      modeList.innerHTML = '';
+    } else {
+      modeList.innerHTML = 'No modes found :(';
+      return;
+    }
+
+    gm.editor.GMEDatabasePopulate(results);
+  },
+  GMEDatabaseChangeTab: async function(toOldest) {
+    document.getElementById('gmdb_newesttab').classList.add('inactive');
+    document.getElementById('gmdb_oldesttab').classList.add('inactive');
+    document.getElementById('gmdb_searchtab').style.visibility = 'hidden';
+
+    const modeList = document.getElementById('gmdb_modelist');
+    modeList.innerHTML = 'Looking for modes...';
+    modeList.classList.add('empty');
+
+    let query;
+    const modes = firestore.collection(gm.editor.fireDatabase, 'modes');
+
+    if (toOldest) {
+      document.getElementById('gmdb_oldesttab').classList.remove('inactive');
+
+      query = firestore.query(
+          modes,
+          firestore.orderBy('time', 'asc'),
+          firestore.limit(10),
+      );
+    } else {
+      document.getElementById('gmdb_newesttab').classList.remove('inactive');
+
+      query = firestore.query(
+          modes,
+          firestore.orderBy('time', 'desc'),
+          firestore.limit(10),
+      );
+    }
+
+    const results = await firestore.getDocs(query);
+
+    if (!results.empty) {
+      modeList.classList.remove('empty');
+      modeList.innerHTML = '';
+    } else {
+      modeList.innerHTML = 'No modes found :(';
+      return;
+    }
+
+    gm.editor.GMEDatabasePopulate(results);
+  },
+  GMEDatabasePopulate: function(queryResults) {
+    const modeList = document.getElementById('gmdb_modelist');
+
+    queryResults.forEach((doc) => {
+      const docData = doc.data();
+
+      const item = gm.editor.dbModeItem.cloneNode(true);
+
+      item.getElementsByClassName('mode_id')[0].innerText = 'ID: ' + doc.id;
+      item.getElementsByClassName('mode_name')[0].innerText = docData.name;
+      item.getElementsByClassName('mode_author')[0].innerText = 'Posted by ' + docData.posterTag;
+      item.getElementsByClassName('mode_desc')[0].innerText = docData.desc;
+      item.getElementsByClassName('mode_time')[0].innerText = moment(docData.time).fromNow();
+
+      if (docData.hasImage) {
+        const cachedImageUrl = gm.editor.dbImageCache[doc.id];
+
+        const img = document.createElement('img');
+        const imgContainer = item.getElementsByClassName('mode_image')[0];
+
+        if (cachedImageUrl) {
+          img.setAttribute('src', cachedImageUrl);
+          imgContainer.classList.add('has_image');
+          imgContainer.appendChild(img);
+        } else {
+          const imgRef = storage.ref(gm.editor.fireStorage, 'images/' + String(doc.id) + '.png');
+
+          storage.getBlob(imgRef).then((blob) => {
+            const url = URL.createObjectURL(blob);
+            gm.editor.dbImageCache[doc.id] = url;
+
+            img.setAttribute('src', url);
+            imgContainer.classList.add('has_image');
+            imgContainer.appendChild(img);
+          });
+        }
+      }
+
+      window.BonkUtils.setButtonSounds([item]);
+
+      item.addEventListener('click', () => {
+        modeList.innerHTML = 'Loading mode...';
+        modeList.classList.add('empty');
+
+        const modeRef = storage.ref(gm.editor.fireStorage, 'modes/' + String(doc.id) + '.gmm');
+
+        storage.getBytes(modeRef).then((buffer) => {
+          const content = new dcodeIO.ByteBuffer();
+          content.append(buffer);
+
+          const mode = gm.encoding.decompressMode(content);
+
+          if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID && mode.map) {
+            gm.editor.modeToImport = mode;
+            gm.editor.showDialogWindow('gm_importdialogwindowcontainer');
+          } else {
+            gm.editor.modeAssets = mode.assets;
+            gm.editor.modeSettings = mode.settings;
+
+            gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
+            if (gm.editor.modeSettings.isTextMode) {
+              document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
+              gm.editor.monacoWs.setValue(mode.content);
+            } else {
+              document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
+              gm.editor.blocklyWs.clear();
+              const xml = document.createElement('xml');
+              xml.innerHTML = mode.content;
+              Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
+            }
+
+            gm.editor.monacoWs.setValue(mode.content);
+          }
+
+          gm.editor.GMEDatabaseHide();
+        });
+      });
+      modeList.appendChild(item);
+    });
+  },
   GMESettingsShow: function() {
-    document.getElementById('gm_settingswindowcontainer').style.visibility = 'visible';
+    gm.editor.showDialogWindow('gm_settingswindowcontainer');
 
     document.getElementById('gmsettings_modename').value = gm.editor.modeSettings.modeName || gm.editor.modeSettingsDefaults[0].default;
     document.getElementById('gmsettings_modedescription').value = gm.editor.modeSettings.modeDescription || gm.editor.modeSettingsDefaults[1].default;
@@ -1003,7 +1222,7 @@ export default {
   },
   GMESettingsCancel: function() {
     gm.audio.stopAllSounds();
-    document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_settingswindowcontainer');
   },
   GMESettingsSave: function() {
     gm.editor.modeSettings.modeName = document.getElementById('gmsettings_modename').value.substring(0, 12);
@@ -1013,7 +1232,7 @@ export default {
     gm.editor.modeAssets = gm.editor.unsavedModeAssets;
     gm.audio.stopAllSounds();
 
-    document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_settingswindowcontainer');
   },
   GMESettingsChangeTab: function(toSounds) {
     const assetList = document.getElementById('gmsettings_assetlist');
@@ -1034,7 +1253,7 @@ export default {
         const soundDef = gm.editor.unsavedModeAssets.sounds[i];
         const soundItem = gm.editor.settingsImageItem.cloneNode(true);
 
-        const soundPlayer = soundItem.getElementsByClassName('gm_listitemimage')[0];
+        const soundPlayer = soundItem.getElementsByClassName('gm_assetitemimage')[0];
         let soundPlayerHowl = null;
         soundPlayer.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7'; // blank image to remove white border
         soundPlayer.classList.add('play');
@@ -1061,10 +1280,10 @@ export default {
           }
         });
 
-        soundItem.getElementsByClassName('gm_listitemname')[0].value = soundDef.id;
-        soundItem.getElementsByClassName('gm_listitemdetail')[0].innerText = soundDef.detail;
-        soundItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
-          gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_listitemname')[0].value;
+        soundItem.getElementsByClassName('gm_assetitemname')[0].value = soundDef.id;
+        soundItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = soundDef.detail;
+        soundItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+          gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_assetitemname')[0].value;
         });
         soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
           soundPlayerHowl?.unload();
@@ -1073,7 +1292,7 @@ export default {
           document.getElementById('gmsettings_assetlist').removeChild(soundItem);
         });
         soundItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-          saveAs('data:audio/' + soundDef.extension + ';base64,' + soundDef.data, soundItem.getElementsByClassName('gm_listitemname')[0].value + '.' + soundDef.extension);
+          saveAs('data:audio/' + soundDef.extension + ';base64,' + soundDef.data, soundItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + soundDef.extension);
         });
 
         window.BonkUtils.setButtonSounds([
@@ -1105,13 +1324,13 @@ export default {
           filterButton.title = 'Using bilinear';
         }
 
-        imageItem.getElementsByClassName('gm_listitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
+        imageItem.getElementsByClassName('gm_assetitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
 
-        imageItem.getElementsByClassName('gm_listitemimage')[0].src = 'data:image/' + imageDef.extension + ';base64,' + imageDef.data;
-        imageItem.getElementsByClassName('gm_listitemname')[0].value = imageDef.id;
-        imageItem.getElementsByClassName('gm_listitemdetail')[0].innerText = imageDef.detail;
-        imageItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
-          gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_listitemname')[0].value;
+        imageItem.getElementsByClassName('gm_assetitemimage')[0].src = 'data:image/' + imageDef.extension + ';base64,' + imageDef.data;
+        imageItem.getElementsByClassName('gm_assetitemname')[0].value = imageDef.id;
+        imageItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = imageDef.detail;
+        imageItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+          gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_assetitemname')[0].value;
         });
         filterButton.addEventListener('click', function() {
           const image = gm.editor.unsavedModeAssets.images[imageOrder];
@@ -1133,7 +1352,7 @@ export default {
           document.getElementById('gmsettings_assetlist').removeChild(imageItem);
         });
         imageItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-          saveAs('data:image/' + imageDef.extension + ';base64,' + imageDef.data, imageItem.getElementsByClassName('gm_listitemname')[0].value + '.' + imageDef.extension);
+          saveAs('data:image/' + imageDef.extension + ';base64,' + imageDef.data, imageItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + imageDef.extension);
         });
 
         window.BonkUtils.setButtonSounds([
@@ -1191,7 +1410,7 @@ export default {
           // create new sound item
           const soundItem = gm.editor.settingsImageItem.cloneNode(true);
 
-          const soundPlayer = soundItem.getElementsByClassName('gm_listitemimage')[0];
+          const soundPlayer = soundItem.getElementsByClassName('gm_assetitemimage')[0];
           let soundPlayerHowl = null;
           soundPlayer.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7'; // blank image to remove white border
           soundPlayer.classList.add('play');
@@ -1218,10 +1437,10 @@ export default {
             }
           });
 
-          soundItem.getElementsByClassName('gm_listitemname')[0].value = name;
-          soundItem.getElementsByClassName('gm_listitemdetail')[0].innerText = size;
-          soundItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
-            gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_listitemname')[0].value;
+          soundItem.getElementsByClassName('gm_assetitemname')[0].value = name;
+          soundItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = size;
+          soundItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+            gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_assetitemname')[0].value;
           });
           soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
             soundPlayerHowl?.unload();
@@ -1230,7 +1449,7 @@ export default {
             document.getElementById('gmsettings_assetlist').removeChild(soundItem);
           });
           soundItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-            saveAs('data:audio/' + extension + ';base64,' + data, soundItem.getElementsByClassName('gm_listitemname')[0].value + '.' + extension);
+            saveAs('data:audio/' + extension + ';base64,' + data, soundItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + extension);
           });
 
           window.BonkUtils.setButtonSounds([
@@ -1267,13 +1486,13 @@ export default {
             filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
             filterButton.title = 'Using bilinear';
 
-            imageItem.getElementsByClassName('gm_listitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
+            imageItem.getElementsByClassName('gm_assetitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
 
-            imageItem.getElementsByClassName('gm_listitemimage')[0].src = 'data:image/' + extension + ';base64,' + data;
-            imageItem.getElementsByClassName('gm_listitemname')[0].value = name;
-            imageItem.getElementsByClassName('gm_listitemdetail')[0].innerText = detail;
-            imageItem.getElementsByClassName('gm_listitemname')[0].addEventListener('change', function() {
-              gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_listitemname')[0].value;
+            imageItem.getElementsByClassName('gm_assetitemimage')[0].src = 'data:image/' + extension + ';base64,' + data;
+            imageItem.getElementsByClassName('gm_assetitemname')[0].value = name;
+            imageItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = detail;
+            imageItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+              gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_assetitemname')[0].value;
             });
             filterButton.addEventListener('click', function() {
               const image = gm.editor.unsavedModeAssets.images[imageOrder];
@@ -1295,7 +1514,7 @@ export default {
               document.getElementById('gmsettings_assetlist').removeChild(imageItem);
             });
             imageItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-              saveAs('data:image/' + extension + ';base64,' + data, imageItem.getElementsByClassName('gm_listitemname')[0].value + '.' + extension);
+              saveAs('data:image/' + extension + ';base64,' + data, imageItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + extension);
             });
 
             window.BonkUtils.setButtonSounds([

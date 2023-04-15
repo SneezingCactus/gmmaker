@@ -3,6 +3,7 @@ export default {
   init: function() {
     let saved = window.localStorage.gmConfig;
     saved = saved ? JSON.parse(saved) : {};
+    saved = saved ?? {};
 
     this.saved = saved;
 
@@ -94,11 +95,11 @@ export default {
     }
   },
   showMenu: function() {
-    gm.config.menu.style.visibility = 'visible';
+    gm.editor.showDialogWindow('gm_prefswindowcontainer');
     gm.config.unsaved = JSON.parse(JSON.stringify(gm.config.saved));
   },
   hideMenu: function() {
-    gm.config.menu.style.visibility = 'hidden';
+    gm.editor.hideDialogWindow('gm_prefswindowcontainer');
   },
   save: function() {
     gm.config.saved = gm.config.unsaved;
@@ -141,7 +142,7 @@ class BooleanOption {
     addTo.appendChild(this.element);
 
     const nameEl = document.createElement('span');
-    nameEl.classList.add('gm_listitemlabel');
+    nameEl.classList.add('gm_configitemlabel');
     nameEl.innerText = name;
     this.element.appendChild(nameEl);
 
@@ -165,7 +166,7 @@ class NumberOption {
     addTo.appendChild(this.element);
 
     const nameEl = document.createElement('span');
-    nameEl.classList.add('gm_listitemlabel');
+    nameEl.classList.add('gm_configitemlabel');
     nameEl.innerText = name;
     this.element.appendChild(nameEl);
 

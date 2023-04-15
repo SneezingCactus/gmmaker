@@ -470,6 +470,7 @@ export default {
       }
       for (let i = 0; i !== state.physics.bodies.length; i++) {
         if (!state.physics.bodies[i]) continue;
+        if (!state.physics.bodies[i].cf.lf) continue;
 
         const body = state.physics.bodies[i];
 
@@ -478,6 +479,7 @@ export default {
       }
       for (let i = 0; i !== state.physics.shapes.length; i++) {
         if (!state.physics.shapes[i] || state.physics.shapes[i].type !== 'bx') continue;
+        if (!state.physics.shapes[i].s) continue;
 
         const shape = state.physics.shapes[i];
 

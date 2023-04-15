@@ -10,6 +10,7 @@
     --gm_list_headers: #a8bcc0;
     --gm_table_color: #c1cdd2;
     --gm_table_alt_color: #d2dbde;
+    --gm_table_hover_color: #aac5d7;
     --gm_button_text: #ffffff;
     --gm_button_primary_color: #795548;
     --gm_button_secondary_color: #4b252b;
@@ -198,6 +199,10 @@
     background-image: url(images/gmenew.png);
 }
 
+#gmeditor_dbbutton::after {
+    background-image: url(images/gmecloud.png);
+}
+
 #gmeditor_importbutton::after {
     background-image: url(images/gmeimport.png);
 }
@@ -343,8 +348,10 @@
     width: 100%;
     height: 100%;
     position: absolute;
+    opacity: 0;
     visibility: hidden;
     z-index: 999999;
+    transition: opacity 130ms ease-out;
 }
 
 .gm_dialogwindow {
@@ -440,6 +447,7 @@
 
 .gm_horizontalflex {
     display: flex;
+    justify-content: space-between;
 }
 
 .gm_horizontalsep {
@@ -479,7 +487,7 @@
     text-align: center;
     background-color: var(--gm_button_primary_color);
     border-radius: 5px 5px 0 0;
-    margin-right: 5px;
+    margin-left: 5px;
     padding: 0px 20px;
     line-height: 2;
     pointer-events: none;
@@ -520,7 +528,7 @@
     background-color: var(--gm_table_alt_color);
 }
 
-.gm_listitemimage {
+.gm_assetitemimage {
     width: 70px;
     height: 70px;
     object-fit: contain;
@@ -528,21 +536,21 @@
     flex-shrink: 0;
 }
 
-.gm_listitemimage.play {
+.gm_assetitemimage.play {
     background-color: var(--gm_button_primary_color);
     background-image: url(images/gmeplay.png);
     background-size: contain;
     cursor: pointer;
 }
 
-.gm_listitemimage.stop {
+.gm_assetitemimage.stop {
     background-color: var(--gm_button_primary_color);
     background-image: url(images/gmestop.png);
     background-size: contain;
     cursor: pointer;
 }
 
-.gm_listitemright {
+.gm_assetitemright {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -550,7 +558,7 @@
     margin-left: 10px;
 }
 
-.gm_listitemname {
+.gm_assetitemname {
     min-width: 0px;
     padding: 10px;
     border-radius: 4px;
@@ -559,17 +567,17 @@
     text-align: left;
 }
 
-.gm_listitemdown {
+.gm_assetitemdown {
     display: flex;
     justify-content: space-between;
 }
 
-.gm_listitemdetail {
+.gm_assetitemdetail {
     flex-grow: 1;
     color: var(--gm_secondary_text);
 }
 
-.gm_listitemlabel {
+.gm_configitemlabel {
     flex-basis: 0;
     flex-grow: 0.75;
 }
@@ -586,6 +594,92 @@
     text-align: right;
     appearance: textfield;
     -moz-appearance: textfield;
+}
+
+.gm_bartabs::after {
+    /* box-shadow: 0px 10px violet; */
+    /* content: ''; */
+    z-index: 100000;
+    width: 100%;
+}
+
+#gmdb_modelist.empty {
+    justify-content: center;
+    align-items: center;
+}
+
+#gmdb_searchbox {
+    position: absolute;
+    right: 0;
+    display: flex;
+    flex-grow: 1;
+    justify-content: flex-end;
+    padding: 0px 10px;
+    align-items: flex-start;
+}
+
+#gmdb_searchbutton {
+    padding: 0px 20px;
+    margin-left: 10px;
+}
+
+#gmdb_searchinput {
+    font-family: 'futurept_b1';
+    text-align: center;
+    height: 21px;
+}
+
+.gmdb_modeitem:hover {
+    background-color: var(--gm_table_hover_color);
+    cursor: pointer;
+}
+
+.gm_dbitemdetail {
+    color: var(--gm_secondary_text);
+}
+
+.gm_dbitemname {
+    font-family: 'futurept_demi';
+}
+
+.gm_dbitemdescription {
+    word-break: break-word;
+    margin-top: 10px;
+}
+
+.gm_dbitemimage {
+    width: 256px;
+    height: 192px;
+    object-fit: contain;
+    background-color: var(--gm_primary_background);
+    flex-shrink: 0;
+    margin-right: 15px;
+    transition: background-color 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.gm_dbitemimage.has_image {
+    background-color: black;
+}
+
+.gm_dbitemimage img {
+    width: 100%;
+    height: 100%;
+}
+
+.gm_dbnoimageicon {
+    width: 72px;
+    height: 72px;
+    background-image: url(images/gmenoimage.png);
+    background-size: 72px;
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: center;
+    opacity: 0.5;
+    mix-blend-mode: exclusion;
 }
 
 /* BLOCKLY CLASSES */
@@ -642,6 +736,10 @@
 .blocklyToolboxCategory .blocklyToolboxCategory .blocklyTreeRow {
     margin-top: 0;
     box-shadow: none;
+}
+
+.blocklyToolboxCategory > .blocklyToolboxContents {
+    display: none;
 }
 
 .blocklyTreeIcon {
