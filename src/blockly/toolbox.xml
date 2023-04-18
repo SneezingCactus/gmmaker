@@ -870,6 +870,14 @@
           </shadow>
         </value>
       </block>
+      <block type="get_plat_id_list"></block>
+      <block type="get_plat_by_name">
+        <value name="name">
+          <shadow type="text">
+            <field name="TEXT">platform</field>
+          </shadow>
+        </value>
+      </block>
       <block type="plat_prop_set">
         <value name="id">
           <shadow type="math_number">

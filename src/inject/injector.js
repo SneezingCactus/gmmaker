@@ -44,11 +44,11 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // make step function not delete the world's bodies and instead put that code into a global function
       {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Z]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.gmReplaceAccessors.endStep = () => {$1};'},
       // make game length globally accessible
-      {regex: '(< 100\\).{0,100}\\+ 1.{0,200}}([^+]+?)\\+\\+;)', to: '$1window.gmReplaceAccessors.gameLength = $2;'},
+      {regex: '(< 100[^0-9].{0,100}\\+ 1.{0,1500}}([^+]+?)\\+\\+;)', to: '$1window.gmReplaceAccessors.gameLength = $2;'},
       // allow forcing of input registering (normally new inputs are only registered when changing press state of one of the keys)
-      {regex: '(>= 0;.{0,100}--.{0,300}break;\\}\\}if\\()([^\\{]{0,200}\\{)(.{0,200}\\{i:.{0,100}f:)', to: '$1window.gmReplaceAccessors.forceInputRegister || $2window.gmReplaceAccessors.forceInputRegister = false;$3'},
+      {regex: '(>= 0;.{0,100}--.{0,300}break;\\}.{0,200}?if\\()([^\\{]{0,200}\\{)(.{0,1500}\\{i:.{0,100}f:)', to: '$1window.gmReplaceAccessors.forceInputRegister || $2window.gmReplaceAccessors.forceInputRegister = false;$3'},
       // let gmmaker know when game is rollbacking for sound handling
-      {regex: 'if\\(([^ ]+ != Infinity\\){)(for[^<]+< [^\\]]+\\].{0,400}=Infinity;)', to: 'if($1window.gmReplaceAccessors.rollbacking = true;$2window.gmReplaceAccessors.rollbacking = false;'},
+      {regex: 'if\\(([^ ]+ != Infinity.{0,1000}?\\){)(for[^<]+< [^\\]]+\\].{0,400}=Infinity;)', to: 'if($1window.gmReplaceAccessors.rollbacking = true;$2window.gmReplaceAccessors.rollbacking = false;'},
       // allow toggling of the death barrier
       {regex: '(for.{0,100}if\\()(.{0,1200} == false &&.{0,100}> .{0,100}850)', to: '$1!window.gmReplaceAccessors.disableDeathBarrier && $2'},
       // modify position of sound with camera position

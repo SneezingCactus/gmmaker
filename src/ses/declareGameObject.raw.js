@@ -277,6 +277,13 @@ this.game = {
     removeShapeFromPlat: function(platId, shapeIndex) {
       game.state.physics.bodies[platId].fx.splice(shapeIndex, 1);
     },
+    getPlatIdByName: function(name) {
+      for (let i = 0; i < game.state.physics.bodies.length; i++) {
+        const n = game.state.physics.bodies[i]?.n ?? game.lobby.settings.map.physics.bodies[i]?.n ?? null;
+        if (n === name) return i;
+      }
+      return -1;
+    },
     createBody: function(options) {
       const finalBody = Object.assign(JSON.parse(JSON.stringify(defaults.body)), options.bodyDef);
       finalBody.cf = Object.assign(JSON.parse(JSON.stringify(defaults.body.cf)), finalBody.cf);
@@ -519,6 +526,7 @@ const platProxyValidator = {
   get(bodyId, key) {
     if (key === 'isProxy') return true;
     if (key === 'id') return bodyId[0];
+    if (key === 'n') return game.state.physics.bodies[bodyId[0]]?.n ?? game.lobby.settings.map.physics.bodies[bodyId[0]]?.n ?? null;
 
     bodyId = bodyId[0];
     if (key === 'shapes') {

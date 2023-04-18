@@ -305,8 +305,6 @@ export default function() {
       const stackInput = this.getInput('STACK');
       const returnInput = this.getInput('RETURN');
 
-      console.log(stackInput, returnInput);
-
       // stop rendering until block is recreated
       const savedRendered = this.rendered;
       this.rendered = false;
@@ -454,4 +452,17 @@ export default function() {
       return paramNames;
     },
   };
+
+  Blockly.Blocks['local_declaration_statement'].updateDeclarationInputs_OLD = Blockly.Blocks['local_declaration_statement'].updateDeclarationInputs_;
+  Blockly.Blocks['local_declaration_statement'].updateDeclarationInputs_ = function() {
+    this.updateDeclarationInputs_OLD(...arguments);
+    if (this.rendered) this.renderEfficiently();
+  };
+
+  Blockly.Blocks['procedures_callnoreturn'].setProcedureParametersOLD = Blockly.Blocks['procedures_callnoreturn'].setProcedureParameters;
+  Blockly.Blocks['procedures_callnoreturn'].setProcedureParameters = function() {
+    this.setProcedureParametersOLD(...arguments);
+    if (this.rendered) this.renderEfficiently();
+  };
+  Blockly.Blocks['procedures_callreturn'].setProcedureParameters = Blockly.Blocks['procedures_callnoreturn'].setProcedureParameters;
 }

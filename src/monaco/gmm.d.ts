@@ -1587,6 +1587,12 @@ declare interface gameWorld {
    */
   public deletePlatform(id: number);
   /**
+   * Find the ID of a platform by its name. Note that if there are multiple platforms with the same name, the one with the lowest ID will be chosen.
+   * @param name - Name of the platform to search for
+   * @returns {number} The ID of the platform
+   */
+  public getPlatIdByName(name: string): number;
+  /**
    * Create an arrow with the definition given. In your definition, you can exclude properties that you don't need to define at the moment and GMMaker will fill them in with default values.
    * 
    * @returns {number} The ID of the newly created arrow
@@ -1599,10 +1605,10 @@ declare interface gameWorld {
    * 
    * If teams are on, the win will correspond to:
    * 
-   * - Red Team if you specify an id of 0
-   * - Blue Team if you specify an id of 1
-   * - Green Team if you specify an id of 2
-   * - Yellow Team if you specify an id of 3
+   * - Red Team if you specify an id of 2
+   * - Blue Team if you specify an id of 3
+   * - Green Team if you specify an id of 4
+   * - Yellow Team if you specify an id of 5
    * 
    * If you want the round to end with a draw, use an id of -1.
    */

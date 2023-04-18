@@ -85,8 +85,24 @@ module.exports = [
             'p',
           ],
           [
+            'x position',
+            'p[0]',
+          ],
+          [
+            'y position',
+            'p[1]',
+          ],
+          [
             'velocity',
             'lv',
+          ],
+          [
+            'x velocity',
+            'lv[0]',
+          ],
+          [
+            'y velocity',
+            'lv[1]',
           ],
           [
             'angle',
@@ -115,6 +131,14 @@ module.exports = [
           [
             'grapple point offset',
             'swing.p',
+          ],
+          [
+            'grapple point x offset',
+            'swing.p[0]',
+          ],
+          [
+            'grapple point y offset',
+            'swing.p[1]',
           ],
           [
             'grapple rod length',
@@ -153,8 +177,24 @@ module.exports = [
             'p',
           ],
           [
+            'x position',
+            'p[0]',
+          ],
+          [
+            'y position',
+            'p[1]',
+          ],
+          [
             'velocity',
             'lv',
+          ],
+          [
+            'x velocity',
+            'lv[0]',
+          ],
+          [
+            'y velocity',
+            'lv[1]',
           ],
           [
             'angle',
@@ -237,8 +277,24 @@ module.exports = [
             'p',
           ],
           [
+            'x position',
+            'p[0]',
+          ],
+          [
+            'y position',
+            'p[1]',
+          ],
+          [
             'velocity',
             'lv',
+          ],
+          [
+            'x velocity',
+            'lv[0]',
+          ],
+          [
+            'y velocity',
+            'lv[1]',
           ],
           [
             'angle',
@@ -289,8 +345,24 @@ module.exports = [
             'p',
           ],
           [
+            'x position',
+            'p[0]',
+          ],
+          [
+            'y position',
+            'p[1]',
+          ],
+          [
             'velocity',
             'lv',
+          ],
+          [
+            'x velocity',
+            'lv[0]',
+          ],
+          [
+            'y velocity',
+            'lv[1]',
           ],
           [
             'angle',
@@ -727,11 +799,11 @@ module.exports = [
             'subtract',
           ],
           [
-            '*',
+            '×',
             'multiply',
           ],
           [
-            '/',
+            '÷',
             'divide',
           ],
         ],
@@ -1471,8 +1543,24 @@ module.exports = [
             'pos',
           ],
           [
+            'x position',
+            'pos[0',
+          ],
+          [
+            'y position',
+            'pos[1]',
+          ],
+          [
             'scale',
             'scale',
+          ],
+          [
+            'x scale',
+            'scale[0]',
+          ],
+          [
+            'y scale',
+            'scale[1]',
           ],
           [
             'angle',
@@ -1515,8 +1603,24 @@ module.exports = [
             'pos',
           ],
           [
+            'x position',
+            'pos[0]',
+          ],
+          [
+            'y position',
+            'pos[1]',
+          ],
+          [
             'scale',
             'scale',
+          ],
+          [
+            'x scale',
+            'scale[0]',
+          ],
+          [
+            'y scale',
+            'scale[1]',
           ],
           [
             'angle',
@@ -2212,8 +2316,24 @@ module.exports = [
             'pos',
           ],
           [
+            'x position',
+            'pos[0]',
+          ],
+          [
+            'y position',
+            'pos[1]',
+          ],
+          [
             'scale',
             'scale',
+          ],
+          [
+            'x scale',
+            'scale[0]',
+          ],
+          [
+            'y scale',
+            'scale[1]',
           ],
           [
             'angle',
@@ -2246,8 +2366,24 @@ module.exports = [
             'pos',
           ],
           [
+            'x position',
+            'pos[0]',
+          ],
+          [
+            'y position',
+            'pos[1]',
+          ],
+          [
             'scale',
             'scale',
+          ],
+          [
+            'x scale',
+            'scale[0]',
+          ],
+          [
+            'y scale',
+            'scale[1]',
           ],
           [
             'angle',
@@ -2335,19 +2471,19 @@ module.exports = [
         'options': [
           [
             'red',
-            '0',
-          ],
-          [
-            'blue',
-            '1',
-          ],
-          [
-            'green',
             '2',
           ],
           [
-            'yellow',
+            'blue',
             '3',
+          ],
+          [
+            'green',
+            '4',
+          ],
+          [
+            'yellow',
+            '5',
           ],
         ],
       },
@@ -2613,8 +2749,24 @@ module.exports = [
             'p',
           ],
           [
+            'x position',
+            'p[0]',
+          ],
+          [
+            'y position',
+            'p[1]',
+          ],
+          [
             'velocity',
             'lv',
+          ],
+          [
+            'x velocity',
+            'lv[0]',
+          ],
+          [
+            'y velocity',
+            'lv[1]',
           ],
           [
             'angle',
@@ -2725,8 +2877,24 @@ module.exports = [
             'p',
           ],
           [
+            'x position',
+            'p[0]',
+          ],
+          [
+            'y position',
+            'p[1]',
+          ],
+          [
             'velocity',
             'lv',
+          ],
+          [
+            'x velocity',
+            'lv[0]',
+          ],
+          [
+            'y velocity',
+            'lv[1]',
           ],
           [
             'angle',
@@ -3135,12 +3303,28 @@ module.exports = [
             'geo.c',
           ],
           [
+            '(box/circle only) geo x position',
+            'geo.c[0]',
+          ],
+          [
+            '(box/circle only) geo y position',
+            'geo.c[1]',
+          ],
+          [
             '(box only) geo angle',
             'geo.a',
           ],
           [
             '(box only) geo size',
             'geo.s',
+          ],
+          [
+            '(box only) geo x size',
+            'geo.s[0]',
+          ],
+          [
+            '(box only) geo y size',
+            'geo.s[1]',
           ],
           [
             '(circle only) geo radius',
@@ -3366,6 +3550,32 @@ module.exports = [
     'inputsInline': false,
     'previousStatement': null,
     'nextStatement': null,
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'get_plat_by_name',
+    'message0': 'id of platform with name %1',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'name',
+        'check': 'String',
+      },
+    ],
+    'inputsInline': true,
+    'output': 'Number',
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'get_plat_id_list',
+    'message0': 'list of platform ids on view order',
+    'args0': [],
+    'inputsInline': true,
+    'output': 'Array',
     'style': 'gm_world',
     'tooltip': '',
     'helpUrl': '',

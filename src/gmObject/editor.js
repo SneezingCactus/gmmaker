@@ -1707,7 +1707,7 @@ export default {
     gm.editor.generatingPrettyCode = false;
 
     if (pretty) {
-      return prettier.format(code, {parser: 'babel', plugins: [prettierBabel], bracketSpacing: false});
+      return prettier.format(code, {parser: 'babel', plugins: [prettierBabel], bracketSpacing: false, printWidth: 100});
     } else {
       const blockRanges = [];
 

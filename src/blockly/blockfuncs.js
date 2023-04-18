@@ -649,6 +649,16 @@ export default function() {
     return code;
   };
 
+  JavaScript['get_plat_by_name'] = function(block) {
+    var name = JavaScript.valueToCode(block, 'name', JavaScript.ORDER_ATOMIC);
+
+    return [`game.world.getPlatIdByName(${name})`, JavaScript.ORDER_FUNCTION_CALL];
+  };
+
+  JavaScript['get_plat_id_list'] = function() {
+    return [`game.state.physics.bro`, JavaScript.ORDER_MEMBER];
+  };
+
   JavaScript['plat_clone'] = function(block) {
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
     var return_id = block.getFieldValue('return_id') === 'TRUE';
@@ -1378,12 +1388,14 @@ function ${JavaScript.FUNCTION_NAME_PLACEHOLDER_}() {
     for (let i = 0; i < variables.length; i++) {
       args[i] = JavaScript.nameDB_.getName(variables[i], NameType.VARIABLE);
     }
-    let code = 'function ' + funcName + '(' + args.join(', ') + ') {\n' + xfix1 +
-        loopTrap + branch + xfix2 + returnValue + '}';
+    let code = 'function ' + funcName + '(' + args.join(', ') + ') {\n' + (branch.includes('$') || returnValue.includes('$') ? gameVarShort : '') +
+        xfix1 + loopTrap + branch + xfix2 + returnValue + '}';
     code = JavaScript.scrub_(block, code);
 
     // gmm identifier
-    code = '"""' + block.id + '"""S' + code + '"""' + block.id + '"""E';
+    if (!gm.editor.generatingPrettyCode) {
+      code = '"""' + block.id + '"""S' + code + '"""' + block.id + '"""E';
+    }
 
     // Add % so as not to collide with helper functions in definitions list.
     JavaScript.definitions_['%' + funcName] = code;

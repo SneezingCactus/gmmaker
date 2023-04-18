@@ -847,6 +847,9 @@ export default {
         e.message = '[GMMaker Mode Error] ' + e.message;
       }
 
+      // make proxy errors lead to the actual block part and not the proxy code itself
+      report = report.replace(/Object\.[gs]et:[0-9]+?:[0-9]+?/gm, '');
+
       const match = /:([0-9]+):([0-9]+)/gm.exec(report);
 
       const targetLine = Number(match[1]);
