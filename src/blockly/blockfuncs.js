@@ -2,7 +2,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable camelcase */
 /* eslint-disable new-cap */
-import {Names} from 'blockly';
+import {Names, utils} from 'blockly';
 import {javascriptGenerator as JavaScript} from 'blockly/javascript';
 
 /**
@@ -30,7 +30,7 @@ export default function() {
    * @return {String}
    */
   function makeSetterCode(object, property, setOption, to, vectorProps) {
-    var code = `${object}.${property}`;
+    var code = `${object}${property === '' ? '' : '.'}${property}`;
 
     if (vectorProps.includes(property)) {
       if (to.startsWith('[0,')) {
@@ -431,6 +431,42 @@ export default function() {
     return 'game.world.triggerWin(-1);\n';
   };
 
+  JavaScript['state_end_round'] = function(block) {
+    return 'game.world.endRound();\n';
+  };
+
+  JavaScript['state_skip_start'] = function(block) {
+    return 'game.state.ftu = -1;\n';
+  };
+
+  JavaScript['state_player_score_set'] = function(block) {
+    var set_option = block.getFieldValue('set_option');
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+    var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
+
+    return makeSetterCode(`game.state.scores[${id}]`, '', set_option, to, []);
+  };
+
+  JavaScript['state_team_score_set'] = function(block) {
+    var set_option = block.getFieldValue('set_option');
+    var team = block.getFieldValue('team');
+    var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
+
+    return makeSetterCode(`game.state.scores[${team}]`, '', set_option, to, []);
+  };
+
+  JavaScript['state_player_score_get'] = function(block) {
+    var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
+
+    return [`game.state.scores[${id}]`, JavaScript.ORDER_MEMBER];
+  };
+
+  JavaScript['state_team_score_get'] = function(block) {
+    var team = block.getFieldValue('team');
+
+    return [`game.state.scores[${team}]`, JavaScript.ORDER_MEMBER];
+  };
+
   JavaScript['state_round_starting_ending'] = function(block) {
     var property = block.getFieldValue('property');
     return ['game.state.' + property + ' > -1', JavaScript.ORDER_RELATIONAL];
@@ -548,7 +584,7 @@ export default function() {
 
     var code = [
       '{',
-      '  type: \'bx\'',
+      '  type: \'bx\',',
       `  c: ${pos},`,
       `  s: ${size},`,
       `  a: ${angle}`,
@@ -564,7 +600,7 @@ export default function() {
 
     var code = [
       '{',
-      '  type: \'ci\'',
+      '  type: \'ci\',',
       `  c: ${pos},`,
       `  r: ${radius}`,
       '}',
@@ -578,7 +614,7 @@ export default function() {
 
     var code = [
       '{',
-      '  type: \'po\'',
+      '  type: \'po\',',
       `  v: ${addIndent(vertices)},`,
       '}',
     ];
@@ -662,8 +698,9 @@ export default function() {
   JavaScript['plat_clone'] = function(block) {
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
     var return_id = block.getFieldValue('return_id') === 'TRUE';
+    var clone_joints = block.getFieldValue('clone_joints') === 'TRUE';
 
-    var code = `game.world.clonePlatform(${id})`;
+    var code = `game.world.clonePlatform(${id}, ${clone_joints})`;
 
     if (return_id) {
       return [code, JavaScript.ORDER_FUNCTION_CALL];
@@ -1296,7 +1333,7 @@ export default function() {
     // Print statement.
     const msg = JavaScript.valueToCode(block, 'TEXT',
         JavaScript.ORDER_NONE) || '\'\'';
-    return 'game.graphics.debugLog(' + msg + ');\n';
+    return 'game.debugLog(' + msg + ');\n';
   };
 
 
@@ -1352,6 +1389,71 @@ function ${JavaScript.FUNCTION_NAME_PLACEHOLDER_}() {
     return [code, JavaScript.ORDER_FUNCTION_CALL];
   };
 
+  JavaScript['controls_for'] = function(block) {
+    // For loop.
+    const variable0 = JavaScript.nameDB_.getName(
+        block.getFieldValue('VAR'), 'VARIABLE');
+    const argument0 = JavaScript.valueToCode(block, 'START',
+        JavaScript.ORDER_ASSIGNMENT) || '0';
+    const argument1 = JavaScript.valueToCode(block, 'END',
+        JavaScript.ORDER_ASSIGNMENT) || '0';
+    const increment = JavaScript.valueToCode(block, 'STEP',
+        JavaScript.ORDER_ASSIGNMENT) || '1';
+    let branch = JavaScript.statementToCode(block, 'DO');
+    branch = JavaScript.addLoopTrap(branch, block);
+    let code = '\n';
+    if (utils.string.isNumber(argument0) && utils.string.isNumber(argument1) &&
+        utils.string.isNumber(increment)) {
+      // All arguments are simple numbers.
+      const up = Number(argument0) <= Number(argument1);
+      code = 'for (let ' + variable0 + ' = ' + argument0 + '; ' +
+          variable0 + (up ? ' <= ' : ' >= ') + argument1 + '; ' +
+          variable0;
+      const step = Math.abs(Number(increment));
+      if (step == 1) {
+        code += up ? '++' : '--';
+      } else {
+        code += (up ? ' += ' : ' -= ') + step;
+      }
+      code += ') {\n' + branch + '}\n';
+    } else {
+      code = '';
+      // Cache non-trivial values to variables to prevent repeated look-ups.
+      let startVar = argument0;
+      if (!argument0.match(/^\w+$/) && !utils.string.isNumber(argument0)) {
+        startVar = JavaScript.nameDB_.getDistinctName(
+            variable0 + '_start', 'VARIABLE');
+        code += 'let ' + startVar + ' = ' + argument0 + ';\n';
+      }
+      let endVar = argument1;
+      if (!argument1.match(/^\w+$/) && !utils.string.isNumber(argument1)) {
+        endVar = JavaScript.nameDB_.getDistinctName(
+            variable0 + '_end', 'VARIABLE');
+        code += 'let ' + endVar + ' = ' + argument1 + ';\n';
+      }
+      // Determine loop direction at start, in case one of the bounds
+      // changes during loop execution.
+      const incVar = JavaScript.nameDB_.getDistinctName(
+          variable0 + '_inc', 'VARIABLE');
+      code += 'let ' + incVar + ' = ';
+      if (utils.string.isNumber(increment)) {
+        code += Math.abs(increment) + ';\n';
+      } else {
+        code += 'Math.abs(' + increment + ');\n';
+      }
+      code += 'if (' + startVar + ' > ' + endVar + ') {\n';
+      code += JavaScript.INDENT + incVar + ' = -' + incVar + ';\n';
+      code += '}\n';
+      code += 'for (let ' + variable0 + ' = ' + startVar + '; ' +
+          incVar + ' >= 0 ? ' +
+          variable0 + ' <= ' + endVar + ' : ' +
+          variable0 + ' >= ' + endVar + '; ' +
+          variable0 + ' += ' + incVar + ') {\n' +
+          branch + '}\n';
+    }
+    return code;
+  };
+
   JavaScript['procedures_defreturn'] = function(block) {
     // Define a procedure with a return value.
     const funcName = JavaScript.nameDB_.getName(
@@ -1402,6 +1504,27 @@ function ${JavaScript.FUNCTION_NAME_PLACEHOLDER_}() {
     return null;
   };
   JavaScript['procedures_defnoreturn'] = JavaScript['procedures_defreturn'];
+
+  JavaScript['local_declaration_statement'] = function() {
+    let code = '{\n  let ';
+    for (let i = 0; this.getFieldValue('VAR' + i); i++) {
+      code += this.getFieldValue('VAR' + i);
+      code += ' = ' + (JavaScript.valueToCode(this, 'DECL' + i, JavaScript.ORDER_NONE) || '0');
+      code += ', ';
+    }
+    // Get rid of the last comma
+    code = code.slice(0, -2);
+    code += ';\n\n';
+    code += JavaScript.statementToCode(this, 'STACK', JavaScript.ORDER_NONE);
+    code += '}\n';
+
+    // remove brackets when i can
+    if (this.parentBlock_.type !== 'local_declaration_statement') {
+      code = code.slice(1, -2) + '\n';
+    }
+
+    return code;
+  };
 
   const unfailableBlocks = ['math_number', 'logic_boolean', 'text', 'colour_picker', 'vector_create'];
 

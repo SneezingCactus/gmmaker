@@ -68,6 +68,7 @@ window.getDynamicInfo = (game) => {
   // misc
   gmExtra.graphicsQuality = window.parent.BonkUtils.customControls.quality;
   gmExtra.gameLength = window.parent.gmReplaceAccessors.gameLength;
+  gmExtra.endRound = false;
 
   // reset stuff on new round
   if (game.state.rl == 0) {

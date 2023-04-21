@@ -811,17 +811,45 @@ path.blocklyPath.blockly-ws-search-highlight {
     left: 30px;
     width: 422px;
     height: 128px;
-    visibility: hidden;
     overflow: hidden;
-    overflow-wrap: break-word;
+    visibility: hidden;
     font-family: "futurept_book";
     font-size: 19px;
     color: #ffffff;
     text-shadow: 1px 1px black;
-    user-select: text;
 }
 
-#gm_logbox:hover {
+#gm_logbox:hover, #gm_logbox:active {
     background-color: #00000055;
     resize: both;
+}
+
+#gm_logboxtitle {
+    font-size: 14px;
+    text-align: center;
+    width: 100%;
+}
+
+#gm_logbox:hover *, #gm_logbox:active * {
+    visibility: unset;
+}
+
+#gm_logboxcontent {
+    overflow: hidden;
+    overflow-wrap: break-word;
+    user-select: text;
+    width: 100%;
+    height: calc(100% - 34px);
+}
+
+#gm_logboxclose {
+    top: 7px;
+    right: 7px;
+    background-color: #00000055;
+    cursor: pointer;
+    visibility: hidden;
+}
+
+#gm_logboxclose:hover {
+    background-color: #aaaaaa55;
 }

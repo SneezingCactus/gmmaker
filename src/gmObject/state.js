@@ -70,6 +70,7 @@ export default {
       if (!oldState.gmExtra || gm.lobby.data.quick) {
         const state = stepOLD(...arguments);
         window.gmReplaceAccessors.disableDeathBarrier = false;
+        window.gmReplaceAccessors.endRound = false;
         gm.state.gameState = state;
         gm.state.inputs = inputs;
         return state;
@@ -280,6 +281,8 @@ export default {
           state.projectiles[i].visible = oldState.projectiles[i]?.visible ?? true;
         }
       }
+
+      window.gmReplaceAccessors.endRound = false;
       /* #endregion EXTRA PROPERTY MANAGE */
 
       /* #region SEND STATIC INFO */
@@ -571,6 +574,10 @@ export default {
         }
       }
       /* #endregion MOUSE POS SENDING ACTIVATION */
+
+      /* #region END ROUND IF NEEDED */
+      window.gmReplaceAccessors.endRound = state.gmExtra.endRound;
+      /* #endregion END ROUND IF NEEDED */
 
       // make game state publicly accessible
       gm.state.gameState = state;

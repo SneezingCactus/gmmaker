@@ -757,6 +757,7 @@
           <shadow type="math_number">
             <field name="NUM">0</field>
           </shadow>
+          <field name="to">false</field>
         </value>
       </block>
     </category>
@@ -1369,21 +1370,6 @@
       </block>
     </category>
     <category name="Misc" colour="#777777">
-      <block type="state_map_prop_get"></block>
-      <block type="state_misc_set">
-        <field name="to">true</field>
-      </block>
-      <block type="state_misc_get"></block>
-      <block type="state_round_starting_ending"></block>
-      <block type="state_trigger_player_win">
-        <value name="id">
-          <shadow type="math_number">
-            <field name="NUM">0</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="state_trigger_team_win"></block>
-      <block type="state_trigger_draw_win"></block>
       <block type="state_misc_raycast">
         <value name="from">
           <shadow type="vector_create">
@@ -1419,6 +1405,50 @@
           </shadow>
         </value>
       </block>
+      <block type="state_map_prop_get"></block>
+      <block type="state_misc_set">
+        <field name="to">true</field>
+      </block>
+      <block type="state_misc_get"></block>
+      <block type="state_round_starting_ending"></block>
+      <block type="state_skip_start"></block>
+      <block type="state_trigger_player_win">
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="state_trigger_team_win"></block>
+      <block type="state_trigger_draw_win"></block>
+      <block type="state_end_round"></block>
+      <block type="state_player_score_set">
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+        <value name="to">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="state_team_score_set">
+        <value name="to">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="state_player_score_get">
+        <value name="id">
+          <shadow type="math_number">
+            <field name="NUM">0</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="state_team_score_get"></block>
     </category>
   </category>
   <category name="Graphics" colour="#5ba55b">

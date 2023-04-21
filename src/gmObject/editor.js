@@ -169,6 +169,7 @@ export default {
       'gmsettings_cancel', 'gmsettings_save', 'gmsettings_importasset',
       'gmbackups_cancel', 'gmbackups_load',
       'gmdb_close', 'gmdb_searchbutton',
+      'gm_logboxclose',
     ];
 
     for (let i = 0; i < buttons.length; i++) {
@@ -227,6 +228,17 @@ export default {
         e.preventDefault();
         gm.editor.GMENew();
       };
+    });
+
+    // log box stuff
+    const logBoxContent = document.getElementById('gm_logboxcontent');
+
+    new ResizeObserver(function() {
+      logBoxContent.scrollTop = logBoxContent.scrollHeight;
+    }).observe(document.getElementById('gm_logbox'));
+
+    document.getElementById('gm_logboxclose').addEventListener('click', function() {
+      document.getElementById('gm_logbox').style.visibility = 'hidden';
     });
 
     // current browser for proper error handling

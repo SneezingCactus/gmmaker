@@ -56,7 +56,7 @@ export default {
               const newBodyGraphics = new gm.graphics.bodyGraphicsClass(stateB, i, this.scaleRatio, this.renderer, settings, this.playerArray);
               this.roundGraphics.bodyGraphics[i] = newBodyGraphics;
 
-              newBodyGraphics.move(stateA, stateA, 0);
+              newBodyGraphics.move(stateB, stateB, 0);
 
               // the id of the body with my bro minus 1
               const bodyBehind = stateA.physics.bro[myBro + 1];
@@ -175,7 +175,7 @@ export default {
                     break;
                   case 'ci':
                     if (shapeA.r !== shapeB.r ||
-                        shapeA.c[0] !== shapeB.c[0] ||
+                         shapeA.c[0] !== shapeB.c[0] ||
                         shapeA.c[1] !== shapeB.c[1] ||
                         fixtureA.f !== fixtureB.f ||
                         fixtureA.sk !== fixtureB.sk) mustRedraw = true;
@@ -413,8 +413,8 @@ export default {
           gm.graphics.bodyGraphicsClass.prototype.moveOLD = gm.graphics.bodyGraphicsClass.prototype.move;
           gm.graphics.bodyGraphicsClass.prototype.move = function(stateA, stateB) {
             if (this.notActuallyBuilt) return;
-            if (!stateA.physics.bodies[this.bodyID]) return;
             if (!stateB.physics.bodies[this.bodyID]) return;
+            if (!stateA.physics.bodies[this.bodyID]) arguments[0] = stateB;
 
             if (stateB.physics.bodies[this.bodyID].ni) arguments[0] = stateB;
 
@@ -531,9 +531,6 @@ export default {
     BonkGraphics.prototype.destroy = (function() {
       BonkGraphics.prototype.destroyOLD = BonkGraphics.prototype.destroy;
       return function() {
-        document.getElementById('gm_logbox').innerHTML = '';
-        document.getElementById('gm_logbox').style.visibility = 'hidden';
-
         gm.audio.stopAllSounds();
 
         gm.state.crashed = false;
@@ -753,10 +750,10 @@ export default {
       messageDiv.innerText = JSON.stringify(message);
     }
 
-    const logBox = document.getElementById('gm_logbox');
+    const logBox = document.getElementById('gm_logboxcontent');
+    document.getElementById('gm_logbox').style.visibility = 'visible';
 
     logBox.appendChild(messageDiv);
-    logBox.style.visibility = 'visible';
     if (logBox.childElementCount > 30) logBox.removeChild(logBox.children[0]);
     logBox.scrollTop = logBox.scrollHeight;
   },

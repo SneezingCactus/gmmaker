@@ -60,6 +60,8 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(updateRodJoints.{0,100} ([^=]+)=\\[argu.{0,2000}?;([^;+]+)\\+\\+\\)\\{)', to: '$1if($2[0][0].physics.joints[$3]?.type !== "d") continue;'},
       // extend top bar visibility range
       {regex: '(return.{0,1000})< [^ ]{0,10}(.{0,100}ime.+?rue.+?> )[^ ]{0,10}', to: '$1< 100$2100'},
+      // allow round to end when requested by the mode
+      {regex: '(1,did:.{0,1000}?== 0)', to: '$1 || window.gmReplaceAccessors.endRound'},
     ],
     inject: {
       regex: ';}\\);}}\\);',

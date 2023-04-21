@@ -137,6 +137,7 @@ export default function() {
     shadowBlock.render();
 
     target.connection.connect(shadowBlock.outputConnection);
+    target.connection.setShadowState(shadowBlocks[type]);
   }
 
   const eventStepMixin = {
@@ -301,7 +302,7 @@ export default function() {
       const setProperty = this.getFieldValue('property');
 
       container.setAttribute('set_option', setOption);
-      container.setAttribute('set_property', setProperty);
+      if (setProperty) container.setAttribute('set_property', setProperty);
 
       this.updateShape_(setOption, setProperty);
       return container;
@@ -327,7 +328,7 @@ export default function() {
       }
 
       if (this.propTypes[setProperty] !== toInput.connection.check_?.[0]) {
-        toInput.connection.setShadowStateInternal_();
+        toInput.connection.setShadowState(null);
       }
 
       if (this.propTypes[setProperty] == 'Vector') {
@@ -336,7 +337,9 @@ export default function() {
         toInput.setCheck(this.propTypes[setProperty]);
       }
 
-      if (!toInput.connection.shadowState_) createShadow(toInput, this.propTypes[setProperty]);
+      if (!toInput.connection.shadowState_) {
+        createShadow(toInput, this.propTypes[setProperty]);
+      }
     },
   };
 
@@ -378,7 +381,7 @@ export default function() {
         setOptionDropdown.setValidator(function(newValue) {
           this.getSourceBlock().updateShape_(newValue);
         });
-        propertyDropdown.setValidator(function(newValue) {
+        propertyDropdown?.setValidator(function(newValue) {
           this.getSourceBlock().updateShape_(null, newValue);
         });
       };
@@ -410,9 +413,9 @@ export default function() {
     'a': 'Number', 'av': 'Number', 'did': 'Number', 'fte': 'Number',
   });
   setterBlockValidator('plat_prop_set', 'plat_prop_get', {
-    'p': 'Vector', 'lv': 'Vector',
-    'p[0]': 'Number', 'p[1]': 'Number', 'lv[0]': 'Number', 'lv[1]': 'Number',
-    'a': 'Number', 'de': 'Number', 're': 'Number', 'fric': 'Number', 'ld': 'Number', 'ad': 'Number', 'cf.x': 'Number', 'cf.y': 'Number', 'cf.ct': 'Number',
+    'p': 'Vector', 'lv': 'Vector', 'cf.lf': 'Vector',
+    'p[0]': 'Number', 'p[1]': 'Number', 'lv[0]': 'Number', 'lv[1]': 'Number', 'cf.lf[0]': 'Number', 'cf.lf[1]': 'Number',
+    'a': 'Number', 'de': 'Number', 're': 'Number', 'fric': 'Number', 'ld': 'Number', 'ad': 'Number', 'cf.ct': 'Number',
     'fricp': 'Boolean', 'visible': 'Boolean', 'fr': 'Boolean', 'bu': 'Boolean', 'f_p': 'Boolean', 'f_1': 'Boolean', 'f_2': 'Boolean', 'f_3': 'Boolean', 'f_4': 'Boolean',
   });
   setterBlockValidator('plat_shape_prop_set', 'plat_shape_prop_get', {
@@ -603,7 +606,7 @@ export default function() {
       }
 
       if (propTypes[setProperty] !== toInput.connection.check_?.[0]) {
-        toInput.connection.setShadowStateInternal_();
+        toInput.connection.setShadowState(null);
       }
 
       toInput.setCheck(propTypes[setProperty]);
@@ -733,7 +736,7 @@ export default function() {
           this.moveInputBefore('attach_id', 'pre_shape_dum');
         }
       } else if (attachIdExists) {
-        this.getInput('attach_id').connection.setShadowStateInternal_();
+        this.getInput('attach_id').connection.setShadowState(null);
         this.removeInput('attach_id');
       }
 
@@ -755,7 +758,7 @@ export default function() {
         }
         this.moveInputBefore('is_behind', 'pre_shape_dum');
       } else if (isBehindExists) {
-        this.getInput('is_behind').connection.setShadowStateInternal_();
+        this.getInput('is_behind').connection.setShadowState(null);
         this.removeInput('is_behind');
       }
     },
@@ -811,7 +814,7 @@ export default function() {
           this.moveInputBefore('attach_id', 'is_behind');
         }
       } else if (attachIdExists) {
-        this.getInput('attach_id').connection.setShadowStateInternal_();
+        this.getInput('attach_id').connection.setShadowState(null);
         this.removeInput('attach_id');
       }
 
@@ -832,7 +835,7 @@ export default function() {
           this.getInput('is_behind').connection.connect(shadowBlock.outputConnection);
         }
       } else if (isBehindExists) {
-        this.getInput('is_behind').connection.setShadowStateInternal_();
+        this.getInput('is_behind').connection.setShadowState(null);
         this.removeInput('is_behind');
       }
     },
@@ -897,6 +900,15 @@ export default function() {
       this.getSourceBlock().updateShape_(newValue === 'TRUE');
     });
   };
+  Blockly.Blocks['plat_clone'].validatorInit = function() {
+    this.mixin(returnIdMixin);
+
+    const returnIdCheck = this.getField('return_id');
+
+    returnIdCheck.setValidator(function(newValue) {
+      this.getSourceBlock().updateShape_(newValue === 'TRUE');
+    });
+  };
 
   const playSoundMixin = {
     mutationToDom: function() {
@@ -933,7 +945,7 @@ export default function() {
         }
         this.moveInputBefore('id', 'volume');
       } else if (inputExists) {
-        this.getInput('id').connection.setShadowStateInternal_();
+        this.getInput('id').connection.setShadowState(null);
         this.removeInput('id');
       }
     },
@@ -976,7 +988,7 @@ export default function() {
         }
         this.moveInputBefore('id', 'post_id_dum');
       } else if (inputExists) {
-        this.getInput('id').connection.setShadowStateInternal_();
+        this.getInput('id').connection.setShadowState(null);
         this.removeInput('id');
       }
     },

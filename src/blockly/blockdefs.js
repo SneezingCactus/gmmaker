@@ -2504,6 +2504,180 @@ module.exports = [
     'helpUrl': '',
   },
   {
+    'type': 'state_end_round',
+    'message0': 'end round without win screen',
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'state_skip_start',
+    'message0': 'skip round start countdown',
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'state_player_score_set',
+    'message0': '(FFA only) %1 player %2 \'s score to %3',
+    'args0': [
+      {
+        'type': 'field_dropdown',
+        'name': 'set_option',
+        'options': [
+          [
+            'set',
+            'set',
+          ],
+          [
+            'change',
+            'change',
+          ],
+          [
+            'multiply',
+            'multiply',
+          ],
+          [
+            'divide',
+            'divide',
+          ],
+        ],
+      },
+      {
+        'type': 'input_value',
+        'name': 'id',
+        'check': 'Number',
+      },
+      {
+        'type': 'input_value',
+        'name': 'to',
+        'check': 'Number',
+        'align': 'RIGHT',
+      },
+    ],
+    'inputsInline': true,
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'state_team_score_set',
+    'message0': '(teams only) %1 %2 team\'s score to %3',
+    'args0': [
+      {
+        'type': 'field_dropdown',
+        'name': 'set_option',
+        'options': [
+          [
+            'set',
+            'set',
+          ],
+          [
+            'change',
+            'change',
+          ],
+          [
+            'multiply',
+            'multiply',
+          ],
+          [
+            'divide',
+            'divide',
+          ],
+        ],
+      },
+      {
+        'type': 'field_dropdown',
+        'name': 'team',
+        'options': [
+          [
+            'red',
+            '2',
+          ],
+          [
+            'blue',
+            '3',
+          ],
+          [
+            'green',
+            '4',
+          ],
+          [
+            'yellow',
+            '5',
+          ],
+        ],
+      },
+      {
+        'type': 'input_value',
+        'name': 'to',
+        'check': 'Number',
+        'align': 'RIGHT',
+      },
+    ],
+    'inputsInline': true,
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'state_player_score_get',
+    'message0': '(FFA only) player %1 \'s score',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'id',
+        'check': 'Number',
+      },
+    ],
+    'inputsInline': true,
+    'output': 'Number',
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'state_team_score_get',
+    'message0': '(teams only) %1 team \'s score',
+    'args0': [
+      {
+        'type': 'field_dropdown',
+        'name': 'team',
+        'options': [
+          [
+            'red',
+            '2',
+          ],
+          [
+            'blue',
+            '3',
+          ],
+          [
+            'green',
+            '4',
+          ],
+          [
+            'yellow',
+            '5',
+          ],
+        ],
+      },
+    ],
+    'inputsInline': true,
+    'output': 'Number',
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
     'type': 'state_misc_get',
     'message0': '%1',
     'args0': [
@@ -2809,12 +2983,16 @@ module.exports = [
             'bu',
           ],
           [
+            'apply force',
+            'cf.lf',
+          ],
+          [
             'apply force x',
-            'cf.x',
+            'cf.lf[0]',
           ],
           [
             'apply force y',
-            'cf.y',
+            'cf.lf[1]',
           ],
           [
             'apply torque',
@@ -2937,12 +3115,16 @@ module.exports = [
             'bu',
           ],
           [
+            'apply force',
+            'cf.lf',
+          ],
+          [
             'apply force x',
-            'cf.x',
+            'cf.lf[0]',
           ],
           [
             'apply force y',
-            'cf.y',
+            'cf.lf[1]',
           ],
           [
             'apply torque',
@@ -3534,17 +3716,27 @@ module.exports = [
   {
     'type': 'plat_clone',
     'lastDummyAlign0': 'RIGHT',
-    'message0': 'clone platform %1 return id %2',
+    'message0': 'clone platform %1 return id %2 %3 clone joints %4',
     'args0': [
       {
         'type': 'input_value',
         'name': 'id',
         'check': 'Number',
+        'align': 'RIGHT',
       },
       {
         'type': 'field_checkbox',
         'name': 'return_id',
         'checked': true,
+      },
+      {
+        'type': 'input_dummy',
+        'align': 'RIGHT',
+      },
+      {
+        'type': 'field_checkbox',
+        'name': 'clone_joints',
+        'checked': false,
       },
     ],
     'inputsInline': false,

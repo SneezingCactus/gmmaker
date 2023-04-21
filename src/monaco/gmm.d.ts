@@ -216,13 +216,9 @@ declare interface capZone {
  */
 declare interface platformForces {
   /**
-   * Amount of force applied in the X axis.
+   * Amount of linear force applied in the X and Y axis.
    */
-  public x: number;
-  /**
-   * Amount of force applied in the Y axis.
-   */
-  public y: number;
+  public lf: vector2d;
   /**
    * Indicates whether the force's direction is absolute (`true`) or relative (`false`).
    */
@@ -1559,6 +1555,14 @@ declare interface gameWorld {
    */
   public createPlatform(viewOrder: number, platformDef: platform): number;
   /**
+   * Clone a platform.
+   * 
+   * @param id - The ID of the platform to clone.
+   * @param cloneJoints - `true` if joints attached to this platform should be cloned as well, `false` otherwise.
+   * @returns {number} The ID of the newly created platform clone
+   */
+  public clonePlatform(id: number, cloneJoints: boolean): number;
+  /**
    * Add a shape to a platform.
    * 
    * @param platId - The ID of the platform
@@ -1613,6 +1617,10 @@ declare interface gameWorld {
    * If you want the round to end with a draw, use an id of -1.
    */
   public triggerWin(id: number);
+  /**
+   * End the round immediately, without showing the win screen.
+   */
+  public endRound();
   /**
    * Cast a ray from an `origin` point in the world to an `end` point.
    * 

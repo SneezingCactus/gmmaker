@@ -239,6 +239,54 @@ this.game = {
 
       return game.state.physics.bodies.length - 1;
     },
+    clonePlatform: function(id, cloneJoints = false) {
+      if (!game.state.physics.bodies[id]) return null;
+
+      const finalBody = JSON.parse(JSON.stringify(game.state.physics.bodies[id]));
+      const newFx = [];
+
+      for (let i = 0; i < finalBody.fx.length; i++) {
+        const fixture = JSON.parse(JSON.stringify(game.state.physics.fixtures[finalBody.fx[i]]));
+        const shape = JSON.parse(JSON.stringify(game.state.physics.shapes[fixture.sh]));
+
+        game.state.physics.shapes.push(shape);
+        fixture.sh = game.state.physics.shapes.length - 1;
+
+        game.state.physics.fixtures.push(fixture);
+        newFx.push(game.state.physics.fixtures.length - 1);
+      }
+
+      finalBody.fx = newFx;
+
+      game.state.physics.bodies.push(finalBody);
+
+      const finalId = game.state.physics.bodies.length - 1;
+
+      game.state.physics.bro.unshift(finalId);
+
+      if (cloneJoints) {
+        for (let i = 0; i < game.state.physics.joints.length; i++) {
+          const joint = game.state.physics.joints[i];
+          if (!joint) continue;
+
+          joint = JSON.parse(JSON.stringify(joint));
+
+          let connected = false;
+
+          if (joint.ba === id) {
+            connected = true;
+            joint.ba = finalId;
+          } else if (joint.bb === id) {
+            connected = true;
+            joint.bb = finalId;
+          }
+
+          if (connected) game.state.physics.joints.push(joint);
+        }
+      }
+
+      return finalId;
+    },
     deletePlatform: function(id) {
       const fxList = game.state.physics.bodies[id].fx;
 
@@ -386,6 +434,9 @@ this.game = {
         game.state.scores[id] ??= 0;
         game.state.scores[id]++;
       }
+    },
+    endRound: function() {
+      game.state.gmExtra.endRound = true;
     },
     rayCast: rayCast,
     rayCastAll: rayCastAll,
