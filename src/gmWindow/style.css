@@ -235,6 +235,16 @@
     background-image: url(images/gmeclose.png);
 }
 
+.gmeditor_wrap.clamp::after {
+    background-image: url(images/gmeclamp.png);
+    background-size: 20px;
+}
+
+.gmeditor_wrap.repeat::after {
+    background-image: url(images/gmerepeat.png);
+    background-size: 20px;
+}
+
 .gmeditor_filter::after {
     background-image: url(images/gmefilter.png);
     background-size: 18px;

@@ -1261,58 +1261,7 @@ export default {
       for (let i = 0; i < gm.editor.unsavedModeAssets.sounds.length; i++) {
         if (!gm.editor.unsavedModeAssets.sounds[i]) continue;
 
-        const soundOrder = i;
-        const soundDef = gm.editor.unsavedModeAssets.sounds[i];
-        const soundItem = gm.editor.settingsImageItem.cloneNode(true);
-
-        const soundPlayer = soundItem.getElementsByClassName('gm_assetitemimage')[0];
-        let soundPlayerHowl = null;
-        soundPlayer.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7'; // blank image to remove white border
-        soundPlayer.classList.add('play');
-        soundPlayer.addEventListener('click', function() {
-          if (soundPlayerHowl) {
-            soundPlayer.classList.remove('stop');
-            soundPlayer.classList.add('play');
-            soundPlayerHowl.unload();
-            soundPlayerHowl = null;
-          } else {
-            soundPlayer.classList.add('stop');
-            soundPlayer.classList.remove('play');
-            soundPlayerHowl = new Howl({
-              src: 'data:audio/' + soundDef.extension + ';base64,' + soundDef.data,
-              volume: 1,
-            });
-            soundPlayerHowl.on('end', function() {
-              soundPlayer.classList.remove('stop');
-              soundPlayer.classList.add('play');
-              soundPlayerHowl?.unload();
-              soundPlayerHowl = null;
-            });
-            soundPlayerHowl.play();
-          }
-        });
-
-        soundItem.getElementsByClassName('gm_assetitemname')[0].value = soundDef.id;
-        soundItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = soundDef.detail;
-        soundItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
-          gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_assetitemname')[0].value;
-        });
-        soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
-          soundPlayerHowl?.unload();
-          soundPlayerHowl = null;
-          gm.editor.unsavedModeAssets.sounds[soundOrder] = null;
-          document.getElementById('gmsettings_assetlist').removeChild(soundItem);
-        });
-        soundItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-          saveAs('data:audio/' + soundDef.extension + ';base64,' + soundDef.data, soundItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + soundDef.extension);
-        });
-
-        window.BonkUtils.setButtonSounds([
-          soundItem.getElementsByClassName('gmeditor_delete')[0],
-          soundItem.getElementsByClassName('gmeditor_download')[0],
-        ]);
-
-        document.getElementById('gmsettings_assetlist').appendChild(soundItem);
+        gm.editor.GMECreateSoundAsset(i);
       }
     } else {
       this.isInSoundsTab = false;
@@ -1322,58 +1271,7 @@ export default {
       for (let i = 0; i < gm.editor.unsavedModeAssets.images.length; i++) {
         if (!gm.editor.unsavedModeAssets.images[i]) continue;
 
-        const imageOrder = i;
-        const imageDef = gm.editor.unsavedModeAssets.images[i];
-        const imageItem = gm.editor.settingsImageItem.cloneNode(true);
-
-        const filterButton = document.createElement('div');
-
-        if (imageDef.useNearest) {
-          filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter nearest';
-          filterButton.title = 'Using nearest neighbour';
-        } else {
-          filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
-          filterButton.title = 'Using bilinear';
-        }
-
-        imageItem.getElementsByClassName('gm_assetitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
-
-        imageItem.getElementsByClassName('gm_assetitemimage')[0].src = 'data:image/' + imageDef.extension + ';base64,' + imageDef.data;
-        imageItem.getElementsByClassName('gm_assetitemname')[0].value = imageDef.id;
-        imageItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = imageDef.detail;
-        imageItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
-          gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_assetitemname')[0].value;
-        });
-        filterButton.addEventListener('click', function() {
-          const image = gm.editor.unsavedModeAssets.images[imageOrder];
-
-          if (image.useNearest) {
-            image.useNearest = false;
-
-            filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
-            filterButton.title = 'Using bilinear';
-          } else {
-            image.useNearest = true;
-
-            filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter nearest';
-            filterButton.title = 'Using nearest neighbour';
-          }
-        });
-        imageItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
-          gm.editor.unsavedModeAssets.images[imageOrder] = null;
-          document.getElementById('gmsettings_assetlist').removeChild(imageItem);
-        });
-        imageItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-          saveAs('data:image/' + imageDef.extension + ';base64,' + imageDef.data, imageItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + imageDef.extension);
-        });
-
-        window.BonkUtils.setButtonSounds([
-          filterButton,
-          imageItem.getElementsByClassName('gmeditor_delete')[0],
-          imageItem.getElementsByClassName('gmeditor_download')[0],
-        ]);
-
-        document.getElementById('gmsettings_assetlist').appendChild(imageItem);
+        gm.editor.GMECreateImageAsset(i);
       }
     }
   },
@@ -1419,57 +1317,7 @@ export default {
           const soundOrder = gm.editor.unsavedModeAssets.sounds.length;
           gm.editor.unsavedModeAssets.sounds.push(soundAsset);
 
-          // create new sound item
-          const soundItem = gm.editor.settingsImageItem.cloneNode(true);
-
-          const soundPlayer = soundItem.getElementsByClassName('gm_assetitemimage')[0];
-          let soundPlayerHowl = null;
-          soundPlayer.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7'; // blank image to remove white border
-          soundPlayer.classList.add('play');
-          soundPlayer.addEventListener('click', function() {
-            if (soundPlayerHowl) {
-              soundPlayer.classList.remove('stop');
-              soundPlayer.classList.add('play');
-              soundPlayerHowl.unload();
-              soundPlayerHowl = null;
-            } else {
-              soundPlayer.classList.add('stop');
-              soundPlayer.classList.remove('play');
-              soundPlayerHowl = new Howl({
-                src: 'data:audio/' + extension + ';base64,' + data,
-                volume: 1,
-              });
-              soundPlayerHowl.on('end', function() {
-                soundPlayer.classList.remove('stop');
-                soundPlayer.classList.add('play');
-                soundPlayerHowl?.unload();
-                soundPlayerHowl = null;
-              });
-              soundPlayerHowl.play();
-            }
-          });
-
-          soundItem.getElementsByClassName('gm_assetitemname')[0].value = name;
-          soundItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = size;
-          soundItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
-            gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_assetitemname')[0].value;
-          });
-          soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
-            soundPlayerHowl?.unload();
-            soundPlayerHowl = null;
-            gm.editor.unsavedModeAssets.sounds[soundOrder] = null;
-            document.getElementById('gmsettings_assetlist').removeChild(soundItem);
-          });
-          soundItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-            saveAs('data:audio/' + extension + ';base64,' + data, soundItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + extension);
-          });
-
-          window.BonkUtils.setButtonSounds([
-            soundItem.getElementsByClassName('gmeditor_delete')[0],
-            soundItem.getElementsByClassName('gmeditor_download')[0],
-          ]);
-
-          document.getElementById('gmsettings_assetlist').appendChild(soundItem);
+          gm.editor.GMECreateSoundAsset(soundOrder);
         } else {
           // get image resolution
           const image = new Image();
@@ -1487,61 +1335,156 @@ export default {
             imageAsset.extension = extension;
             imageAsset.detail = detail;
             imageAsset.useNearest = false;
+            imageAsset.useRepeat = false;
 
             const imageOrder = gm.editor.unsavedModeAssets.images.length;
             gm.editor.unsavedModeAssets.images.push(imageAsset);
 
-            // create new image item
-            const imageItem = gm.editor.settingsImageItem.cloneNode(true);
-
-            const filterButton = document.createElement('div');
-            filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
-            filterButton.title = 'Using bilinear';
-
-            imageItem.getElementsByClassName('gm_assetitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
-
-            imageItem.getElementsByClassName('gm_assetitemimage')[0].src = 'data:image/' + extension + ';base64,' + data;
-            imageItem.getElementsByClassName('gm_assetitemname')[0].value = name;
-            imageItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = detail;
-            imageItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
-              gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_assetitemname')[0].value;
-            });
-            filterButton.addEventListener('click', function() {
-              const image = gm.editor.unsavedModeAssets.images[imageOrder];
-
-              if (image.useNearest) {
-                image.useNearest = false;
-
-                filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter bilinear';
-                filterButton.title = 'Using bilinear';
-              } else {
-                image.useNearest = true;
-
-                filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter nearest';
-                filterButton.title = 'Using nearest';
-              }
-            });
-            imageItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
-              gm.editor.unsavedModeAssets.images[imageOrder] = null;
-              document.getElementById('gmsettings_assetlist').removeChild(imageItem);
-            });
-            imageItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
-              saveAs('data:image/' + extension + ';base64,' + data, imageItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + extension);
-            });
-
-            window.BonkUtils.setButtonSounds([
-              filterButton,
-              imageItem.getElementsByClassName('gmeditor_delete')[0],
-              imageItem.getElementsByClassName('gmeditor_download')[0],
-            ]);
-
-            document.getElementById('gmsettings_assetlist').appendChild(imageItem);
+            gm.editor.GMECreateImageAsset(imageOrder);
           };
         }
       };
     };
 
     input.click();
+  },
+  GMECreateSoundAsset: function(soundOrder) {
+    const soundDef = gm.editor.unsavedModeAssets.sounds[i];
+    const soundItem = gm.editor.settingsImageItem.cloneNode(true);
+
+    const soundPlayer = soundItem.getElementsByClassName('gm_assetitemimage')[0];
+    let soundPlayerHowl = null;
+    soundPlayer.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAQAIBRAA7'; // blank image to remove white border
+    soundPlayer.classList.add('play');
+    soundPlayer.addEventListener('click', function() {
+      if (soundPlayerHowl) {
+        soundPlayer.classList.remove('stop');
+        soundPlayer.classList.add('play');
+        soundPlayerHowl.unload();
+        soundPlayerHowl = null;
+      } else {
+        soundPlayer.classList.add('stop');
+        soundPlayer.classList.remove('play');
+        soundPlayerHowl = new Howl({
+          src: 'data:audio/' + soundDef.extension + ';base64,' + soundDef.data,
+          volume: 1,
+        });
+        soundPlayerHowl.on('end', function() {
+          soundPlayer.classList.remove('stop');
+          soundPlayer.classList.add('play');
+          soundPlayerHowl?.unload();
+          soundPlayerHowl = null;
+        });
+        soundPlayerHowl.play();
+      }
+    });
+
+    soundItem.getElementsByClassName('gm_assetitemname')[0].value = soundDef.id;
+    soundItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = soundDef.detail;
+    soundItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+      gm.editor.unsavedModeAssets.sounds[soundOrder].id = soundItem.getElementsByClassName('gm_assetitemname')[0].value;
+    });
+    soundItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
+      soundPlayerHowl?.unload();
+      soundPlayerHowl = null;
+      gm.editor.unsavedModeAssets.sounds[soundOrder] = null;
+      document.getElementById('gmsettings_assetlist').removeChild(soundItem);
+    });
+    soundItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
+      saveAs('data:audio/' + soundDef.extension + ';base64,' + soundDef.data, soundItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + soundDef.extension);
+    });
+
+    window.BonkUtils.setButtonSounds([
+      soundItem.getElementsByClassName('gmeditor_delete')[0],
+      soundItem.getElementsByClassName('gmeditor_download')[0],
+    ]);
+
+    document.getElementById('gmsettings_assetlist').appendChild(soundItem);
+  },
+  GMECreateImageAsset: function(imageOrder) {
+    const imageDef = gm.editor.unsavedModeAssets.images[imageOrder];
+    const imageItem = gm.editor.settingsImageItem.cloneNode(true);
+
+    const filterButton = document.createElement('div');
+    const wrapButton = document.createElement('div');
+
+    filterButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_filter';
+    wrapButton.className = 'brownButton brownButton_classic buttonShadow gmeditor_iconbutton gmeditor_wrap';
+
+    if (imageDef.useNearest) {
+      filterButton.classList.add('nearest');
+      filterButton.title = 'Using nearest neighbour';
+    } else {
+      filterButton.classList.add('bilinear');
+      filterButton.title = 'Using bilinear';
+    }
+
+    if (imageDef.useRepeat) {
+      wrapButton.classList.add('repeat');
+      wrapButton.title = 'Repeated outside region';
+    } else {
+      wrapButton.classList.add('clamp');
+      wrapButton.title = 'Clamped outside region';
+    }
+
+    imageItem.getElementsByClassName('gm_assetitemdown')[0].insertBefore(filterButton, imageItem.getElementsByClassName('gmeditor_download')[0]);
+    imageItem.getElementsByClassName('gm_assetitemdown')[0].insertBefore(wrapButton, filterButton);
+
+    imageItem.getElementsByClassName('gm_assetitemimage')[0].src = 'data:image/' + imageDef.extension + ';base64,' + imageDef.data;
+    imageItem.getElementsByClassName('gm_assetitemname')[0].value = imageDef.id;
+    imageItem.getElementsByClassName('gm_assetitemdetail')[0].innerText = imageDef.detail;
+    imageItem.getElementsByClassName('gm_assetitemname')[0].addEventListener('change', function() {
+      gm.editor.unsavedModeAssets.images[imageOrder].id = imageItem.getElementsByClassName('gm_assetitemname')[0].value;
+    });
+    filterButton.addEventListener('click', function() {
+      const image = gm.editor.unsavedModeAssets.images[imageOrder];
+
+      if (image.useNearest) {
+        image.useNearest = false;
+
+        filterButton.classList.add('bilinear');
+        filterButton.classList.remove('nearest');
+        filterButton.title = 'Using bilinear';
+      } else {
+        image.useNearest = true;
+
+        filterButton.classList.remove('bilinear');
+        filterButton.classList.add('nearest');
+        filterButton.title = 'Using nearest neighbour';
+      }
+    });
+    wrapButton.addEventListener('click', function() {
+      const image = gm.editor.unsavedModeAssets.images[imageOrder];
+
+      if (image.useRepeat) {
+        image.useRepeat = false;
+
+        wrapButton.classList.add('clamp');
+        wrapButton.classList.remove('repeat');
+        wrapButton.title = 'Clamped outside region';
+      } else {
+        image.useRepeat = true;
+
+        wrapButton.classList.remove('clamp');
+        wrapButton.classList.add('repeat');
+        wrapButton.title = 'Repeated outside region';
+      }
+    });
+    imageItem.getElementsByClassName('gmeditor_delete')[0].addEventListener('click', function() {
+      gm.editor.unsavedModeAssets.images[imageOrder] = null;
+      document.getElementById('gmsettings_assetlist').removeChild(imageItem);
+    });
+    imageItem.getElementsByClassName('gmeditor_download')[0].addEventListener('click', function() {
+      saveAs('data:image/' + imageDef.extension + ';base64,' + imageDef.data, imageItem.getElementsByClassName('gm_assetitemname')[0].value + '.' + imageDef.extension);
+    });
+
+    window.BonkUtils.setButtonSounds([
+      filterButton,
+      imageItem.getElementsByClassName('gmeditor_delete')[0],
+      imageItem.getElementsByClassName('gmeditor_download')[0],
+    ]);
+
+    document.getElementById('gmsettings_assetlist').appendChild(imageItem);
   },
   GMEChangeEditor: function(toTextEditor) {
     // this function is the chazziest thing ever
