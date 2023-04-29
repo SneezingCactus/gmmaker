@@ -1775,7 +1775,7 @@ namespace Colour {
    * 
    * @memberof Colour
    */
-  export function fromRGBValues(rgb: number[]): number[];
+  export function fromRGBValues(rgb: number[]): number;
   /**
    * Turn hue, saturation and value into a hex colour to use in drawings, platform shapes, etc.
    * 
@@ -1783,7 +1783,7 @@ namespace Colour {
    * 
    * @memberof Colour
    */
-  export function fromHSVValues(hsv: number[]): number[];
+  export function fromHSVValues(hsv: number[]): number;
   /**
    * Blend the RGB values of colour A and colour B by interpolant t.
    * 

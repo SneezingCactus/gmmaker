@@ -464,5 +464,9 @@ export default function() {
     this.setProcedureParametersOLD(...arguments);
     if (this.rendered) this.renderEfficiently();
   };
-  Blockly.Blocks['procedures_callreturn'].setProcedureParameters = Blockly.Blocks['procedures_callnoreturn'].setProcedureParameters;
+  Blockly.Blocks['procedures_callreturn'].setProcedureParametersOLD = Blockly.Blocks['procedures_callreturn'].setProcedureParameters;
+  Blockly.Blocks['procedures_callreturn'].setProcedureParameters = function() {
+    this.setProcedureParametersOLD(...arguments);
+    if (this.rendered) this.renderEfficiently();
+  };
 }

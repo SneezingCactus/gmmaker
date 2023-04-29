@@ -1389,6 +1389,18 @@ function ${JavaScript.FUNCTION_NAME_PLACEHOLDER_}() {
     return [code, JavaScript.ORDER_FUNCTION_CALL];
   };
 
+  JavaScript['colour_blend'] = function(block) {
+    // Blend two colours together.
+    const c1 = JavaScript.valueToCode(block, 'COLOUR1', JavaScript.ORDER_NONE) ||
+        '0x000000';
+    const c2 = JavaScript.valueToCode(block, 'COLOUR2', JavaScript.ORDER_NONE) ||
+        '0x000000';
+    const ratio =
+        JavaScript.valueToCode(block, 'RATIO', JavaScript.ORDER_NONE) || 0.5;
+    const code = 'Colour.blend(' + c1 + ', ' + c2 + ', ' + ratio + ')';
+    return [code, JavaScript.ORDER_FUNCTION_CALL];
+  };
+
   JavaScript['controls_for'] = function(block) {
     // For loop.
     const variable0 = JavaScript.nameDB_.getName(
