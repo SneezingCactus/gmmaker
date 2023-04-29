@@ -1280,7 +1280,7 @@ export default function() {
   JavaScript['grouped_variable_change'] = function(block) {
     // Add to a grouped variable in place.
     const argument0 = JavaScript.valueToCode(
-        block, 'TO', JavaScript.ORDER_ASSIGNMENT) || '0';
+        block, 'DELTA', JavaScript.ORDER_ASSIGNMENT) || '0';
     const group = JavaScript.valueToCode(
         block, 'GROUP', JavaScript.ORDER_NONE);
     const varName = JavaScript.nameDB_.getName(

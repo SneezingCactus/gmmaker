@@ -229,6 +229,12 @@ this.game = {
       finalBody.fx = [];
 
       for (let i = 0; i < platData.shapes.length; i++) {
+        if (!platData.shapes[i]) {
+          const e = new ReferenceError('Shape #' + i + ' is empty');
+          e.gmSubLevel = 1;
+          throw e;
+        }
+
         finalBody.fx.push(this.addShapeIntoWorld(platData.shapes[i]));
       }
 
@@ -310,6 +316,13 @@ this.game = {
     },
     addShapeToPlat: function(platId, shapeData) {
       const body = game.state.physics.bodies[platId];
+
+      if (!shapeData) {
+        const e = new TypeError('Shape is invalid');
+        e.gmSubLevel = 1;
+        throw e;
+      }
+
       body.fx.push(this.addShapeIntoWorld(shapeData));
 
       return body.fx.length - 1;
@@ -448,6 +461,12 @@ this.game = {
 
       if (!drawing) return;
 
+      if (!shape?.type) {
+        const e = new TypeError('Tried to add an invalid shape to a drawing.');
+        e.gmSubLevel = 1;
+        throw e;
+      }
+
       switch (shape.type) {
         case 'bx':
           drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingBoxShape)), shape));
@@ -480,6 +499,13 @@ this.game = {
 
       for (let i = 0; i < drawing.shapes.length; i++) {
         const shape = drawing.shapes[i];
+
+        if (!shape) {
+          const e = new ReferenceError('Shape #' + i + ' is empty');
+          e.gmSubLevel = 1;
+          throw e;
+        }
+
         switch (shape.type) {
           case 'bx':
             drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingBoxShape)), shape);
@@ -499,6 +525,10 @@ this.game = {
           case 'im':
             drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingImageShape)), shape);
             break;
+          default:
+            const e = new TypeError('Shape #' + i + ' is invalid');
+            e.gmSubLevel = 1;
+            throw e;
         }
       }
 
@@ -580,6 +610,11 @@ const platProxyValidator = {
     if (key === 'n') return game.state.physics.bodies[bodyId[0]]?.n ?? game.lobby.settings.map.physics.bodies[bodyId[0]]?.n ?? null;
 
     bodyId = bodyId[0];
+
+    if (!game.state.physics.bodies[bodyId]) {
+      const e = new TypeError('Cannot get properties of undefined (getting \'' + key + '\')');
+      throw e;
+    }
     if (key === 'shapes') {
       if (!shapeListProxies[bodyId]) {
         shapeListProxies[bodyId] = new Proxy([bodyId], shapeListProxyValidator);
@@ -589,6 +624,10 @@ const platProxyValidator = {
     return game.state.physics.bodies[bodyId][key];
   },
   set(bodyId, key, value) {
+    if (!game.state.physics.bodies[bodyId[0]]) {
+      const e = new TypeError('Cannot set properties of undefined (setting \'' + key + '\')');
+      throw e;
+    }
     game.state.physics.bodies[bodyId[0]][key] = value;
     return true;
   },

@@ -1013,7 +1013,7 @@
         </value>
       </block>
       <block type="plat_clone">
-        <field name="return_id">TRUE</field>
+        <field name="return_id">FALSE</field>
         <value name="id">
           <shadow type="math_number">
             <field name="NUM">0</field>

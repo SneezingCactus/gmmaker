@@ -857,6 +857,11 @@ export default {
       // make proxy errors lead to the actual block part and not the proxy code itself
       report = report.replace(/Object\.[gs]et:[0-9]+?:[0-9]+?/gm, '');
 
+      // filter sub-levels
+      for (let i = 0; i < e.gmSubLevel; i++) {
+        report = report.replace(/\n.+?:([0-9]+):([0-9]+)/m, '');
+      }
+
       const match = /:([0-9]+):([0-9]+)/gm.exec(report);
 
       const targetLine = Number(match[1]);
@@ -918,12 +923,34 @@ export default {
     }
   },
   crashAbortJavaScript: function(e) {
-    if (e.isModeError && gm.editor.browser != 'Firefox') {
-      let report = e.stack;
+    let report;
 
-      report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
-      report = report.replace(/Object\.eval \[as listener\]([^\n]+)(.|\n)*/gm, '<anonymous>$1');
-      report = report.replace(/Proxy./gm, 'function ');
+    if (e.isModeError) {
+      if (gm.editor.browser != 'Firefox') {
+        report = e.stack;
+
+        report = report.replace(/(at [^\(\n]+) \(eval at .{0,150}init[^\)]+[\)]+, <anonymous>(:[0-9]+:[0-9]+)\)/gm, '$1$2');
+        report = report.replace(/Object\.eval \[as listener\]([^\n]+)(.|\n)*/gm, '<anonymous>$1');
+        report = report.replace(/Proxy./gm, 'function ');
+
+        e.stack = '[GMMaker Mode Error] ' + e.stack;
+      } else {
+        report = e.name + ': ' + e.message;
+
+        let stack = e.stack;
+
+        stack = stack.replace(/([^@\n]+)@.+?line.+?eval:/gm, '  at $1:');
+        stack = stack.replace(/@.+?line.+?eval:([^\n]+)(.|\n)*/gm, '  at <anonymous>:$1');
+
+        report += '\n' + stack;
+
+        e.message = '[GMMaker Mode Error] ' + e.message;
+      }
+
+      // filter sub-levels
+      for (let i = 0; i < e.gmSubLevel; i++) {
+        report = report.replace(/\n.+?:([0-9]+):([0-9]+)/m, '');
+      }
 
       if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
         gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. Below is the crash report, which may help you find out what happened.', ()=>{}, {
@@ -943,40 +970,6 @@ export default {
           code: report,
         });
       }
-
-      e.stack = '[GMMaker Mode Error] ' + e.stack;
-
-      return true;
-    } else if (e.isModeError) {
-      let report = e.name + ': ' + e.message;
-
-      let stack = e.stack;
-
-      stack = stack.replace(/([^@\n]+)@.+?line.+?eval:/gm, '  at $1:');
-      stack = stack.replace(/@.+?line.+?eval:([^\n]+)(.|\n)*/gm, '  at <anonymous>:$1');
-
-      report += '\n' + stack;
-
-      if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
-        gm.editor.genericDialog('Whoops! Seems like something went wrong with your code. Below is the crash report, which may help you find out what happened.', ()=>{}, {
-          showCode: true,
-          code: report,
-        });
-
-        gm.editor.showGMEWindow();
-
-        const match = /:([0-9]+):([0-9]+)/gm.exec(report);
-
-        gm.editor.monacoWs.revealPositionInCenter({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
-        gm.editor.monacoWs.setPosition({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
-      } else {
-        gm.editor.genericDialog('Whoops! Seems like something went wrong with the current mode\'s code. Below is the crash report:', ()=>{}, {
-          showCode: true,
-          code: report,
-        });
-      }
-
-      e.message = '[GMMaker Mode Error] ' + e.message;
 
       return true;
     }
