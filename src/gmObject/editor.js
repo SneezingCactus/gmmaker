@@ -1349,7 +1349,7 @@ export default {
     input.click();
   },
   GMECreateSoundAsset: function(soundOrder) {
-    const soundDef = gm.editor.unsavedModeAssets.sounds[i];
+    const soundDef = gm.editor.unsavedModeAssets.sounds[soundOrder];
     const soundItem = gm.editor.settingsImageItem.cloneNode(true);
 
     const soundPlayer = soundItem.getElementsByClassName('gm_assetitemimage')[0];
