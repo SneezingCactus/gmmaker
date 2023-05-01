@@ -1127,9 +1127,9 @@ export default function() {
   };
 
   JavaScript['lobby_base_mode_is'] = function(block) {
-    var name = block.getFieldValue('NAME');
+    var mode = block.getFieldValue('mode');
 
-    return ['game.lobby.settings.mo == \'' + name + '\'', JavaScript.ORDER_EQUALITY];
+    return ['game.lobby.settings.mo == \'' + mode + '\'', JavaScript.ORDER_EQUALITY];
   };
 
   JavaScript['audio_play_sound'] = function(block) {

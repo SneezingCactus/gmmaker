@@ -8,6 +8,15 @@ import {FieldLexicalVariable} from '@mit-app-inventor/blockly-block-lexical-vari
 export default function() {
   const workspace = gm.editor.blocklyWs;
 
+  // why is it forcing me to do this??
+  Blockly.Workspace.prototype.getTopWorkspace = function() {
+    let parent = this;
+    while (parent.targetWorkspace) {
+      parent = parent.targetWorkspace;
+    }
+    return parent;
+  };
+
   Blockly.Variables.flyoutCategoryBlocks = function(workspace) {
     const variableModelList = workspace.getVariablesOfType('');
 

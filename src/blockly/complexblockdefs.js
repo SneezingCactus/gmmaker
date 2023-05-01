@@ -196,14 +196,18 @@ export default function() {
     },
     decompose: function(workspace) {
       const containerBlock = workspace.newBlock('procedures_mutatorcontainer');
-      containerBlock.initSvg();
+      if (containerBlock.initSvg) {
+        containerBlock.initSvg();
+      }
       containerBlock.setProcBlock(this);
       this.paramIds_ = []; // [lyn, 10/26/13] Added
       let connection = containerBlock.getInput('STACK').connection;
       for (let x = 0; x < this.arguments_.length; x++) {
         const paramBlock = workspace.newBlock('procedures_mutatorarg');
         this.paramIds_.push(paramBlock.id); // [lyn, 10/26/13] Added
-        paramBlock.initSvg();
+        if (paramBlock.initSvg) {
+          paramBlock.initSvg();
+        }
         paramBlock.setFieldValue(this.arguments_[x], 'NAME');
         // Store the old location.
         paramBlock.oldLocation = x;
@@ -366,7 +370,7 @@ export default function() {
       for (let i = 0; i < this.inputList.length; i++) {
         this.inputList[i].init();
       }
-      if (this.rendered) {
+      if (this.rendered && this.render) {
         this.render();
       }
       if (this.workspace.loadCompleted) {

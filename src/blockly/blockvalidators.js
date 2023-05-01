@@ -27,7 +27,7 @@ export default function() {
       input.dispose();
       this.inputList.splice(index, 1);
 
-      if (this.rendered) {
+      if (this.rendered && this.render) {
         this.render();
         this.bumpNeighbours();
       }
@@ -133,8 +133,10 @@ export default function() {
     const shadowBlock = Blockly.serialization.blocks.append(shadowBlocks[type], target.getSourceBlock().workspace);
     shadowBlock.setShadow(true);
 
-    shadowBlock.initSvg();
-    shadowBlock.render();
+    if (shadowBlock.initSvg) {
+      shadowBlock.initSvg();
+      shadowBlock.render();
+    }
 
     target.connection.connect(shadowBlock.outputConnection);
     target.connection.setShadowState(shadowBlocks[type]);
@@ -725,8 +727,10 @@ export default function() {
           const shadowBlock = this.workspace.newBlock('math_number');
           shadowBlock.setShadow(true);
 
-          shadowBlock.initSvg();
-          shadowBlock.render();
+          if (shadowBlock.initSvg) {
+            shadowBlock.initSvg();
+            shadowBlock.render();
+          }
 
           this.getInput('attach_id').connection.connect(shadowBlock.outputConnection);
         }
@@ -751,8 +755,10 @@ export default function() {
           shadowBlock.setShadow(true);
           shadowBlock.getField('BOOL').setValue('FALSE');
 
-          shadowBlock.initSvg();
-          shadowBlock.render();
+          if (shadowBlock.initSvg) {
+            shadowBlock.initSvg();
+            shadowBlock.render();
+          }
 
           this.getInput('is_behind').connection.connect(shadowBlock.outputConnection);
         }
@@ -805,8 +811,10 @@ export default function() {
           const shadowBlock = this.workspace.newBlock('math_number');
           shadowBlock.setShadow(true);
 
-          shadowBlock.initSvg();
-          shadowBlock.render();
+          if (shadowBlock.initSvg) {
+            shadowBlock.initSvg();
+            shadowBlock.render();
+          }
 
           this.getInput('attach_id').connection.connect(shadowBlock.outputConnection);
         }
@@ -829,8 +837,10 @@ export default function() {
           shadowBlock.setShadow(true);
           shadowBlock.getField('BOOL').setValue('FALSE');
 
-          shadowBlock.initSvg();
-          shadowBlock.render();
+          if (shadowBlock.initSvg) {
+            shadowBlock.initSvg();
+            shadowBlock.render();
+          }
 
           this.getInput('is_behind').connection.connect(shadowBlock.outputConnection);
         }
@@ -938,8 +948,10 @@ export default function() {
           shadowBlock.setShadow(true);
           shadowBlock.getField('TEXT').setValue('audio');
 
-          shadowBlock.initSvg();
-          shadowBlock.render();
+          if (shadowBlock.initSvg) {
+            shadowBlock.initSvg();
+            shadowBlock.render();
+          }
 
           this.getInput('id').connection.connect(shadowBlock.outputConnection);
         }
