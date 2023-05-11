@@ -229,6 +229,36 @@ declare interface platformForces {
   public ct: number;
 }
 
+/**
+ * Platform force field/zone parameters.
+ */
+declare interface platformForceField {
+  /**
+   * `true` if this platform is a force zone, `false` otherwise.
+   */
+  public on: boolean;
+  /**
+   * X force applied on objects.
+   */
+  public x: number;
+  /**
+   * Y force applied on objects.
+   */
+  public y: number;
+  /**
+   * `true` if this force zone affects discs, `false` otherwise.
+   */
+  public d: boolean;
+  /**
+   * `true` if this force zone affects platforms, `false` otherwise.
+   */
+  public p: boolean;
+  /**
+   * `true` if this force zone affects arrows, `false` otherwise.
+   */
+  public a: boolean;
+}
+
 interface platformList {
   [index: number]: platform;
 }
@@ -306,6 +336,10 @@ declare interface platform {
    * Object that contains the values of the three forces that get constantly applied to the platform: Apply Force X (`cf.x`), Apply Force Y (`cf.y`) and Apply Torque (`cf.ct`).
    */
   public cf: platformForces;
+  /**
+   * Object that contains the force zone/field properties of this platform.
+   */
+  public fz: platformForceField;
   /**
    * Array that contains the shapes that constitute the platform.
    * 

@@ -3003,6 +3003,30 @@ module.exports = [
             'cf.w',
           ],
           [
+            'is force zone',
+            'fz.on',
+          ],
+          [
+            'force zone x',
+            'fz.x',
+          ],
+          [
+            'force zone y',
+            'fz.y',
+          ],
+          [
+            'force zone affects discs',
+            'fz.d',
+          ],
+          [
+            'force zone affects platforms',
+            'fz.p',
+          ],
+          [
+            'force zone affects arrows',
+            'fz.a',
+          ],
+          [
             'collides with players',
             'f_p',
           ],
@@ -3133,6 +3157,30 @@ module.exports = [
           [
             'apply force is absolute',
             'cf.w',
+          ],
+          [
+            'is force zone',
+            'fz.on',
+          ],
+          [
+            'force zone x',
+            'fz.x',
+          ],
+          [
+            'force zone y',
+            'fz.y',
+          ],
+          [
+            'force zone affects discs',
+            'fz.d',
+          ],
+          [
+            'force zone affects platforms',
+            'fz.p',
+          ],
+          [
+            'force zone affects arrows',
+            'fz.a',
           ],
           [
             'collides with players',

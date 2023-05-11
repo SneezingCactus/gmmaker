@@ -374,7 +374,7 @@ export default function() {
 
     var code = `${funcName}(${player_id})`;
 
-    return [code];
+    return [code, JavaScript.ORDER_ATOMIC];
   };
 
   JavaScript['arrow_get_player_last'] = function(block) {
@@ -495,7 +495,7 @@ export default function() {
     var filter = JavaScript.valueToCode(block, 'filter', JavaScript.ORDER_ATOMIC);
 
     var code = [
-      `$.${hit_detected} = game.world.rayCast(${from}, ${to}, function(hit) {`,
+      `$.${hit_detected} = Boolean(game.world.rayCast(${from}, ${to}, function(hit) {`,
       `  $.${hit_type} = hit.type;`,
       `  $.${hit_id} = hit.id;`,
       `  $.${hit_point} = hit.point;`,
@@ -506,7 +506,7 @@ export default function() {
       `  }`,
       ``,
       `  return ${filter};`,
-      `});\n\n`,
+      `}));\n\n`,
     ];
 
     return code.join('\n');

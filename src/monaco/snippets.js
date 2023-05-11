@@ -280,7 +280,15 @@ export default function() {
     x: 0,
     y: 0,
     w: true,
-    ct: 0,
+    ct: 0
+  },
+  fz: {
+    on: false,
+    x: 0,
+    y: 0,
+    d: true,
+    p: true,
+    a: true
   },
   f_c: 1,
   f_p: true,

@@ -417,8 +417,9 @@ export default function() {
   setterBlockValidator('plat_prop_set', 'plat_prop_get', {
     'p': 'Vector', 'lv': 'Vector', 'cf.lf': 'Vector',
     'p[0]': 'Number', 'p[1]': 'Number', 'lv[0]': 'Number', 'lv[1]': 'Number', 'cf.lf[0]': 'Number', 'cf.lf[1]': 'Number',
-    'a': 'Number', 'de': 'Number', 're': 'Number', 'fric': 'Number', 'ld': 'Number', 'ad': 'Number', 'cf.ct': 'Number',
+    'a': 'Number', 'de': 'Number', 're': 'Number', 'fric': 'Number', 'ld': 'Number', 'ad': 'Number', 'cf.ct': 'Number', 'fz.x': 'Number', 'fz.y': 'Number',
     'fricp': 'Boolean', 'visible': 'Boolean', 'fr': 'Boolean', 'bu': 'Boolean', 'f_p': 'Boolean', 'f_1': 'Boolean', 'f_2': 'Boolean', 'f_3': 'Boolean', 'f_4': 'Boolean',
+    'fz.on': 'Boolean', 'fz.d': 'Boolean', 'fz.p': 'Boolean', 'fz.a': 'Boolean',
   });
   setterBlockValidator('plat_shape_prop_set', 'plat_shape_prop_get', {
     'geo.c': 'Vector', 'geo.s': 'Vector',
