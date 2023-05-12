@@ -830,6 +830,12 @@ export default {
     throw e;
   },
   crashAbortBlockly: function(e) {
+    if (!gm.lobby.networkEngine || gm.lobby.networkEngine.getLSID() != gm.lobby.networkEngine.hostID) {
+      gm.editor.genericDialog('Whoops! Seems like something went wrong with the current mode\'s code. Host has been informed about the error.', ()=>{}, {});
+
+      return true;
+    }
+
     if (e.isModeError) {
       let report;
 

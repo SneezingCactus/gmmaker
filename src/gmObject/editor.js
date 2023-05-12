@@ -655,6 +655,7 @@ export default {
       theme: gm.editor.lightTheme,
     });
     gm.editor.headlessBlocklyWs = new Blockly.Workspace();
+    gm.editor.headlessBlocklyWs.options.oneBasedIndex = false;
 
     LexicalVariables.init(gm.editor.blocklyWs);
 
@@ -893,6 +894,7 @@ export default {
   GMEImport: function() {
     const input = document.createElement('input');
     input.type = 'file';
+    input.accept = '.gmm';
 
     input.onchange = (e) => {
       const file = e.target.files[0];
@@ -940,6 +942,7 @@ export default {
     gm.editor.modeAssets = gm.editor.modeToImport.assets;
     gm.editor.modeSettings = gm.editor.modeToImport.settings;
 
+    gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
     if (gm.editor.modeSettings.isTextMode) {
       document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
       gm.editor.monacoWs.setValue(gm.editor.modeToImport.content);
@@ -966,6 +969,7 @@ export default {
     gm.editor.modeAssets = gm.editor.modeToImport.assets;
     gm.editor.modeSettings = gm.editor.modeToImport.settings;
 
+    gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
     if (gm.editor.modeSettings.isTextMode) {
       document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
       gm.editor.monacoWs.setValue(gm.editor.modeToImport.content);
@@ -1163,6 +1167,7 @@ export default {
 
         if (cachedImageUrl) {
           img.setAttribute('src', cachedImageUrl);
+          imgContainer.innerHTML = '';
           imgContainer.classList.add('has_image');
           imgContainer.appendChild(img);
         } else {
@@ -1173,6 +1178,7 @@ export default {
             gm.editor.dbImageCache[doc.id] = url;
 
             img.setAttribute('src', url);
+            imgContainer.innerHTML = '';
             imgContainer.classList.add('has_image');
             imgContainer.appendChild(img);
           });

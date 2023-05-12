@@ -657,6 +657,13 @@
     </block>
     <block type="if_return_event"></block>
     <block type="return_event"></block>
+    <block type="text_print">
+      <value name="TEXT">
+        <shadow type="text">
+          <field name="TEXT">abc</field>
+        </shadow>
+      </value>
+    </block>
   </category>
   <category name="Lobby" colour="#5ba5a5">
     <block type="lobby_all_player_ids"></block>
@@ -887,6 +894,7 @@
         </value>
       </block>
       <block type="plat_prop_get">
+        <field name="property">p</field>
         <value name="id">
           <shadow type="math_number">
             <field name="NUM">0</field>

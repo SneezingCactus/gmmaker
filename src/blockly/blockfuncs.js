@@ -1176,7 +1176,7 @@ export default function() {
   JavaScript['vector_normalized'] = function(block) {
     var v = JavaScript.valueToCode(block, 'v', JavaScript.ORDER_ATOMIC);
 
-    var code = `Vector.normalized(${v})`;
+    var code = `Vector.normalize(${v})`;
 
     return [code, JavaScript.ORDER_ATOMIC];
   };

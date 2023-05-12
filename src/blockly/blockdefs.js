@@ -3075,6 +3075,10 @@ module.exports = [
         'name': 'property',
         'options': [
           [
+            'name',
+            'n',
+          ],
+          [
             'position',
             'p',
           ],

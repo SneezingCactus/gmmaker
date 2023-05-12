@@ -420,6 +420,7 @@ export default function() {
     'a': 'Number', 'de': 'Number', 're': 'Number', 'fric': 'Number', 'ld': 'Number', 'ad': 'Number', 'cf.ct': 'Number', 'fz.x': 'Number', 'fz.y': 'Number',
     'fricp': 'Boolean', 'visible': 'Boolean', 'fr': 'Boolean', 'bu': 'Boolean', 'f_p': 'Boolean', 'f_1': 'Boolean', 'f_2': 'Boolean', 'f_3': 'Boolean', 'f_4': 'Boolean',
     'fz.on': 'Boolean', 'fz.d': 'Boolean', 'fz.p': 'Boolean', 'fz.a': 'Boolean',
+    'n': 'String',
   });
   setterBlockValidator('plat_shape_prop_set', 'plat_shape_prop_get', {
     'geo.c': 'Vector', 'geo.s': 'Vector',
