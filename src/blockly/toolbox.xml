@@ -1499,6 +1499,7 @@
         </shadow>
       </value>
     </block>
+    <block type="camera_no_lerp"></block>
     <block type="graphics_map_size"></block>
     <block type="graphics_screen_size"></block>
     <block type="camera_prop_set">

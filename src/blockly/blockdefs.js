@@ -1875,6 +1875,16 @@ module.exports = [
     'helpUrl': '',
   },
   {
+    'type': 'camera_no_lerp',
+    'message0': 'don\'t interpolate camera until next step',
+    'inputsInline': true,
+    'previousStatement': null,
+    'nextStatement': null,
+    'style': 'gm_graphics',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
     'type': 'drawing_attach',
     'lastDummyAlign0': 'RIGHT',
     'message0': 'change attachment for drawing %1 attach to %2',

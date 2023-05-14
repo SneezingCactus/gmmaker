@@ -1095,6 +1095,10 @@ export default function() {
     return code;
   };
 
+  JavaScript['camera_no_lerp'] = function(block) {
+    return 'game.graphics.camera.noLerp = true;';
+  };
+
   JavaScript['lobby_all_player_ids'] = function(block) {
     return ['game.lobby.allPlayerIds', JavaScript.ORDER_MEMBER];
   };

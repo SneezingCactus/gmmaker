@@ -598,7 +598,10 @@ export default {
         if (gm.state.crashed) return oldState;
         if (gm.graphics.inReplay()) throw e;
         gm.state.crashed = true;
-        setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!
+        setTimeout(() => {
+          gm.state.crashAbort(e);
+          throw e;
+        }, 500); // gotta make sure we're out of the step function!
         return oldState;
       }
     };
@@ -826,12 +829,10 @@ export default {
     if (gm.lobby.networkEngine && gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID) {
       document.getElementById('pretty_top_exit').click();
     }
-
-    throw e;
   },
   crashAbortBlockly: function(e) {
     if (!gm.lobby.networkEngine || gm.lobby.networkEngine.getLSID() != gm.lobby.networkEngine.hostID) {
-      gm.editor.genericDialog('Whoops! Seems like something went wrong with the current mode\'s code. Host has been informed about the error.', ()=>{}, {});
+      gm.editor.genericDialog('Whoops! Seems like something went wrong with the current mode\'s code. Host has been informed about the error.<br><br>Has the game not ended yet (the lobby is not showing behind this window)? If so, the mode might have a bug that causes client-specific crashes - make sure to let the maker of the mode know if this happens!', ()=>{}, {});
 
       return true;
     }
@@ -971,7 +972,7 @@ export default {
         gm.editor.monacoWs.revealPositionInCenter({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
         gm.editor.monacoWs.setPosition({lineNumber: Number.parseInt(match[1]), column: Number.parseInt(match[2])});
       } else {
-        gm.editor.genericDialog('Whoops! Seems like something went wrong with the current mode\'s code. Below is the crash report:', ()=>{}, {
+        gm.editor.genericDialog('Whoops! Seems like something went wrong with the current mode\'s code.<br><br>Has the game not ended yet (the lobby is not showing behind this window)? If so, the mode might have a bug that causes client-specific crashes - make sure to let the maker of the mode know if this happens!<br><br>Below is the crash report:', ()=>{}, {
           showCode: true,
           code: report,
         });

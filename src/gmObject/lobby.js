@@ -44,7 +44,7 @@ export default {
           gm.lobby.processNewMode(mode);
           gm.lobby.newModeBuffer = null;
 
-          if (!packet.initial) gm.lobby.bonkLobby.showStatusMessage('* [GMMaker] Host has changed the mode', '#cc3333');
+          if (!packet.initial) gm.lobby.bonkLobby.showStatusMessage('* [GMMaker] Host has changed the mode', '#b53030');
         }
       });
 
@@ -244,7 +244,16 @@ export default {
           document.getElementById('gm_logbox').style.visibility = 'hidden';
           gm.state.resetStaticInfo();
 
-          return this.goInProgressOLD(...arguments);
+          let final = null;
+
+          try {
+            final = this.goInProgressOLD(...arguments);
+          } catch (e) {
+            gm.state.crashAbort(e);
+            console.error(e);
+          }
+
+          return final;
         };
 
         gm.lobby.GenericGameSessionHandler = this;

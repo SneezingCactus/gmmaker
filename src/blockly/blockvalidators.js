@@ -17,6 +17,23 @@ export default function() {
   // msg replacing for other things
   Blockly.Msg.COLOUR_RGB_TOOLTIP = 'Create a colour with the specified amount of red, green, and blue. All values must be between 0 and 255.';
 
+
+  // these were really f^^^ing stuff up with the validators
+  Blockly.InsertionMarkerManager.prototype.createMarkerBlockOLD = Blockly.InsertionMarkerManager.prototype.createMarkerBlock;
+  Blockly.InsertionMarkerManager.prototype.createMarkerBlock = function() {
+    gm.editor.makingNastyChangesToBlocks = true;
+    const markerBlock = Blockly.InsertionMarkerManager.prototype.createMarkerBlockOLD.apply(this, arguments);
+    gm.editor.makingNastyChangesToBlocks = false;
+    return markerBlock;
+  };
+  Blockly.Xml.domToWorkspaceOLD = Blockly.Xml.domToWorkspace;
+  Blockly.Xml.domToWorkspace = function() {
+    gm.editor.makingNastyChangesToBlocks = true;
+    const result = Blockly.Xml.domToWorkspaceOLD(...arguments);
+    gm.editor.makingNastyChangesToBlocks = false;
+    return result;
+  };
+
   // why does this not exist???
   Blockly.Block.prototype.removeInputAt = function(index, opt_quiet) {
     const input = this.inputList[index];
@@ -563,6 +580,7 @@ export default function() {
     },
   };
 
+  // extremely janky, both of these
   const drawingShapeSetterMixin = {
     mutationToDom: function() {
       const container = Blockly.utils.xml.createElement('mutation');
@@ -588,6 +606,8 @@ export default function() {
         toInput.fieldRow[toInput.fieldRow.length - 1].setValue(setOption === 'set' ? 'to' : 'by');
       }
 
+      if (!setProperty || !shapeType) return;
+
       const props = drawingShapeSetterProps[shapeType];
       const propTypes = drawingShapeSetterPropTypes[shapeType];
 
@@ -598,8 +618,6 @@ export default function() {
         this.getField('property').selectedOption_ = props[0];
         this.getField('property').forceRerender();
       }
-
-      if (!setProperty) return;
 
       if (propTypes[setProperty] != 'Number' && propTypes[setProperty] != 'Vector') {
         this.getField('set_option').doValueUpdate_('set');
@@ -636,16 +654,21 @@ export default function() {
       this.updateShape_(xmlElement.getAttribute('shape_type'), xmlElement.getAttribute('set_property'));
     },
     updateShape_: function(shapeType, setProperty) {
-      const props = drawingShapeSetterProps[shapeType];
-      const propTypes = drawingShapeSetterPropTypes[shapeType];
+      if (shapeType !== undefined) {
+        const props = drawingShapeSetterProps[shapeType];
+        const propTypes = drawingShapeSetterPropTypes[shapeType];
 
-      this.getField('property').menuGenerator_ = props;
-      if (!propTypes[this.getFieldValue('property')]) {
-        this.getField('property').doValueUpdate_(props[0][0]);
-        this.getField('property').forceRerender();
+        this.getField('property').menuGenerator_ = props;
+
+        if (setProperty !== undefined) {
+          this.setOutput(true, propTypes[setProperty]);
+          if (!propTypes[setProperty]) {
+            this.getField('property').doValueUpdate_(props[0][0]);
+            this.getField('property').forceRerender();
+            this.setOutput(true, propTypes[props[0][0]]);
+          }
+        }
       }
-
-      this.setOutput(true, propTypes[setProperty]);
     },
   };
 
@@ -657,13 +680,25 @@ export default function() {
     const propertyDropdown = this.getField('property');
 
     setOptionDropdown.setValidator(function(newValue) {
-      this.getSourceBlock().updateShape_(newValue, shapeTypeDropdown.getValue(), propertyDropdown.getValue());
+      if (gm.editor.makingNastyChangesToBlocks) {
+        this.getSourceBlock().updateShape_(newValue, undefined, undefined);
+      } else {
+        this.getSourceBlock().updateShape_(newValue, shapeTypeDropdown.getValue(), propertyDropdown.getValue());
+      }
     });
     shapeTypeDropdown.setValidator(function(newValue) {
-      this.getSourceBlock().updateShape_(setOptionDropdown.getValue(), newValue, propertyDropdown.getValue());
+      if (gm.editor.makingNastyChangesToBlocks) {
+        this.getSourceBlock().updateShape_(undefined, newValue, undefined);
+      } else {
+        this.getSourceBlock().updateShape_(setOptionDropdown.getValue(), newValue, propertyDropdown.getValue());
+      }
     });
     propertyDropdown.setValidator(function(newValue) {
-      this.getSourceBlock().updateShape_(setOptionDropdown.getValue(), shapeTypeDropdown.getValue(), newValue);
+      if (gm.editor.makingNastyChangesToBlocks) {
+        this.getSourceBlock().updateShape_(undefined, undefined, newValue);
+      } else {
+        this.getSourceBlock().updateShape_(setOptionDropdown.getValue(), shapeTypeDropdown.getValue(), newValue);
+      }
     });
   };
 
@@ -674,10 +709,18 @@ export default function() {
     const propertyDropdown = this.getField('property');
 
     shapeTypeDropdown.setValidator(function(newValue) {
-      this.getSourceBlock().updateShape_(newValue, propertyDropdown.getValue());
+      if (gm.editor.makingNastyChangesToBlocks) {
+        this.getSourceBlock().updateShape_(newValue, undefined);
+      } else {
+        this.getSourceBlock().updateShape_(newValue, propertyDropdown.getValue());
+      }
     });
     propertyDropdown.setValidator(function(newValue) {
-      this.getSourceBlock().updateShape_(shapeTypeDropdown.getValue(), newValue);
+      if (gm.editor.makingNastyChangesToBlocks) {
+        this.getSourceBlock().updateShape_(undefined, newValue);
+      } else {
+        this.getSourceBlock().updateShape_(shapeTypeDropdown.getValue(), newValue);
+      }
     });
   };
 
