@@ -29,6 +29,85 @@ function copy(obj) {
   return obj;
 }
 
+// Faster than the method above, may help if you have a lot of drawings
+function copyDrawings(drawings) {
+  const copy = [];
+  for (let i = 0; i < drawings.length; ++i) {
+    const d = drawings[i];
+
+    const nd = copy[i] = {
+      alpha: d.alpha,
+      angle: d.angle,
+      attachId: d.attachId,
+      attachTo: d.attachTo,
+      isBehind: d.isBehind,
+      noLerp: d.noLerp,
+      pos: d.pos ? [d.pos[0], d.pos[1]] :  [0, 0],
+      scale:d.scale ? [d.scale[0], d.scale[1]] :  [0, 0],
+      shapes: [],
+    };
+
+    const ss = nd.shapes;
+    for (let j = 0; j < d.shapes.length; ++ j) {
+      const s = d.shapes[j];
+      const ns = ss[j] = {
+        angle: s.angle,
+        alpha: s.alpha,
+        colour: s.colour,
+        noLerp: s.noLerp,
+        pos: s.pos,
+        type: s.type,
+      }
+      
+      switch (s.type) {
+        case 'im':
+          ns.id = s.id;
+
+          const r = s.region;
+          if (r) {
+            ns.region = {
+              pos: r.pos ? [r.pos[0], r.pos[1]] : [0, 0],
+              size: r.size ? [r.size[0], r.size[1]] : [0, 0],
+            }
+          };
+          ns.size = s.size ? [s.size[0], s.size[1]] : [0, 0];
+          break;
+        case 'bx':
+          ns.size = s.size ? [s.size[0], s.size[1]] : [0, 0];
+          break;
+        case 'ci':
+          ns.size = s.size ? [s.size[0], s.size[1]] : [0, 0];
+          break;
+        case 'li':
+          ns.end = s.end ? [s.end[0], s.end[1]] : [0, 0];
+          ns.width = s.width;
+          break;
+        case 'po':
+          ns.scale = s.scale ? [s.scale[0], s.scale[1]] : [0, 0];
+          
+          let vs = s.vertices;
+          let nVs = ns.vertices = [];
+
+          for (let i = 0; i < vs.length; ++i) {
+            let v = vs[i];
+            nVs[i] = v ? [v[0], v[1]] : [0, 0];
+          }
+          break;
+        case 'tx':
+          ns.text = s.text;
+          ns.size = s.size;
+          ns.align = s.align;
+          ns.bold = s.bold;
+          ns.italic = s.italic;
+          ns.shadow = s.shadow;
+          break;
+      }
+    }
+  }
+
+  return copy;
+}
+
 // pretty self-explanatory
 window.getStaticInfo = (game) => {
   const staticInfo = copy(window.parent.gm.state.staticInfo);
@@ -38,15 +117,22 @@ window.getStaticInfo = (game) => {
 harden(getStaticInfo);
 
 window.getDynamicInfo = (game) => {
+  const oldDrawings = window.parent.gm.state.gameState.gmExtra.drawings;
+  window.parent.gm.state.gameState.gmExtra.drawings = undefined;
+
   const copied = copy({
     state: window.parent.gm.state.gameState,
     inputs: window.parent.gm.state.inputs,
   });
 
+  window.parent.gm.state.gameState.gmExtra.drawings = oldDrawings;
+
   game.state = copied.state;
   game.inputs = copied.inputs;
 
   const gmExtra = copied.state.gmExtra;
+  gmExtra.drawings = copyDrawings(oldDrawings);
+
 
   // cam/drawing props
   for (let i = 0; i < gmExtra.drawings.length; i++) {
