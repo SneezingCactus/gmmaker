@@ -34,6 +34,8 @@ function copyDrawings(drawings) {
   const copy = [];
   for (let i = 0; i < drawings.length; ++i) {
     const d = drawings[i];
+    if (!d)
+      continue;
 
     const nd = copy[i] = {
       alpha: d.alpha,
@@ -50,6 +52,9 @@ function copyDrawings(drawings) {
     const ss = nd.shapes;
     for (let j = 0; j < d.shapes.length; ++ j) {
       const s = d.shapes[j];
+      if (!s)
+        continue;
+
       const ns = ss[j] = {
         angle: s.angle,
         alpha: s.alpha,
