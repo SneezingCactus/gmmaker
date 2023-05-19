@@ -1,6 +1,8 @@
 import Blockly from 'blockly';
 import {javascriptGenerator} from 'blockly/javascript';
 import {FieldLexicalVariable} from '@mit-app-inventor/blockly-block-lexical-variables';
+import * as WarningHandler from '@mit-app-inventor/blockly-block-lexical-variables/src/warningHandler.js';
+import {ProcedureDatabase} from '@mit-app-inventor/blockly-block-lexical-variables/src/procedure_database.js';
 
 /**
  * Monkeypatches made after workspace creation.
@@ -8,7 +10,28 @@ import {FieldLexicalVariable} from '@mit-app-inventor/blockly-block-lexical-vari
 export default function() {
   const workspace = gm.editor.blocklyWs;
 
-  // why is it forcing me to do this??
+  // why is it forcing me to do this?? shouldn{t}
+  Blockly.Workspace.prototype.flydown_ = null;
+
+  Blockly.Workspace.prototype.getFlydown = function() {
+    return this.flydown_;
+  };
+
+  /**
+   * Obtain the {@link Blockly.ProcedureDatabase} associated with the workspace.
+   * @return {!Blockly.ProcedureDatabase}
+   */
+  Blockly.Workspace.prototype.getProcedureDatabase = function() {
+    if (!this.procedureDb_) {
+      this.procedureDb_ = new ProcedureDatabase(this);
+    }
+    return this.procedureDb_;
+  };
+
+  /**
+   * Get the topmost workspace in the workspace hierarchy.
+   * @return {Blockly.Workspace}
+   */
   Blockly.Workspace.prototype.getTopWorkspace = function() {
     let parent = this;
     while (parent.targetWorkspace) {
@@ -16,6 +39,12 @@ export default function() {
     }
     return parent;
   };
+
+  Blockly.Workspace.prototype.getWarningHandler = function() {
+    return WarningHandler;
+  };
+
+  Blockly.Block.prototype.getSvgRoot = function() {};
 
   Blockly.Variables.flyoutCategoryBlocks = function(workspace) {
     const variableModelList = workspace.getVariablesOfType('');

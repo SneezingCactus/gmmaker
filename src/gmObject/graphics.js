@@ -345,7 +345,10 @@ export default {
         } catch (e) {
           if (gm.state.crashed) return;
           gm.state.crashed = true;
-          setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!?
+          setTimeout(() => {
+            gm.state.crashAbort(e);
+            throw e;
+          }, 500); // gotta make sure we're out of the step function!?
           return;
         }
       };
@@ -516,7 +519,10 @@ export default {
         } catch (e) {
           if (gm.state.crashed) return;
           gm.state.crashed = true;
-          setTimeout(() => gm.state.crashAbort(e), 500); // gotta make sure we're out of the step function!?
+          setTimeout(() => {
+            gm.state.crashAbort(e);
+            throw e;
+          }, 500); // gotta make sure we're out of the step function!?
           return;
         }
       };

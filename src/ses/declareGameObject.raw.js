@@ -646,10 +646,13 @@ const shapeListProxies = [];
 const shapeProxies = [];
 const platListProxy = new Proxy({}, {
   get(_target, key) {
+    if (key === 'length') {
+      return game.state.physics.bodies.length;
+    }
     if (!platProxies[key]) {
       platProxies[key] = new Proxy([key], platProxyValidator);
     }
-    return platProxies[key];
+    return !game.state.physics.bodies[key] ? undefined : platProxies[key];
   },
 });
 
