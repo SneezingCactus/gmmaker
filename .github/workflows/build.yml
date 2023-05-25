@@ -31,3 +31,17 @@ jobs:
         name: 'gmmaker-extension'
         path: 'extension'
         if-no-files-found: error
+    - run: zip userscript.zip web-ext-artifacts/gmmaker*.user.js
+    - name: Send userscript to discord channel
+      uses: sinshutu/upload-to-discord@master
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      with:
+        args: userscript.zip
+    - run: mv web-ext-artifacts/game_mode_maker*.zip extension.zip
+    - name: Send extension to discord channel
+      uses: sinshutu/upload-to-discord@master
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      with:
+        args: extension.zip
