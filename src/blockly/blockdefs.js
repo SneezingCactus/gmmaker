@@ -424,6 +424,15 @@ module.exports = [
     'helpUrl': '',
   },
   {
+    'type': 'state_alive_discs',
+    'message0': 'all discs currently alive as list',
+    'inputsInline': true,
+    'output': 'Array',
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
     'type': 'disc_kill',
     'message0': 'kill disc %1 , %2 respawn',
     'args0': [

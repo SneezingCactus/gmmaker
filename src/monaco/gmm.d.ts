@@ -1558,6 +1558,10 @@ declare interface gameWorld {
    */
   public disableDeathBarrier: boolean;
   /**
+   * An array containing the IDs of every disc currently alive.
+   */
+  public aliveDiscs: number;
+  /**
    * Get the radius of a disc (affected by balance).
    * 
    * If given the ID of a disc that doesn't exist, it will return 1, as that's the

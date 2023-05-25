@@ -66,6 +66,10 @@ window.getDynamicInfo = (game) => {
   gmExtra.kills = [];
 
   // misc
+  gmExtra.aliveDiscs = [];
+  for (let i = 0; i < game.state.discs.length; i++) {
+    if (game.state.discs[i]) gmExtra.aliveDiscs.push(i);
+  }
   gmExtra.graphicsQuality = window.parent.BonkUtils.customControls.quality;
   gmExtra.gameLength = window.parent.gmReplaceAccessors.gameLength;
   gmExtra.endRound = false;
@@ -121,6 +125,7 @@ window.getDynamicInfo = (game) => {
   game.graphics.quality = gmExtra.graphicsQuality;
   game.graphics.camera = gmExtra.camera;
   game.graphics.drawings = gmExtra.drawings;
+  game.world.aliveDiscs = gmExtra.aliveDiscs;
   game.world.disableDeathBarrier = gmExtra.disableDeathBarrier;
 };
 harden(getDynamicInfo);
@@ -193,6 +198,9 @@ Math = newMath;
 // vector functions
 window.Vector = {
   add: (a, b) => {
+    if (!a) a = [0, 0];
+    if (!b) b = 0;
+
     let result = [...a];
 
     if (typeof b === 'number') {
@@ -208,6 +216,9 @@ window.Vector = {
     return result;
   },
   subtract: (a, b) => {
+    if (!a) a = [0, 0];
+    if (!b) b = 0;
+
     let result = [...a];
 
     if (typeof b === 'number') {
@@ -223,6 +234,9 @@ window.Vector = {
     return result;
   },
   multiply: (a, b) => {
+    if (!a) a = [0, 0];
+    if (!b) b = 1;
+
     let result = [...a];
 
     if (typeof b === 'number') {
@@ -238,6 +252,9 @@ window.Vector = {
     return result;
   },
   divide: (a, b) => {
+    if (!a) a = [0, 0];
+    if (!b) b = 1;
+
     let result = [...a];
 
     if (typeof b === 'number') {
@@ -253,6 +270,8 @@ window.Vector = {
     return result;
   },
   length: (v) => {
+    if (!v) return 0;
+
     let result = 0;
 
     for (let a = 0; a < v.length; a++) {
@@ -262,6 +281,8 @@ window.Vector = {
     return newMath.sqrt(result);
   },
   distance: (a, b) => {
+    if (!a || !b) return 0;
+
     let result = 0;
 
     for (let i = 0; i < a.length; i++) {
@@ -271,11 +292,15 @@ window.Vector = {
     return newMath.sqrt(result);
   },
   normalize: (v) => {
+    if (!v) return [0, 0];
+
     let result = [...v];
 
     return Vector.divide(result, Vector.length(result));
   },
   dot: (a, b) => {
+    if (!a || !b) return [0, 0];
+
     let result = 0;
 
     for (let i = 0; i < a.length; i++) {
@@ -285,6 +310,8 @@ window.Vector = {
     return result;
   },
   reflect: (a, b) => {
+    if (!a || !b) return [0, 0];
+
     let result = [];
     const normalizedB = Vector.normalize(b);
     const dot = Vector.dot(a, normalizedB);
@@ -296,6 +323,8 @@ window.Vector = {
     return result;
   },
   lerp: (a, b, t) => {
+    if (!a || !b || t === null || t === undefined) return [0, 0];
+
     let result = [];
 
     for (let i = 0; i < a.length; i++) {
@@ -305,6 +334,8 @@ window.Vector = {
     return result;
   },
   rotate2d: (v, a) => {
+    if (!v || a === null || a === undefined) return [0, 0];
+
     let result = [];
 
     result[0] = v[0] * newMath.cos(a) - v[1] * newMath.sin(a);
@@ -319,6 +350,8 @@ window.Vector = {
 
 window.Colour = {
   toRGBValues: function(colour) {
+    if (!colour) return [0, 0, 0];
+
     return [
       colour >> 16,
       colour >> 8 & 0xff,
@@ -326,6 +359,8 @@ window.Colour = {
     ];
   },
   toHSVValues: function(colour) {
+    if (!colour) return [0, 0, 0];
+
     const r = (colour >> 16) / 255;
     const g = (colour >> 8 & 0xff) / 255;
     const b = (colour & 0xff) / 255;
@@ -353,9 +388,13 @@ window.Colour = {
     return [h, s, max];
   },
   fromRGBValues: function(rgb) {
+    if (!rgb) return 0;
+
     return (Math.round(rgb[0]) << 16) + (Math.round(rgb[1]) << 8) + Math.round(rgb[2]);
   },
   fromHSVValues: function(hsv) {
+    if (!hsv) return 0;
+
     const c = hsv[1] * hsv[2];
     const h = hsv[0] % 360 / 60;
     const x = c * (1 - Math.abs(h % 2 - 1));
@@ -379,6 +418,9 @@ window.Colour = {
     return (Math.round(rgb[0]) << 16) + (Math.round(rgb[1]) << 8) + Math.round(rgb[2]);
   },
   blend: function(a, b, t) {
+    if (a === null || a === undefined || b === null || b === undefined ||
+        t === null || t === undefined) return 0;
+
     const rgbA = this.toRGBValues(a);
     const rgbB = this.toRGBValues(b);
 

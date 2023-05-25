@@ -691,6 +691,7 @@
           </shadow>
         </value>
       </block>
+      <block type="state_alive_discs"></block>
       <block type="disc_prop_set">
         <field name="set_option">set</field>
         <field name="property">p</field>

@@ -278,7 +278,7 @@ export default function() {
   JavaScript['disc_radius_get'] = function(block) {
     var id = JavaScript.valueToCode(block, 'id', JavaScript.ORDER_ATOMIC);
 
-    return [`game.world.getDiscRadius(${id})`, JavaScript.ORDER_NONE];
+    return [`game.world.getDiscRadius(${id})`, JavaScript.ORDER_FUNCTION_CALL];
   };
 
   JavaScript['disc_kill'] = function(block) {
@@ -287,6 +287,10 @@ export default function() {
 
     var code = `game.world.killDisc(${player_id}, ${allow_respawn});\n`;
     return code;
+  };
+
+  JavaScript['state_alive_discs'] = function(block) {
+    return [`game.world.aliveDiscs`, JavaScript.ORDER_MEMBER];
   };
 
   JavaScript['arrow_create'] = function(block) {

@@ -111,6 +111,7 @@ export default {
     document.getElementById('gmimportdialog_yes').addEventListener('click', gm.editor.GMEImportMapYes);
 
     document.getElementById('gmdb_close').addEventListener('click', gm.editor.GMEDatabaseHide);
+    document.getElementById('gmdb_modelist').addEventListener('scroll', gm.editor.GMEDatabaseScrollCheck);
     document.getElementById('gmdb_newesttab').addEventListener('click', () => gm.editor.GMEDatabaseChangeTab(false));
     document.getElementById('gmdb_oldesttab').addEventListener('click', () => gm.editor.GMEDatabaseChangeTab(true));
     document.getElementById('gmdb_searchbutton').addEventListener('click', gm.editor.GMEDatabaseSearch);
@@ -776,6 +777,8 @@ export default {
   changingToTextEditor: false,
   isInTextEditor: false,
   dbImageCache: {},
+  dbReachedBottom: true,
+  dbLastQuery: null,
   showGMEWindow: function() {
     document.getElementById('gmeditor').style.transform = 'scale(1)';
     document.getElementById('newbonklobby').style.transform = 'scale(0)';
@@ -1118,22 +1121,24 @@ export default {
     if (toOldest) {
       document.getElementById('gmdb_oldesttab').classList.remove('inactive');
 
-      query = firestore.query(
-          modes,
-          firestore.orderBy('time', 'asc'),
-          firestore.limit(10),
-      );
+      query = [
+        modes,
+        firestore.orderBy('time', 'asc'),
+        firestore.limit(10),
+      ];
     } else {
       document.getElementById('gmdb_newesttab').classList.remove('inactive');
 
-      query = firestore.query(
-          modes,
-          firestore.orderBy('time', 'desc'),
-          firestore.limit(10),
-      );
+      query = [
+        modes,
+        firestore.orderBy('time', 'desc'),
+        firestore.limit(10),
+      ];
     }
 
-    const results = await firestore.getDocs(query);
+    gm.editor.dbLastQuery = query;
+
+    const results = await firestore.getDocs(firestore.query(...query));
 
     if (!results.empty) {
       modeList.classList.remove('empty');
@@ -1143,7 +1148,32 @@ export default {
       return;
     }
 
+    gm.editor.dbLastModeTime = results.docs[results.docs.length - 1].data().time;
+    gm.editor.dbReachedBottom = results.size < 10;
     gm.editor.GMEDatabasePopulate(results);
+  },
+  GMEDatabaseScrollCheck: async function() {
+    if (gm.editor.dbReachedBottom) return;
+    gm.editor.dbReachedBottom = true; // to prevent double/triple fires
+
+    const modeList = document.getElementById('gmdb_modelist');
+
+    if (modeList.scrollTop >= (modeList.scrollHeight - modeList.offsetHeight - 10)) {
+      gm.editor.dbLastQuery.push(firestore.startAfter(gm.editor.dbLastModeTime));
+
+      const results = await firestore.getDocs(firestore.query(...gm.editor.dbLastQuery));
+
+      if (results.empty) {
+        gm.editor.dbReachedBottom = true;
+        return;
+      }
+
+      gm.editor.dbLastModeTime = results.docs[results.docs.length - 1].data().time;
+      gm.editor.dbReachedBottom = results.size < 10;
+      gm.editor.GMEDatabasePopulate(results);
+    } else {
+      gm.editor.dbReachedBottom = false;
+    }
   },
   GMEDatabasePopulate: function(queryResults) {
     const modeList = document.getElementById('gmdb_modelist');
