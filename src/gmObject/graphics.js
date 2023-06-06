@@ -923,7 +923,9 @@ class Drawing {
  */
 class BoxShape {
   constructor() {
-    this.displayObject = new PIXI.Graphics();
+    this.displayObject = new PIXI.Sprite(PIXI.Texture.WHITE);
+    this.displayObject.anchor.x = 0.5;
+    this.displayObject.anchor.y = 0.5;
     this.lastDrawDef = {};
   }
   hasChanged(newShapeDef) {
@@ -953,19 +955,13 @@ class BoxShape {
         lerpNumber(shapeDefA.size[1], shapeDefB.size[1], weight)],
     };
 
-    this.displayObject.clear();
-    this.displayObject.beginFill(this.lastDrawDef.colour);
-
-    const width = this.lastDrawDef.size[0] * scaleRatio;
-    const height = this.lastDrawDef.size[1] * scaleRatio;
-    this.displayObject.drawRect(width / -2, height / -2, width, height);
-
-    this.displayObject.endFill();
-
     this.displayObject.alpha = this.lastDrawDef.alpha;
     this.displayObject.x = this.lastDrawDef.pos[0] * scaleRatio;
     this.displayObject.y = this.lastDrawDef.pos[1] * scaleRatio;
+    this.displayObject.width = this.lastDrawDef.size[0] * scaleRatio;
+    this.displayObject.height = this.lastDrawDef.size[1] * scaleRatio;
     this.displayObject.angle = this.lastDrawDef.angle;
+    this.displayObject.tint = this.lastDrawDef.colour;
   }
   destroy() {
     this.displayObject.destroy();
@@ -1247,8 +1243,12 @@ class ImageShape {
 
     if (!shapeDefA.pos || !shapeDefB.pos || !shapeDefA.size || !shapeDefB.size) return;
 
-    const stringifiedRegionA = JSON.stringify(this.lastDrawDef.region);
-    const stringifiedRegionB = JSON.stringify(shapeDefB.region);
+    const ra = this.lastDrawDef.region, rb = shapeDefB.region;
+    const regionAEqualB = (ra != null && rb != null) ?
+    ra.pos[0] == rb.pos[1] &&
+    ra.pos[1] == ra.pos[1] &&
+    ra.size[0] == rb.size[0] &&
+    ra.size[1] == ra.size[1] : (ra == null && rb == null);
 
     // property check
     const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
@@ -1259,7 +1259,7 @@ class ImageShape {
     this.lastDrawDef.angle == shapeDefB.angle &&
     this.lastDrawDef.size[0] == shapeDefB.size[0] &&
     this.lastDrawDef.size[1] == shapeDefB.size[1] &&
-    stringifiedRegionA == stringifiedRegionB;
+    regionAEqualB;
 
     if (propsNoChange && !forceUpdate) return;
 
@@ -1281,7 +1281,7 @@ class ImageShape {
       id: shapeDefB.id,
     };
 
-    if (stringifiedRegionA != stringifiedRegionB || forceUpdate) {
+    if (!regionAEqualB || forceUpdate) {
       const frame = this.displayObject.texture.frame;
 
       if (shapeDefB.region) {
