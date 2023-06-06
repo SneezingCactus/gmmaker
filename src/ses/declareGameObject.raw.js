@@ -280,7 +280,7 @@ this.game = {
 
       if (cloneJoints) {
         for (let i = 0; i < game.state.physics.joints.length; i++) {
-          const joint = game.state.physics.joints[i];
+          let joint = game.state.physics.joints[i];
           if (!joint) continue;
 
           joint = JSON.parse(JSON.stringify(joint));

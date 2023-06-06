@@ -6,7 +6,7 @@ The sounds used in vanilla Bonk can also be played with `game.audio.playSound` o
 |---------------------------------|----------------------|
 | Collision between discs         | `discDisc`           |
 | Collision between disc and body | `platBounce`         |
-| Disc offscreen beep             | `discOffscreen`      |
+| Disc offscreen beep             | `discOffScreen`      |
 | Disc death                      | `discDeath`          |
 | Capture zone increase           | `capIncrease`        |
 | Capture zone decrease           | `capDecrease`        |

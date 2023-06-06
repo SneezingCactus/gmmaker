@@ -1104,7 +1104,9 @@ class PolyShape {
  */
 class LineShape {
   constructor() {
-    this.displayObject = new PIXI.Graphics();
+    this.displayObject = new PIXI.Sprite(PIXI.Texture.WHITE);
+    this.displayObject.anchor.x = 0;
+    this.displayObject.anchor.y = 0.5;
     this.lastDrawDef = {};
   }
   hasChanged(newShapeDef) {
@@ -1134,16 +1136,17 @@ class LineShape {
       width: lerpNumber(shapeDefA.width, shapeDefB.width, weight),
     };
 
-    this.displayObject.clear();
-    this.displayObject.lineStyle(
-        this.lastDrawDef.width * scaleRatio,
-        this.lastDrawDef.colour, this.lastDrawDef.alpha);
-    this.displayObject.moveTo(
-        this.lastDrawDef.pos[0] * scaleRatio,
-        this.lastDrawDef.pos[1] * scaleRatio);
-    this.displayObject.lineTo(
-        this.lastDrawDef.end[0] * scaleRatio,
-        this.lastDrawDef.end[1] * scaleRatio);
+    this.displayObject.alpha = this.lastDrawDef.alpha;
+    this.displayObject.x = this.lastDrawDef.pos[0] * scaleRatio;
+    this.displayObject.y = this.lastDrawDef.pos[1] * scaleRatio;
+    this.displayObject.height = this.lastDrawDef.width * scaleRatio;
+    this.displayObject.tint = this.lastDrawDef.colour;
+
+    const relX = this.lastDrawDef.end[0] - this.lastDrawDef.pos[0];
+    const relY = this.lastDrawDef.end[1] - this.lastDrawDef.pos[1];
+
+    this.displayObject.width = Math.sqrt(relX ** 2 + relY ** 2) * scaleRatio;
+    this.displayObject.rotation = Math.atan2(relY, relX);
   }
   destroy() {
     this.displayObject.destroy();
@@ -1243,7 +1246,7 @@ class ImageShape {
 
     if (!shapeDefA.pos || !shapeDefB.pos || !shapeDefA.size || !shapeDefB.size) return;
 
-    const ra = this.lastDrawDef.region, rb = shapeDefB.region;
+    const ra = this.lastDrawDef.region; const rb = shapeDefB.region;
     const regionAEqualB = (ra != null && rb != null) ?
     ra.pos[0] == rb.pos[1] &&
     ra.pos[1] == ra.pos[1] &&
@@ -1266,6 +1269,9 @@ class ImageShape {
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
     if (this.lastDrawDef.id != shapeDefB.id || this.displayObject.texture.baseTexture.cacheId === null) {
+      if (!gm.graphics.imageTextures[shapeDefB.id]) {
+        throw new ReferenceError('No image goes by that ID.')
+      }
       this.displayObject.texture = new PIXI.Texture(gm.graphics.imageTextures[shapeDefB.id]);
     }
 

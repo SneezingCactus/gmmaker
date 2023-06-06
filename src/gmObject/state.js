@@ -12,6 +12,7 @@ export default {
   init: function() {
     // we must first init the SES part then the rest
     const compContainer = document.createElement('iframe');
+    compContainer.id = 'gmSandbox';
     document.head.appendChild(compContainer);
 
     compContainer.contentWindow.eval(sesCode);

@@ -63,11 +63,15 @@ export default {
     if (!Number.isFinite(volume)) return;
     if (!Number.isFinite(panning)) return;
 
+    if (id == 'discDeath') id += Math.floor(Math.random() * 2.999);
+
     const soundHowl = GameResources.soundStrings[id] ? new Howl({
       src: GameResources.soundStrings[id],
       volume: volume,
       gmId: id,
     }) : this.customSounds[id]?.howl;
+
+    if (!soundHowl) return;
 
     const soundId = soundHowl.play();
     soundHowl.stereo(panning, soundId);

@@ -46,6 +46,31 @@ module.exports = [
   },
 
   {
+    'type': 'misc_obj_exists',
+    'message0': '%1 exists',
+    'args0': [
+      {
+        'type': 'input_value',
+        'name': 'obj',
+        'check': 'Any',
+      },
+    ],
+    'inputsInline': true,
+    'output': 'Boolean',
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'state_alive_discs',
+    'message0': 'all discs currently alive as list',
+    'inputsInline': true,
+    'output': 'Array',
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
     'type': 'disc_prop_set',
     'message0': '%1 disc %2 \'s %3 to %4',
     'args0': [
@@ -2108,7 +2133,7 @@ module.exports = [
           ],
           [
             'disc offscreen beep',
-            'discOffscreen',
+            'discOffScreen',
           ],
           [
             'disc death',

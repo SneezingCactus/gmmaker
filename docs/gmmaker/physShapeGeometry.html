@@ -4,7 +4,7 @@
 <html lang="en">
   <head><link rel="shortcut icon" href="/gmmaker/docs/favicon.ico">
     <meta charset="utf-8" />
-    <title>GMMaker docs: mapMetadata</title>
+    <title>GMMaker docs: physShapeGeometry</title>
 
     
 
@@ -70,21 +70,21 @@
         &gt;
       
       
-      <span>mapMetadata</span>
+      <span>physShapeGeometry</span>
     </div>
     <section class="document__title ">
       <h1>
-        mapMetadata
+        physShapeGeometry
       </h1>
       
     </section>
 
     
-<pre class="signature__container"><code class="signature">interface mapMetadata</code></pre>
+<pre class="signature__container"><code class="signature">interface physShapeGeometry</code></pre>
 
 
     <div class="document__brief">
-<p>Contains a bunch of info about a map, such as the username of the person who created it, the name of the map, etc.</p>
+<p>Definition of a shape's geometry data.</p>
 </div>
     <div class="document__description"></div>
 
@@ -110,7 +110,7 @@
         <img class="accordion__bg-inactive" src="/gmmaker/docs/icons/chevron-down.svg"/>
         <img class="accordion__bg-active" src="/gmmaker/docs/icons/chevron-up.svg"/>
       </button>
-      <h3 class="members__subcategory">Properties from mapMetadata</h3>
+      <h3 class="members__subcategory">Properties from physShapeGeometry</h3>
     </section>
     <div class="accordion__content table-wrapper">
       <table class="summary">
@@ -119,16 +119,34 @@
             <tr>
               <td class="summary__signature">
                 
-                  string
+                  number
                 
               </td>
               <td>
                 <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#a">a</a>
+                  <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#a">a</a>
                 </section>
                 <section>
                   
-                    <p>Map author's username.</p>
+                    <p>[Box and polygon only] Angle in degrees. Changing it does not affect polygons, as their vertices have already been affected by it beforehand.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  vector2d
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#c">c</a>
+                </section>
+                <section>
+                  
+                    <p>Shape offset. Changing this coordinate will have no effect on polygons, only on circles and boxes.</p>
                   
                 </section>
               </td>
@@ -142,11 +160,11 @@
               </td>
               <td>
                 <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#dbv">dbv</a>
+                  <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#r">r</a>
                 </section>
                 <section>
                   
-                    <p>Lilely stands for &quot;database version&quot;. Maps published in flash bonk.io will have dbv 1, while maps published in current bonk.io will have dbv 2.</p>
+                    <p>[Circle only] Radius of the circle.</p>
                   
                 </section>
               </td>
@@ -155,88 +173,16 @@
             <tr>
               <td class="summary__signature">
                 
-                  string
+                  vector2d
                 
               </td>
               <td>
                 <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#mo">mo</a>
+                  <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#s">s</a>
                 </section>
                 <section>
                   
-                    <p>Recommended mode for this map.</p>
-                  
-                </section>
-              </td>
-            </tr>
-          
-            <tr>
-              <td class="summary__signature">
-                
-                  string
-                
-              </td>
-              <td>
-                <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#n">n</a>
-                </section>
-                <section>
-                  
-                    <p>The name of the map.</p>
-                  
-                </section>
-              </td>
-            </tr>
-          
-            <tr>
-              <td class="summary__signature">
-                
-                  string | null
-                
-              </td>
-              <td>
-                <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxa">rxa</a>
-                </section>
-                <section>
-                  
-                    <p>Original map author's username. This is only present in edited maps. In completely original maps, it gets set to &quot;&quot; (an empty string).</p>
-                  
-                </section>
-              </td>
-            </tr>
-          
-            <tr>
-              <td class="summary__signature">
-                
-                  number | null
-                
-              </td>
-              <td>
-                <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxdb">rxdb</a>
-                </section>
-                <section>
-                  
-                    <p>Original database version (refer to <code>dbv</code>'s description). This is only present in edited maps. In completely original maps, it gets set to 1.</p>
-                  
-                </section>
-              </td>
-            </tr>
-          
-            <tr>
-              <td class="summary__signature">
-                
-                  string | null
-                
-              </td>
-              <td>
-                <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxn">rxn</a>
-                </section>
-                <section>
-                  
-                    <p>Original map name. This is only present in edited maps. In completely original maps, it gets set to &quot;&quot; (an empty string).</p>
+                    <p>[Box only] Size of the box, as a vector (x axis is width, y axis is height).</p>
                   
                 </section>
               </td>
@@ -250,11 +196,11 @@
               </td>
               <td>
                 <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#vd">vd</a>
+                  <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#s">s</a>
                 </section>
                 <section>
                   
-                    <p>The amount of downvotes the map received.</p>
+                    <p>[Polygon only] The scale of the polygon defined in the map editor. Changing this value will have no effect on the polygon.</p>
                   
                 </section>
               </td>
@@ -263,16 +209,52 @@
             <tr>
               <td class="summary__signature">
                 
-                  number
+                  boolean
                 
               </td>
               <td>
                 <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#vu">vu</a>
+                  <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#sk">sk</a>
                 </section>
                 <section>
                   
-                    <p>The amount of upvotes the map received.</p>
+                    <p>[Box and circle only] Whether the shape will shrink or not.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  "bx" | "ci" | "po"
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#type">type</a>
+                </section>
+                <section>
+                  
+                    <p>Geometry type.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  vector2d[]
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#v">v</a>
+                </section>
+                <section>
+                  
+                    <p>[Polygon only] The vertices that make up the polygon.</p>
                   
                 </section>
               </td>
@@ -320,7 +302,7 @@
 <div class="member" id="a" data-id="PropertyDoc:a">
   
     <section class="member__title " data-id="PropertyDoc:a">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#a">
+      <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#a">
         <img
           src="/gmmaker/docs/icons/link.svg"
           width="16px"
@@ -334,8 +316,8 @@
       
         <span class="tag--source">
           
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#654">
-              gmm.d.ts:654
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#456">
+              gmm.d.ts:456
             </a>
           
         </span>
@@ -343,58 +325,7 @@
     </section>
   
   
-<pre class="signature__container"><code class="signature">a: string
-
-string</code></pre>
-
-  <section class="member__tags">
-    
-  </section>
-
-  <div class="member__brief">
-<p>Map author's username.</p>
-</div>
-  <div class="member__description"></div>
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-
-  
-    
-<div class="member" id="dbv" data-id="PropertyDoc:dbv">
-  
-    <section class="member__title " data-id="PropertyDoc:dbv">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#dbv">
-        <img
-          src="/gmmaker/docs/icons/link.svg"
-          width="16px"
-          height="16px"
-        />
-      </a>
-      <span class="member__title_content">
-        <span>dbv</span>
-        
-      </span>
-      
-        <span class="tag--source">
-          
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#658">
-              gmm.d.ts:658
-            </a>
-          
-        </span>
-      
-    </section>
-  
-  
-<pre class="signature__container"><code class="signature">dbv: number
+<pre class="signature__container"><code class="signature">a: number
 
 number</code></pre>
 
@@ -403,7 +334,7 @@ number</code></pre>
   </section>
 
   <div class="member__brief">
-<p>Lilely stands for &quot;database version&quot;. Maps published in flash bonk.io will have dbv 1, while maps published in current bonk.io will have dbv 2.</p>
+<p>[Box and polygon only] Angle in degrees. Changing it does not affect polygons, as their vertices have already been affected by it beforehand.</p>
 </div>
   <div class="member__description"></div>
 
@@ -419,10 +350,10 @@ number</code></pre>
 
   
     
-<div class="member" id="mo" data-id="PropertyDoc:mo">
+<div class="member" id="c" data-id="PropertyDoc:c">
   
-    <section class="member__title " data-id="PropertyDoc:mo">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#mo">
+    <section class="member__title " data-id="PropertyDoc:c">
+      <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#c">
         <img
           src="/gmmaker/docs/icons/link.svg"
           width="16px"
@@ -430,14 +361,14 @@ number</code></pre>
         />
       </a>
       <span class="member__title_content">
-        <span>mo</span>
+        <span>c</span>
         
       </span>
       
         <span class="tag--source">
           
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#660">
-              gmm.d.ts:660
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#448">
+              gmm.d.ts:448
             </a>
           
         </span>
@@ -445,26 +376,278 @@ number</code></pre>
     </section>
   
   
-<pre class="signature__container"><code class="signature">mo: string
+<pre class="signature__container"><code class="signature">c: vector2d
 
-string</code></pre>
+vector2d</code></pre>
 
   <section class="member__tags">
     
   </section>
 
   <div class="member__brief">
-<p>Recommended mode for this map.</p>
+<p>Shape offset. Changing this coordinate will have no effect on polygons, only on circles and boxes.</p>
+</div>
+  <div class="member__description"></div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="r" data-id="PropertyDoc:r">
+  
+    <section class="member__title " data-id="PropertyDoc:r">
+      <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#r">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>r</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#468">
+              gmm.d.ts:468
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">r: number
+
+number</code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p>[Circle only] Radius of the circle.</p>
+</div>
+  <div class="member__description"></div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="s" data-id="PropertyDoc:s">
+  
+    <section class="member__title " data-id="PropertyDoc:s">
+      <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#s">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>s</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#452">
+              gmm.d.ts:452
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">s: vector2d
+
+vector2d</code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p>[Box only] Size of the box, as a vector (x axis is width, y axis is height).</p>
+</div>
+  <div class="member__description"></div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="s" data-id="PropertyDoc:s">
+  
+    <section class="member__title " data-id="PropertyDoc:s">
+      <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#s_">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>s</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#464">
+              gmm.d.ts:464
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">s: number
+
+number</code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p>[Polygon only] The scale of the polygon defined in the map editor. Changing this value will have no effect on the polygon.</p>
+</div>
+  <div class="member__description"></div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="sk" data-id="PropertyDoc:sk">
+  
+    <section class="member__title " data-id="PropertyDoc:sk">
+      <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#sk">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>sk</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#472">
+              gmm.d.ts:472
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">sk: boolean
+
+boolean</code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p>[Box and circle only] Whether the shape will shrink or not.</p>
+</div>
+  <div class="member__description"></div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="type" data-id="PropertyDoc:type">
+  
+    <section class="member__title " data-id="PropertyDoc:type">
+      <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#type">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>type</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#439">
+              gmm.d.ts:439
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">type: "bx" | "ci" | "po"
+
+"bx" | "ci" | "po"</code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p>Geometry type.</p>
 </div>
   <div class="member__description">
-<p>Modes are internally represented by an ID:</p>
+<p>Can be:</p>
 <ul>
-<li>&quot;b&quot; is Classic</li>
-<li>&quot;bs&quot; is Simple</li>
-<li>&quot;ar&quot; is Arrows</li>
-<li>&quot;ard&quot; is Death Arrows</li>
-<li>&quot;sp&quot; is Grapple</li>
-<li>&quot;v&quot; is VTOL</li>
+<li>&quot;bx&quot;: A box (rectangle)</li>
+<li>&quot;ci&quot;: A circle</li>
+<li>&quot;po&quot;: A polygon.</li>
 </ul>
 </div>
 
@@ -480,10 +663,10 @@ string</code></pre>
 
   
     
-<div class="member" id="n" data-id="PropertyDoc:n">
+<div class="member" id="v" data-id="PropertyDoc:v">
   
-    <section class="member__title " data-id="PropertyDoc:n">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#n">
+    <section class="member__title " data-id="PropertyDoc:v">
+      <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html#v">
         <img
           src="/gmmaker/docs/icons/link.svg"
           width="16px"
@@ -491,14 +674,14 @@ string</code></pre>
         />
       </a>
       <span class="member__title_content">
-        <span>n</span>
+        <span>v</span>
         
       </span>
       
         <span class="tag--source">
           
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#656">
-              gmm.d.ts:656
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#460">
+              gmm.d.ts:460
             </a>
           
         </span>
@@ -506,271 +689,16 @@ string</code></pre>
     </section>
   
   
-<pre class="signature__container"><code class="signature">n: string
+<pre class="signature__container"><code class="signature">v: vector2d[]
 
-string</code></pre>
-
-  <section class="member__tags">
-    
-  </section>
-
-  <div class="member__brief">
-<p>The name of the map.</p>
-</div>
-  <div class="member__description"></div>
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-
-  
-    
-<div class="member" id="rxa" data-id="PropertyDoc:rxa">
-  
-    <section class="member__title " data-id="PropertyDoc:rxa">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxa">
-        <img
-          src="/gmmaker/docs/icons/link.svg"
-          width="16px"
-          height="16px"
-        />
-      </a>
-      <span class="member__title_content">
-        <span>rxa</span>
-        
-      </span>
-      
-        <span class="tag--source">
-          
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#675">
-              gmm.d.ts:675
-            </a>
-          
-        </span>
-      
-    </section>
-  
-  
-<pre class="signature__container"><code class="signature">rxa: string | null
-
-string | null</code></pre>
+vector2d[]</code></pre>
 
   <section class="member__tags">
     
   </section>
 
   <div class="member__brief">
-<p>Original map author's username. This is only present in edited maps. In completely original maps, it gets set to &quot;&quot; (an empty string).</p>
-</div>
-  <div class="member__description"></div>
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-
-  
-    
-<div class="member" id="rxdb" data-id="PropertyDoc:rxdb">
-  
-    <section class="member__title " data-id="PropertyDoc:rxdb">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxdb">
-        <img
-          src="/gmmaker/docs/icons/link.svg"
-          width="16px"
-          height="16px"
-        />
-      </a>
-      <span class="member__title_content">
-        <span>rxdb</span>
-        
-      </span>
-      
-        <span class="tag--source">
-          
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#679">
-              gmm.d.ts:679
-            </a>
-          
-        </span>
-      
-    </section>
-  
-  
-<pre class="signature__container"><code class="signature">rxdb: number | null
-
-number | null</code></pre>
-
-  <section class="member__tags">
-    
-  </section>
-
-  <div class="member__brief">
-<p>Original database version (refer to <code>dbv</code>'s description). This is only present in edited maps. In completely original maps, it gets set to 1.</p>
-</div>
-  <div class="member__description"></div>
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-
-  
-    
-<div class="member" id="rxn" data-id="PropertyDoc:rxn">
-  
-    <section class="member__title " data-id="PropertyDoc:rxn">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxn">
-        <img
-          src="/gmmaker/docs/icons/link.svg"
-          width="16px"
-          height="16px"
-        />
-      </a>
-      <span class="member__title_content">
-        <span>rxn</span>
-        
-      </span>
-      
-        <span class="tag--source">
-          
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#677">
-              gmm.d.ts:677
-            </a>
-          
-        </span>
-      
-    </section>
-  
-  
-<pre class="signature__container"><code class="signature">rxn: string | null
-
-string | null</code></pre>
-
-  <section class="member__tags">
-    
-  </section>
-
-  <div class="member__brief">
-<p>Original map name. This is only present in edited maps. In completely original maps, it gets set to &quot;&quot; (an empty string).</p>
-</div>
-  <div class="member__description"></div>
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-
-  
-    
-<div class="member" id="vd" data-id="PropertyDoc:vd">
-  
-    <section class="member__title " data-id="PropertyDoc:vd">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#vd">
-        <img
-          src="/gmmaker/docs/icons/link.svg"
-          width="16px"
-          height="16px"
-        />
-      </a>
-      <span class="member__title_content">
-        <span>vd</span>
-        
-      </span>
-      
-        <span class="tag--source">
-          
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#673">
-              gmm.d.ts:673
-            </a>
-          
-        </span>
-      
-    </section>
-  
-  
-<pre class="signature__container"><code class="signature">vd: number
-
-number</code></pre>
-
-  <section class="member__tags">
-    
-  </section>
-
-  <div class="member__brief">
-<p>The amount of downvotes the map received.</p>
-</div>
-  <div class="member__description"></div>
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-
-  
-    
-<div class="member" id="vu" data-id="PropertyDoc:vu">
-  
-    <section class="member__title " data-id="PropertyDoc:vu">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#vu">
-        <img
-          src="/gmmaker/docs/icons/link.svg"
-          width="16px"
-          height="16px"
-        />
-      </a>
-      <span class="member__title_content">
-        <span>vu</span>
-        
-      </span>
-      
-        <span class="tag--source">
-          
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#671">
-              gmm.d.ts:671
-            </a>
-          
-        </span>
-      
-    </section>
-  
-  
-<pre class="signature__container"><code class="signature">vu: number
-
-number</code></pre>
-
-  <section class="member__tags">
-    
-  </section>
-
-  <div class="member__brief">
-<p>The amount of upvotes the map received.</p>
+<p>[Polygon only] The vertices that make up the polygon.</p>
 </div>
   <div class="member__description"></div>
 
@@ -814,39 +742,35 @@ number</code></pre>
   <ul class="page-members-explorer-category__items">
     
       <li class="page-members-explorer__item" data-id="PropertyDoc:a">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#a>a</a>
+        <a href=/gmmaker/docs/gmmaker/physShapeGeometry.html#a>a</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:dbv">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#dbv>dbv</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:c">
+        <a href=/gmmaker/docs/gmmaker/physShapeGeometry.html#c>c</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:mo">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#mo>mo</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:r">
+        <a href=/gmmaker/docs/gmmaker/physShapeGeometry.html#r>r</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:n">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#n>n</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:s">
+        <a href=/gmmaker/docs/gmmaker/physShapeGeometry.html#s>s</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:rxa">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#rxa>rxa</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:s">
+        <a href=/gmmaker/docs/gmmaker/physShapeGeometry.html#s>s</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:rxdb">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#rxdb>rxdb</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:sk">
+        <a href=/gmmaker/docs/gmmaker/physShapeGeometry.html#sk>sk</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:rxn">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#rxn>rxn</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:type">
+        <a href=/gmmaker/docs/gmmaker/physShapeGeometry.html#type>type</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:vd">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#vd>vd</a>
-      </li>
-    
-      <li class="page-members-explorer__item" data-id="PropertyDoc:vu">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#vu>vu</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:v">
+        <a href=/gmmaker/docs/gmmaker/physShapeGeometry.html#v>v</a>
       </li>
     
   </ul>

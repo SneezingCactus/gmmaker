@@ -4,7 +4,7 @@
 <html lang="en">
   <head><link rel="shortcut icon" href="/gmmaker/docs/favicon.ico">
     <meta charset="utf-8" />
-    <title>GMMaker docs: mapMetadata</title>
+    <title>GMMaker docs: physShape</title>
 
     
 
@@ -70,21 +70,21 @@
         &gt;
       
       
-      <span>mapMetadata</span>
+      <span>physShape</span>
     </div>
     <section class="document__title ">
       <h1>
-        mapMetadata
+        physShape
       </h1>
       
     </section>
 
     
-<pre class="signature__container"><code class="signature">interface mapMetadata</code></pre>
+<pre class="signature__container"><code class="signature">interface physShape</code></pre>
 
 
     <div class="document__brief">
-<p>Contains a bunch of info about a map, such as the username of the person who created it, the name of the map, etc.</p>
+<p>Definition of a shape.</p>
 </div>
     <div class="document__description"></div>
 
@@ -110,7 +110,7 @@
         <img class="accordion__bg-inactive" src="/gmmaker/docs/icons/chevron-down.svg"/>
         <img class="accordion__bg-active" src="/gmmaker/docs/icons/chevron-up.svg"/>
       </button>
-      <h3 class="members__subcategory">Properties from mapMetadata</h3>
+      <h3 class="members__subcategory">Properties from physShape</h3>
     </section>
     <div class="accordion__content table-wrapper">
       <table class="summary">
@@ -119,88 +119,16 @@
             <tr>
               <td class="summary__signature">
                 
-                  string
+                  boolean
                 
               </td>
               <td>
                 <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#a">a</a>
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#d">d</a>
                 </section>
                 <section>
                   
-                    <p>Map author's username.</p>
-                  
-                </section>
-              </td>
-            </tr>
-          
-            <tr>
-              <td class="summary__signature">
-                
-                  number
-                
-              </td>
-              <td>
-                <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#dbv">dbv</a>
-                </section>
-                <section>
-                  
-                    <p>Lilely stands for &quot;database version&quot;. Maps published in flash bonk.io will have dbv 1, while maps published in current bonk.io will have dbv 2.</p>
-                  
-                </section>
-              </td>
-            </tr>
-          
-            <tr>
-              <td class="summary__signature">
-                
-                  string
-                
-              </td>
-              <td>
-                <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#mo">mo</a>
-                </section>
-                <section>
-                  
-                    <p>Recommended mode for this map.</p>
-                  
-                </section>
-              </td>
-            </tr>
-          
-            <tr>
-              <td class="summary__signature">
-                
-                  string
-                
-              </td>
-              <td>
-                <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#n">n</a>
-                </section>
-                <section>
-                  
-                    <p>The name of the map.</p>
-                  
-                </section>
-              </td>
-            </tr>
-          
-            <tr>
-              <td class="summary__signature">
-                
-                  string | null
-                
-              </td>
-              <td>
-                <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxa">rxa</a>
-                </section>
-                <section>
-                  
-                    <p>Original map author's username. This is only present in edited maps. In completely original maps, it gets set to &quot;&quot; (an empty string).</p>
+                    <p><code>true</code> if this shape can kill players, <code>false</code> otherwise.</p>
                   
                 </section>
               </td>
@@ -214,29 +142,11 @@
               </td>
               <td>
                 <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxdb">rxdb</a>
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#de">de</a>
                 </section>
                 <section>
                   
-                    <p>Original database version (refer to <code>dbv</code>'s description). This is only present in edited maps. In completely original maps, it gets set to 1.</p>
-                  
-                </section>
-              </td>
-            </tr>
-          
-            <tr>
-              <td class="summary__signature">
-                
-                  string | null
-                
-              </td>
-              <td>
-                <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxn">rxn</a>
-                </section>
-                <section>
-                  
-                    <p>Original map name. This is only present in edited maps. In completely original maps, it gets set to &quot;&quot; (an empty string).</p>
+                    <p>Density of the shape. If set to <code>null</code>, the platform's density will be used here.</p>
                   
                 </section>
               </td>
@@ -250,11 +160,11 @@
               </td>
               <td>
                 <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#vd">vd</a>
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#f">f</a>
                 </section>
                 <section>
                   
-                    <p>The amount of downvotes the map received.</p>
+                    <p>Colour of the shape.</p>
                   
                 </section>
               </td>
@@ -263,16 +173,142 @@
             <tr>
               <td class="summary__signature">
                 
-                  number
+                  boolean | null
                 
               </td>
               <td>
                 <section class="summary__signature">
-                  <a href="/gmmaker/docs/gmmaker/mapMetadata.html#vu">vu</a>
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#fp">fp</a>
                 </section>
                 <section>
                   
-                    <p>The amount of upvotes the map received.</p>
+                    <p><code>true</code> if this shape can apply friction on players (Fric players), <code>false</code> otherwise.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  number | null
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#fr">fr</a>
+                </section>
+                <section>
+                  
+                    <p>Friction of the shape's surface. If set to <code>null</code>, the platform's friction will be used here.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html">physShapeGeometry</a>
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#geo">geo</a>
+                </section>
+                <section>
+                  
+                    <p>The shape's geometry parameters.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  boolean
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#ig">ig</a>
+                </section>
+                <section>
+                  
+                    <p><code>true</code> if this shape can be grappled from the inside, <code>false</code> otherwise.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  string
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#n">n</a>
+                </section>
+                <section>
+                  
+                    <p>Name of the shape.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  boolean
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#ng">ng</a>
+                </section>
+                <section>
+                  
+                    <p><code>true</code> if this shape can't be grappled, <code>false</code> otherwise.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  boolean
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#np">np</a>
+                </section>
+                <section>
+                  
+                    <p><code>true</code> if this shape is no physics, <code>false</code> otherwise.</p>
+                  
+                </section>
+              </td>
+            </tr>
+          
+            <tr>
+              <td class="summary__signature">
+                
+                  number | null
+                
+              </td>
+              <td>
+                <section class="summary__signature">
+                  <a href="/gmmaker/docs/gmmaker/physShape.html#re">re</a>
+                </section>
+                <section>
+                  
+                    <p>Restitution (bounciness) of the shape. If set to <code>null</code>, the platform's restitution will be used here.</p>
                   
                 </section>
               </td>
@@ -317,10 +353,10 @@
 
   
     
-<div class="member" id="a" data-id="PropertyDoc:a">
+<div class="member" id="d" data-id="PropertyDoc:d">
   
-    <section class="member__title " data-id="PropertyDoc:a">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#a">
+    <section class="member__title " data-id="PropertyDoc:d">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#d">
         <img
           src="/gmmaker/docs/icons/link.svg"
           width="16px"
@@ -328,14 +364,14 @@
         />
       </a>
       <span class="member__title_content">
-        <span>a</span>
+        <span>d</span>
         
       </span>
       
         <span class="tag--source">
           
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#654">
-              gmm.d.ts:654
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#417">
+              gmm.d.ts:417
             </a>
           
         </span>
@@ -343,16 +379,16 @@
     </section>
   
   
-<pre class="signature__container"><code class="signature">a: string
+<pre class="signature__container"><code class="signature">d: boolean
 
-string</code></pre>
+boolean</code></pre>
 
   <section class="member__tags">
     
   </section>
 
   <div class="member__brief">
-<p>Map author's username.</p>
+<p><code>true</code> if this shape can kill players, <code>false</code> otherwise.</p>
 </div>
   <div class="member__description"></div>
 
@@ -368,10 +404,10 @@ string</code></pre>
 
   
     
-<div class="member" id="dbv" data-id="PropertyDoc:dbv">
+<div class="member" id="de" data-id="PropertyDoc:de">
   
-    <section class="member__title " data-id="PropertyDoc:dbv">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#dbv">
+    <section class="member__title " data-id="PropertyDoc:de">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#de">
         <img
           src="/gmmaker/docs/icons/link.svg"
           width="16px"
@@ -379,14 +415,14 @@ string</code></pre>
         />
       </a>
       <span class="member__title_content">
-        <span>dbv</span>
+        <span>de</span>
         
       </span>
       
         <span class="tag--source">
           
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#658">
-              gmm.d.ts:658
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#413">
+              gmm.d.ts:413
             </a>
           
         </span>
@@ -394,7 +430,58 @@ string</code></pre>
     </section>
   
   
-<pre class="signature__container"><code class="signature">dbv: number
+<pre class="signature__container"><code class="signature">de: number | null
+
+number | null</code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p>Density of the shape. If set to <code>null</code>, the platform's density will be used here.</p>
+</div>
+  <div class="member__description"></div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="f" data-id="PropertyDoc:f">
+  
+    <section class="member__title " data-id="PropertyDoc:f">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#f">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>f</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#395">
+              gmm.d.ts:395
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">f: number
 
 number</code></pre>
 
@@ -403,7 +490,7 @@ number</code></pre>
   </section>
 
   <div class="member__brief">
-<p>Lilely stands for &quot;database version&quot;. Maps published in flash bonk.io will have dbv 1, while maps published in current bonk.io will have dbv 2.</p>
+<p>Colour of the shape.</p>
 </div>
   <div class="member__description"></div>
 
@@ -419,10 +506,10 @@ number</code></pre>
 
   
     
-<div class="member" id="mo" data-id="PropertyDoc:mo">
+<div class="member" id="fp" data-id="PropertyDoc:fp">
   
-    <section class="member__title " data-id="PropertyDoc:mo">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#mo">
+    <section class="member__title " data-id="PropertyDoc:fp">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#fp">
         <img
           src="/gmmaker/docs/icons/link.svg"
           width="16px"
@@ -430,14 +517,14 @@ number</code></pre>
         />
       </a>
       <span class="member__title_content">
-        <span>mo</span>
+        <span>fp</span>
         
       </span>
       
         <span class="tag--source">
           
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#660">
-              gmm.d.ts:660
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#399">
+              gmm.d.ts:399
             </a>
           
         </span>
@@ -445,28 +532,173 @@ number</code></pre>
     </section>
   
   
-<pre class="signature__container"><code class="signature">mo: string
+<pre class="signature__container"><code class="signature">fp: boolean | null
 
-string</code></pre>
+boolean | null</code></pre>
 
   <section class="member__tags">
     
   </section>
 
   <div class="member__brief">
-<p>Recommended mode for this map.</p>
+<p><code>true</code> if this shape can apply friction on players (Fric players), <code>false</code> otherwise.</p>
 </div>
   <div class="member__description">
-<p>Modes are internally represented by an ID:</p>
-<ul>
-<li>&quot;b&quot; is Classic</li>
-<li>&quot;bs&quot; is Simple</li>
-<li>&quot;ar&quot; is Arrows</li>
-<li>&quot;ard&quot; is Death Arrows</li>
-<li>&quot;sp&quot; is Grapple</li>
-<li>&quot;v&quot; is VTOL</li>
-</ul>
+<p>If set to <code>null</code>, the platform's fric players will be used here.</p>
 </div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="fr" data-id="PropertyDoc:fr">
+  
+    <section class="member__title " data-id="PropertyDoc:fr">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#fr">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>fr</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#405">
+              gmm.d.ts:405
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">fr: number | null
+
+number | null</code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p>Friction of the shape's surface. If set to <code>null</code>, the platform's friction will be used here.</p>
+</div>
+  <div class="member__description"></div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="geo" data-id="PropertyDoc:geo">
+  
+    <section class="member__title " data-id="PropertyDoc:geo">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#geo">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>geo</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#387">
+              gmm.d.ts:387
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">geo: <a href="/gmmaker/docs/gmmaker/physShapeGeometry.html">physShapeGeometry</a>
+
+<a href="/gmmaker/docs/gmmaker/physShapeGeometry.html">physShapeGeometry</a></code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p>The shape's geometry parameters.</p>
+</div>
+  <div class="member__description"></div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="ig" data-id="PropertyDoc:ig">
+  
+    <section class="member__title " data-id="PropertyDoc:ig">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#ig">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>ig</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#429">
+              gmm.d.ts:429
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">ig: boolean
+
+boolean</code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p><code>true</code> if this shape can be grappled from the inside, <code>false</code> otherwise.</p>
+</div>
+  <div class="member__description"></div>
 
   
 
@@ -483,7 +715,7 @@ string</code></pre>
 <div class="member" id="n" data-id="PropertyDoc:n">
   
     <section class="member__title " data-id="PropertyDoc:n">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#n">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#n">
         <img
           src="/gmmaker/docs/icons/link.svg"
           width="16px"
@@ -497,8 +729,8 @@ string</code></pre>
       
         <span class="tag--source">
           
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#656">
-              gmm.d.ts:656
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#391">
+              gmm.d.ts:391
             </a>
           
         </span>
@@ -515,7 +747,7 @@ string</code></pre>
   </section>
 
   <div class="member__brief">
-<p>The name of the map.</p>
+<p>Name of the shape.</p>
 </div>
   <div class="member__description"></div>
 
@@ -531,10 +763,10 @@ string</code></pre>
 
   
     
-<div class="member" id="rxa" data-id="PropertyDoc:rxa">
+<div class="member" id="ng" data-id="PropertyDoc:ng">
   
-    <section class="member__title " data-id="PropertyDoc:rxa">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxa">
+    <section class="member__title " data-id="PropertyDoc:ng">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#ng">
         <img
           src="/gmmaker/docs/icons/link.svg"
           width="16px"
@@ -542,14 +774,14 @@ string</code></pre>
         />
       </a>
       <span class="member__title_content">
-        <span>rxa</span>
+        <span>ng</span>
         
       </span>
       
         <span class="tag--source">
           
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#675">
-              gmm.d.ts:675
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#425">
+              gmm.d.ts:425
             </a>
           
         </span>
@@ -557,16 +789,16 @@ string</code></pre>
     </section>
   
   
-<pre class="signature__container"><code class="signature">rxa: string | null
+<pre class="signature__container"><code class="signature">ng: boolean
 
-string | null</code></pre>
+boolean</code></pre>
 
   <section class="member__tags">
     
   </section>
 
   <div class="member__brief">
-<p>Original map author's username. This is only present in edited maps. In completely original maps, it gets set to &quot;&quot; (an empty string).</p>
+<p><code>true</code> if this shape can't be grappled, <code>false</code> otherwise.</p>
 </div>
   <div class="member__description"></div>
 
@@ -582,10 +814,10 @@ string | null</code></pre>
 
   
     
-<div class="member" id="rxdb" data-id="PropertyDoc:rxdb">
+<div class="member" id="np" data-id="PropertyDoc:np">
   
-    <section class="member__title " data-id="PropertyDoc:rxdb">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxdb">
+    <section class="member__title " data-id="PropertyDoc:np">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#np">
         <img
           src="/gmmaker/docs/icons/link.svg"
           width="16px"
@@ -593,14 +825,14 @@ string | null</code></pre>
         />
       </a>
       <span class="member__title_content">
-        <span>rxdb</span>
+        <span>np</span>
         
       </span>
       
         <span class="tag--source">
           
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#679">
-              gmm.d.ts:679
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#421">
+              gmm.d.ts:421
             </a>
           
         </span>
@@ -608,7 +840,58 @@ string | null</code></pre>
     </section>
   
   
-<pre class="signature__container"><code class="signature">rxdb: number | null
+<pre class="signature__container"><code class="signature">np: boolean
+
+boolean</code></pre>
+
+  <section class="member__tags">
+    
+  </section>
+
+  <div class="member__brief">
+<p><code>true</code> if this shape is no physics, <code>false</code> otherwise.</p>
+</div>
+  <div class="member__description"></div>
+
+  
+
+  
+
+  
+
+  
+  
+</div>
+
+  
+    
+<div class="member" id="re" data-id="PropertyDoc:re">
+  
+    <section class="member__title " data-id="PropertyDoc:re">
+      <a href="/gmmaker/docs/gmmaker/physShape.html#re">
+        <img
+          src="/gmmaker/docs/icons/link.svg"
+          width="16px"
+          height="16px"
+        />
+      </a>
+      <span class="member__title_content">
+        <span>re</span>
+        
+      </span>
+      
+        <span class="tag--source">
+          
+            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#409">
+              gmm.d.ts:409
+            </a>
+          
+        </span>
+      
+    </section>
+  
+  
+<pre class="signature__container"><code class="signature">re: number | null
 
 number | null</code></pre>
 
@@ -617,160 +900,7 @@ number | null</code></pre>
   </section>
 
   <div class="member__brief">
-<p>Original database version (refer to <code>dbv</code>'s description). This is only present in edited maps. In completely original maps, it gets set to 1.</p>
-</div>
-  <div class="member__description"></div>
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-
-  
-    
-<div class="member" id="rxn" data-id="PropertyDoc:rxn">
-  
-    <section class="member__title " data-id="PropertyDoc:rxn">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#rxn">
-        <img
-          src="/gmmaker/docs/icons/link.svg"
-          width="16px"
-          height="16px"
-        />
-      </a>
-      <span class="member__title_content">
-        <span>rxn</span>
-        
-      </span>
-      
-        <span class="tag--source">
-          
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#677">
-              gmm.d.ts:677
-            </a>
-          
-        </span>
-      
-    </section>
-  
-  
-<pre class="signature__container"><code class="signature">rxn: string | null
-
-string | null</code></pre>
-
-  <section class="member__tags">
-    
-  </section>
-
-  <div class="member__brief">
-<p>Original map name. This is only present in edited maps. In completely original maps, it gets set to &quot;&quot; (an empty string).</p>
-</div>
-  <div class="member__description"></div>
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-
-  
-    
-<div class="member" id="vd" data-id="PropertyDoc:vd">
-  
-    <section class="member__title " data-id="PropertyDoc:vd">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#vd">
-        <img
-          src="/gmmaker/docs/icons/link.svg"
-          width="16px"
-          height="16px"
-        />
-      </a>
-      <span class="member__title_content">
-        <span>vd</span>
-        
-      </span>
-      
-        <span class="tag--source">
-          
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#673">
-              gmm.d.ts:673
-            </a>
-          
-        </span>
-      
-    </section>
-  
-  
-<pre class="signature__container"><code class="signature">vd: number
-
-number</code></pre>
-
-  <section class="member__tags">
-    
-  </section>
-
-  <div class="member__brief">
-<p>The amount of downvotes the map received.</p>
-</div>
-  <div class="member__description"></div>
-
-  
-
-  
-
-  
-
-  
-  
-</div>
-
-  
-    
-<div class="member" id="vu" data-id="PropertyDoc:vu">
-  
-    <section class="member__title " data-id="PropertyDoc:vu">
-      <a href="/gmmaker/docs/gmmaker/mapMetadata.html#vu">
-        <img
-          src="/gmmaker/docs/icons/link.svg"
-          width="16px"
-          height="16px"
-        />
-      </a>
-      <span class="member__title_content">
-        <span>vu</span>
-        
-      </span>
-      
-        <span class="tag--source">
-          
-            <a href="/gmmaker/docs/gmmaker/src/monaco/gmm.d.ts.html#671">
-              gmm.d.ts:671
-            </a>
-          
-        </span>
-      
-    </section>
-  
-  
-<pre class="signature__container"><code class="signature">vu: number
-
-number</code></pre>
-
-  <section class="member__tags">
-    
-  </section>
-
-  <div class="member__brief">
-<p>The amount of upvotes the map received.</p>
+<p>Restitution (bounciness) of the shape. If set to <code>null</code>, the platform's restitution will be used here.</p>
 </div>
   <div class="member__description"></div>
 
@@ -813,40 +943,48 @@ number</code></pre>
   <section class="page-members-explorer-category__title">Public Properties</section>
   <ul class="page-members-explorer-category__items">
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:a">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#a>a</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:d">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#d>d</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:dbv">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#dbv>dbv</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:de">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#de>de</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:mo">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#mo>mo</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:f">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#f>f</a>
+      </li>
+    
+      <li class="page-members-explorer__item" data-id="PropertyDoc:fp">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#fp>fp</a>
+      </li>
+    
+      <li class="page-members-explorer__item" data-id="PropertyDoc:fr">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#fr>fr</a>
+      </li>
+    
+      <li class="page-members-explorer__item" data-id="PropertyDoc:geo">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#geo>geo</a>
+      </li>
+    
+      <li class="page-members-explorer__item" data-id="PropertyDoc:ig">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#ig>ig</a>
       </li>
     
       <li class="page-members-explorer__item" data-id="PropertyDoc:n">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#n>n</a>
+        <a href=/gmmaker/docs/gmmaker/physShape.html#n>n</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:rxa">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#rxa>rxa</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:ng">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#ng>ng</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:rxdb">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#rxdb>rxdb</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:np">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#np>np</a>
       </li>
     
-      <li class="page-members-explorer__item" data-id="PropertyDoc:rxn">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#rxn>rxn</a>
-      </li>
-    
-      <li class="page-members-explorer__item" data-id="PropertyDoc:vd">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#vd>vd</a>
-      </li>
-    
-      <li class="page-members-explorer__item" data-id="PropertyDoc:vu">
-        <a href=/gmmaker/docs/gmmaker/mapMetadata.html#vu>vu</a>
+      <li class="page-members-explorer__item" data-id="PropertyDoc:re">
+        <a href=/gmmaker/docs/gmmaker/physShape.html#re>re</a>
       </li>
     
   </ul>

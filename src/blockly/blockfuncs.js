@@ -1409,6 +1409,38 @@ function ${JavaScript.FUNCTION_NAME_PLACEHOLDER_}() {
     return [code, JavaScript.ORDER_FUNCTION_CALL];
   };
 
+  JavaScript['math_trig'] = function(block) {
+    // Trigonometry operators with single operand.
+    const operator = block.getFieldValue('OP');
+    let code;
+    const arg = JavaScript.valueToCode(block, 'NUM', JavaScript.ORDER_NONE) || '0';
+
+    switch (operator) {
+      case 'SIN':
+        code = 'Math.sin(' + arg + ')';
+        break;
+      case 'COS':
+        code = 'Math.cos(' + arg + ')';
+        break;
+      case 'TAN':
+        code = 'Math.tan(' + arg + ')';
+        break;
+      case 'ASIN':
+        code = 'Math.asin(' + arg + ')';
+        break;
+      case 'ACOS':
+        code = 'Math.acos(' + arg + ')';
+        break;
+      case 'ATAN':
+        code = 'Math.atan(' + arg + ')';
+        break;
+      default:
+        throw Error('Unknown math operator: ' + operator);
+    }
+
+    return [code, JavaScript.ORDER_FUNCTION_CALL];
+  };
+
   JavaScript['controls_for'] = function(block) {
     // For loop.
     const variable0 = JavaScript.nameDB_.getName(
