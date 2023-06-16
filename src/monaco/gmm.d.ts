@@ -1558,6 +1558,14 @@ declare interface gameWorld {
    */
   public disableDeathBarrier: boolean;
   /**
+   * The maximum linear speed that objects can reach. It's set to 60 by default.
+   */
+  public linearSpeedCap: number;
+  /**
+   * The maximum angular speed that objects can reach. It's set to 60 by default.
+   */
+  public angularSpeedCap: number;
+  /**
    * An array containing the IDs of every disc currently alive.
    */
   public aliveDiscs: number;

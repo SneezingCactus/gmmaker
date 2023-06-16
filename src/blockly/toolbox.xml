@@ -1415,6 +1415,22 @@
         </value>
       </block>
       <block type="state_map_prop_get"></block>
+      <block type="state_misc_speedcap_set">
+        <field name="type">linear</field>
+        <value name="to">
+          <shadow type="math_number">
+            <field name="NUM">60</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="state_misc_speedcap_set">
+        <field name="type">angular</field>
+        <value name="to">
+          <shadow type="math_number">
+            <field name="NUM">2700</field>
+          </shadow>
+        </value>
+      </block>
       <block type="state_misc_set">
         <field name="to">true</field>
       </block>

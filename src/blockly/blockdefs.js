@@ -1578,7 +1578,7 @@ module.exports = [
           ],
           [
             'x position',
-            'pos[0',
+            'pos[0]',
           ],
           [
             'y position',
@@ -2752,7 +2752,38 @@ module.exports = [
         ],
       },
     ],
-    'output': null,
+    'output': 'Boolean',
+    'style': 'gm_world',
+    'tooltip': '',
+    'helpUrl': '',
+  },
+  {
+    'type': 'state_misc_speedcap_set',
+    'message0': 'set %1 speed cap to %2',
+    'args0': [
+      {
+        'type': 'field_dropdown',
+        'name': 'type',
+        'options': [
+          [
+            'linear',
+            'linear',
+          ],
+          [
+            'angular',
+            'angular',
+          ],
+        ],
+      },
+      {
+        'type': 'input_value',
+        'name': 'to',
+        'check': 'Number',
+        'align': 'RIGHT',
+      },
+    ],
+    'previousStatement': null,
+    'nextStatement': null,
     'style': 'gm_world',
     'tooltip': '',
     'helpUrl': '',

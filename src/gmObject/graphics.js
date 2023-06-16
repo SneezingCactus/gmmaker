@@ -1145,7 +1145,7 @@ class LineShape {
     const relX = this.lastDrawDef.end[0] - this.lastDrawDef.pos[0];
     const relY = this.lastDrawDef.end[1] - this.lastDrawDef.pos[1];
 
-    this.displayObject.width = Math.sqrt(relX ** 2 + relY ** 2) * scaleRatio;
+    this.displayObject.width = Math.max(0, Math.sqrt(relX ** 2 + relY ** 2) * scaleRatio);
     this.displayObject.rotation = Math.atan2(relY, relX);
   }
   destroy() {
@@ -1270,7 +1270,7 @@ class ImageShape {
 
     if (this.lastDrawDef.id != shapeDefB.id || this.displayObject.texture.baseTexture.cacheId === null) {
       if (!gm.graphics.imageTextures[shapeDefB.id]) {
-        throw new ReferenceError('No image goes by that ID.')
+        throw new ReferenceError('No image goes by that ID.');
       }
       this.displayObject.texture = new PIXI.Texture(gm.graphics.imageTextures[shapeDefB.id]);
     }

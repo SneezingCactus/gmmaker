@@ -46,10 +46,19 @@ export default {
     Box2D.Dynamics.b2World.prototype.Step = function() {
       if (!PhysicsClass.contactListener.PostSolveOLD) gm.state.initContactListener();
 
-      // management of the die
-      if (PhysicsClass.globalStepVars?.inputState) {
-        const kills = PhysicsClass.globalStepVars.inputState.gmExtra?.kills;
+      // management of the die & management of the fast
+      // this part became so messy after i added the fast
+      const inputState = PhysicsClass.globalStepVars?.inputState;
+      if (inputState?.gmExtra) {
+        // TODO: delete this before releasing beta 15
+        if (inputState.gmExtra.linearSpeedCap) {
+          Box2D.Common.b2Settings.b2_maxTranslation = inputState.gmExtra.linearSpeedCap;
+          Box2D.Common.b2Settings.b2_maxTranslationSquared = inputState.gmExtra.linearSpeedCap ** 2;
+          Box2D.Common.b2Settings.b2_maxRotation = inputState.gmExtra.angularSpeedCap;
+          Box2D.Common.b2Settings.b2_maxRotationSquared = inputState.gmExtra.angularSpeedCap ** 2;
+        }
 
+        const kills = inputState.gmExtra?.kills;
         if (kills) {
           for (let i = 0; i !== kills.length; i++) {
             if (PhysicsClass.globalStepVars.discs[kills[i].id]) {
@@ -57,8 +66,21 @@ export default {
             }
           }
         }
+
+        this.StepOLD(...arguments);
+
+        Box2D.Common.b2Settings.b2_maxTranslation = 2;
+        Box2D.Common.b2Settings.b2_maxTranslationSquared = 4;
+        Box2D.Common.b2Settings.b2_maxRotation = 1.5707963267948966;
+        Box2D.Common.b2Settings.b2_maxRotationSquared = 2.4674011002723395;
+      } else {
+        Box2D.Common.b2Settings.b2_maxTranslation = 2;
+        Box2D.Common.b2Settings.b2_maxTranslationSquared = 4;
+        Box2D.Common.b2Settings.b2_maxRotation = 1.5707963267948966;
+        Box2D.Common.b2Settings.b2_maxRotationSquared = 2.4674011002723395;
+
+        this.StepOLD(...arguments);
       }
-      return this.StepOLD(...arguments);
     };
   },
   initGameState: function() {
@@ -692,6 +714,8 @@ export default {
         overrides: [],
         mousePosSend: [],
         disableDeathBarrier: false,
+        linearSpeedCap: 2,
+        angularSpeedCap: 1.5707963267948966,
         kills: [],
       };
 

@@ -413,6 +413,14 @@ export default function() {
     return [code, JavaScript.ORDER_ATOMIC];
   };
 
+  JavaScript['state_misc_speedcap_set'] = function(block) {
+    var type = block.getFieldValue('type');
+    var to = JavaScript.valueToCode(block, 'to', JavaScript.ORDER_ATOMIC);
+
+    var code = `game.world.${type}SpeedCap = ${to};\n`;
+    return code;
+  };
+
   JavaScript['state_misc_set'] = function(block) {
     var property = block.getFieldValue('property');
     var to = block.getFieldValue('to');

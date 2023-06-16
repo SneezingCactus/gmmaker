@@ -14,7 +14,7 @@ function copy(obj) {
   if (isArray(obj)) {
     let arr = [];
     var length = obj.length;
-    for (var i = 0; i < length; i++) arr.push(copy(obj[i]));
+    for (var i = 0; i < length; i++) arr[i] = copy(obj[i]);
     return arr;
   } else if (typeof obj === 'object') {
     let keys = Object.keys(obj);
@@ -29,13 +29,16 @@ function copy(obj) {
   return obj;
 }
 
-// Faster than the method above, may help if you have a lot of drawings
+/**
+ * Faster than the method above, may help if you have a lot of drawings
+ * @param {*} drawings Drawings to copy
+ * @return {*} Copied drawings
+ */
 function copyDrawings(drawings) {
   const copy = [];
   for (let i = 0; i < drawings.length; ++i) {
     const d = drawings[i];
-    if (!d)
-      continue;
+    if (!d) continue;
 
     const nd = copy[i] = {
       alpha: d.alpha,
@@ -44,16 +47,15 @@ function copyDrawings(drawings) {
       attachTo: d.attachTo,
       isBehind: d.isBehind,
       noLerp: d.noLerp,
-      pos: d.pos ? [d.pos[0], d.pos[1]] :  [0, 0],
-      scale:d.scale ? [d.scale[0], d.scale[1]] :  [0, 0],
+      pos: d.pos ? [d.pos[0], d.pos[1]] : [0, 0],
+      scale: d.scale ? [d.scale[0], d.scale[1]] : [0, 0],
       shapes: [],
     };
 
     const ss = nd.shapes;
-    for (let j = 0; j < d.shapes.length; ++ j) {
+    for (let j = 0; j < d.shapes.length; ++j) {
       const s = d.shapes[j];
-      if (!s)
-        continue;
+      if (!s) continue;
 
       const ns = ss[j] = {
         angle: s.angle,
@@ -62,8 +64,8 @@ function copyDrawings(drawings) {
         noLerp: s.noLerp,
         pos: s.pos,
         type: s.type,
-      }
-      
+      };
+
       switch (s.type) {
         case 'im':
           ns.id = s.id;
@@ -73,7 +75,7 @@ function copyDrawings(drawings) {
             ns.region = {
               pos: r.pos ? [r.pos[0], r.pos[1]] : [0, 0],
               size: r.size ? [r.size[0], r.size[1]] : [0, 0],
-            }
+            };
           };
           ns.size = s.size ? [s.size[0], s.size[1]] : [0, 0];
           break;
@@ -89,7 +91,7 @@ function copyDrawings(drawings) {
           break;
         case 'po':
           ns.scale = s.scale ? [s.scale[0], s.scale[1]] : [0, 0];
-          
+
           let vs = s.vertices;
           let nVs = ns.vertices = [];
 
@@ -137,7 +139,6 @@ window.getDynamicInfo = (game) => {
 
   const gmExtra = copied.state.gmExtra;
   gmExtra.drawings = copyDrawings(oldDrawings);
-
 
   // cam/drawing props
   for (let i = 0; i < gmExtra.drawings.length; i++) {
@@ -218,6 +219,8 @@ window.getDynamicInfo = (game) => {
   game.graphics.drawings = gmExtra.drawings;
   game.world.aliveDiscs = gmExtra.aliveDiscs;
   game.world.disableDeathBarrier = gmExtra.disableDeathBarrier;
+  game.world.linearSpeedCap = gmExtra.linearSpeedCap * 30;
+  game.world.angularSpeedCap = gmExtra.angularSpeedCap * (180 / Math.PI) * 30;
 };
 harden(getDynamicInfo);
 

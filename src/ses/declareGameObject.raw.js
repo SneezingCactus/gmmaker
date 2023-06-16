@@ -700,6 +700,8 @@ this.prepareDynamicInfo = function() {
   game.state.gmExtra.drawings = game.graphics.drawings;
   game.state.gmExtra.overrides = game.inputs.overrides;
   game.state.gmExtra.disableDeathBarrier = game.world.disableDeathBarrier;
+  game.state.gmExtra.linearSpeedCap = game.world.linearSpeedCap * 0.033333333;
+  game.state.gmExtra.angularSpeedCap = game.world.angularSpeedCap * (Math.PI / 180) * 0.033333333;
 
   for (let i = 0; i < game.inputs.length; i++) {
     if (!game.inputs[i]) continue;

@@ -29,7 +29,7 @@ export default {
 
         // process new mode coming from host
         if (id !== gm.lobby.networkEngine.hostID) return;
-        if (packet.initial && document.getElementById('sm_connectingContainer').style.visibility == 'hidden') return;
+        if (packet.initial && !gm.lobby.isConnectingToGame) return;
         if (!packet.gmMode) return;
 
         if (!gm.lobby.newModeBuffer) {
@@ -182,6 +182,13 @@ export default {
     const networkengineOLD = NetworkEngine;
     NetworkEngine = function(mpSession, data) {
       const networkEngine = new networkengineOLD(...arguments);
+
+      // used for checking if initial game modes should be loaded or not
+      gm.lobby.isConnectingToGame = true;
+
+      networkEngine.on('fullyJoined', function() {
+        gm.lobby.isConnectingToGame = false;
+      });
 
       // creating a room means you're going to be the host
       // therefore the editor button is enabled
