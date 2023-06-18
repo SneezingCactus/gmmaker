@@ -833,6 +833,8 @@ class Drawing {
   }
   update(drawDefA, drawDefB, weight, scaleRatio, forceUpdate) {
     const forLength = Math.max(drawDefA.shapes.length, drawDefB.shapes.length);
+    let propsNoChange = true;
+
     for (let i = 0; i < forLength; i++) {
       // deletion of shapes that suddenly change type
       // these are later recreated in the new shape creation phase
@@ -843,12 +845,14 @@ class Drawing {
 
       // deletion of shapes that suddenly disappear
       if (!drawDefB.shapes[i] && this.shapes[i]) {
+        propsNoChange = false;
         this.shapes[i].destroy();
         this.shapes[i] = null;
       }
 
       // new shape creation
       if (drawDefB.shapes[i] && !this.shapes[i]) {
+        propsNoChange = false;
         switch (drawDefB.shapes[i].type) {
           case 'bx':
             this.shapes[i] = new BoxShape();
@@ -882,7 +886,7 @@ class Drawing {
     }
 
     // property check
-    const propsNoChange = this.lastDrawDef.alpha == drawDefB.alpha &&
+    propsNoChange &= this.lastDrawDef.alpha == drawDefB.alpha &&
       this.lastDrawDef.pos[0] == drawDefB.pos[0] &&
       this.lastDrawDef.pos[1] == drawDefB.pos[1] &&
       this.lastDrawDef.angle == drawDefB.angle &&
