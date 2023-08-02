@@ -598,9 +598,9 @@ export default {
       }
       /* #endregion MOUSE POS SENDING ACTIVATION */
 
-      /* #region END ROUND IF NEEDED */
+      /* #region END ROUND IF REQUESTED */
       window.gmReplaceAccessors.endRound = state.gmExtra.endRound;
-      /* #endregion END ROUND IF NEEDED */
+      /* #endregion END ROUND IF REQUESTED */
 
       // make game state publicly accessible
       gm.state.gameState = state;

@@ -15,7 +15,8 @@
     --gm_button_primary_color: #795548;
     --gm_button_secondary_color: #4b252b;
     --gm_button_top_bar_color: #273749c7;
-    --gm_scrollbar_thumb: #b8b8b8;
+    --gm_scrollbar_thumb: #aaaaaa;
+    --gm_scrollbar_background: #dddddd;
 }
 
 /* SPLASH SCREEN */
@@ -289,6 +290,13 @@
 
 /* LOBBY MODS */
 
+#newbonklobby_tooltip {
+    display: -webkit-box;
+    -webkit-line-clamp: 12;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
 #settingsContainer, #leaveconfirmwindowcontainer, #hostleaveconfirmwindowcontainer {
     z-index: 9999;
 }
@@ -383,6 +391,20 @@
     align-items: center;
 }
 
+.gm_dialogwindow *::-webkit-scrollbar-track {
+	background-color: #d3d5d8;
+}
+
+.gm_dialogwindow *::-webkit-scrollbar {
+    height: 12px;
+    width: 0.8em;
+	background-color: #d3d5d8;
+}
+
+.gm_dialogwindow *::-webkit-scrollbar-thumb {
+    background-color: #abadb0;
+}
+
 .gm_dialogtopbar {
     background-color: var(--gm_window_color);
     width: 100%;
@@ -404,6 +426,10 @@
     top: 53px;
     margin-top: 20px;
     margin-bottom: 10px;
+}
+
+#gmgeneric_message {
+    text-align: center;
 }
 
 .gm_dialogbuttoncontainer {
@@ -607,8 +633,6 @@
 }
 
 .gm_bartabs::after {
-    /* box-shadow: 0px 10px violet; */
-    /* content: ''; */
     z-index: 100000;
     width: 100%;
 }

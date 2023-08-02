@@ -170,11 +170,21 @@ export default {
     })();
 
     // change mode description box
+    document.getElementById('newbonklobby_modetext').addEventListener('mousedown', function() {
+      const modeDesc = gm.editor.appliedMode?.settings.modeDescription || gm.editor.modeSettingsDefaults[1].default;
+
+      if (gm.editor.appliedMode && !gm.editor.appliedMode.isEmpty) {
+        gm.editor.genericDialog(modeDesc.replace(/\n/g, '<br>'), ()=>{}, {title: 'Mode Description'});
+      }
+    });
     document.getElementById('newbonklobby_modetext').addEventListener('mousemove', function() {
       const modeDesc = gm.editor.appliedMode?.settings.modeDescription || gm.editor.modeSettingsDefaults[1].default;
 
       if (gm.editor.appliedMode && !gm.editor.appliedMode.isEmpty) {
         document.getElementById('newbonklobby_tooltip').innerText = modeDesc;
+        document.getElementById('newbonklobby_modetext').style.cursor = 'pointer';
+      } else {
+        document.getElementById('newbonklobby_modetext').style.cursor = 'initial';
       }
     });
   },

@@ -1562,7 +1562,7 @@ declare interface gameWorld {
    */
   public linearSpeedCap: number;
   /**
-   * The maximum angular speed that objects can reach. It's set to 60 by default.
+   * The maximum angular speed that objects can reach. It's set to 2700 by default.
    */
   public angularSpeedCap: number;
   /**

@@ -1248,7 +1248,7 @@ class ImageShape {
 
     const ra = this.lastDrawDef.region; const rb = shapeDefB.region;
     const regionAEqualB = (ra != null && rb != null) ?
-    ra.pos[0] == rb.pos[1] &&
+    ra.pos[0] == rb.pos[0] &&
     ra.pos[1] == ra.pos[1] &&
     ra.size[0] == rb.size[0] &&
     ra.size[1] == ra.size[1] : (ra == null && rb == null);

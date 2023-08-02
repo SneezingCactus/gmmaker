@@ -43,23 +43,44 @@ window.initGM = function() {if (window.gm) return;
   gm.version = require('../../package.json').version;
 
   // show epic splash screen
-  if (!gm.config.saved.misc.showSplash) return;
+  if (gm.config.saved.misc.showSplash) {
+    let splashElement = document.createElement('div');
+    document.getElementById('newbonkgamecontainer').prepend(splashElement);
+    splashElement.outerHTML = splashHtml;
 
-  let splashElement = document.createElement('div');
-  document.getElementById('newbonkgamecontainer').prepend(splashElement);
-  splashElement.outerHTML = splashHtml;
+    document.getElementById('gm_splashversion').innerText = 'v' + gm.version;
 
-  document.getElementById('gm_splashversion').innerText = 'v' + gm.version;
+    // yes this is needed
+    splashElement = document.getElementsByClassName('gm_splashcontainer')[0];
 
-  // yes this is needed
-  splashElement = document.getElementsByClassName('gm_splashcontainer')[0];
+    setTimeout(function() {
+      splashElement.style.top = '0px';
+    }, 1000);
+    setTimeout(function() {
+      splashElement.style.top = '-1000px';
+    }, 5000);
+  }
 
-  setTimeout(function() {
-    splashElement.style.top = '0px';
-  }, 1000);
-  setTimeout(function() {
-    splashElement.style.top = '-1000px';
-  }, 5000);
+  // show initial boot pop up
+  if (!gm.config.saved.showedInitialBootPopup) {
+    gm.config.saved.showedInitialBootPopup = true;
+    window.localStorage.gmConfig = JSON.stringify(gm.config.saved);
+    gm.editor.genericDialog([
+      'Hey there! Thank you for installing Game Mode Maker!',
+      '<br>',
+      'Here\'s some things you might want to know before continuing:',
+      '<br><br>',
+      'GMMaker is a very big mod, and as such, it can generate some lag in low-end computers, even when not using any custom game modes. ',
+      'If you suffer from significant lag, disabling GMMaker might help.',
+      '<br><br>',
+      'You can enter the Game Mode Editor by clicking the button with a two gear icon in the lobby. ',
+      'You can enter GMMaker\'s settings menu by clicking the button that appears when hovering over Bonk.io\'s settings button in the top bar.',
+      '<br><br>',
+      'If you have any further questions, feel free to ask in the <a href="https://discord.gg/dnBM3N6H8a">SneezingCactus\' mods discord server</a> or the <a href="https://discord.gg/zKdHZ3e24r">Bonk Modding Community discord server</a>.',
+      '<br><br>',
+      'That\'s about it! I hope you enjoy this mod!',
+    ].join(''), ()=>{}, {});
+  }
 
   console.log('[Game Mode Maker] The extension has been successfully loaded!');
 };

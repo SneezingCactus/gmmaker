@@ -39,7 +39,6 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // This class contains a list of all the available modes, their descriptions, and their ids.
       // It's used by gmmaker to add the modes to the base mode dropdown in Mode Settings.
       {name: 'ModeList', regex: '[\\}\\{;]([A-Za-z0-9]{3}\\[[0-9]{0,10}\\]).{0,50}={lobbyName', isConstructor: true},
-      {name: 'FuckingShit', regex: 'function (Z9)', isConstructor: true},
     ],
     replace: [
       // make step function not delete the world's bodies and instead put that code into a global function

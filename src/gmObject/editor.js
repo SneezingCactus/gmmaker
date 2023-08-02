@@ -842,6 +842,7 @@ export default {
     gm.editor.showDialogWindow('gm_genericdialogcontainer');
 
     document.getElementById('gmgeneric_message').innerHTML = message;
+    document.getElementById('gmgeneric_title').innerText = options.title ?? 'GMMaker';
     document.getElementById('gmgeneric_promptcontainer').style.display = options.showInput ? 'block' : 'none';
     document.getElementById('gmgeneric_prompt').value = options.inputValue;
     document.getElementById('gmgeneric_cancel').style.display = options.showCancel ? 'block' : 'none';
@@ -1158,7 +1159,7 @@ export default {
 
     const modeList = document.getElementById('gmdb_modelist');
 
-    if (modeList.scrollTop >= (modeList.scrollHeight - modeList.offsetHeight - 10)) {
+    if (modeList.scrollTop >= (modeList.scrollHeight - modeList.offsetHeight - 20)) {
       gm.editor.dbLastQuery.push(firestore.startAfter(gm.editor.dbLastModeTime));
 
       const results = await firestore.getDocs(firestore.query(...gm.editor.dbLastQuery));
@@ -1217,9 +1218,11 @@ export default {
 
       window.BonkUtils.setButtonSounds([item]);
 
-      item.addEventListener('click', () => {
-        modeList.innerHTML = 'Loading mode...';
+      item.addEventListener('click', async () => {
+        modeList.innerHTML = 'Loading mode. This may take a few seconds, be patient!';
         modeList.classList.add('empty');
+
+        gm.editor.dbReachedBottom = true;
 
         const modeRef = storage.ref(gm.editor.fireStorage, 'modes/' + String(doc.id) + '.gmm');
 
