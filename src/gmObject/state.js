@@ -347,6 +347,7 @@ export default {
         // body data used if object A or object B is a body
         const bodyAData = {
           id: bodyA.arrayID,
+          fixtureId: fixtureA.arrayID,
           shapeIndex: gm.state.gameState.physics.bodies[bodyA.arrayID]?.fx.indexOf(fixtureA.arrayID),
           normal: [
             -normal.x,
@@ -355,6 +356,7 @@ export default {
         };
         const bodyBData = {
           id: bodyB.arrayID,
+          fixtureId: fixtureB.arrayID,
           shapeIndex: gm.state.gameState.physics.bodies[bodyB.arrayID]?.fx.indexOf(fixtureB.arrayID),
           normal: [
             normal.x,
@@ -702,6 +704,7 @@ export default {
 
       /* #region gmExtra CREATION */
       const gmExtra = {
+        compatMode: false,
         vars: {},
         camera: {
           pos: [365 / state.physics.ppm,
@@ -741,7 +744,7 @@ export default {
   staticInfo: null,
   collisionsThisStep: [],
   crashed: false,
-  rayCast: function(origin, end, filter, multiResult) {
+  rayCast: function(origin, end, filter, multiResult, compatMode) {
     const hits = [];
 
     const rayCastCallback = (fixture, point, normal, fraction) => {
@@ -763,7 +766,8 @@ export default {
           hit.type = 'arrow';
           break;
         case 'phys':
-          hit.type = 'platform';
+          hit.type = compatMode ? 'body' : 'platform';
+          hit.fixtureId = fixtureData.arrayID;
           hit.shapeIndex = gm.state.gameState.physics.bodies[hit.id].fx.indexOf(fixtureData.arrayID);
           hit.isCapzone = fixtureData.capzone;
           break;

@@ -212,6 +212,7 @@ window.getDynamicInfo = (game) => {
     game.inputs[i].mouse.allowPosSending = gmExtra.mousePosSend[i] ?? false;
   }
 
+  game.compatMode = gmExtra.compatMode;
   game.vars = gmExtra.vars;
   game.inputs.overrides = gmExtra.overrides;
   game.graphics.quality = gmExtra.graphicsQuality;
@@ -244,12 +245,12 @@ harden(stopAllSounds);
 
 // world functions
 
-window.rayCast = (origin, end, filter) => copy(window.parent.gm.state.rayCast(origin, end, filter ? (hit) => {
+window.rayCast = (origin, end, filter, compatMode) => copy(window.parent.gm.state.rayCast(origin, end, filter ? (hit) => {
   return filter(copy(hit));
-} : null));
-window.rayCastAll = (origin, end, filter) => copy(window.parent.gm.state.rayCast(origin, end, filter ? (hit) => {
+} : null, false, compatMode));
+window.rayCastAll = (origin, end, filter, compatMode) => copy(window.parent.gm.state.rayCast(origin, end, filter ? (hit) => {
   return filter(copy(hit));
-} : null, true));
+} : null, true, compatMode));
 
 // safe math
 const newMath = {};

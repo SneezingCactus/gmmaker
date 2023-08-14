@@ -386,10 +386,18 @@ export default {
             this.playerGraphic.visible = invis;
             this.nameText.visible = invis;
             this.outline.visible = invis;
-            if (this.shadow) this.shadow.visible = invis;
-            if (this.arrowAimContainer) this.arrowAimContainer.visible = this.arrowAimContainer.visible && invis;
-            if (this.specialGraphic) this.specialGraphic.visible = invis;
-            if (this.specialRing) this.specialRing.visible = invis;
+            if (this.arrowAimContainer) {
+              this.arrowAimContainer.visible = this.arrowAimContainer.visible && invis;
+              this.arrowAimContainer.rotation -= this.container.rotation;
+            }
+            if (this.specialGraphic) {
+              this.specialGraphic.visible = invis;
+              this.specialGraphic.rotation = -this.container.rotation;
+            };
+            if (this.specialRing) {
+              this.specialRing.visible = invis;
+              this.specialRing.rotation = Math.PI * -0.5 - this.container.rotation;
+            }
             if (this.teamOutline) this.teamOutline.visible = invis;
           };
 

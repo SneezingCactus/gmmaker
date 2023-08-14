@@ -163,14 +163,24 @@ this.game = {
   vars: {},
   events: {
     addEventListener: function(eventName, options, listener) {
-      this.eventListeners[eventName]?.push({options: options, listener: listener});
+      this.eventListeners[eventName]?.push({
+        options: options,
+        listener: listener,
+      });
     },
     fireEvent: function(eventName, options, args) {
+      if (game.compatMode) {
+        if (eventName == 'platformCollision') eventName = 'bodyCollision';
+        if (options?.collideWith == 'platform') options.collideWith = 'body';
+      }
+
       try {
         const listeners = this.eventListeners[eventName];
         for (let i = 0; i < listeners.length; i++) {
-          if (listeners[i]?.options && listeners[i]?.options.perPlayer != options?.perPlayer) continue;
-          if (listeners[i]?.options && listeners[i]?.options.collideWith != options?.collideWith) continue;
+          if (listeners[i]?.options) {
+            if (listeners[i].options.perPlayer != options?.perPlayer) continue;
+            if (listeners[i].options.collideWith != options?.collideWith) continue;
+          }
 
           listeners[i].listener(...args);
         }
@@ -186,6 +196,7 @@ this.game = {
       discCollision: [],
       arrowCollision: [],
       platformCollision: [],
+      bodyCollision: [],
     },
   },
   state: null,
@@ -197,22 +208,37 @@ this.game = {
       let shape;
 
       if (shapeData.isProxy) {
-        fixture = Object.assign(JSON.parse(JSON.stringify(defaults.bodyFixture)), game.state.physics.fixtures[shapeData.id]);
+        fixture = Object.assign(
+            JSON.parse(JSON.stringify(defaults.bodyFixture)),
+            game.state.physics.fixtures[shapeData.id],
+        );
         shape = fixture.geo;
       } else {
-        fixture = Object.assign(JSON.parse(JSON.stringify(defaults.bodyFixture)), shapeData);
+        fixture = Object.assign(
+            JSON.parse(JSON.stringify(defaults.bodyFixture)),
+            shapeData,
+        );
         shape = fixture.geo ?? {type: 'bx'};
       }
 
       switch (shape.type) {
         case 'bx':
-          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyBoxShape)), shape);
+          shape = Object.assign(
+              JSON.parse(JSON.stringify(defaults.bodyBoxShape)),
+              shape,
+          );
           break;
         case 'ci':
-          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyCircleShape)), shape);
+          shape = Object.assign(
+              JSON.parse(JSON.stringify(defaults.bodyCircleShape)),
+              shape,
+          );
           break;
         case 'po':
-          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyPolyShape)), shape);
+          shape = Object.assign(
+              JSON.parse(JSON.stringify(defaults.bodyPolyShape)),
+              shape,
+          );
           break;
       }
 
@@ -228,12 +254,21 @@ this.game = {
       let finalBody;
 
       if (platData.isProxy) {
-        finalBody = Object.assign(JSON.parse(JSON.stringify(defaults.body)), game.state.physics.bodies[platData.platId]);
+        finalBody = Object.assign(
+            JSON.parse(JSON.stringify(defaults.body)),
+            game.state.physics.bodies[platData.platId],
+        );
       } else {
-        finalBody = Object.assign(JSON.parse(JSON.stringify(defaults.body)), platData);
+        finalBody = Object.assign(
+            JSON.parse(JSON.stringify(defaults.body)),
+            platData,
+        );
       }
 
-      finalBody.cf = Object.assign(JSON.parse(JSON.stringify(defaults.body.cf)), finalBody.cf);
+      finalBody.cf = Object.assign(
+          JSON.parse(JSON.stringify(defaults.body.cf)),
+          finalBody.cf,
+      );
       finalBody.fx = [];
 
       for (let i = 0; i < platData.shapes.length; i++) {
@@ -249,19 +284,29 @@ this.game = {
       delete finalBody.shapes;
 
       game.state.physics.bodies.push(finalBody);
-      game.state.physics.bro.splice(Math.min(viewOrder ?? 0, game.state.physics.bro.length), 0, game.state.physics.bodies.length - 1);
+      game.state.physics.bro.splice(
+          Math.min(viewOrder ?? 0, game.state.physics.bro.length),
+          0,
+          game.state.physics.bodies.length - 1,
+      );
 
       return game.state.physics.bodies.length - 1;
     },
     clonePlatform: function(id, cloneJoints = false) {
       if (!game.state.physics.bodies[id]) return null;
 
-      const finalBody = JSON.parse(JSON.stringify(game.state.physics.bodies[id]));
+      const finalBody = JSON.parse(
+          JSON.stringify(game.state.physics.bodies[id]),
+      );
       const newFx = [];
 
       for (let i = 0; i < finalBody.fx.length; i++) {
-        const fixture = JSON.parse(JSON.stringify(game.state.physics.fixtures[finalBody.fx[i]]));
-        const shape = JSON.parse(JSON.stringify(game.state.physics.shapes[fixture.sh]));
+        const fixture = JSON.parse(
+            JSON.stringify(game.state.physics.fixtures[finalBody.fx[i]]),
+        );
+        const shape = JSON.parse(
+            JSON.stringify(game.state.physics.shapes[fixture.sh]),
+        );
 
         game.state.physics.shapes.push(shape);
         fixture.sh = game.state.physics.shapes.length - 1;
@@ -313,7 +358,12 @@ this.game = {
       }
 
       for (let i = 0; i < game.state.physics.joints.length; i++) {
-        if (game.state.physics.joints[i]?.ba !== id && game.state.physics.joints[i]?.bb !== id) continue;
+        if (
+          game.state.physics.joints[i]?.ba !== id &&
+          game.state.physics.joints[i]?.bb !== id
+        ) {
+          continue;
+        }
         delete game.state.physics.joints[i];
       }
 
@@ -348,31 +398,52 @@ this.game = {
     },
     getPlatIdByName: function(name) {
       for (let i = 0; i < game.state.physics.bodies.length; i++) {
-        const n = game.state.physics.bodies[i]?.n ?? game.lobby.settings.map.physics.bodies[i]?.n ?? null;
+        const n =
+          game.state.physics.bodies[i]?.n ??
+          game.lobby.settings.map.physics.bodies[i]?.n ??
+          null;
         if (n === name) return i;
       }
       return -1;
     },
     createBody: function(options) {
-      const finalBody = Object.assign(JSON.parse(JSON.stringify(defaults.body)), options.bodyDef);
-      finalBody.cf = Object.assign(JSON.parse(JSON.stringify(defaults.body.cf)), finalBody.cf);
+      const finalBody = Object.assign(
+          JSON.parse(JSON.stringify(defaults.body)),
+          options.bodyDef,
+      );
+      finalBody.cf = Object.assign(
+          JSON.parse(JSON.stringify(defaults.body.cf)),
+          finalBody.cf,
+      );
 
       finalBody.fx = [];
 
       for (let i = 0; i < options.fixtureDefs.length; i++) {
-        const fixture = Object.assign(JSON.parse(JSON.stringify(defaults.bodyFixture)), options.fixtureDefs[i]);
+        const fixture = Object.assign(
+            JSON.parse(JSON.stringify(defaults.bodyFixture)),
+            options.fixtureDefs[i],
+        );
 
         let shape = options.shapeDefs[i] ?? {type: 'bx'};
 
         switch (shape.type) {
           case 'bx':
-            shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyBoxShape)), shape);
+            shape = Object.assign(
+                JSON.parse(JSON.stringify(defaults.bodyBoxShape)),
+                shape,
+            );
             break;
           case 'ci':
-            shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyCircleShape)), shape);
+            shape = Object.assign(
+                JSON.parse(JSON.stringify(defaults.bodyCircleShape)),
+                shape,
+            );
             break;
           case 'po':
-            shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyPolyShape)), shape);
+            shape = Object.assign(
+                JSON.parse(JSON.stringify(defaults.bodyPolyShape)),
+                shape,
+            );
             break;
         }
 
@@ -384,24 +455,40 @@ this.game = {
       }
 
       game.state.physics.bodies.push(finalBody);
-      game.state.physics.bro.splice(Math.min(options.viewOrder ?? Infinity, game.state.physics.bro.length), 0, game.state.physics.bodies.length - 1);
+      game.state.physics.bro.splice(
+          Math.min(options.viewOrder ?? Infinity, game.state.physics.bro.length),
+          0,
+          game.state.physics.bodies.length - 1,
+      );
 
       return game.state.physics.bodies.length - 1;
     },
     addFixtureShapeToBody: function(options) {
-      const fixture = Object.assign(JSON.parse(JSON.stringify(defaults.bodyFixture)), options.fixtureDef);
+      const fixture = Object.assign(
+          JSON.parse(JSON.stringify(defaults.bodyFixture)),
+          options.fixtureDef,
+      );
 
       let shape = options.shapeDef ?? {type: 'bx'};
 
       switch (shape.type) {
         case 'bx':
-          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyBoxShape)), shape);
+          shape = Object.assign(
+              JSON.parse(JSON.stringify(defaults.bodyBoxShape)),
+              shape,
+          );
           break;
         case 'ci':
-          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyCircleShape)), shape);
+          shape = Object.assign(
+              JSON.parse(JSON.stringify(defaults.bodyCircleShape)),
+              shape,
+          );
           break;
         case 'po':
-          shape = Object.assign(JSON.parse(JSON.stringify(defaults.bodyPolyShape)), shape);
+          shape = Object.assign(
+              JSON.parse(JSON.stringify(defaults.bodyPolyShape)),
+              shape,
+          );
           break;
       }
 
@@ -409,7 +496,9 @@ this.game = {
 
       fixture.sh = game.state.physics.shapes.length - 1;
       game.state.physics.fixtures.push(fixture);
-      game.state.physics.bodies[options.bodyId]?.fx.push(game.state.physics.fixtures.length - 1);
+      game.state.physics.bodies[options.bodyId]?.fx.push(
+          game.state.physics.fixtures.length - 1,
+      );
 
       return game.state.physics.fixtures.length - 1;
     },
@@ -425,7 +514,12 @@ this.game = {
       }
 
       for (let i = 0; i < game.state.physics.joints.length; i++) {
-        if (game.state.physics.joints[i]?.ba !== id && game.state.physics.joints[i]?.bb !== id) continue;
+        if (
+          game.state.physics.joints[i]?.ba !== id &&
+          game.state.physics.joints[i]?.bb !== id
+        ) {
+          continue;
+        }
         delete game.state.physics.joints[i];
       }
 
@@ -435,7 +529,10 @@ this.game = {
       }
     },
     createArrow: function(arrow) {
-      const finalArrow = Object.assign(JSON.parse(JSON.stringify(defaults.arrow)), arrow);
+      const finalArrow = Object.assign(
+          JSON.parse(JSON.stringify(defaults.arrow)),
+          arrow,
+      );
 
       game.state.projectiles.push(finalArrow);
 
@@ -444,7 +541,10 @@ this.game = {
     killDisc: function(id, allowRespawn = true) {
       game.state.gmExtra.kills.push({id: id, allowRespawn: allowRespawn});
     },
-    getDiscRadius: (id) => game.lobby.settings.bal[id] ? 1 + Math.max(Math.min(game.lobby.settings.bal[id] / 100, 1), -0.94) : 1,
+    getDiscRadius: (id) =>
+      game.lobby.settings.bal[id] ?
+        1 + Math.max(Math.min(game.lobby.settings.bal[id] / 100, 1), -0.94) :
+        1,
     triggerWin: function(id) {
       if (game.state.fte > -1) return;
 
@@ -459,8 +559,8 @@ this.game = {
     endRound: function() {
       game.state.gmExtra.endRound = true;
     },
-    rayCast: rayCast,
-    rayCastAll: rayCastAll,
+    rayCast: (origin, end, filter) => rayCast(origin, end, filter, game.compatMode),
+    rayCastAll: (origin, end, filter) => rayCastAll(origin, end, filter, game.compatMode),
     disableDeathBarrier: false,
   },
   graphics: {
@@ -477,29 +577,62 @@ this.game = {
 
       switch (shape.type) {
         case 'bx':
-          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingBoxShape)), shape));
+          drawing.shapes.push(
+              Object.assign(
+                  JSON.parse(JSON.stringify(defaults.drawingBoxShape)),
+                  shape,
+              ),
+          );
           break;
         case 'ci':
-          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingCircleShape)), shape));
+          drawing.shapes.push(
+              Object.assign(
+                  JSON.parse(JSON.stringify(defaults.drawingCircleShape)),
+                  shape,
+              ),
+          );
           break;
         case 'po':
-          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingPolyShape)), shape));
+          drawing.shapes.push(
+              Object.assign(
+                  JSON.parse(JSON.stringify(defaults.drawingPolyShape)),
+                  shape,
+              ),
+          );
           break;
         case 'li':
-          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingLineShape)), shape));
+          drawing.shapes.push(
+              Object.assign(
+                  JSON.parse(JSON.stringify(defaults.drawingLineShape)),
+                  shape,
+              ),
+          );
           break;
         case 'tx':
-          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingTextShape)), shape));
+          drawing.shapes.push(
+              Object.assign(
+                  JSON.parse(JSON.stringify(defaults.drawingTextShape)),
+                  shape,
+              ),
+          );
           break;
         case 'im':
-          drawing.shapes.push(Object.assign(JSON.parse(JSON.stringify(defaults.drawingImageShape)), shape));
+          drawing.shapes.push(
+              Object.assign(
+                  JSON.parse(JSON.stringify(defaults.drawingImageShape)),
+                  shape,
+              ),
+          );
           break;
       }
 
       return drawing.shapes.length - 1;
     },
     createDrawing: function(drawing) {
-      const finalDrawing = Object.assign(JSON.parse(JSON.stringify(defaults.drawing)), drawing);
+      const finalDrawing = Object.assign(
+          JSON.parse(JSON.stringify(defaults.drawing)),
+          drawing,
+      );
 
       game.graphics.drawings.push(finalDrawing);
 
@@ -516,22 +649,40 @@ this.game = {
 
         switch (shape.type) {
           case 'bx':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingBoxShape)), shape);
+            drawing.shapes[i] = Object.assign(
+                JSON.parse(JSON.stringify(defaults.drawingBoxShape)),
+                shape,
+            );
             break;
           case 'ci':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingCircleShape)), shape);
+            drawing.shapes[i] = Object.assign(
+                JSON.parse(JSON.stringify(defaults.drawingCircleShape)),
+                shape,
+            );
             break;
           case 'po':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingPolyShape)), shape);
+            drawing.shapes[i] = Object.assign(
+                JSON.parse(JSON.stringify(defaults.drawingPolyShape)),
+                shape,
+            );
             break;
           case 'li':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingLineShape)), shape);
+            drawing.shapes[i] = Object.assign(
+                JSON.parse(JSON.stringify(defaults.drawingLineShape)),
+                shape,
+            );
             break;
           case 'tx':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingTextShape)), shape);
+            drawing.shapes[i] = Object.assign(
+                JSON.parse(JSON.stringify(defaults.drawingTextShape)),
+                shape,
+            );
             break;
           case 'im':
-            drawing.shapes[i] = Object.assign(JSON.parse(JSON.stringify(defaults.drawingImageShape)), shape);
+            drawing.shapes[i] = Object.assign(
+                JSON.parse(JSON.stringify(defaults.drawingImageShape)),
+                shape,
+            );
             break;
           default:
             const e = new TypeError('Shape #' + i + ' is invalid');
@@ -546,20 +697,24 @@ this.game = {
       if (!game.graphics.drawings[id]) return;
       const baked = bakeDrawing(id, resolution, game.state);
 
-      game.graphics.drawings[id].shapes = [{
-        type: 'im',
-        id: baked.id,
-        region: null,
-        colour: 0xffffff,
-        alpha: 1,
-        pos: [0.01, 0.01],
-        angle: 0,
-        size: [baked.width,
-          baked.height],
-        noLerp: true,
-      }];
+      game.graphics.drawings[id].shapes = [
+        {
+          type: 'im',
+          id: baked.id,
+          region: null,
+          colour: 0xffffff,
+          alpha: 1,
+          pos: [0.01, 0.01],
+          angle: 0,
+          size: [baked.width, baked.height],
+          noLerp: true,
+        },
+      ];
     },
-    getScreenSize: () => [730 / game.state.physics.ppm, 500 / game.state.physics.ppm],
+    getScreenSize: () => [
+      730 / game.state.physics.ppm,
+      500 / game.state.physics.ppm,
+    ],
   },
   audio: {
     playSound: playSound,
@@ -567,7 +722,7 @@ this.game = {
       const scaledPPM = game.state.physics.ppm * game.graphics.camera.scale[0];
 
       let panning = xPos - game.graphics.camera.pos[0] + 365 / scaledPPM;
-      panning = panning / 365 * scaledPPM - 1;
+      panning = (panning / 365) * scaledPPM - 1;
 
       game.audio.playSound(id, volume, panning);
     },
@@ -615,12 +770,20 @@ const platProxyValidator = {
   get(bodyId, key) {
     if (key === 'isProxy') return true;
     if (key === 'id') return bodyId[0];
-    if (key === 'n') return game.state.physics.bodies[bodyId[0]]?.n ?? game.lobby.settings.map.physics.bodies[bodyId[0]]?.n ?? null;
+    if (key === 'n') {
+      return (
+        game.state.physics.bodies[bodyId[0]]?.n ??
+        game.lobby.settings.map.physics.bodies[bodyId[0]]?.n ??
+        null
+      );
+    }
 
     bodyId = bodyId[0];
 
     if (!game.state.physics.bodies[bodyId]) {
-      const e = new TypeError('Cannot get properties of undefined (getting \'' + key + '\')');
+      const e = new TypeError(
+          'Cannot get properties of undefined (getting \'' + key + '\')',
+      );
       throw e;
     }
     if (key === 'shapes') {
@@ -633,7 +796,9 @@ const platProxyValidator = {
   },
   set(bodyId, key, value) {
     if (!game.state.physics.bodies[bodyId[0]]) {
-      const e = new TypeError('Cannot set properties of undefined (setting \'' + key + '\')');
+      const e = new TypeError(
+          'Cannot set properties of undefined (setting \'' + key + '\')',
+      );
       throw e;
     }
     game.state.physics.bodies[bodyId[0]][key] = value;
@@ -644,17 +809,20 @@ const platProxyValidator = {
 const platProxies = [];
 const shapeListProxies = [];
 const shapeProxies = [];
-const platListProxy = new Proxy({}, {
-  get(_target, key) {
-    if (key === 'length') {
-      return game.state.physics.bodies.length;
-    }
-    if (!platProxies[key]) {
-      platProxies[key] = new Proxy([key], platProxyValidator);
-    }
-    return !game.state.physics.bodies[key] ? undefined : platProxies[key];
-  },
-});
+const platListProxy = new Proxy(
+    {},
+    {
+      get(_target, key) {
+        if (key === 'length') {
+          return game.state.physics.bodies.length;
+        }
+        if (!platProxies[key]) {
+          platProxies[key] = new Proxy([key], platProxyValidator);
+        }
+        return !game.state.physics.bodies[key] ? undefined : platProxies[key];
+      },
+    },
+);
 
 this.staticSetted = false;
 this.resetStaticInfo = function() {
@@ -683,7 +851,12 @@ this.setDynamicInfo = function() {
 
   for (let i = 0; i < game.state.discs.length; i++) {
     if (!game.state.discs[i]) continue;
-    randomSeed = randomSeed + game.state.discs[i].x + game.state.discs[i].y + game.state.discs[i].xv + game.state.discs[i].yv;
+    randomSeed =
+      randomSeed +
+      game.state.discs[i].x +
+      game.state.discs[i].y +
+      game.state.discs[i].xv +
+      game.state.discs[i].yv;
   }
 
   randomSeed += game.state.rl;
@@ -692,16 +865,18 @@ this.setDynamicInfo = function() {
 
   // eslint-disable-next-line new-cap
   const random = new Math.seedrandom(randomSeed);
-  Math.random = (a) => Math.round(random() * 1000000000) * 0.000000001;
+  Math.random = () => Math.round(random() * 1000000000) * 0.000000001;
 };
 this.prepareDynamicInfo = function() {
+  game.state.gmExtra.compatMode = game.compatMode;
   game.state.gmExtra.vars = game.vars;
   game.state.gmExtra.camera = game.graphics.camera;
   game.state.gmExtra.drawings = game.graphics.drawings;
   game.state.gmExtra.overrides = game.inputs.overrides;
   game.state.gmExtra.disableDeathBarrier = game.world.disableDeathBarrier;
   game.state.gmExtra.linearSpeedCap = game.world.linearSpeedCap * 0.033333333;
-  game.state.gmExtra.angularSpeedCap = game.world.angularSpeedCap * (Math.PI / 180) * 0.033333333;
+  game.state.gmExtra.angularSpeedCap =
+    game.world.angularSpeedCap * (Math.PI / 180) * 0.033333333;
 
   for (let i = 0; i < game.inputs.length; i++) {
     if (!game.inputs[i]) continue;

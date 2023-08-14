@@ -881,6 +881,46 @@ export default {
     document.getElementById('gmgeneric_prompt').addEventListener('keydown', okInputListener);
     document.getElementById('gmgeneric_cancel').addEventListener('click', cancelListener);
   },
+  importMode: function(buffer) {
+    const content = new dcodeIO.ByteBuffer();
+    content.append(buffer);
+    const mode = gm.encoding.decompressMode(content);
+
+    if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID && mode.map) {
+      gm.editor.modeToImport = mode;
+      gm.editor.showDialogWindow('gm_importdialogwindowcontainer');
+    } else {
+      gm.editor.modeAssets = mode.assets;
+      gm.editor.modeSettings = mode.settings;
+
+      gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
+      if (gm.editor.modeSettings.isTextMode) {
+        document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
+
+        if (/["']body["']|state\.bodies\./gm.test(mode.content)) {
+          mode.content = [
+            '// GMMaker has detected this as a 1.0.0 mode, so the compatibility mode has been turned on.',
+            '// The compatibility mode makes events and raycasts use bodies instead of platforms',
+            '// so that the mode can handle them correctly.',
+            '//',
+            '// To disable compatibility mode, erase the following event listener:',
+            'game.events.addEventListener(\'roundStart\', {perPlayer: false}, function() {',
+            '  game.compatMode = true;',
+            '})',
+            '\n',
+          ].join('\n') + mode.content;
+        }
+
+        gm.editor.monacoWs.setValue(mode.content);
+      } else {
+        document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
+        gm.editor.blocklyWs.clear();
+        const xml = document.createElement('xml');
+        xml.innerHTML = mode.content;
+        Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
+      }
+    }
+  },
   GMENew: function() {
     gm.editor.genericDialog('Are you sure you want to delete all code, reset mode settings and remove all custom images and sounds?', function(confirmed) {
       if (!confirmed) return;
@@ -907,33 +947,8 @@ export default {
       reader.readAsArrayBuffer(file);
 
       reader.onload = (readerEvent) => {
-        const content = new dcodeIO.ByteBuffer();
-        content.append(readerEvent.target.result);
-        const mode = gm.encoding.decompressMode(content);
-
+        gm.editor.importMode(readerEvent.target.result);
         document.getElementById('gmexport_name').value = file.name.slice(0, -4);
-
-        if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID && mode.map) {
-          gm.editor.modeToImport = mode;
-          gm.editor.showDialogWindow('gm_importdialogwindowcontainer');
-        } else {
-          gm.editor.modeAssets = mode.assets;
-          gm.editor.modeSettings = mode.settings;
-
-          gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
-          if (gm.editor.modeSettings.isTextMode) {
-            document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
-            gm.editor.monacoWs.setValue(mode.content);
-          } else {
-            document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
-            gm.editor.blocklyWs.clear();
-            const xml = document.createElement('xml');
-            xml.innerHTML = mode.content;
-            Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
-          }
-
-          gm.editor.monacoWs.setValue(mode.content);
-        }
       };
     };
 
@@ -949,6 +964,21 @@ export default {
     gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
     if (gm.editor.modeSettings.isTextMode) {
       document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
+
+      if (/["']body["']|state\.bodies\./gm.test(gm.editor.modeToImport.content)) {
+        gm.editor.modeToImport.content = [
+          '// GMMaker has detected this as a 1.0.0 mode, so the compatibility mode has been turned on.',
+          '// The compatibility mode makes events and raycasts use bodies instead of platforms',
+          '// so that the mode can handle them correctly.',
+          '//',
+          '// To disable compatibility mode, erase the following event listener:',
+          'game.events.addEventListener(\'roundStart\', {perPlayer: false}, function() {',
+          '  game.compatMode = true;',
+          '})',
+          '\n',
+        ].join('\n') + gm.editor.modeToImport.content;
+      }
+
       gm.editor.monacoWs.setValue(gm.editor.modeToImport.content);
     } else {
       document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
@@ -976,6 +1006,21 @@ export default {
     gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
     if (gm.editor.modeSettings.isTextMode) {
       document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
+
+      if (/["']body["']|state\.bodies\./gm.test(gm.editor.modeToImport.content)) {
+        gm.editor.modeToImport.content = [
+          '// GMMaker has detected this as a 1.0.0 mode, so the compatibility mode has been turned on.',
+          '// The compatibility mode makes events and raycasts use bodies instead of platforms',
+          '// so that the mode can handle them correctly.',
+          '//',
+          '// To disable compatibility mode, erase the following event listener:',
+          'game.events.addEventListener(\'roundStart\', {perPlayer: false}, function() {',
+          '  game.compatMode = true;',
+          '})',
+          '\n',
+        ].join('\n') + gm.editor.modeToImport.content;
+      }
+
       gm.editor.monacoWs.setValue(gm.editor.modeToImport.content);
     } else {
       document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
@@ -1043,26 +1088,7 @@ export default {
     const compressedBackup = gm.editor.modeBackups[document.getElementById('gmbackups_backupselect').value].mode;
     if (!compressedBackup) return;
 
-    let backup = new dcodeIO.ByteBuffer();
-    backup.append(compressedBackup);
-    backup = gm.encoding.decompressMode(backup);
-
-    gm.editor.modeAssets = backup.assets;
-    gm.editor.modeSettings = backup.settings;
-
-    gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
-    if (gm.editor.modeSettings.isTextMode) {
-      document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
-      gm.editor.monacoWs.setValue(backup.content);
-    } else {
-      document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
-      gm.editor.blocklyWs.clear();
-      const xml = document.createElement('xml');
-      xml.innerHTML = backup.content;
-      Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
-    }
-
-    gm.editor.monacoWs.setValue(backup.content);
+    gm.editor.importMode(compressedBackup);
   },
   GMEDatabaseShow: function() {
     gm.editor.showDialogWindow('gm_dbwindowcontainer');
@@ -1227,33 +1253,7 @@ export default {
         const modeRef = storage.ref(gm.editor.fireStorage, 'modes/' + String(doc.id) + '.gmm');
 
         storage.getBytes(modeRef).then((buffer) => {
-          const content = new dcodeIO.ByteBuffer();
-          content.append(buffer);
-
-          const mode = gm.encoding.decompressMode(content);
-
-          if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID && mode.map) {
-            gm.editor.modeToImport = mode;
-            gm.editor.showDialogWindow('gm_importdialogwindowcontainer');
-          } else {
-            gm.editor.modeAssets = mode.assets;
-            gm.editor.modeSettings = mode.settings;
-
-            gm.editor.GMEChangeEditor(gm.editor.modeSettings.isTextMode);
-            if (gm.editor.modeSettings.isTextMode) {
-              document.getElementById('gmeditor_changebasebutton').classList.add('brownButtonDisabled');
-              gm.editor.monacoWs.setValue(mode.content);
-            } else {
-              document.getElementById('gmeditor_changebasebutton').classList.remove('brownButtonDisabled');
-              gm.editor.blocklyWs.clear();
-              const xml = document.createElement('xml');
-              xml.innerHTML = mode.content;
-              Blockly.Xml.domToWorkspace(xml, gm.editor.blocklyWs);
-            }
-
-            gm.editor.monacoWs.setValue(mode.content);
-          }
-
+          gm.editor.importMode(buffer);
           gm.editor.GMEDatabaseHide();
         });
       });
