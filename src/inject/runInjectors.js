@@ -1,8 +1,17 @@
 (async () => {
-  const bonkScriptResponse = await fetch('https://bonk.io/js/alpha2s.js?real');
+  let bonkScriptResponse;
+
+  if (window.location.href.includes('bonk.io')) {
+    bonkScriptResponse = await fetch('https://bonk.io/js/alpha2s.js?real');
+  } else {
+    bonkScriptResponse = await fetch('https://bonkisback.io/js/alpha2s.js?real');
+  }
+
   let src = await bonkScriptResponse.text();
 
   await null;
+
+  console.log("balls");
 
   if (!window.bonkCodeInjectors) {
     window.bonkCodeInjectors = [];

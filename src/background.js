@@ -8,6 +8,6 @@ browser.webRequest.onBeforeRequest.addListener(
         };
       }
     },
-    {urls: ['*://bonk.io/*']},
+    {urls: ['*://bonk.io/*', '*://bonkisback.io/*']},
     ['blocking'],
 );

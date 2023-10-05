@@ -23,7 +23,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'NetworkEngine', regex: 'function ([^\\)]*)\\([^\\)]{11}\\).{0,8000}reconnection:false', isConstructor: true},
       // This class takes care of updating the lobby and reacting to the player's interactions with the lobby.
       // It's used by gmmaker to update the custom mode when a change is sent by the host and to enable/disable the gmeditor button when a new player gets host.
-      {name: 'NewBonkLobby', regex: 'function (..)\\(.{15}\\).{0,10000}newbonklobby', isConstructor: true},
+      {name: 'NewBonkLobby', regex: 'function (..)\\(.{15}\\).{0,20000}newbonklobby', isConstructor: true},
       // There's no single way to describe this class since it's used many different purposes which have nothing to do with each other, except for handling something in the game session.
       // gmmaker uses its 'goInProgress' function (which takes care of calculating all the steps when you join mid-game) to load the custom mode before any steps get calculated.
       {name: 'GenericGameSessionHandler', regex: 'new (..)\\(null\\)', isConstructor: true},
@@ -59,12 +59,12 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(ppm:.{0,100}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.shapes[$3]) continue;'},
       {regex: '(updateRodJoints.{0,100} ([^=]+)=\\[argu.{0,2000}?;([^;+]+)\\+\\+\\)\\{)', to: '$1if($2[0][0].physics.joints[$3]?.type !== "d") continue;'},
       // extend top bar visibility range
-      {regex: '(return.{0,1000})< [^ ]{0,10}(.{0,100}ime.+?rue.+?> )[^ ]{0,10}', to: '$1< 100$2100'},
+      {regex: '(return.{0,1000})< [^ ]{0,10}(.{0,100}ime.{0,200}?rue,du.+?> )[^ ]{0,10}', to: '$1< 100$2100'},
       // allow round to end when requested by the mode
       {regex: '(1,did:.{0,1000}?== 0)', to: '$1 || window.gmReplaceAccessors.endRound'},
     ],
     inject: {
-      regex: ';}\\);}}\\);',
+      regex: '(}}\\);)$',
       wrap: {
         left: ';});',
         right: '}});',
@@ -92,7 +92,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
   // Finish initializing gmmaker. If initGM doesn't exist yet, wait for it to exist, and then execute it.
   newBonkSrc = newBonkSrc.replace(
       new RegExp(gmRegexes.inject.regex),
-      `${gmRegexes.inject.wrap.left}${funcHooks}\n
+      `${funcHooks}\n
 if(window.initGM) {
   window.initGM(); 
 } else {

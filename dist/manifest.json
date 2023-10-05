@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Game Mode Maker Beta",
+  "name": "Game Mode Maker",
   "description": "A bonk.io mod that lets you create your own game modes using Scratch-like blocks or plain JavaScript code.",
   "homepage_url": "https://github.com/SneezingCactus/gmmaker",
   "permissions": [
     "declarativeNetRequest"
   ],
   "host_permissions": [
-    "*://bonk.io/*"
+    "*://bonk.io/*",
+    "*://bonkisback.io/*"
   ],
   "web_accessible_resources": [
     {
@@ -33,7 +34,8 @@
   "content_scripts": [
     {
       "matches": [
-        "*://bonk.io/gameframe-release.html"
+        "*://bonk.io/gameframe-release.html",
+        "*://bonkisback.io/gameframe-release.html"
       ],
       "js": [
         "js/loadInjector.js"

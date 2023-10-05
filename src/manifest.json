@@ -4,7 +4,7 @@
   "description": "A bonk.io mod that lets you create your own game modes using Scratch-like blocks or plain JavaScript code.",
   "homepage_url": "https://github.com/SneezingCactus/gmmaker",
   "permissions": ["declarativeNetRequest"],
-  "host_permissions": ["*://bonk.io/*"],
+  "host_permissions": ["*://bonk.io/*", "*://bonkisback.io/*"],
   "web_accessible_resources": [{
     "resources": ["js/injector.js", "js/gmLoader.js", "js/runInjectors.js"],
     "matches": ["<all_urls>"]
@@ -18,7 +18,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://bonk.io/gameframe-release.html"],
+      "matches": ["*://bonk.io/gameframe-release.html", "*://bonkisback.io/gameframe-release.html"],
       "js": ["js/loadInjector.js"],
       "all_frames": true
     }

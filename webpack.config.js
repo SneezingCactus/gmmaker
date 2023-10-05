@@ -4,7 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 const {version} = require('./package.json');
 
-const minimize = true;
+const minimize = false;
 
 module.exports = {
   mode: 'production',
