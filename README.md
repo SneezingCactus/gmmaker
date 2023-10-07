@@ -1,6 +1,6 @@
 # Game Mode Maker
 
-A [bonk.io](https://bonk.io/) mod that lets you create your own game modes using JavaScript code.
+A [bonk.io](https://bonk.io/) mod that lets you create your own game modes using Scratch-like blocks or with JavaScript code.
 
 ### [Install guide](https://sneezingcactus.github.io/gmmaker/docs/tutorials/GettingStarted-1.html)
 
