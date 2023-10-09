@@ -56,7 +56,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // remove pixi render function at the end of BonkGraphics render function to allow for gmm to do stuff before rendering
       {regex: '(this.renderer.render\\(this.stage\\);)', to: '/*$1*/'},
       // add existance checks where needed
-      {regex: '(ppm:.{0,100}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.shapes[$3]) continue;'},
+      {regex: '(ppm:.{0,1000}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.shapes[$3]) continue;'},
       {regex: '(updateRodJoints.{0,100} ([^=]+)=\\[argu.{0,2000}?;([^;+]+)\\+\\+\\)\\{)', to: '$1if($2[0][0].physics.joints[$3]?.type !== "d") continue;'},
       // extend top bar visibility range
       {regex: '(return.{0,1000})< [^ ]{0,10}(.{0,100}ime.{0,200}?rue,du.+?> )[^ ]{0,10}', to: '$1< 100$2100'},
