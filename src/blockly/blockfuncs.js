@@ -793,7 +793,7 @@ export default function() {
     code += '  scale: ' + scale + ',\n';
     code += '  angle: ' + angle + ',\n';
     code += '  attachTo: \'' + attach_to + '\',\n';
-    if (attach_to == 'body' || attach_to == 'disc') {
+    if (attach_to == 'platform' || attach_to == 'disc') {
       code += '  attachId: ' + attach_id + ',\n';
     }
     if (attach_to != 'screen' && is_behind !== '') {

@@ -3022,6 +3022,10 @@ module.exports = [
             'a',
           ],
           [
+            'angular velocity',
+            'av',
+          ],
+          [
             'density',
             'de',
           ],
@@ -3180,6 +3184,10 @@ module.exports = [
           [
             'angle',
             'a',
+          ],
+          [
+            'angular velocity',
+            'av',
           ],
           [
             'density',
