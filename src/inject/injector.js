@@ -64,12 +64,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(1,did:.{0,1000}?== 0)', to: '$1 || window.gmReplaceAccessors.endRound'},
     ],
     inject: {
-      regex: ';}\\);}}\\);',
-      regex2: '}}\\);$',
-      wrap: {
-        left: ';});',
-        right: '}});',
-      },
+      regex: '([\\}]+?([\\)]+)?;?)(function .{5,8}\\(\\)\\{retur|$)',
     },
   };
 
@@ -91,10 +86,9 @@ window.gmInjectBonkScript = function(bonkSrc) {
   console.log('[Game Mode Maker] Using hooks:', funcNames);
 
   // Finish initializing gmmaker. If initGM doesn't exist yet, wait for it to exist, and then execute it.
-  if (new RegExp(gmRegexes.inject.regex).test(newBonkSrc)) {
-    newBonkSrc = newBonkSrc.replace(
-        new RegExp(gmRegexes.inject.regex),
-        `${gmRegexes.inject.wrap.left}${funcHooks}\n
+  newBonkSrc = newBonkSrc.replace(
+      new RegExp(gmRegexes.inject.regex),
+      `${funcHooks}\n
 if(window.initGM) {
   window.initGM(); 
 } else {
@@ -105,25 +99,8 @@ if(window.initGM) {
     }
   }, 500);
 }
-${gmRegexes.inject.wrap.right}`,
-    );
-  } else {
-    newBonkSrc = newBonkSrc.replace(
-        new RegExp(gmRegexes.inject.regex2),
-        `${funcHooks}\n
-if(window.initGM) {
-  window.initGM(); 
-} else {
-  window.waitForGM = setInterval(()=>{
-    if(window.initGM){
-      window.initGM();
-      clearInterval(window.waitForGM);
-    }
-  }, 500);
-}
-${gmRegexes.inject.wrap.right}`,
-    );
-  }
+$1$3`,
+  );
 
 
   window.gmReplaceAccessors = {};
