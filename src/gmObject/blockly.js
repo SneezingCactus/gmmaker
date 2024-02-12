@@ -9,6 +9,7 @@ import windowHtml from '../gmWindow/window.html';
 import blockDefs from '../blockly/blockdefs.js';
 import defineBlockCode from '../blockly/blockfuncs.js';
 import defineBlockValidators from '../blockly/blockvalidators.js';
+import gmBlockRenderer from '../blockly/renderer.js';
 import {saveAs} from 'file-saver';
 
 export default {
@@ -18,8 +19,25 @@ export default {
     this.blockDefs = blockDefs;
     this.initGMEditor();
   },
-  configApply: function() {
-    
+  configApply: function(config) {
+    this.workspace.setTheme(
+      config.editor.darkWorkspace ? this.darkTheme : this.lightTheme);
+
+    if (config.editor.darkWorkspace) {
+      this.workspace.grid.line1?.setAttribute('stroke', '#555');
+      this.workspace.grid.line2?.setAttribute('stroke', '#555');
+    } else {
+      this.workspace.grid.line1?.setAttribute('stroke', '#ccc');
+      this.workspace.grid.line2?.setAttribute('stroke', '#ccc');
+    }
+
+    if (config.editor.showGrid) {
+      this.workspace.grid.pattern.style.visibility = 'visible';
+      this.workspace.grid.snapToGrid = true;
+    } else {
+      this.workspace.grid.pattern.style.visibility = 'hidden';
+      this.workspace.grid.snapToGrid = false;
+    }
   },
   initGMEditor: function() {
     // create the gm editor div
@@ -92,7 +110,7 @@ export default {
     // adding button sounds
     const buttons = [
       'gmeditor_newbutton', 'gmeditor_importbutton', 'gmeditor_exportbutton', 'gmeditor_savebutton', 'gmeditor_closebutton', 'gmeditor_settingsbutton', 'gmeditor_backupsbutton',
-      'gmblockly_cancel', 'gmblockly_ok',
+      'gmgeneric_cancel', 'gmgeneric_ok',
       'gmexport_cancel', 'gmexport_ok',
       'gmimportdialog_cancel', 'gmimportdialog_no', 'gmimportdialog_yes',
       'gmsettings_cancel', 'gmsettings_save',
@@ -207,19 +225,156 @@ export default {
     document.getElementById('pagecontainer').appendChild(blocklyDiv);
 
     // create gmmaker theme
-    gm.blockly.theme = Blockly.Theme.defineTheme('gmmaker', {
+    gm.blockly.lightTheme = Blockly.Theme.defineTheme('gmmaker-light', {
       'base': Blockly.Themes.Classic,
+      'blockStyles': {
+        'colour_blocks': {
+          'colourPrimary': '#a5745b',
+          'colourSecondary': '#dbc7bd',
+          'colourTertiary': '#845d49',
+        },
+        'list_blocks': {
+          'colourPrimary': '#745ba5',
+          'colourSecondary': '#c7bddb',
+          'colourTertiary': '#5d4984',
+        },
+        'logic_blocks': {
+          'colourPrimary': '#5b80a5',
+          'colourSecondary': '#bdccdb',
+          'colourTertiary': '#496684',
+        },
+        'loop_blocks': {
+          'colourPrimary': '#5ba55b',
+          'colourSecondary': '#bddbbd',
+          'colourTertiary': '#498449',
+        },
+        'math_blocks': {
+          'colourPrimary': '#5b67a5',
+          'colourSecondary': '#bdc2db',
+          'colourTertiary': '#495284',
+        },
+        'procedure_blocks': {
+          'colourPrimary': '#995ba5',
+          'colourSecondary': '#d6bddb',
+          'colourTertiary': '#7a4984',
+        },
+        'text_blocks': {
+          'colourPrimary': '#5ba58c',
+          'colourSecondary': '#bddbd1',
+          'colourTertiary': '#498470',
+        },
+        'variable_blocks': {
+          'colourPrimary': '#a55b99',
+          'colourSecondary': '#dbbdd6',
+          'colourTertiary': '#84497a',
+        },
+        'gm_misc': {
+          'colourPrimary': '#a55b5b',
+          'colourSecondary': '#dbbdbd',
+          'colourTertiary': '#844949',
+        },
+        'gm_events': {
+          'colourPrimary': '#a5805b',
+          'colourSecondary': '#dbcdbd',
+          'colourTertiary': '#846649',
+        },
+        'gm_graphics': {
+          'colourPrimary': '#5ba58c',
+          'colourSecondary': '#bddbd1',
+          'colourTertiary': '#4a8772',
+        },
+        'gm_mapobjects': {
+          'colourPrimary': '#5b93a5',
+          'colourSecondary': '#bdd4db',
+          'colourTertiary': '#4a7887',
+        },
+        'gm_players': {
+          'colourPrimary': '#5b67a5',
+          'colourSecondary': '#bdc2db',
+          'colourTertiary': '#495284',
+        },
+      },
       'fontStyle': {
         'family': 'futurept_b1',
         'size': 12,
       },
     }),
 
-    Blockly.Theme.defineTheme('gmmaker-dark', {
-      'base': gm.blockly.theme,
+    gm.blockly.darkTheme = Blockly.Theme.defineTheme('gmmaker-dark', {
+      'base': Blockly.Themes.Classic,
+      'blockStyles': {
+        'colour_blocks': {
+          'colourPrimary': '#a5745b',
+          'colourSecondary': '#845d49',
+          'colourTertiary': '#845d49',
+        },
+        'list_blocks': {
+          'colourPrimary': '#745ba5',
+          'colourSecondary': '#5d4984',
+          'colourTertiary': '#5d4984',
+        },
+        'logic_blocks': {
+          'colourPrimary': '#5b80a5',
+          'colourSecondary': '#496684',
+          'colourTertiary': '#496684',
+        },
+        'loop_blocks': {
+          'colourPrimary': '#5ba55b',
+          'colourSecondary': '#498449',
+          'colourTertiary': '#498449',
+        },
+        'math_blocks': {
+          'colourPrimary': '#5b67a5',
+          'colourSecondary': '#373e63',
+          'colourTertiary': '#373e63',
+        },
+        'procedure_blocks': {
+          'colourPrimary': '#995ba5',
+          'colourSecondary': '#7a4984',
+          'colourTertiary': '#7a4984',
+        },
+        'text_blocks': {
+          'colourPrimary': '#5ba58c',
+          'colourSecondary': '#498470',
+          'colourTertiary': '#498470',
+        },
+        'variable_blocks': {
+          'colourPrimary': '#a55b99',
+          'colourSecondary': '#84497a',
+          'colourTertiary': '#84497a',
+        },
+        'gm_misc': {
+          'colourPrimary': '#a55b5b',
+          'colourSecondary': '#844949',
+          'colourTertiary': '#844949',
+        },
+        'gm_events': {
+          'colourPrimary': '#a5805b',
+          'colourSecondary': '#846649',
+          'colourTertiary': '#846649',
+        },
+        'gm_graphics': {
+          'colourPrimary': '#5ba58c',
+          'colourSecondary': '#4a8772',
+          'colourTertiary': '#4a8772',
+        },
+        'gm_mapobjects': {
+          'colourPrimary': '#5b93a5',
+          'colourSecondary': '#4a7887',
+          'colourTertiary': '#4a7887',
+        },
+        'gm_players': {
+          'colourPrimary': '#5b67a5',
+          'colourSecondary': '#495284',
+          'colourTertiary': '#495284',
+        },
+      },
+      'fontStyle': {
+        'family': 'futurept_b1',
+        'size': 12,
+      },
       'componentStyles': {
         'workspaceBackgroundColour': '#1e1e1e',
-        'toolboxBackgroundColour': 'blackBackground',
         'toolboxForegroundColour': '#fff',
         'flyoutBackgroundColour': '#252526',
         'flyoutForegroundColour': '#ccc',
@@ -233,15 +388,25 @@ export default {
       },
     });
 
+    // register renderer
+    Blockly.blockRendering.register('gm_renderer', gmBlockRenderer);
+
     // create blockly workspaces
     gm.blockly.workspace = Blockly.inject('gmblocklydiv', {
       toolbox: document.getElementById('toolbox'),
+      renderer: 'gm_renderer',
       zoom: {
         controls: true,
         wheel: true,
         pinch: true,
       },
-      theme: gm.blockly.theme,
+      grid: {
+        spacing: 20,
+        length: 3,
+        colour: '#ccc',
+        snap: true,
+      },
+      theme: gm.blockly.lightTheme,
     });
     gm.blockly.headlessWorkspace = new Blockly.Workspace();
 
@@ -254,13 +419,13 @@ export default {
 
     // workspace dialogs
     Blockly.dialog.setAlert(function(message, callback) {
-      gm.blockly.genericDialog(message, callback, false);
+      gm.blockly.genericDialog(message, callback);
     });
     Blockly.dialog.setConfirm(function(message, callback) {
-      gm.blockly.genericDialog(message, callback, true);
+      gm.blockly.genericDialog(message, callback, {showCancel: true});
     });
     Blockly.dialog.setPrompt(function(message, defaultValue, callback) {
-      gm.blockly.genericDialog(message, callback, true, true, defaultValue);
+      gm.blockly.genericDialog(message, callback, {showCancel: true, showInput: true, inputValue: defaultValue});
     });
 
     // add loop trap
@@ -546,44 +711,60 @@ export default {
     document.getElementById('gmeditor').style.transform = 'scale(0)';
     document.getElementById('newbonklobby').style.transform = 'scale(1)';
   },
-  genericDialog: function(message = '', callback = ()=>{}, showCancel = false, showInput = false, inputValue = '') {
-    document.getElementById('gm_blocklydialogcontainer').style.visibility = 'visible';
+  showDialogWindow: function(id) {
+    const el = document.getElementById(id);
+    el.style.opacity = 1;
+    el.style.visibility = 'visible';
+  },
+  hideDialogWindow: function(id) {
+    const el = document.getElementById(id);
+    el.style.opacity = 0;
+    setTimeout(function() {
+      el.style.visibility = 'hidden';
+    }, 150);
+  },
+  genericDialog: function(message = '', callback = ()=>{}, options) {
+    gm.blockly.showDialogWindow('gm_genericdialogcontainer');
 
-    document.getElementById('gmblockly_message').innerText = message;
-    document.getElementById('gmblockly_promptcontainer').style.display = showInput ? 'block' : 'none';
-    if (showInput) document.getElementById('gmblockly_prompt').focus();
-    document.getElementById('gmblockly_prompt').value = inputValue;
-    document.getElementById('gmblockly_cancel').style.display = showCancel ? 'block' : 'none';
+    document.getElementById('gmgeneric_message').innerHTML = message;
+    document.getElementById('gmgeneric_title').innerText = options.title ?? 'GMMaker';
+    document.getElementById('gmgeneric_promptcontainer').style.display = options.showInput ? 'block' : 'none';
+    document.getElementById('gmgeneric_prompt').value = options.inputValue;
+    document.getElementById('gmgeneric_cancel').style.display = options.showCancel ? 'block' : 'none';
+    if (options.showInput) document.getElementById('gmgeneric_prompt').focus();
+
+    document.getElementById('gmgeneric_code').parentElement.style.display = options.showCode ? 'block' : 'none';
+    if (options.showCode) document.getElementById('gmgeneric_code').innerText = options.code;
 
     // it's weird but it works and it looks neat
     // eslint-disable-next-line prefer-const
     let closeDialog;
 
     const okListener = function() {
-      callback(showInput ? document.getElementById('gmblockly_prompt').value : true);
+      callback(options.showInput ? document.getElementById('gmgeneric_prompt').value : true);
       closeDialog();
     };
     const okInputListener = function(event) {
       if (event.key === 'Enter') {
-        callback(showInput ? document.getElementById('gmblockly_prompt').value : true);
+        callback(options.showInput ? document.getElementById('gmgeneric_prompt').value : true);
         closeDialog();
       }
     };
     const cancelListener = function() {
-      callback(showInput ? null : false);
+      callback(options.showInput ? null : false);
       closeDialog();
     };
 
     closeDialog = function() {
-      document.getElementById('gm_blocklydialogcontainer').style.visibility = 'hidden';
-      document.getElementById('gmblockly_ok').removeEventListener('click', okListener);
-      document.getElementById('gmblockly_prompt').removeEventListener('keydown', okInputListener);
-      document.getElementById('gmblockly_cancel').removeEventListener('click', cancelListener);
+      gm.blockly.hideDialogWindow('gm_genericdialogcontainer');
+      document.getElementById('gmgeneric_ok').removeEventListener('click', okListener);
+      document.getElementById('gmgeneric_prompt').removeEventListener('keydown', okInputListener);
+      document.getElementById('gmgeneric_cancel').removeEventListener('click', cancelListener);
     };
 
-    document.getElementById('gmblockly_ok').addEventListener('click', okListener);
-    document.getElementById('gmblockly_prompt').addEventListener('keydown', okInputListener);
-    document.getElementById('gmblockly_cancel').addEventListener('click', cancelListener);
+    document.getElementById('gmgeneric_ok').addEventListener('click', okListener);
+    document.getElementById('gmgeneric_prompt').addEventListener('keydown', okInputListener);
+    document.getElementById('gmgeneric_cancel').addEventListener('click', cancelListener);
   },
   GMENew: function() {
     gm.blockly.genericDialog('Are you sure you want to delete all blocks and reset mode settings?', function(confirmed) {
@@ -595,11 +776,12 @@ export default {
       gm.blockly.modeDescription = 'Change your mode\'s description on the Game Mode Editor\'s Settings menu (gear icon).';
       gm.blockly.showVarInspector = false;
       gm.blockly.baseMode = 'any';
-    }, true);
+    }, {showCancel: true});
   },
   GMEImport: function() {
     const input = document.createElement('input');
     input.type = 'file';
+    input.accept = '.xml';
 
     input.onchange = (e) => {
       const file = e.target.files[0];
@@ -629,7 +811,7 @@ export default {
 
         if (gm.lobby.networkEngine.getLSID() == gm.lobby.networkEngine.hostID && xml.getElementsByTagName('bonkmap')[0]) {
           gm.blockly.xmlToImport = xml;
-          document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'visible';
+          gm.blockly.showDialogWindow('gm_importwindowcontainer');
         } else {
           gm.blockly.workspace.clear();
           Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
@@ -640,13 +822,13 @@ export default {
     input.click();
   },
   GMEImportMapCancel: function() {
-    document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
+    gm.blockly.hideDialogWindow('gm_importwindowcontainer');
   },
   GMEImportMapNo: function() {
     gm.blockly.workspace.clear();
     Blockly.Xml.domToWorkspace(gm.blockly.xmlToImport, gm.blockly.workspace);
 
-    document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
+    gm.blockly.hideDialogWindow('gm_importwindowcontainer');
   },
   GMEImportMapYes: function() {
     const gameSettings = gm.lobby.mpSession.getGameSettings();
@@ -659,14 +841,14 @@ export default {
     gm.blockly.workspace.clear();
     Blockly.Xml.domToWorkspace(gm.blockly.xmlToImport, gm.blockly.workspace);
 
-    document.getElementById('gm_importdialogwindowcontainer').style.visibility = 'hidden';
+    gm.blockly.hideDialogWindow('gm_importwindowcontainer');
   },
   GMEExportShow: function() {
-    document.getElementById('gm_exportwindowcontainer').style.visibility = 'visible';
+    gm.blockly.showDialogWindow('gm_exportwindowcontainer');
     document.getElementById('gmexport_name').focus();
   },
   GMEExportCancel: function() {
-    document.getElementById('gm_exportwindowcontainer').style.visibility = 'hidden';
+    gm.blockly.hideDialogWindow('gm_exportwindowcontainer');
   },
   GMEExportSave: function() {
     const filename = document.getElementById('gmexport_name').value;
@@ -688,10 +870,10 @@ export default {
 
     const blob = new Blob(['!!!COMPRESSED!!!' + gm.blockly.compressXml(xml.innerHTML)], {type: 'text/plain;charset=utf-8'});
     saveAs(blob, `${filename}.xml`);
-    document.getElementById('gm_exportwindowcontainer').style.visibility = 'hidden';
+    gm.blockly.hideDialogWindow('gm_exportwindowcontainer');
   },
   GMEBackupsShow: function() {
-    document.getElementById('gm_backupswindowcontainer').style.visibility = 'visible';
+    gm.blockly.showDialogWindow('gm_backupswindowcontainer');
 
     const backupSelect = document.getElementById('gmbackups_backupselect');
     backupSelect.innerHTML = '';
@@ -706,10 +888,10 @@ export default {
     }
   },
   GMEBackupsCancel: function() {
-    document.getElementById('gm_backupswindowcontainer').style.visibility = 'hidden';
+    gm.blockly.hideDialogWindow('gm_backupswindowcontainer');
   },
   GMEBackupsLoad: function() {
-    document.getElementById('gm_backupswindowcontainer').style.visibility = 'hidden';
+    gm.blockly.hideDialogWindow('gm_backupswindowcontainer');
 
     const backup = gm.blockly.modeBackups[document.getElementById('gmbackups_backupselect').value].xml;
     if (!backup) return;
@@ -728,7 +910,7 @@ export default {
     Blockly.Xml.domToWorkspace(xml, gm.blockly.workspace);
   },
   GMESettingsShow: function() {
-    document.getElementById('gm_settingswindowcontainer').style.visibility = 'visible';
+    gm.blockly.showDialogWindow('gm_settingswindowcontainer');
 
     document.getElementById('gmsettings_modename').value = gm.blockly.modeName;
     document.getElementById('gmsettings_modedescription').value = gm.blockly.modeDescription;
@@ -736,7 +918,7 @@ export default {
     document.getElementById('gmsettings_basemode').value = gm.blockly.baseMode;
   },
   GMESettingsCancel: function() {
-    document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
+    gm.blockly.hideDialogWindow('gm_settingswindowcontainer');
   },
   GMESettingsSave: function() {
     gm.blockly.modeName = document.getElementById('gmsettings_modename').value.substring(0, 12);
@@ -744,7 +926,7 @@ export default {
     gm.blockly.showVarInspector = document.getElementById('gmsettings_showvarinsp').checked;
     gm.blockly.baseMode = document.getElementById('gmsettings_basemode').value;
 
-    document.getElementById('gm_settingswindowcontainer').style.visibility = 'hidden';
+    gm.blockly.hideDialogWindow('gm_settingswindowcontainer');
   },
   GMESave: function() {
     if (gm.lobby.networkEngine.getLSID() !== gm.lobby.networkEngine.hostID) return;
@@ -1418,6 +1600,7 @@ export default {
         'fricp': fricPlayers,
         'de': density,
         're': bounce,
+        'fz': {'on': false, 'x': 0, 'y': 0, 'd': true, 'p': true, 'a': true, 't': 0, 'cf': 0},
         'f_c': colGroup,
         'f_p': colP,
         'f_1': colA,

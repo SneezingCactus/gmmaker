@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Game Mode Maker Legacy",
+  "description": "A legacy version of Game Mode Maker, allowing you to play game modes made before v1.0.0 with ease.",
+  "homepage_url": "https://github.com/SneezingCactus/gmmaker",
+  "permissions": ["declarativeNetRequest"],
+  "host_permissions": ["*://bonk.io/*", "*://bonkisback.io/*"],
+  "web_accessible_resources": [{
+    "resources": ["js/injector.js", "js/gmLoader.js", "js/runInjectors.js"],
+    "matches": ["<all_urls>"]
+  }],
+  "declarative_net_request": {
+    "rule_resources": [{
+      "id": "gm_ruleset",
+      "enabled": true,
+      "path": "rules.json"
+    }]
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://bonk.io/gameframe-release.html", "*://bonkisback.io/gameframe-release.html"],
+      "js": ["js/loadInjector.js"],
+      "all_frames": true
+    }
+  ],
+  "icons": {
+    "16": "icons/gmmaker16.png",
+    "32": "icons/gmmaker32.png",
+    "48": "icons/gmmaker48.png",
+    "128": "icons/gmmaker128.png"
+  }
+}

@@ -38,12 +38,16 @@ window.initGM = function() {
     gm[key].init();
   }
 
+  gm.version = require('../../package.json').version;
+
   // show epic splash screen
   if (!gm.config.saved.misc.showSplash) return;
 
   let splashElement = document.createElement('div');
   document.getElementById('newbonkgamecontainer').prepend(splashElement);
   splashElement.outerHTML = splashHtml;
+
+  document.getElementById('gm_splashversion').innerText = 'v' + gm.version;
 
   // yes this is needed
   splashElement = document.getElementsByClassName('gm_splashcontainer')[0];

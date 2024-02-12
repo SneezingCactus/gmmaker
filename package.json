@@ -1,5 +1,6 @@
 {
   "name": "gmmaker",
+  "version": "0.10.0",
   "dependencies": {
     "@blockly/plugin-workspace-search": "^6.0.5",
     "blockly": "^9.2.1",
@@ -9,6 +10,7 @@
     "seedrandom": "^3.0.5"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^5.2.7",
     "eslint": "^8.33.0",
     "eslint-config-google": "^0.14.0",

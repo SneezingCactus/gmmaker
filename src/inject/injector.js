@@ -23,7 +23,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'NetworkEngine', regex: 'function ([^\\)]*)\\([^\\)]{11}\\).{0,8000}reconnection:false', isConstructor: true},
       // This class takes care of updating the lobby and reacting to the player's interactions with the lobby.
       // It's used by gmmaker to update the custom mode when a change is sent by the host and to enable/disable the gmeditor button when a new player gets host.
-      {name: 'NewBonkLobby', regex: 'function (..)\\(.{15}\\).{0,10000}newbonklobby', isConstructor: true},
+      {name: 'NewBonkLobby', regex: 'function (..)\\(.{15}\\).{0,20000}newbonklobby', isConstructor: true},
       // There's no singular way to describe this class since it's used many different purposes which have nothing to do with each other, except for handling something in the game session.
       // gmmaker uses its 'goInProgress' function (which takes care of calculating all the steps when you join mid-game) to load the custom mode before any steps get calculated.
       {name: 'GenericGameSessionHandler', regex: 'new (..)\\(null\\)', isConstructor: true},
@@ -57,11 +57,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {regex: '(return.{0,1000})< [^ ]{0,10}(.{0,100}ime.+?rue.+?> )[^ ]{0,10}', to: '$1< 100$2100'},
     ],
     inject: {
-      regex: ';}\\);}}\\);',
-      wrap: {
-        left: ';});',
-        right: '}});',
-      },
+      regex: '([\\}]+?([\\)]+)?;?)(function .{5,8}\\(\\)\\{retur|$)',
     },
   };
 
@@ -85,7 +81,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
   // Finish initiating gmmaker. If initGM doesn't exist yet, wait for it to exist, and then execute it.
   newBonkSrc = newBonkSrc.replace(
       new RegExp(gmRegexes.inject.regex),
-      `${gmRegexes.inject.wrap.left}${funcHooks}\n
+      `${funcHooks}\n
 if(window.initGM) {
   window.initGM(); 
 } else {
@@ -96,7 +92,7 @@ if(window.initGM) {
     }
   }, 500);
 }
-${gmRegexes.inject.wrap.right}`,
+$1$3`,
   );
 
   window.gmReplaceAccessors = {};

@@ -147,6 +147,14 @@ export default {
       };
     })();
 
+    // change mode description box
+    document.getElementById('newbonklobby_modetext').addEventListener('mousedown', function() {
+      const modeDesc = gm.blockly.savedXml?.getElementsByTagName('gmsettings')[0]?.getAttribute('mode_description');
+
+      if (modeDesc && gm.blockly.savedXml?.getElementsByTagName('block').length > 0) {
+        gm.blockly.genericDialog(modeDesc.replace(/\n/g, '<br>'), ()=>{}, {title: 'Mode Description'});
+      }
+    });
     document.getElementById('newbonklobby_modetext').addEventListener('mousemove', function() {
       const modeDesc = gm.blockly.savedXml?.getElementsByTagName('gmsettings')[0]?.getAttribute('mode_description');
 

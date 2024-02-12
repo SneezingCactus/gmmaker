@@ -237,6 +237,17 @@
 
 /* LOBBY MODS */
 
+#newbonklobby_tooltip {
+    display: -webkit-box;
+    -webkit-line-clamp: 12;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+#settingsContainer, #leaveconfirmwindowcontainer, #hostleaveconfirmwindowcontainer {
+    z-index: 9999;
+}
+
 .modebuttoncontainer {
     display: flex;
     position: absolute;
@@ -302,8 +313,10 @@
     width: 100%;
     height: 100%;
     position: absolute;
+    opacity: 0;
     visibility: hidden;
     z-index: 999999;
+    transition: opacity 130ms ease-out;
 }
 
 .gm_dialogwindow {
@@ -494,21 +507,21 @@ path.blocklyPath.blockly-ws-search-highlight {
 
 /* BLOCKLY CLASSES */
 
-.blockly-ws-search button {
-    width: 20px;
-}
-
-path.blocklyPath.blockly-ws-search-highlight {
-    fill: black;
-    fill-opacity: 1;
-}
-
 .gm_blockly_toolbox_button_bg {
     position: absolute;
-    width: 122px;
+    width: 110px;
     height: 30px;
     pointer-events: none;
     z-index: -1;
+    margin-top: 3px;
+}
+
+.blocklyToolboxCategory[aria-expanded] > .gm_blockly_toolbox_button_bg {
+    filter: none !important;
+}
+
+.blocklyToolboxCategory .blocklyToolboxCategory .gm_blockly_toolbox_button_bg {
+    margin-top: 0;
 }
 
 .blocklyTreeSeparator {
@@ -517,7 +530,10 @@ path.blocklyPath.blockly-ws-search-highlight {
 
 .blocklyToolboxDiv {
     background-color: var(--gm_primary_background);
-    padding: 4px 10px 4px 0;
+}
+
+.blocklyToolboxDiv > .blocklyToolboxContents {
+    padding: 4px 10px 12px 0;
 }
 
 .blocklyTreeRow {
@@ -525,9 +541,22 @@ path.blocklyPath.blockly-ws-search-highlight {
     justify-content: center;
     align-items: center;
     box-shadow: rgb(0 0 0 / 63%) 1px 1px 5px -2px;
+    width: 110px;
     height: 30px;
     padding-left: 8px !important;
+    margin-top: 3px;
+    margin-bottom: 0;
+    box-sizing: border-box;
     cursor: pointer;
+}
+
+.blocklyToolboxCategory .blocklyToolboxCategory .blocklyTreeRow {
+    margin-top: 0;
+    box-shadow: none;
+}
+
+.blocklyToolboxCategory > .blocklyToolboxContents {
+    display: none;
 }
 
 .blocklyTreeIcon {
@@ -538,4 +567,53 @@ path.blocklyPath.blockly-ws-search-highlight {
 .blocklyTreeLabel {
     color: #fff;
     font: 15px 'futurept_b1';
+}
+
+.blocklyMainBackground {
+    stroke: none !important;
+}
+
+.blocklyToolboxDiv::-webkit-scrollbar {
+    background: var(--gm_primary_background);
+    width: 10px;
+}
+  
+.blocklyToolboxDiv::-webkit-scrollbar-thumb {
+    background: var(--gm_scrollbar_thumb);
+    border-radius: 50px;
+}
+
+path.blocklyPath.blockly-ws-search-highlight {
+    fill: black;
+    fill-opacity: 1;
+}
+
+.blockly-ws-search button {
+    width: 20px;
+}
+
+.fieldColourSliderLabel {
+    font-family: 'futurept_b1';
+}
+
+.fieldColourSliderContainer > hr,
+.fieldColourSliderContainer > .fieldColourEyedropper {
+    display: none;
+}
+
+.gm_blockly_label_2 > .blocklyFlyoutLabelText {
+    transform: translate(0px, -20px);
+}
+
+.gm_blockly_label_3 > .blocklyFlyoutLabelText {
+    transform: translate(0px, -40px);
+}
+
+.gm_blockly_label_header > .blocklyFlyoutLabelText {
+    text-decoration: underline;
+}
+
+.goog-menuitem {
+    font-family: 'futurept_b1';
+    font-size: 14px;
 }

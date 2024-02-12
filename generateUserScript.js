@@ -1,9 +1,10 @@
 const fs = require('fs');
 const manifest = require('./dist/manifest.json');
+const npmPackage = require('./package.json');
 
 const content = `// ==UserScript==
-// @name         Game Mode Maker
-// @version      ${manifest.version}
+// @name         Game Mode Maker Legacy
+// @version      ${npmPackage.version}
 // @author       SneezingCactus
 // @namespace    https://github.com/SneezingCactus
 // @description  ${manifest.description}
@@ -20,4 +21,4 @@ const content = `// ==UserScript==
 
 ${fs.readFileSync('./dist/js/injector.js')}\n${fs.readFileSync('./dist/js/gmLoader.js')}`;
 
-fs.writeFileSync(`./web-ext-artifacts/gmmaker-${manifest.version}.user.js`, content);
+fs.writeFileSync(`./web-ext-artifacts/gmmaker-legacy-${manifest.version}.user.js`, content);

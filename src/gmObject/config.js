@@ -94,11 +94,16 @@ export default {
     }
   },
   showMenu: function() {
+    gm.config.menu.style.opacity = 1;
     gm.config.menu.style.visibility = 'visible';
+
     gm.config.unsaved = JSON.parse(JSON.stringify(gm.config.saved));
   },
   hideMenu: function() {
-    gm.config.menu.style.visibility = 'hidden';
+    gm.config.menu.style.opacity = 0;
+    setTimeout(function() {
+      gm.config.menu.style.visibility = 'hidden';
+    }, 150);
   },
   save: function() {
     gm.config.saved = gm.config.unsaved;

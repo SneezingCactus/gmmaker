@@ -1,5 +1,8 @@
 const path = require('path');
-const TerserPlugin = require('terser-webpack-plugin');
+const webpack = require('webpack');
+const CopyPlugin = require('copy-webpack-plugin');
+
+const {version} = require('./package.json');
 
 module.exports = {
   mode: 'production',
@@ -8,14 +11,7 @@ module.exports = {
     maxAssetSize: 1e10,
   },
   optimization: {
-    minimize: false,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          mangle: false,
-        },
-      }),
-    ],
+    minimize: true,
   },
   module: {
     rules: [
@@ -69,10 +65,30 @@ module.exports = {
       },
     ],
   },
+  plugins: [
+    new webpack.optimize.LimitChunkCountPlugin({
+      maxChunks: 1,
+    }),
+    new CopyPlugin({
+      patterns: [
+        {from: 'src/icons', to: 'icons'},
+        {from: 'src/rules.json', to: 'rules.json'},
+        {
+          from: 'src/manifest.json',
+          to: 'manifest.json',
+          transform: (content) => {
+            const jsonContent = JSON.parse(content);
+            jsonContent.version = version.replace(/-.+/, '');
+
+            return JSON.stringify(jsonContent, null, 2);
+          },
+        },
+      ],
+    }),
+  ],
   entry: {
     'js/injector': './src/inject/injector.js',
     'js/gmLoader': './src/inject/gmLoader.js',
-    'background': './src/background.js',
     'css/style': './src/gmWindow/style.css',
     'js/loadInjector': './src/inject/loadInjector.js',
     'js/runInjectors': './src/inject/runInjectors.js',
