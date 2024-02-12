@@ -8,6 +8,9 @@
     "children": {
       "GettingStarted-1": {
         "title": "Downloading and installing"
+      },
+      "GettingStarted-2": {
+        "title": "Game Mode Maker Legacy"
       }
     }
   },
