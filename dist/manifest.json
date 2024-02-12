@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Game Mode Maker legacy",
+  "name": "Game Mode Maker Legacy",
   "description": "A legacy version of Game Mode Maker, allowing you to play game modes made before v1.0.0 with ease.",
   "homepage_url": "https://github.com/SneezingCactus/gmmaker",
   "permissions": [
