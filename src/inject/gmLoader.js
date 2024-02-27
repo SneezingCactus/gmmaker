@@ -59,5 +59,5 @@ window.initGM = function() {
     splashElement.style.top = '-1000px';
   }, 5000);
 
-  console.log('[Game Mode Maker] The extension has been successfully loaded!');
+  console.log('[GMMaker Legacy] The extension has been successfully loaded!');
 };

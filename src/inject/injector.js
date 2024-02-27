@@ -1,7 +1,7 @@
 /* eslint-disable no-tabs */
 /* eslint-disable no-throw-literal */
 window.gmInjectBonkScript = function(bonkSrc) {
-  console.log('[Game Mode Maker] Injecting alpha2s.js...');
+  console.log('[GMMaker Legacy] Injecting alpha2s.js...');
 
   // All the regex used by gmmaker
   window.gmRegexes = {
@@ -32,7 +32,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'MapEncoder', regex: '{try{.{3,6}=(.{1,2})\\[', isConstructor: true},
       // This class' task is to calculate the game step every 1/30 seconds.
       // It's used by gmmaker to manipulate the game state, detect collisions, do raycasts, etc.
-      {name: 'PhysicsClass', regex: '[\\{\\};](.)\\[.{0,100}]={discs', isConstructor: true},
+      {name: 'PhysicsClass', regex: '[\\{\\};\\n](.)\\[.{0,100}]={discs', isConstructor: true},
       // This class contains a list of all the available modes, their descriptions, and their ids.
       // It's used by gmmaker to add the modes to the base mode dropdown in Mode Settings.
       {name: 'ModeList', regex: '[\\}\\{;]([^\\[]{3}\\[[0-9]{0,10}\\]).{0,50}={lobbyName', isConstructor: true},
@@ -65,18 +65,18 @@ window.gmInjectBonkScript = function(bonkSrc) {
   let funcHooks = '';
   const funcNames = [];
   gmRegexes.funcs.map((function(func) {
-    const match = bonkSrc.match(func.regex);
+    const match = bonkSrc.match(func.regex, 'm');
 
     if (!match) {
-      console.error(`[Game Mode Maker] Regex failed!`, func);
-      throw 'Game Mode Maker injection error';
+      console.error(`[GMMaker Legacy] Regex failed!`, func);
+      throw 'GMMaker Legacy injection error';
     }
     const funcInBonk = match[1];
     funcNames.push({name: func.name, regex: func.regex, func: funcInBonk});
     funcHooks += `window.${func.name} = ${funcInBonk}; window.${func.name}OLD = ${funcInBonk}; ${funcInBonk} = ` + (func.isConstructor ? `new Proxy(${funcInBonk}, {\n	construct(target, args) { \n		return new ${func.name}(...args); \n	}\n});\n` : `function(){\n	return ${func.name}(...arguments);\n};\n`);
   }));
 
-  console.log('[Game Mode Maker] Using hooks:', funcNames);
+  console.log('[GMMaker Legacy] Using hooks:', funcNames);
 
   // Finish initiating gmmaker. If initGM doesn't exist yet, wait for it to exist, and then execute it.
   newBonkSrc = newBonkSrc.replace(
@@ -99,8 +99,8 @@ $1$3`,
 
   gmRegexes.replace.map((function(replace) {
     if (!bonkSrc.match(replace.regex)) {
-      console.error(`[Game Mode Maker] Regex failed!`, replace);
-      throw 'Game Mode Maker injection error';
+      console.error(`[GMMaker Legacy] Regex failed!`, replace);
+      throw 'GMMaker Legacy injection error';
     }
 
     newBonkSrc = newBonkSrc.replace(new RegExp(replace.regex, replace.flags), ' /* GMMAKER REPLACE */ ' + replace.to);
@@ -118,11 +118,11 @@ window.bonkCodeInjectors.push((bonkSrc) => {
     return gmInjectBonkScript(bonkSrc);
   } catch (error) {
     alert(
-        `An error ocurred while loading Game Mode Maker.
+        `An error ocurred while loading GMMaker Legacy v${require('../../package.json').version}.
 
 
 This may have happened because you have an extension that is not \
-compatible with Game Mode Maker. Try disabling \
+compatible with GMMaker Legacy. Try disabling \
 all other bonk.io extensions, and reload.
 
 If the problem persists, please report this error as it may be due to \
@@ -133,4 +133,4 @@ a bonk.io update.`);
 
 window.bonkCodeInjectors.push((bonkSrc) => bonkSrc);
 
-console.log('[Game Mode Maker] Injector loaded');
+console.log('[GMMaker Legacy] Injector loaded');
