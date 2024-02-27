@@ -1,6 +1,6 @@
 {
   "name": "gmmaker",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "dependencies": {
     "@blockly/field-colour-hsv-sliders": "^2.0.11",
     "@blockly/plugin-workspace-search": "^6.0.9",

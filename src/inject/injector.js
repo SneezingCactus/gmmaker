@@ -35,7 +35,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'InputHandler', regex: 'Date.{0,100}new ([^\\(]+).{0,100}\\$\\(document', isConstructor: true},
       // This class' task is to calculate the game step every 1/30 seconds.
       // It's used by gmmaker to manipulate the game state, detect collisions, do raycasts, etc.
-      {name: 'PhysicsClass', regex: '[\\{\\};]([A-Za-z])\\[.{0,100}\\]={discs:', isConstructor: true},
+      {name: 'PhysicsClass', regex: '[\\{\\};\\n]([A-Za-z])\\[.{0,100}\\]={discs:', isConstructor: true},
       // This class contains a list of all the available modes, their descriptions, and their ids.
       // It's used by gmmaker to add the modes to the base mode dropdown in Mode Settings.
       {name: 'ModeList', regex: '[\\}\\{;]([A-Za-z0-9]{3}\\[[0-9]{0,10}\\]).{0,50}={lobbyName', isConstructor: true},
@@ -72,7 +72,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
   let funcHooks = '';
   const funcNames = [];
   gmRegexes.funcs.map((function(func) {
-    const match = bonkSrc.match(func.regex);
+    const match = bonkSrc.match(func.regex, 'm');
 
     if (!match) {
       console.error(`[Game Mode Maker] Regex failed!`, func);
@@ -126,7 +126,7 @@ window.bonkCodeInjectors.push((bonkSrc) => {
     return gmInjectBonkScript(bonkSrc);
   } catch (error) {
     alert(
-        `An error ocurred while loading Game Mode Maker.
+        `An error ocurred while loading Game Mode Maker v${require('../../package.json').version}.
 
 
 This may have happened because you have an extension that is not \

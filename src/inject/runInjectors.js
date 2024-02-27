@@ -9,10 +9,6 @@
 
   let src = await bonkScriptResponse.text();
 
-  await null;
-
-  console.log("balls");
-
   if (!window.bonkCodeInjectors) {
     window.bonkCodeInjectors = [];
     alert('Something went wrong with loading Bonk.io extensions.');
