@@ -85,7 +85,7 @@ export default {
             if (bodyGraphics[i] && !roundGraphicsContainer.children.includes(bodyGraphics[i].jointContainer)) {
               const bodyBehind = stateA.physics.bro[myBro + 1];
 
-              if (bodyBehind) {
+              if (bodyBehind && bodyGraphics[bodyBehind]) {
                 const index = roundGraphicsContainer.children.indexOf(bodyGraphics[bodyBehind].displayObject);
 
                 roundGraphicsContainer.addChildAt(bodyGraphics[i].jointContainer, index);
