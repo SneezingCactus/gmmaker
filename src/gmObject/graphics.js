@@ -841,7 +841,7 @@ class Drawing {
   }
   update(drawDefA, drawDefB, weight, scaleRatio, forceUpdate) {
     const forLength = Math.max(drawDefA.shapes.length, drawDefB.shapes.length);
-    let propsNoChange = true;
+    let propsHaventChanged = true;
 
     for (let i = 0; i < forLength; i++) {
       // deletion of shapes that suddenly change type
@@ -853,14 +853,14 @@ class Drawing {
 
       // deletion of shapes that suddenly disappear
       if (!drawDefB.shapes[i] && this.shapes[i]) {
-        propsNoChange = false;
+        propsHaventChanged = false;
         this.shapes[i].destroy();
         this.shapes[i] = null;
       }
 
       // new shape creation
       if (drawDefB.shapes[i] && !this.shapes[i]) {
-        propsNoChange = false;
+        propsHaventChanged = false;
         switch (drawDefB.shapes[i].type) {
           case 'bx':
             this.shapes[i] = new BoxShape();
@@ -894,14 +894,14 @@ class Drawing {
     }
 
     // property check
-    propsNoChange &= this.lastDrawDef.alpha == drawDefB.alpha &&
+    propsHaventChanged &= this.lastDrawDef.alpha == drawDefB.alpha &&
       this.lastDrawDef.pos[0] == drawDefB.pos[0] &&
       this.lastDrawDef.pos[1] == drawDefB.pos[1] &&
       this.lastDrawDef.angle == drawDefB.angle &&
       this.lastDrawDef.scale[0] == drawDefB.scale[0] &&
       this.lastDrawDef.scale[1] == drawDefB.scale[1];
 
-    if (propsNoChange && !forceUpdate) return;
+    if (propsHaventChanged && !forceUpdate) return;
 
     if (drawDefB.noLerp) drawDefA = drawDefB;
 
@@ -990,7 +990,7 @@ class CircleShape {
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+    const propsHaventChanged = this.lastDrawDef.colour == shapeDefB.colour &&
         this.lastDrawDef.alpha == shapeDefB.alpha &&
         this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
         this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
@@ -998,7 +998,7 @@ class CircleShape {
         this.lastDrawDef.size[0] == shapeDefB.size[0] &&
         this.lastDrawDef.size[1] == shapeDefB.size[1];
 
-    if (propsNoChange && !forceUpdate) return;
+    if (propsHaventChanged && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
@@ -1043,7 +1043,7 @@ class PolyShape {
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+    const propsHaventChanged = this.lastDrawDef.colour == shapeDefB.colour &&
         this.lastDrawDef.alpha == shapeDefB.alpha &&
         this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
         this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
@@ -1061,7 +1061,7 @@ class PolyShape {
       };
     }
 
-    if (propsNoChange && vertsNoChange && !forceUpdate) return;
+    if (propsHaventChanged && vertsNoChange && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
@@ -1176,7 +1176,7 @@ class TextShape {
   }
   update(shapeDefA, shapeDefB, weight, scaleRatio, forceUpdate) {
     // property check
-    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+    const propsHaventChanged = this.lastDrawDef.colour == shapeDefB.colour &&
         this.lastDrawDef.alpha == shapeDefB.alpha &&
         this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
         this.lastDrawDef.pos[1] == shapeDefB.pos[1] &&
@@ -1188,7 +1188,7 @@ class TextShape {
         this.lastDrawDef.italic == shapeDefB.italic &&
         this.lastDrawDef.shadow == shapeDefB.shadow;
 
-    if (propsNoChange && !forceUpdate) return;
+    if (propsHaventChanged && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 
@@ -1266,7 +1266,7 @@ class ImageShape {
     ra.size[1] == ra.size[1] : (ra == null && rb == null);
 
     // property check
-    const propsNoChange = this.lastDrawDef.colour == shapeDefB.colour &&
+    const propsHaventChanged = this.lastDrawDef.colour == shapeDefB.colour &&
     this.lastDrawDef.id == shapeDefB.id &&
     this.lastDrawDef.alpha == shapeDefB.alpha &&
     this.lastDrawDef.pos[0] == shapeDefB.pos[0] &&
@@ -1276,7 +1276,7 @@ class ImageShape {
     this.lastDrawDef.size[1] == shapeDefB.size[1] &&
     regionAEqualB;
 
-    if (propsNoChange && !forceUpdate) return;
+    if (propsHaventChanged && !forceUpdate) return;
 
     if (shapeDefB.noLerp) shapeDefA = shapeDefB;
 

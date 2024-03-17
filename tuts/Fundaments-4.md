@@ -10,19 +10,19 @@ Shapes are objects that define a graphic, like a rectangle or a polygon. There a
 - `ci`: An circle, an ellipse.
 - `po`: A polygon.
 - `li`: A line.
-- `tx`: Text.
+- `tx`: A string of text.
 - `im`: An image.
 
 Further explanation of the unique properties of each one of these shape types can be found in the in-game documentation.
 
-In a way, drawings are like bodies: They have their own spatial properties such as position and angle, which affects their children (fixtures in bodies, shapes in drawings), and these children can have their own position relative to their container.
+In a way, drawings are like platforms: They have their own spatial properties such as position and angle, that affect their children (shapes), and these children can have their own position relative to their parent.
 
 Drawings need to be attached to a space to be visible to the player. This is done with the `attachTo` and `attachId` properties of the drawing. There are four kinds of spaces:
 
 - `attachTo: 'screen'` will attach the drawing to screen space. This means the drawing will not move from its spot when you do any changes to the camera. This is useful for heads-up displays and other types of user interfaces.
 - `attachTo: 'world'` will attach the drawing to world space. This means the drawing is positioned in the world, and therefore will be affected by camera manipulation and shaking, like everything else in it (discs, bodies, etc).
 - `attachTo: 'disc'` with `attachId: discId` will attach the drawing to the specified disc. This simply means it will move and rotate with the disc. When the disc dies, the drawings attached to it will disappear, however they will not be removed from the drawings array.
-- `attachTo: 'body'` with `attachId: bodyId` will attach the drawing to the specified body. They behave exactly like drawings attached to discs.
+- `attachTo: 'platform'` with `attachId: platId` will attach the drawing to the specified platform. They behave exactly like drawings attached to discs.
 
 Example usage:
 

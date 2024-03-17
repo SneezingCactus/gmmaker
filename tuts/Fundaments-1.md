@@ -51,15 +51,15 @@ game.events.addEventListener('playerDie', null, function(discId, deathId) {
 
 - `discCollision`: Executes when a disc collides with something.
 - `arrowCollision`: Executes when an arrow collides with something.
-- `bodyCollision`: Executes when a body collides with something.
+- `platformCollision`: Executes when a platform collides with something.
 
-These three events have an option called `collideWith`. It lets you specify with what type of object a disc/arrow/body should collide with in order to execute the listener.
+These three events have an option called `collideWith`. It lets you specify with what type of object a disc/arrow/platform should collide with in order to execute the listener.
 
 The listener is given two variables, each representing one side of the collision. According to the event and the `collideWith` specified, the variables given to the listener are different.
 
 A side of the collision involving a disc or an arrow will simply give the ID of this object, as a number.
 
-A side of the collision involving a body, however, will be an object, containing information such as the ID of the body itself, the ID of the specific fixture hit, etc. The documentation explains every single one in further detail.
+A side of the collision involving a platform, however, will be an object, containing information such as the ID of the platform itself, the index of the specific shape hit, etc. The documentation explains every single one in further detail.
 
 Example usage:
 
@@ -80,11 +80,11 @@ game.events.addEventListener('arrowCollision', {collideWith: 'arrow'}, function(
   game.state.projectiles[otherArrowId].visible = false;
 });
 
-game.events.addEventListener('bodyCollision', {collideWith: 'disc'}, function(bodyInfo, discId) {
-  // executes when a body collides with a disc
+game.events.addEventListener('platformCollision', {collideWith: 'disc'}, function(platData, discId) {
+  // executes when a platform collides with a disc
 
   // paint it all!
-  game.state.physics.fixtures[bodyInfo.fixtureId].f = 
+  game.state.physics.platforms[platData.id].shapes[platData.shapeIndex].f = 
     game.lobby.playerInfo[discId].skinBg;
 });
 ```

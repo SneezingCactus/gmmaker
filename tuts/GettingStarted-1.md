@@ -25,8 +25,6 @@ Make sure you have the [Code Injector](https://greasyfork.org/en/scripts/433861-
 
 ## Extension version
 
-**The extension version of gmmaker on Chrome will stop working on June 2023. It is recommended you use the userscript version instead.**
-
 Download the `gmmaker-(version)-EXTENSION.zip` file from [Releases](https://github.com/SneezingCactus/gmmaker/releases) and then, depending on your browser:
 
 <details>

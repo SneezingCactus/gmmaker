@@ -46,7 +46,10 @@ function copyDrawings(drawings) {
       attachId: d.attachId,
       attachTo: d.attachTo,
       isBehind: d.isBehind,
-      noLerp: d.noLerp,
+      // noLerp has to be disabled after a frame passes, so to take
+      // advantage of the fact that we're deep copying everything,
+      // we can do it here
+      noLerp: false,
       pos: d.pos ? [d.pos[0], d.pos[1]] : [0, 0],
       scale: d.scale ? [d.scale[0], d.scale[1]] : [0, 0],
       shapes: [],
@@ -61,7 +64,10 @@ function copyDrawings(drawings) {
         angle: s.angle,
         alpha: s.alpha,
         colour: s.colour,
-        noLerp: s.noLerp,
+        // noLerp has to be disabled after a frame passes, so to take
+        // advantage of the fact that we're deep copying everything,
+        // we can do it here
+        noLerp: false,
         pos: s.pos,
         type: s.type,
       };
@@ -140,14 +146,10 @@ window.getDynamicInfo = (game) => {
   const gmExtra = copied.state.gmExtra;
   gmExtra.drawings = copyDrawings(oldDrawings);
 
-  // cam/drawing props
-  for (let i = 0; i < gmExtra.drawings.length; i++) {
-    if (!gmExtra.drawings[i]) continue;
-    gmExtra.drawings[i].noLerp = false;
-  }
+  // camera props
   gmExtra.camera.noLerp = false;
 
-  // cameraChanged, used to determine if offscreen arrows should be rendered or not
+  // cameraChanged, used to determine if offscreen indicators should be rendered or not
   if (gmExtra.camera.pos[0] != 365 / game.state.physics.ppm ||
       gmExtra.camera.pos[1] != 250 / game.state.physics.ppm ||
       gmExtra.camera.angle != 0 ||
