@@ -1,6 +1,6 @@
 {
   "name": "gmmaker",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "dependencies": {
     "@blockly/plugin-workspace-search": "^6.0.5",
     "blockly": "^9.2.1",

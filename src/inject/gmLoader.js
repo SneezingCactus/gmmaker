@@ -17,6 +17,18 @@ import gmConfig from '../gmObject/config.js';
 window.initGM = function() {
   if (window.gm) return;
 
+  const missingFontsStyle = document.createElement('style');
+  missingFontsStyle.innerHTML = `@font-face {
+      font-family: futurept_demi;
+      src: url(fonts/futurapt_demi.otf);
+  }
+
+  @font-face {
+      font-family: futurept_demi_oblique;
+      src: url(fonts/fptdo.otf);
+  }`;
+
+  document.head.appendChild(missingFontsStyle);
   if (window.gmStyles) {
     document.querySelector('head').appendChild(window.gmStyles);
   }
