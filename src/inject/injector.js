@@ -35,14 +35,14 @@ window.gmInjectBonkScript = function(bonkSrc) {
       {name: 'InputHandler', regex: 'Date.{0,100}new ([^\\(]+).{0,100}\\$\\(document', isConstructor: true},
       // This class' task is to calculate the game step every 1/30 seconds.
       // It's used by gmmaker to manipulate the game state, detect collisions, do raycasts, etc.
-      {name: 'PhysicsClass', regex: '[\\{\\};\\n]([A-Za-z])\\[.{0,100}\\]={discs:', isConstructor: true},
+      {name: 'PhysicsClass', regex: '[\\{\\};\\n]([A-Za-z$_])\\[.{0,100}\\]={discs:', isConstructor: true},
       // This class contains a list of all the available modes, their descriptions, and their ids.
       // It's used by gmmaker to add the modes to the base mode dropdown in Mode Settings.
-      {name: 'ModeList', regex: '[\\}\\{;]([A-Za-z0-9]{3}\\[[0-9]{0,10}\\]).{0,50}={lobbyName', isConstructor: true},
+      {name: 'ModeList', regex: '[\\}\\{;]([A-Za-z0-9_$]{3}\\[[0-9]{0,10}\\])=class.{0,1000}={lobbyName', isConstructor: true},
     ],
     replace: [
       // make step function not delete the world's bodies and instead put that code into a global function
-      {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Z]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.gmReplaceAccessors.endStep = () => {$1};'},
+      {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Za-z$_]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.gmReplaceAccessors.endStep = () => {$1};'},
       // make game length globally accessible
       {regex: '(< 100[^0-9].{0,100}\\+ 1.{0,1500}}([^+]+?)\\+\\+;)', to: '$1window.gmReplaceAccessors.gameLength = $2;'},
       // allow forcing of input registering (normally new inputs are only registered when changing press state of one of the keys)
@@ -56,7 +56,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
       // remove pixi render function at the end of BonkGraphics render function to allow for gmm to do stuff before rendering
       {regex: '(this.renderer.render\\(this.stage\\);)', to: '/*$1*/'},
       // add existance checks where needed
-      {regex: '(ppm:.{0,1000}if\\(([^\\]]+\\]).{0,100}<= 0\\){for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.shapes[$3]) continue;'},
+      {regex: '(ppm:.{0,1000}if\\(([^\\]]+\\]).{0,100}<= 0\\){.{0,100}for\\(([^\\]]+\\]).{0,200}\\+\\+\\){)', to: '$1if(!$2.physics.shapes[$3]) continue;'},
       {regex: '(updateRodJoints.{0,100} ([^=]+)=\\[argu.{0,2000}?;([^;+]+)\\+\\+\\)\\{)', to: '$1if($2[0][0].physics.joints[$3]?.type !== "d") continue;'},
       // extend top bar visibility range
       {regex: '(return.{0,1000})< [^ ]{0,10}(.{0,100}ime.{0,200}?rue,du.+?> )[^ ]{0,10}', to: '$1< 100$2100'},

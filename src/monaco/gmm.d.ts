@@ -541,20 +541,21 @@ declare interface joint {
    * - "d": A soft rod joint,
    * - "lpj": A follow path joint,
    * - "lsj": A springy joint.
+   * - "g": A gear joint.
    */
-  public type: 'rv' | 'd' | 'lpj' | 'lsj';
+  public type: 'rv' | 'd' | 'lpj' | 'lsj' | 'g';
   /**
-   * A collection of diverse joint parameters.
+   * [Present in everything but gear joints] A collection of diverse joint parameters.
    * 
    * It is unknown why Chaz decided to make a separate collection just for these properties.
    */
   public d: jointD;
   /**
-   * ID of the first platform attached.
+   * [Present in everything but gear joints] ID of the first platform attached.
    */
   public ba: number;
   /**
-   * ID of the second platform attached.
+   * [Present in everything but gear joints] ID of the second platform attached.
    * 
    * To make the joint have no second attachment, set this value to -1.
    * Path and springy joints should also have it set to -1.
@@ -619,6 +620,23 @@ declare interface joint {
    * [Springy joint only] Spring length.
    */
   public slen: number;
+
+  /**
+   * [Gear joint only] ID of the first joint attached.
+   */
+  public ja: number;
+  /**
+   * [Gear joint only] ID of the second joint attached.
+   */
+  public jb: number;
+  /**
+   * [Gear joint only] Gear ratio.
+   */
+  public r: number;
+  /**
+   * [Gear joint only] Name of the joint.
+   */
+  public n: string;
 }
 
 /**
