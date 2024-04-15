@@ -81,6 +81,13 @@ export default {
           gm.graphics.renderUpdates = [];
         }
 
+        // clone bodies' "s" property
+        for (let i = 0; i < state.physics.bodies.length; i++) {
+          if (!state.physics.bodies[i]) continue;
+
+          state.physics.bodies[i].s = {...state.physics.bodies[i].s};
+        }
+
         // make seed based on scene element positions and game state seed
         let randomSeed = 0;
         for (let i = 0; i < state.physics.bodies.length; i++) {

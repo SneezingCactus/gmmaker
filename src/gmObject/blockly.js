@@ -1697,9 +1697,17 @@ export default {
             break;
         }
         if (boolProps.includes(property)) {
-          body[property] = value === true;
-        } else if (body[property] !== undefined) {
-          body[property] = Number.isNaN(parseFloat(value)) ? body[property] : parseFloat(value);
+          if (body.s[property]) {
+            body.s[property] = value === true;
+          } else {
+            body[property] = value === true;
+          }
+        } else if (body[property] !== undefined || body.s[property] !== undefined) {
+          if (body.s[property]) {
+            body.s[property] = Number.isNaN(parseFloat(value)) ? body.s[property] : parseFloat(value);
+          } else {
+            body[property] = Number.isNaN(parseFloat(value)) ? body[property] : parseFloat(value);
+          }
         }
         gameState.physics.bodies[platID] = body;
       }
@@ -1724,8 +1732,12 @@ export default {
             body.lv[1] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
             break;
         }
-        if (body[property] !== undefined) {
-          body[property] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
+        if (body[property] !== undefined || body.s[property] !== undefined) {
+          if (body.s[property]) {
+            body.s[property] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
+          } else {
+            body[property] += Number.isNaN(parseFloat(value)) ? 0 : parseFloat(value);
+          }
         }
         gameState.physics.bodies[platID] = body;
       }
@@ -1743,8 +1755,8 @@ export default {
           case 'lv_y':
             return body.lv[1];
         }
-        if (body[property] !== undefined) {
-          return body[property];
+        if (body[property] !== undefined || body.s[property] !== undefined) {
+          return body[property] ?? body.s[property];
         }
       }
       return Infinity;

@@ -40,7 +40,7 @@ window.gmInjectBonkScript = function(bonkSrc) {
     replace: [
       // make step function not delete the world's bodies and instead put that code into a global function
       {regex: '(for\\(([^\\]]+\\]){4}\\]\\(.{0,400}\\}[A-Za-z$_]([^\\]]+\\]){2}\\]=undefined;)', to: 'window.gmReplaceAccessors.endStep = () => {$1};'},
-      // Fixes 'fixtures' and 'ppm' being a reference to a single 'fixtures' and 'ppm' shared by all game states
+      // Fixes 'shapes' and 'fixtures' being a reference to a single 'shapes' and 'fixtures' shared by all game states
       {regex: '(shapes:)([^,]{5,100})(,fixtures:)([^,]{0,100})(.{0,400}ppm:[^}]{0,100})', to: '$1JSON.parse(JSON.stringify($2))$3JSON.parse(JSON.stringify($4))$5'},
       // make game state list globally accessible
       {regex: '( < 100\\).{0,100}\\+ 1.{0,200}\\+\\+;)([^\\]]+\\])', to: '$1window.gmReplaceAccessors.gameStateList = $2;$2'},
