@@ -1,5 +1,7 @@
 ![gmmaker-banner](https://github.com/SneezingCactus/gmmaker/assets/46355725/34ca0ec4-1f98-4485-91bc-311b265db041)
 
+# ⚠️⚠️⚠️ Game Mode Maker has reached end of support and the repository has been archived. The latest version of the mod will keep working until a future bonk.io update breaks it.
+
 ---
 
 A [bonk.io](https://bonk.io/) mod that lets you create your own game modes using Scratch-like blocks or with JavaScript code.
