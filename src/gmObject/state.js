@@ -50,7 +50,6 @@ export default {
       // this part became so messy after i added the fast
       const inputState = PhysicsClass.globalStepVars?.inputState;
       if (inputState?.gmExtra) {
-        // TODO: delete this before releasing beta 15
         if (inputState.gmExtra.linearSpeedCap) {
           Box2D.Common.b2Settings.b2_maxTranslation = inputState.gmExtra.linearSpeedCap;
           Box2D.Common.b2Settings.b2_maxTranslationSquared = inputState.gmExtra.linearSpeedCap ** 2;
@@ -149,126 +148,6 @@ export default {
         window.gmReplaceAccessors.disableDeathBarrier = true;
       }
       /* #endregion UPDATE DEATH BARRIER DISABLE */
-
-      /* #region ANGLE UNIT DEGREEING */
-      // this is where angles represented in radians are turned into degrees for easier manipulation
-      const radToDeg = 180 / Math.PI;
-
-      for (let i = 0; i !== state.discs.length; i++) {
-        if (!state.discs[i]) continue;
-
-        const disc = state.discs[i];
-
-        disc.ra = disc.a;
-        disc.rav = disc.av;
-
-        disc.a *= radToDeg;
-        disc.av *= radToDeg;
-      }
-      for (let i = 0; i !== state.projectiles.length; i++) {
-        if (!state.projectiles[i]) continue;
-
-        const arrow = state.projectiles[i];
-
-        arrow.ra = arrow.a;
-        arrow.rav = arrow.av;
-
-        arrow.a *= radToDeg;
-        arrow.av *= radToDeg;
-      }
-      for (let i = 0; i !== state.physics.bodies.length; i++) {
-        if (!state.physics.bodies[i]) continue;
-
-        const body = state.physics.bodies[i];
-
-        body.ra = body.a;
-        body.rav = body.av;
-
-        body.a *= radToDeg;
-        body.av *= radToDeg;
-      }
-      for (let i = 0; i !== state.physics.shapes.length; i++) {
-        if (!state.physics.shapes[i]) continue;
-
-        const shape = state.physics.shapes[i];
-
-        if (shape.type !== 'ci') {
-          shape.ra = shape.a;
-          shape.a *= radToDeg;
-        }
-      }
-      for (let i = 0; i !== state.physics.joints.length; i++) {
-        if (!state.physics.joints[i]) continue;
-
-        const joint = state.physics.joints[i];
-
-        if (joint.type == 'lpj') {
-          joint.rpa = joint.pa;
-          joint.pa *= 180 / Math.PI;
-        } else if (joint.type == 'rv') {
-          joint.d.rua = joint.ua;
-          joint.d.rla = joint.la;
-          joint.d.ua *= 180 / Math.PI;
-          joint.d.la *= 180 / Math.PI;
-        }
-      }
-      /* #endregion ANGLE UNIT DEGREEING */
-
-      /* #region DISC NORMALIZING */
-      // here, certain conflicting disc props, such as swing, are normalized
-      // to prevent some undefined-related errors
-
-      for (let i = 0; i !== state.discs.length; i++) {
-        if (!state.discs[i]) continue;
-        if (!state.discs[i].swing) state.discs[i].swing = false;
-      }
-      /* #endregion DISC NORMALIZING */
-
-      /* #region CHANGE XY TO VECTORS */
-      // this is where certain props such as positions and velocities are turned into vectors
-      // to allow the mode maker to use Vector functions with them easily
-
-      for (let i = 0; i !== state.discs.length; i++) {
-        if (!state.discs[i]) continue;
-
-        const disc = state.discs[i];
-
-        disc.p = [disc.x, disc.y];
-        disc.lv = [disc.xv, disc.yv];
-        disc.sp = [disc.sx, disc.sy];
-        disc.slv = [disc.sxv, disc.syv];
-      }
-      for (let i = 0; i !== state.discDeaths.length; i++) {
-        if (!state.discDeaths[i]) continue;
-
-        const death = state.discDeaths[i];
-
-        death.p = [death.x, death.y];
-        death.lv = [death.xv, death.yv];
-      }
-      for (let i = 0; i !== state.projectiles.length; i++) {
-        if (!state.projectiles[i]) continue;
-
-        const arrow = state.projectiles[i];
-
-        arrow.p = [arrow.x, arrow.y];
-        arrow.lv = [arrow.xv, arrow.yv];
-      }
-      for (let i = 0; i !== state.physics.bodies.length; i++) {
-        if (!state.physics.bodies[i]) continue;
-
-        const body = state.physics.bodies[i];
-
-        body.cf.lf = [body.cf.x, body.cf.y];
-      }
-      for (let i = 0; i !== state.physics.shapes.length; i++) {
-        if (!state.physics.shapes[i] || state.physics.shapes[i].type !== 'bx') continue;
-
-        const shape = state.physics.shapes[i];
-
-        shape.s = [shape.w, shape.h];
-      }
-      /* #endregion CHANGE XY TO VECTORS */
 
       /* #region EXTRA PROPERTY MANAGE */
       // this is where props added by gmmaker into the state, such as
@@ -459,138 +338,6 @@ export default {
       state = gm.state.safeEval.evaluate('this.prepareDynamicInfo()');
       state.gmInitial = oldState.gmInitial;
 
-      /* #region CHANGE VECTORS TO XY */
-      // turn vectors back to xy props
-
-      for (let i = 0; i !== state.discs.length; i++) {
-        if (!state.discs[i]) continue;
-
-        const disc = state.discs[i];
-
-        disc.x = disc.p[0];
-        disc.y = disc.p[1];
-        disc.xv = disc.lv[0];
-        disc.yv = disc.lv[1];
-        disc.sx = disc.sp[0];
-        disc.sy = disc.sp[1];
-        disc.sxv = disc.slv[0];
-        disc.syv = disc.slv[1];
-      }
-      for (let i = 0; i !== state.discDeaths.length; i++) {
-        if (!state.discDeaths[i]) continue;
-
-        const death = state.discDeaths[i];
-
-        death.x = death.p[0];
-        death.y = death.p[1];
-        death.xv = death.lv[0];
-        death.yv = death.lv[1];
-      }
-      for (let i = 0; i !== state.projectiles.length; i++) {
-        if (!state.projectiles[i]) continue;
-
-        const arrow = state.projectiles[i];
-
-        arrow.x = arrow.p[0];
-        arrow.y = arrow.p[1];
-        arrow.xv = arrow.lv[0];
-        arrow.yv = arrow.lv[1];
-      }
-      for (let i = 0; i !== state.physics.bodies.length; i++) {
-        if (!state.physics.bodies[i]) continue;
-        if (!state.physics.bodies[i].cf.lf) continue;
-
-        const body = state.physics.bodies[i];
-
-        body.cf.x = body.cf.lf[0];
-        body.cf.y = body.cf.lf[1];
-      }
-      for (let i = 0; i !== state.physics.shapes.length; i++) {
-        if (!state.physics.shapes[i] || state.physics.shapes[i].type !== 'bx') continue;
-        if (!state.physics.shapes[i].s) continue;
-
-        const shape = state.physics.shapes[i];
-
-        shape.w = shape.s[0];
-        shape.h = shape.s[1];
-      }
-      /* #endregion VECTORS TO XY */
-
-      /* #region ANGLE UNIT RESTORING */
-      // turn angles back into radians
-      // if an angle didn't change during the event firing, it's set to the pre-degreed value
-      // instead of being multiplied, to prevent possible desyncs due to floating point error
-      const degToRad = Math.PI / 180;
-
-      for (let i = 0; i !== state.discs.length; i++) {
-        if (!state.discs[i]) continue;
-        state.discs[i].a *= degToRad;
-        state.discs[i].av *= degToRad;
-
-        if (Math.abs(state.discs[i].a - state.discs[i].ra) < 0.0000001) {
-          state.discs[i].a = state.discs[i].ra;
-        }
-        if (Math.abs(state.discs[i].av - state.discs[i].rav) < 0.0000001) {
-          state.discs[i].av = state.discs[i].rav;
-        }
-      }
-      for (let i = 0; i !== state.projectiles.length; i++) {
-        if (!state.projectiles[i]) continue;
-
-        const arrow = state.projectiles[i];
-
-        arrow.a *= degToRad;
-        arrow.av *= degToRad;
-
-        if (Math.abs(arrow.a - arrow.ra) < 0.0000001) {
-          arrow.a = arrow.ra;
-        }
-        if (Math.abs(arrow.av - arrow.rav) < 0.0000001) {
-          arrow.av = arrow.rav;
-        }
-      }
-      for (let i = 0; i !== state.physics.bodies.length; i++) {
-        if (!state.physics.bodies[i]) continue;
-
-        const body = state.physics.bodies[i];
-
-        body.a *= degToRad;
-        body.av *= degToRad;
-
-        if (Math.abs(body.a - body.ra) < 0.0000001) {
-          body.a = body.ra;
-        }
-        if (Math.abs(body.av - body.rav) < 0.0000001) {
-          body.av = body.rav;
-        }
-      }
-      for (let i = 0; i !== state.physics.shapes.length; i++) {
-        if (!state.physics.shapes[i]) continue;
-
-        const shape = state.physics.shapes[i];
-
-        if (shape.type !== 'ci') {
-          shape.a *= degToRad;
-          if (Math.abs(shape.a - shape.ra) < 0.0000001) shape.a = shape.ra;
-        }
-      }
-      for (let i = 0; i !== state.physics.joints.length; i++) {
-        if (!state.physics.joints[i]) continue;
-
-        const joint = state.physics.joints[i];
-
-        if (joint.type == 'lpj') {
-          joint.pa *= Math.PI / 180;
-          if (Math.abs(joint.pa - joint.rpa) < 0.0000001) joint.pa = joint.rpa;
-        } else if (joint.type == 'rv') {
-          joint.d.ua *= Math.PI / 180;
-          joint.d.la *= Math.PI / 180;
-          if (Math.abs(joint.d.ua - joint.rua) < 0.0000001) joint.d.ua = joint.rua;
-          if (Math.abs(joint.d.la - joint.rla) < 0.0000001) joint.d.la = joint.rla;
-        }
-      }
-      /* #endregion ANGLE UNIT RESTORING */
-
       /* #region MOUSE POS SENDING ACTIVATION */
       for (let i = 0; i < state.gmExtra.mousePosSend[i]; i++) {
         const clientId = state.gmInitial.lobby.clientId;
@@ -607,7 +354,7 @@ export default {
       // make game state publicly accessible
       gm.state.gameState = state;
 
-      // let bonk dispose world objects to prevent memory leaks
+      // let bonk dispose world objects just in case
       if (window.gmReplaceAccessors.endStep) window.gmReplaceAccessors.endStep();
 
       return state;

@@ -265,6 +265,42 @@ this.game = {
         );
       }
 
+      finalBody.s = {
+        type: finalBody.type,
+        n: finalBody.n,
+        fric: finalBody.fric,
+        fricp: finalBody.fricp,
+        re: finalBody.re,
+        de: finalBody.de,
+        ld: finalBody.ld,
+        ad: finalBody.ad,
+        fr: finalBody.fr,
+        bu: finalBody.bu,
+        f_c: finalBody.f_c,
+        f_p: finalBody.f_p,
+        f_1: finalBody.f_1,
+        f_2: finalBody.f_2,
+        f_3: finalBody.f_3,
+        f_4: finalBody.f_4,
+      };
+
+      delete finalBody.type;
+      delete finalBody.n;
+      delete finalBody.fric;
+      delete finalBody.fricp;
+      delete finalBody.re;
+      delete finalBody.de;
+      delete finalBody.ld;
+      delete finalBody.ad;
+      delete finalBody.fr;
+      delete finalBody.bu;
+      delete finalBody.f_c;
+      delete finalBody.f_p;
+      delete finalBody.f_1;
+      delete finalBody.f_2;
+      delete finalBody.f_3;
+      delete finalBody.f_4;
+
       finalBody.cf = Object.assign(
           JSON.parse(JSON.stringify(defaults.body.cf)),
           finalBody.cf,
@@ -770,13 +806,6 @@ const platProxyValidator = {
   get(bodyId, key) {
     if (key === 'isProxy') return true;
     if (key === 'id') return bodyId[0];
-    if (key === 'n') {
-      return (
-        game.state.physics.bodies[bodyId[0]]?.n ??
-        game.lobby.settings.map.physics.bodies[bodyId[0]]?.n ??
-        null
-      );
-    }
 
     bodyId = bodyId[0];
 
@@ -792,7 +821,7 @@ const platProxyValidator = {
       }
       return shapeListProxies[bodyId];
     }
-    return game.state.physics.bodies[bodyId][key];
+    return game.state.physics.bodies[bodyId][key] ?? game.state.physics.bodies[bodyId].s[key];
   },
   set(bodyId, key, value) {
     if (!game.state.physics.bodies[bodyId[0]]) {
@@ -801,7 +830,13 @@ const platProxyValidator = {
       );
       throw e;
     }
-    game.state.physics.bodies[bodyId[0]][key] = value;
+
+    if (game.state.physics.bodies[bodyId[0]].s[key]) {
+      game.state.physics.bodies[bodyId[0]].s[key] = value;
+    } else {
+      game.state.physics.bodies[bodyId[0]][key] = value;
+    }
+
     return true;
   },
 };
@@ -882,6 +917,140 @@ this.prepareDynamicInfo = function() {
     if (!game.inputs[i]) continue;
     game.state.gmExtra.mousePosSend[i] = game.inputs[i].mouse.allowPosSending;
   }
+
+
+  /* #region CHANGE VECTORS TO XY */
+  // turn vectors back to xy props
+
+  for (let i = 0; i !== game.state.discs.length; i++) {
+    if (!game.state.discs[i]) continue;
+
+    const disc = game.state.discs[i];
+
+    disc.x = disc.p[0];
+    disc.y = disc.p[1];
+    disc.xv = disc.lv[0];
+    disc.yv = disc.lv[1];
+    disc.sx = disc.sp[0];
+    disc.sy = disc.sp[1];
+    disc.sxv = disc.slv[0];
+    disc.syv = disc.slv[1];
+  }
+  for (let i = 0; i !== game.state.discDeaths.length; i++) {
+    if (!game.state.discDeaths[i]) continue;
+
+    const death = game.state.discDeaths[i];
+
+    death.x = death.p[0];
+    death.y = death.p[1];
+    death.xv = death.lv[0];
+    death.yv = death.lv[1];
+  }
+  for (let i = 0; i !== game.state.projectiles.length; i++) {
+    if (!game.state.projectiles[i]) continue;
+
+    const arrow = game.state.projectiles[i];
+
+    arrow.x = arrow.p[0];
+    arrow.y = arrow.p[1];
+    arrow.xv = arrow.lv[0];
+    arrow.yv = arrow.lv[1];
+  }
+  for (let i = 0; i !== game.state.physics.bodies.length; i++) {
+    if (!game.state.physics.bodies[i]) continue;
+    if (!game.state.physics.bodies[i].cf.lf) continue;
+
+    const body = game.state.physics.bodies[i];
+
+    body.cf.x = body.cf.lf[0];
+    body.cf.y = body.cf.lf[1];
+  }
+  for (let i = 0; i !== game.state.physics.shapes.length; i++) {
+    if (!game.state.physics.shapes[i] || game.state.physics.shapes[i].type !== 'bx') continue;
+    if (!game.state.physics.shapes[i].s) continue;
+
+    const shape = game.state.physics.shapes[i];
+
+    shape.w = shape.s[0];
+    shape.h = shape.s[1];
+  }
+  /* #endregion VECTORS TO XY */
+
+  /* #region ANGLE UNIT RESTORING */
+  // turn angles back into radians
+  // if an angle didn't change during the event firing, it's set to the pre-degreed value
+  // instead of being multiplied, to prevent possible desyncs due to floating point error
+  const degToRad = Math.PI / 180;
+
+  for (let i = 0; i !== game.state.discs.length; i++) {
+    if (!game.state.discs[i]) continue;
+    game.state.discs[i].a *= degToRad;
+    game.state.discs[i].av *= degToRad;
+
+    if (Math.abs(game.state.discs[i].a - game.state.discs[i].ra) < 0.0000001) {
+      game.state.discs[i].a = game.state.discs[i].ra;
+    }
+    if (Math.abs(game.state.discs[i].av - game.state.discs[i].rav) < 0.0000001) {
+      game.state.discs[i].av = game.state.discs[i].rav;
+    }
+  }
+  for (let i = 0; i !== game.state.projectiles.length; i++) {
+    if (!game.state.projectiles[i]) continue;
+
+    const arrow = game.state.projectiles[i];
+
+    arrow.a *= degToRad;
+    arrow.av *= degToRad;
+
+    if (Math.abs(arrow.a - arrow.ra) < 0.0000001) {
+      arrow.a = arrow.ra;
+    }
+    if (Math.abs(arrow.av - arrow.rav) < 0.0000001) {
+      arrow.av = arrow.rav;
+    }
+  }
+  for (let i = 0; i !== game.state.physics.bodies.length; i++) {
+    if (!game.state.physics.bodies[i]) continue;
+
+    const body = game.state.physics.bodies[i];
+
+    body.a *= degToRad;
+    body.av *= degToRad;
+
+    if (Math.abs(body.a - body.ra) < 0.0000001) {
+      body.a = body.ra;
+    }
+    if (Math.abs(body.av - body.rav) < 0.0000001) {
+      body.av = body.rav;
+    }
+  }
+  for (let i = 0; i !== game.state.physics.shapes.length; i++) {
+    if (!game.state.physics.shapes[i]) continue;
+
+    const shape = game.state.physics.shapes[i];
+
+    if (shape.type !== 'ci') {
+      shape.a *= degToRad;
+      if (Math.abs(shape.a - shape.ra) < 0.0000001) shape.a = shape.ra;
+    }
+  }
+  for (let i = 0; i !== game.state.physics.joints.length; i++) {
+    if (!game.state.physics.joints[i]) continue;
+
+    const joint = game.state.physics.joints[i];
+
+    if (joint.type == 'lpj') {
+      joint.pa *= Math.PI / 180;
+      if (Math.abs(joint.pa - joint.rpa) < 0.0000001) joint.pa = joint.rpa;
+    } else if (joint.type == 'rv') {
+      joint.d.ua *= Math.PI / 180;
+      joint.d.la *= Math.PI / 180;
+      if (Math.abs(joint.d.ua - joint.rua) < 0.0000001) joint.d.ua = joint.rua;
+      if (Math.abs(joint.d.la - joint.rla) < 0.0000001) joint.d.la = joint.rla;
+    }
+  }
+  /* #endregion ANGLE UNIT RESTORING */
+
 
   return game.state;
 };

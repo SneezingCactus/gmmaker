@@ -143,6 +143,126 @@ window.getDynamicInfo = (game) => {
   game.state = copied.state;
   game.inputs = copied.inputs;
 
+  /* #region ANGLE UNIT DEGREEING */
+  // this is where angles represented in radians are turned into degrees for easier manipulation
+  const radToDeg = 180 / Math.PI;
+
+  for (let i = 0; i !== game.state.discs.length; i++) {
+    if (!game.state.discs[i]) continue;
+
+    const disc = game.state.discs[i];
+
+    disc.ra = disc.a;
+    disc.rav = disc.av;
+
+    disc.a *= radToDeg;
+    disc.av *= radToDeg;
+  }
+  for (let i = 0; i !== game.state.projectiles.length; i++) {
+    if (!game.state.projectiles[i]) continue;
+
+    const arrow = game.state.projectiles[i];
+
+    arrow.ra = arrow.a;
+    arrow.rav = arrow.av;
+
+    arrow.a *= radToDeg;
+    arrow.av *= radToDeg;
+  }
+  for (let i = 0; i !== game.state.physics.bodies.length; i++) {
+    if (!game.state.physics.bodies[i]) continue;
+
+    const body = game.state.physics.bodies[i];
+
+    body.ra = body.a;
+    body.rav = body.av;
+
+    body.a *= radToDeg;
+    body.av *= radToDeg;
+  }
+  for (let i = 0; i !== game.state.physics.shapes.length; i++) {
+    if (!game.state.physics.shapes[i]) continue;
+
+    const shape = game.state.physics.shapes[i];
+
+    if (shape.type !== 'ci') {
+      shape.ra = shape.a;
+      shape.a *= radToDeg;
+    }
+  }
+  for (let i = 0; i !== game.state.physics.joints.length; i++) {
+    if (!game.state.physics.joints[i]) continue;
+
+    const joint = game.state.physics.joints[i];
+
+    if (joint.type == 'lpj') {
+      joint.rpa = joint.pa;
+      joint.pa *= 180 / Math.PI;
+    } else if (joint.type == 'rv') {
+      joint.d.rua = joint.ua;
+      joint.d.rla = joint.la;
+      joint.d.ua *= 180 / Math.PI;
+      joint.d.la *= 180 / Math.PI;
+    }
+  }
+  /* #endregion ANGLE UNIT DEGREEING */
+
+  /* #region DISC NORMALIZING */
+  // here, certain conflicting disc props, such as swing, are normalized
+  // to prevent some undefined-related errors
+
+  for (let i = 0; i !== game.state.discs.length; i++) {
+    if (!game.state.discs[i]) continue;
+    if (!game.state.discs[i].swing) game.state.discs[i].swing = false;
+  }
+  /* #endregion DISC NORMALIZING */
+
+  /* #region CHANGE XY TO VECTORS */
+  // this is where certain props such as positions and velocities are turned into vectors
+  // to allow the mode maker to use Vector functions with them easily
+
+  for (let i = 0; i !== game.state.discs.length; i++) {
+    if (!game.state.discs[i]) continue;
+
+    const disc = game.state.discs[i];
+
+    disc.p = [disc.x, disc.y];
+    disc.lv = [disc.xv, disc.yv];
+    disc.sp = [disc.sx, disc.sy];
+    disc.slv = [disc.sxv, disc.syv];
+  }
+  for (let i = 0; i !== game.state.discDeaths.length; i++) {
+    if (!game.state.discDeaths[i]) continue;
+
+    const death = game.state.discDeaths[i];
+
+    death.p = [death.x, death.y];
+    death.lv = [death.xv, death.yv];
+  }
+  for (let i = 0; i !== game.state.projectiles.length; i++) {
+    if (!game.state.projectiles[i]) continue;
+
+    const arrow = game.state.projectiles[i];
+
+    arrow.p = [arrow.x, arrow.y];
+    arrow.lv = [arrow.xv, arrow.yv];
+  }
+  for (let i = 0; i !== game.state.physics.bodies.length; i++) {
+    if (!game.state.physics.bodies[i]) continue;
+
+    const body = game.state.physics.bodies[i];
+
+    body.cf.lf = [body.cf.x, body.cf.y];
+  }
+  for (let i = 0; i !== game.state.physics.shapes.length; i++) {
+    if (!game.state.physics.shapes[i] || game.state.physics.shapes[i].type !== 'bx') continue;
+
+    const shape = game.state.physics.shapes[i];
+
+    shape.s = [shape.w, shape.h];
+  }
+  /* #endregion CHANGE XY TO VECTORS */
+
   const gmExtra = copied.state.gmExtra;
   gmExtra.drawings = copyDrawings(oldDrawings);
 
