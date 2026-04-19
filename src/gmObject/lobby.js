@@ -2,6 +2,9 @@
 /* eslint-disable new-cap */
 import Blockly from 'blockly';
 
+// max packet size in bytes
+const MAX_PACKET_SIZE = 128000;
+
 export default {
   init: function() {
     this.initSocketio();
@@ -299,12 +302,12 @@ export default {
 
     const modeLength = compressedMode.offset + 1;
 
-    for (let i = 0; i < modeLength; i += 256000) {
+    for (let i = 0; i < modeLength; i += MAX_PACKET_SIZE) {
       gm.lobby.socket.emit(4, {
         gmMode: true,
         initial: initial,
-        finish: i + 256000 > modeLength,
-        data: compressedMode.copy(i, Math.min(i + 256000, compressedMode.buffer.byteLength)).buffer,
+        finish: i + MAX_PACKET_SIZE > modeLength,
+        data: compressedMode.copy(i, Math.min(i + MAX_PACKET_SIZE, compressedMode.buffer.byteLength)).buffer,
       });
     }
   },
