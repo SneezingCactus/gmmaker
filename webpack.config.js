@@ -7,7 +7,7 @@ const {version} = require('./package.json');
 const minimize = true;
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   performance: {
     maxEntrypointSize: 1e10,
     maxAssetSize: 1e10,
