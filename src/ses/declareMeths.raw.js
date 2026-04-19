@@ -68,7 +68,7 @@ function copyDrawings(drawings) {
         // advantage of the fact that we're deep copying everything,
         // we can do it here
         noLerp: false,
-        pos: s.pos,
+        pos: s.pos ? [s.pos[0], s.pos[1]] : [0, 0],
         type: s.type,
       };
 
