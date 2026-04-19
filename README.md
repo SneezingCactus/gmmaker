@@ -1,6 +1,6 @@
 ![gmmaker-banner](https://github.com/SneezingCactus/gmmaker/assets/46355725/34ca0ec4-1f98-4485-91bc-311b265db041)
 
-# ⚠️⚠️⚠️ Game Mode Maker has reached end of support and the repository has been archived. The latest version of the mod will keep working until a future bonk.io update breaks it.
+### ⚠️ Game Mode Maker is no longer supported. This means issues, pull requests, bug reports and similar may be completely ignored. Patch updates may be released at my discretion to keep the mod in a playable state.
 
 ---
 
