@@ -379,7 +379,7 @@
     top: 0;
     bottom: 0;
     width: fit-content;
-    max-width: 400px;
+    max-width: 500px;
     height: fit-content;
     background-color: var(--gm_primary_background);
     color: var(--gm_primary_text);
@@ -435,7 +435,6 @@
 .gm_dialogbuttoncontainer {
     display: flex;
     align-content: stretch;
-    width: 90%;
     justify-content: space-around;
 }
 
