@@ -1,12 +1,34 @@
-[{
-  "id": 1,
-  "priority": 1,
-  "action": {"type": "redirect", "redirect": {"extensionPath": "/js/runInjectors.js"}},
-  "condition": {"urlFilter": "*://bonk.io/js/alpha2s.js", "resourceTypes": ["script"]}
-},
-{
-  "id": 2,
-  "priority": 1,
-  "action": {"type": "redirect", "redirect": {"extensionPath": "/js/runInjectors.js"}},
-  "condition": {"urlFilter": "*://bonkisback.io/js/alpha2s.js", "resourceTypes": ["script"]}
-}]
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/global_injector.js"
+      }
+    },
+    "condition": {
+      "urlFilter": "*://bonk.io/js/alpha2s.js",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "extensionPath": "/global_injector.js"
+      }
+    },
+    "condition": {
+      "urlFilter": "*://bonkisback.io/js/alpha2s.js",
+      "resourceTypes": [
+        "script"
+      ]
+    }
+  }
+]
