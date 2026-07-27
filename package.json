@@ -14,6 +14,7 @@
     "build": "tsc && vite build",
     "export": "node util/export_extension.js"
   },
+  "dependencies": {},
   "devDependencies": {
     "@antfu/eslint-config": "^9.2.0",
     "@types/archiver": "^8.0.0",

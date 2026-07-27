@@ -1,12 +1,23 @@
+import type { Socket } from 'socket.io-client';
 import pkg from '../package.json';
 import { log } from './utils/logging';
 
 interface Mod {
-  // ideally this should be properly typed to match the hooked functions
-  // eslint-disable-next-line ts/no-unsafe-function-type
-  functions: Record<string, Function>;
+  functions: {
+    io: () => Socket;
+  };
+  replaceHooks: {
+    readonly gameLength: number;
+    readonly rollbacking: boolean;
 
-  // add any accessors here...
+    forceInputRegister: boolean;
+    disableDeathBarrier: boolean;
+    multToStereo: number | null;
+    addToStereo: number | null;
+
+    endStep: () => void;
+    endRound: () => void;
+  };
 
   init: () => void;
 }

@@ -13,6 +13,7 @@ export default antfu({
     'no-console': 'off',
     'no-alert': 'off',
   },
+
   stylistic: {
     semi: true,
     overrides: {
@@ -20,4 +21,10 @@ export default antfu({
     },
   },
   typescript: { tsconfigPath: './tsconfig.json' },
+}, {
+  files: ['**/*.json'],
+  language: 'json/json',
+  rules: {
+    'style/max-len': 'off',
+  },
 });
