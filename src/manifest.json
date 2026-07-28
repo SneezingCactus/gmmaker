@@ -10,7 +10,8 @@
   "web_accessible_resources": [
     {
       "resources": [
-        "global_injector.js"
+        "global_injector.js",
+        "init_sandbox.js"
       ],
       "matches": [
         "<all_urls>"

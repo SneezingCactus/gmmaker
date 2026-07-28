@@ -135,8 +135,8 @@ function inject(src: string): string {
     const bonkFunction = match[1];
 
     functionHooks += [
-      `window.${pkg.name}.functions.${functionTarget.name} = ${bonkFunction};`,
-      `window.${pkg.name}.functions.${functionTarget.name}OLD = ${bonkFunction};`,
+      `window.${pkg.name}.functionHooks.${functionTarget.name} = ${bonkFunction};`,
+      `window.${pkg.name}.functionHooks.${functionTarget.name}OLD = ${bonkFunction};`,
       `${bonkFunction} =`,
     ].join('');
 
@@ -144,7 +144,7 @@ function inject(src: string): string {
       functionHooks += [
         `new Proxy(${bonkFunction}, {`,
         '  construct(target, args) {',
-        `    return new ${mod}.functions.${functionTarget.name}(...args);`,
+        `    return new ${mod}.functionHooks.${functionTarget.name}(...args);`,
         '  }',
         '});',
       ].join('\n');
@@ -152,7 +152,7 @@ function inject(src: string): string {
     else {
       functionHooks += [
         'function() {',
-        `  return ${mod}.functions.${functionTarget.name}(...arguments);`,
+        `  return ${mod}.functionHooks.${functionTarget.name}(...arguments);`,
         '};',
       ].join('\n');
     }

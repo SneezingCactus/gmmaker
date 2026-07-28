@@ -11,7 +11,9 @@ node_modules
 build
 dist
 dist-ssr
+dist-sandbox
 *.local
+install-state.gz
 
 # Editor directories and files
 .vscode/*

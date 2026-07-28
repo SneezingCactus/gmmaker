@@ -1,11 +1,9 @@
-import type { Socket } from 'socket.io-client';
 import pkg from '../package.json';
+import GMSandboxExternal from './sandbox/GMSandboxExternal';
 import { log } from './utils/logging';
 
 interface Mod {
-  functions: {
-    io: () => Socket;
-  };
+  functionHooks: object;
   replaceHooks: {
     readonly gameLength: number;
     readonly rollbacking: boolean;
@@ -19,6 +17,8 @@ interface Mod {
     endRound: () => void;
   };
 
+  sandbox: GMSandboxExternal;
+
   init: () => void;
 }
 
@@ -26,6 +26,8 @@ export const mod: Mod = (window as any)[pkg.name];
 
 function init() {
   log('Hello from init!');
+
+  mod.sandbox = new GMSandboxExternal();
 }
 
 mod.init = init;
