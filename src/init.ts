@@ -1,8 +1,8 @@
 import pkg from '../package.json';
-import type { BonkGraphics } from './graphics/declarations/BonkGraphics';
+import type { BonkGraphics } from './declarations/graphics/BonkGraphics';
 import { initGraphics } from './graphics/GMGraphics';
 import GMSandboxExternal from './sandbox/GMSandboxExternal';
-import type { BonkSimulation } from './simulation/declarations/BonkSimulation';
+import type { BonkSimulation } from './declarations/simulation/BonkSimulation';
 import GMSimulation from './simulation/GMSimulation';
 import { log } from './utils/logging';
 

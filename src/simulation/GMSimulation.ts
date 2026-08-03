@@ -1,11 +1,11 @@
 import { mod } from '../init';
-import type { PlayerInput } from '../inputs/declarations/PlayerInput';
-import type { GameSettings } from '../lobby/declarations/GameSettings';
+import type { PlayerInput } from '../declarations/network/PlayerInput';
+import type { GameSettings } from '../declarations/network/GameSettings';
 import { hookMethod } from '../utils/hooking';
-import type { BonkSimulation } from './declarations/BonkSimulation';
+import type { BonkSimulation } from '../declarations/simulation/BonkSimulation';
 
 export default class GMSimulation {
-  public state?: ExternalGameState;
+  public state?: BonkGameState;
 
   constructor() {
     mod.objectHooks.BonkSimulation.createNewState = hookMethod(
@@ -24,7 +24,7 @@ export default class GMSimulation {
 
   step(
     original: BonkSimulation['step'],
-    lastState: ExternalGameState,
+    lastState: BonkGameState,
     inputs: PlayerInput[],
     adminInputs: unknown,
     physicsTimeStep: number,

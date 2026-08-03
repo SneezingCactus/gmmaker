@@ -5,5 +5,5 @@ export declare class BonkGraphics {
   public stage: PIXI.Container;
 
   constructor(domContainer: HTMLElement, isReplay: boolean);
-  render(stateA: ExternalGameState, stateB: ExternalGameState, weight: number, idk1: any, idk2: any, idk3: any);
+  render(stateA: BonkGameState, stateB: BonkGameState, weight: number, idk1: any, idk2: any, idk3: any);
 }

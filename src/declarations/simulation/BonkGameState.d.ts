@@ -1,7 +1,7 @@
 /**
  * Disc swing (grapple rod) information.
  */
-declare interface ExternalStateDiscSwing {
+declare interface BonkStateDiscSwing {
   /**
    * Attached body's ID.
    */
@@ -19,7 +19,7 @@ declare interface ExternalStateDiscSwing {
 /**
  * Definition of a disc.
  */
-declare interface ExternalStateDisc {
+declare interface BonkStateDisc {
   /**
    * Position of the disc, as a 2d vector.
    */
@@ -71,7 +71,7 @@ declare interface ExternalStateDisc {
   /**
    * Grapple joint information. Becomes null when the player isn't grappling anything.
    */
-  swing: ExternalStateDiscSwing;
+  swing: BonkStateDiscSwing;
   /**
    * Determines whether the disc is visible or not.
    */
@@ -81,7 +81,7 @@ declare interface ExternalStateDisc {
 /**
  * Information about the death of a disc.
  */
-declare interface ExternalStateDiscDeath {
+declare interface BonkStateDiscDeath {
   /**
    * ID of the disc that died.
    */
@@ -111,7 +111,7 @@ declare interface ExternalStateDiscDeath {
 /**
  * Definition of a projectile (arrow).
  */
-declare interface ExternalStateProjectile {
+declare interface BonkStateProjectile {
   /**
    * Position of the arrow, as a 2d vector.
    */
@@ -154,7 +154,7 @@ declare interface ExternalStateProjectile {
 /**
  * Definition of a capture zone.
  */
-declare interface ExternalStateCapZone {
+declare interface BonkStateCapZone {
   /**
    * Capture zone type.
    *
@@ -201,7 +201,7 @@ declare interface ExternalStateCapZone {
 /**
  * Body apply force parameters.
  */
-declare interface ExternalStateBodyForces {
+declare interface BonkStateBodyForces {
   /**
    * Amount of force applied in the X axis.
    */
@@ -223,7 +223,7 @@ declare interface ExternalStateBodyForces {
 /**
  * Definition of a body.
  */
-declare interface ExternalStateBody {
+declare interface BonkStateBody {
   /**
    * Body type.
    *
@@ -285,7 +285,7 @@ declare interface ExternalStateBody {
    * Object that contains the values of the three forces that get constantly applied to the body:
    * Apply Force X (`cf.x`), Apply Force Y (`cf.y`) and Apply Torque (`cf.ct`).
    */
-  cf: ExternalStateBodyForces;
+  cf: BonkStateBodyForces;
   /**
    * Array that contains the IDs of each fixture that makes up this body.
    */
@@ -326,7 +326,7 @@ declare interface ExternalStateBody {
 /**
  * Definition of a fixture.
  */
-declare interface ExternalStateFixture {
+declare interface BonkStateFixture {
   /**
    * ID of the shape that corresponds to this fixture.
    */
@@ -378,7 +378,7 @@ declare interface ExternalStateFixture {
 /**
  * Definition of a (fixture) shape.
  */
-declare interface ExternalStateShape {
+declare interface BonkStateShape {
   /**
    * Shape type.
    *
@@ -429,7 +429,7 @@ declare interface ExternalStateShape {
  *
  * It is unknown why Chaz decided to make a separate collection just for these properties.
  */
-declare interface ExternalStateJointSubD {
+declare interface BonkStateJointSubD {
   /**
    * [Rotating joint only] Limit from angle in degrees.
    */
@@ -481,7 +481,7 @@ declare interface ExternalStateJointSubD {
 /**
  * Definition of a joint.
  */
-declare interface ExternalStateJoint {
+declare interface BonkStateJoint {
   /**
    * Joint type.
    *
@@ -497,7 +497,7 @@ declare interface ExternalStateJoint {
    *
    * It is unknown why Chaz decided to make a separate collection just for these properties.
    */
-  d: ExternalStateJointSubD;
+  d: BonkStateJointSubD;
   /**
    * ID of the first body attached.
    */
@@ -569,7 +569,7 @@ declare interface ExternalStateJoint {
 /**
  * Contains several map-specific settings.
  */
-declare interface ExternalStateMapSettings {
+declare interface BonkStateMapSettings {
   /**
    * Corresponds to the "Respawn on death" option in the map editor.
    *
@@ -603,7 +603,7 @@ declare interface ExternalStateMapSettings {
 /**
  * Contains a bunch of info about a map, such as the username of the person who created it, the name of the map, etc.
  */
-declare interface ExternalStateMapMetadata {
+declare interface BonkStateMapMetadata {
   /** Map author's username. */
   a: string;
   /** The name of the map. */
@@ -650,31 +650,31 @@ declare interface ExternalStateMapMetadata {
 /**
  * This is where map objects (called bodies), as well as their fixtures, shapes and joints, are stored.
  */
-declare interface ExternalStatePhysics {
+declare interface BonkStatePhysics {
   /**
    * Array that contains the definitions of every body in the world.
    *
    * Ordered by ID (bodies[0] is body with ID 0, bodies[2] is body with ID 2, etc.)
    */
-  bodies: ExternalStateBody[];
+  bodies: BonkStateBody[];
   /**
    * Array that contains the definitions of every fixture in the world. Bodies are made of fixtures.
    *
    * Ordered by ID (fixtures[0] is fixture with ID 0, fixtures[2] is fixture with ID 2, etc.)
    */
-  fixtures: ExternalStateFixture[];
+  fixtures: BonkStateFixture[];
   /**
    * Array that contains the definitions of every shape in the world. Shapes define the geometry of each fixture.
    *
    * Ordered by ID (shapes[0] is shape with ID 0, shapes[2] is shape with ID 2, etc.)
    */
-  shapes: ExternalStateShape[];
+  shapes: BonkStateShape[];
   /**
    * Array that contains the definitions of every joint in the world.
    *
    * Ordered by ID (joints[0] is joint with ID 0, joints[2] is joint with ID 2, etc.)
    */
-  joints: ExternalStateJoint[];
+  joints: BonkStateJoint[];
   /**
    * Likely stands for "body render order".
    *
@@ -698,19 +698,19 @@ declare interface ExternalStatePhysics {
 /**
  * Information about a game step.
  */
-declare interface ExternalGameState {
+declare interface BonkGameState {
   /**
    * Likely stands for "map settings".
    *
    * It contains several map-specific settings.
    */
-  ms: ExternalStateMapSettings;
+  ms: BonkStateMapSettings;
   /**
    * Likely stands for "map metadata".
    *
    * It contains a bunch of info about the map, such as the author's username, the map's name, etc.
    */
-  mm: ExternalStateMapMetadata;
+  mm: BonkStateMapMetadata;
   /**
    * Array that contains varied attributes for every disc currently alive.
    *
@@ -719,14 +719,14 @@ declare interface ExternalGameState {
    *
    * Ordered by disc/player ID (discs[0] is disc with ID 0, discs[2] is disc with ID 2, etc.)
    */
-  discs: ExternalStateDisc[];
+  discs: BonkStateDisc[];
   /**
    * Array that contains varied info about every recent death of a disc.
    *
    * In GMMaker, the term "disc" refers to the physical manifestation of a player,
    * in other words, the ball you control during the game.
    */
-  discDeaths: ExternalStateDiscDeath[];
+  discDeaths: BonkStateDiscDeath[];
   /**
    * Array that contains varied attributes for every arrow, such as their owner and position.
    *
@@ -735,18 +735,18 @@ declare interface ExternalGameState {
    * It's unknown why Chaz named this array `projectiles`. Perhaps he wanted to add different kinds
    * of projectiles at some point.
    */
-  projectiles: ExternalStateProjectile[];
+  projectiles: BonkStateProjectile[];
   /**
    * Array that contains varied attributes for every capture zone, such as the type of capzone
    * and the fixture they possess.
    *
    * Ordered by capture zone ID (capZones[0] is capzone with ID 0, capZones[2] is capzone with ID 2, etc.)
    */
-  capZones: ExternalStateCapZone[];
+  capZones: BonkStateCapZone[];
   /**
    * This is where map objects (called bodies), as well as their fixtures, shapes and joints, are stored.
    */
-  physics: ExternalStatePhysics;
+  physics: BonkStatePhysics;
   /**
    * Likely stands for "round count". It indicates how many rounds have passed since the game started
    * (when the host presses START).
