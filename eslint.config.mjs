@@ -8,6 +8,7 @@ export default antfu({
     'unicorn/prefer-node-protocol': 'off',
     'ts/switch-exhaustiveness-check': 'off',
     'ts/no-unsafe-assignment': 'off',
+    'ts/no-unsafe-argument': 'off',
     'ts/no-unsafe-member-access': 'off',
     'ts/no-unsafe-call': 'off',
     'no-console': 'off',

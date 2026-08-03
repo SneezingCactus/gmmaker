@@ -1,11 +1,46 @@
 import pkg from '../../package.json';
 import { log, logError } from '../utils/logging';
 
+enum ObjectTargetType {
+  /**
+   * An ES6 class.
+   */
+  Class,
+  /**
+   * A *constructor function*, pattern typically used to resemble classes in ES5.
+   *
+   * When hooking, the original object is exposed to the mod as a reference, and then, within Bonk's scope, it gets
+   * wrapped into a Proxy of itself which deviates construction to the mod's reference.
+   *
+   * This means the mod can freely modify the *CtorFunction*'s prototype and "static" methods, and then reassign its
+   * exposed copy to seize control of the constructor if necessary.
+   *
+   * Proxies come with performance costs however, so if it's not necessary to modify the *CtorFunction*'s constructor,
+   * consider changing the target's type to *CtorFunctionPropsOnly*.
+   */
+  CtorFunction,
+  /**
+   * A *constructor function*, pattern typically used to resemble classes in ES5.
+   *
+   * When hooking, the object is exposed to the mod as a reference.
+   *
+   * Unlike *CtorFunction*, *CtorFunctionPropsOnly* does not wrap the object into a Proxy. This means it has zero impact
+   * on performance, at the cost of losing the ability to modify its constructor.
+   */
+  CtorFunctionPropsOnly,
+  /**
+   * A *namespace*, an object with the sole purpose of holding methods and classes.
+   *
+   * When hooking, the object is exposed to the mod as a reference.
+   */
+  Namespace,
+}
+
 interface InjectorTargets {
-  functions: {
+  classes: {
+    type: ObjectTargetType;
     name: string;
     regex: RegExp;
-    isClass: boolean;
   }[];
   replace: {
     name: string;
@@ -17,30 +52,74 @@ interface InjectorTargets {
 const mod = `window.${pkg.name}`;
 
 const targets: InjectorTargets = {
-  functions: [
-    // SocketIO library, used by Bonk to communicate with the room server.
-    { name: 'io', regex: /=\(1,(...[^)]+)\).{0,100}reconnection/, isClass: false },
-    // Box2D library, used by Bonk to simulate physics.
-    { name: 'Box2D', regex: /requirejs\(\[[^\]]+\],function\([^,]+,[^,]+,([^)]+)/, isClass: true },
-    // Class in charge of simulating game steps.
-    { name: 'BonkSimulation', regex: /[{};\n]([A-Za-z$_])\[.{0,100}\]=\{discs:/, isClass: true },
-    // Class in charge of all in-game graphics.
-    { name: 'BonkGraphics', regex: /;([^=};]+)=class.{0,500}docu.{0,3000}TWEEN.{0,100}x:0,y/, isClass: true },
-    // This class takes care of communicating with the room's server.
-    { name: 'BonkNetwork', regex: /function ([^)]*)\([^)]{11}\).{0,8000}reconnection:false/, isClass: true },
-    // Class in charge of updating the lobby and reacting to the player's interactions with the lobby.
-    { name: 'BonkLobby', regex: /function (..)\(.{15}\).{0,20000}newbonklobby/, isClass: true },
-    // This class contains some useful functions (XP to level, hueify, etc) and data (your avatars, nearest server
-    // for room hosting, your country, etc) used within Bonk.
-    { name: 'BonkUtils', regex: /(...\[[^\]]+\]).{10,20}=function\((...,){4}...\).{0,1400}0\.62/, isClass: true },
-    // Unnamed general purpose class containing, among other things, the functions that begin a game session.
-    { name: 'GameSessionHandler', regex: /new (..)\(null\)/, isClass: true },
-    // Class used by Bonk to compress/decompress maps.
-    { name: 'MapEncoder', regex: /\{try\{.{3,6}=(.{1,2})\[/, isClass: true },
-    // Class in charge of handling ingoing and outgoing player input.
-    { name: 'InputHandler', regex: /Date.{0,100}new ([^(]+).{0,100}\$\(document/, isClass: true },
-    // Class containing a list of all the available modes.
-    { name: 'ModeList', regex: /[}{;]([\w$]{3}\[\d{0,10}\])=class.{0,1000}=\{lobbyName/, isClass: true },
+  classes: [
+    {
+      // SocketIO library, used by Bonk to communicate with the room server.
+      type: ObjectTargetType.CtorFunctionPropsOnly,
+      name: 'SocketIo',
+      regex: /=\(1,(...[^)]+)\).{0,100}reconnection/,
+    },
+    {
+      // Box2D library, used by Bonk to simulate physics.
+      type: ObjectTargetType.Namespace,
+      name: 'Box2D',
+      regex: /requirejs\(\[[^\]]+\],function\([^,]+,[^,]+,([^)]+)/,
+    },
+    {
+      // Class in charge of simulating game steps.
+      type: ObjectTargetType.CtorFunctionPropsOnly,
+      name: 'BonkSimulation',
+      regex: /[{};\n]([A-Za-z$_])\[.{0,100}\]=\{discs:/,
+    },
+    {
+      // Class in charge of all in-game graphics.
+      type: ObjectTargetType.Class,
+      name: 'BonkGraphics',
+      regex: /;([^=};]+)=class.{0,500}docu.{0,3000}TWEEN.{0,100}x:0,y/,
+    },
+    {
+      // This class takes care of communicating with the room's server.
+      type: ObjectTargetType.CtorFunctionPropsOnly,
+      name: 'BonkNetwork',
+      regex: /function ([^)]*)\([^)]{11}\).{0,8000}reconnection:false/,
+    },
+    {
+      // Class in charge of updating the lobby and reacting to the player's interactions with the lobby.
+      type: ObjectTargetType.CtorFunctionPropsOnly,
+      name: 'BonkLobby',
+      regex: /function (..)\(.{15}\).{0,20000}newbonklobby/,
+    },
+    {
+      // Contains some useful functions (XP to level, hueify, etc) and data (your avatars, nearest server
+      // for room hosting, your country, etc) used within Bonk.
+      type: ObjectTargetType.Namespace,
+      name: 'BonkUtils',
+      regex: /(...\[[^\]]+\]).{10,20}=function\((...,){4}...\).{0,1400}0\.62/,
+    },
+    {
+      // Unnamed general purpose class containing, among other things, the functions that begin a game session.
+      type: ObjectTargetType.CtorFunction,
+      name: 'GameSessionHandler',
+      regex: /new (..)\(null\)/,
+    },
+    {
+      // Class used by Bonk to compress/decompress maps.
+      type: ObjectTargetType.CtorFunctionPropsOnly,
+      name: 'MapEncoder',
+      regex: /\{try\{.{3,6}=(.{1,2})\[/,
+    },
+    {
+      // Class in charge of handling ingoing and outgoing player input.
+      type: ObjectTargetType.Class,
+      name: 'InputHandler',
+      regex: /Date.{0,100}new ([^(]+).{0,100}\$\(document/,
+    },
+    {
+      // Class containing a list of all the available modes.
+      type: ObjectTargetType.Class,
+      name: 'ModeList',
+      regex: /[}{;]([\w$]{3}\[\d{0,10}\])=class.{0,1000}=\{lobbyName/,
+    },
   ],
   replace: [
     // make step function not delete the world's bodies and instead put that code into a global function
@@ -115,31 +194,67 @@ const targets: InjectorTargets = {
 const functionHookRegex = /(\}+(\)+)?;?)(function .{5,8}\(\)\{retur|$)/m;
 
 (window as any)[pkg.name] = {
-  functions: {},
+  objectHooks: {},
   replaceHooks: {},
 };
 
 function inject(src: string): string {
   log('Injecting alpha2s.js...');
 
-  let functionHooks = '';
+  let classHooks = '';
 
-  for (const functionTarget of targets.functions) {
-    const match = src.match(functionTarget.regex);
+  for (const objectTarget of targets.classes) {
+    const match = src.match(objectTarget.regex);
 
     if (!match) {
-      logError('Regex FAILED for function target', functionTarget);
+      logError('Regex FAILED for function target', objectTarget);
       throw new Error(`[${pkg.displayName}] Injection error`);
     }
 
-    const bonkFunction = match[1];
+    const bonkObjectName = match[1];
 
-    functionHooks += [
+    switch (objectTarget.type) {
+      case ObjectTargetType.Class:
+        classHooks += [
+          `${mod}.objectHooks.${objectTarget.name} = ${bonkObjectName};`,
+          `${bonkObjectName} = function() {`,
+          `  if (!${mod}.objectHooks.derived${objectTarget.name}) {`,
+          `    console.log('[${pkg.displayName}] No derived hook for class ${objectTarget.name}, ignoring');`,
+          `    return new ${mod}.objectHooks.${objectTarget.name}(...arguments);`,
+          '  }',
+
+          `  return new ${mod}.objectHooks.derived${objectTarget.name}(...arguments);`,
+          '};',
+        ].join('');
+        break;
+
+      case ObjectTargetType.CtorFunction:
+        classHooks += [
+          `${mod}.objectHooks.${objectTarget.name} = ${bonkObjectName};`,
+          `${bonkObjectName} = new Proxy(${bonkObjectName}, {`,
+          '  construct(target, args) {',
+          `    return new ${mod}.objectHooks.${objectTarget.name}(...args);`,
+          '  }',
+          `});`,
+        ].join('');
+        break;
+
+      case ObjectTargetType.CtorFunctionPropsOnly:
+      case ObjectTargetType.Namespace:
+        classHooks += [
+          `${mod}.objectHooks.${objectTarget.name} = ${bonkObjectName};`,
+        ].join('');
+        break;
+    }
+
+    /*
+    classHooks += [
       `window.${pkg.name}.functionHooks.${functionTarget.name} = ${bonkFunction};`,
       `window.${pkg.name}.functionHooks.${functionTarget.name}OLD = ${bonkFunction};`,
       `${bonkFunction} =`,
-    ].join('');
+    ].join(''); */
 
+    /*
     if (functionTarget.isClass) {
       functionHooks += [
         `new Proxy(${bonkFunction}, {`,
@@ -155,11 +270,11 @@ function inject(src: string): string {
         `  return ${mod}.functionHooks.${functionTarget.name}(...arguments);`,
         '};',
       ].join('\n');
-    }
+    } */
   }
 
   src = src.replace(functionHookRegex, [
-    functionHooks,
+    classHooks,
     `if (${mod}.init) {`,
     `  ${mod}.init();`,
     '} else {',

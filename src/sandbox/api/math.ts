@@ -1,4 +1,56 @@
-const trigFunctionNames = ['sin', 'cos', 'tan', 'asin', 'acos', 'atan'] as const;
+const allPropertyNames = [
+  'abs',
+  'acos',
+  'acosh',
+  'asin',
+  'asinh',
+  'atan',
+  'atanh',
+  'atan2',
+  'ceil',
+  'cbrt',
+  'expm1',
+  'clz32',
+  'cos',
+  'cosh',
+  'exp',
+  'floor',
+  'fround',
+  'hypot',
+  'imul',
+  'log',
+  'log1p',
+  'log2',
+  'log10',
+  'max',
+  'min',
+  'pow',
+  'random',
+  'round',
+  'sign',
+  'sin',
+  'sinh',
+  'sqrt',
+  'tan',
+  'tanh',
+  'trunc',
+  'E',
+  'LN10',
+  'LN2',
+  'LOG10E',
+  'LOG2E',
+  'PI',
+  'SQRT1_2',
+  'SQRT2',
+] as const;
+const trigFunctionNames = [
+  'sin',
+  'cos',
+  'tan',
+  'asin',
+  'acos',
+  'atan',
+] as const;
 
 const safetyTruncFactor = 1000000;
 
@@ -14,8 +66,18 @@ export default function defineApiMath(): GMMath {
   const safeAtan2 = (y: number, x: number) =>
     Math.round(Math.atan2(y, x) * (180 / Math.PI) * safetyTruncFactor) / safetyTruncFactor;
 
-  return {
+  const allProperties = Object.fromEntries(allPropertyNames.map(propertyName => [
+    propertyName,
+
+    // we don't care about `this` scoping for Math
+    // eslint-disable-next-line ts/unbound-method
+    Math[propertyName],
+  ]));
+
+  return harden({
+    // spreading Math does not do anything, but typescript complains about type completion if i don't
     ...Math,
+    ...allProperties,
     ...safeTrigFunctions,
 
     atan2: safeAtan2,
@@ -40,5 +102,5 @@ export default function defineApiMath(): GMMath {
 
       return safeAtan2(lerpedAnglePoint[0], lerpedAnglePoint[1]);
     },
-  };
+  });
 }

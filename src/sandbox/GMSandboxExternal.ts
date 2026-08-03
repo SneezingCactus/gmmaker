@@ -11,6 +11,6 @@ export default class GMSandboxExternal {
     document.head.appendChild(this.frame);
 
     (this.frame.contentWindow as any).eval(initSandboxString);
-    this.internal = (this.frame.contentWindow as any).sandboxInternal;
+    this.internal = (this.frame.contentWindow as any).initSandbox();
   }
 }
