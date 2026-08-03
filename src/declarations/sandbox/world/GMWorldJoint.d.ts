@@ -1,4 +1,4 @@
-declare interface GMStateJointRotating extends GMStateJointBase {
+declare interface GMWorldJointRotating extends GMWorldJointBase {
   type: 'rotating';
 
   /**
@@ -24,7 +24,7 @@ declare interface GMStateJointRotating extends GMStateJointBase {
   };
 }
 
-declare interface GMStateJointSoftRod extends GMStateJointBase {
+declare interface GMWorldJointSoftRod extends GMWorldJointBase {
   type: 'softRod';
 
   /**
@@ -43,7 +43,7 @@ declare interface GMStateJointSoftRod extends GMStateJointBase {
   damping: number;
 }
 
-declare interface GMStateJointFollowPath extends GMStateJointBase {
+declare interface GMWorldJointFollowPath extends GMWorldJointBase {
   type: 'followPath';
 
   pathOffset: vector2d;
@@ -54,14 +54,14 @@ declare interface GMStateJointFollowPath extends GMStateJointBase {
   moveSpeed: number;
 }
 
-declare interface GMStateJointSpringy extends GMStateJointBase {
+declare interface GMWorldJointSpringy extends GMWorldJointBase {
   type: 'springy';
 
   springForce: number;
   springLength: number;
 }
 
-declare interface GMStateJointGear extends GMStateJointBase {
+declare interface GMWorldJointGear extends GMWorldJointBase {
   type: 'gear';
 
   gearRatio: number;
@@ -70,7 +70,7 @@ declare interface GMStateJointGear extends GMStateJointBase {
 /**
  * Definition of a joint.
  */
-declare interface GMStateJointBase {
+declare interface GMWorldJointBase {
   /**
    * Joint type.
    *
@@ -109,5 +109,5 @@ declare interface GMStateJointBase {
   drawLine: boolean;
 }
 
-declare type GMStateJoint = GMStateJointRotating | GMStateJointSoftRod
-  | GMStateJointFollowPath | GMStateJointSpringy | GMStateJointGear;
+declare type GMWorldJoint = GMWorldJointRotating | GMWorldJointSoftRod
+  | GMWorldJointFollowPath | GMWorldJointSpringy | GMWorldJointGear;

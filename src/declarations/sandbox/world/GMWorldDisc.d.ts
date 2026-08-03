@@ -1,0 +1,18 @@
+export interface GMWorldDisc {
+
+export interface GMWorldDisc {
+  position: vector2d;
+  angle: number;
+
+  linearVel: vector2d;
+  angularVel: number;
+
+  team: 'ffa' | 'red' | 'blue' | 'green' | 'yellow';
+
+  actionCooldown: number;
+  actionAimCharge: number;
+  actionAimAngle: number;
+
+  spawnPosition: vector2d;
+  spawnLinearVel: vector2d;
+}

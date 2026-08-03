@@ -1,4 +1,4 @@
-export interface GMStatePlatform {
+export interface GMWorldPlatform {
   type: 'stationary' | 'freeMoving' | 'kinematic';
 
   position: vector2d;
