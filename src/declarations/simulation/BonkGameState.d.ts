@@ -317,10 +317,6 @@ declare interface BonkStateBody {
    * `true` if this body can collide with group D, `false` otherwise.
    */
   f_4: boolean;
-  /**
-   * Determines whether the body is visible or not.
-   */
-  visible: boolean;
 }
 
 /**
@@ -490,8 +486,9 @@ declare interface BonkStateJoint {
    * - "d": A soft rod joint,
    * - "lpj": A follow path joint,
    * - "lsj": A springy joint.
+   * - "g": A gear joint.
    */
-  type: 'rv' | 'd' | 'lpj' | 'lsj';
+  type: 'rv' | 'd' | 'lpj' | 'lsj' | 'g';
   /**
    * A collection of diverse joint parameters.
    *
@@ -564,6 +561,11 @@ declare interface BonkStateJoint {
    * [Springy joint only] Spring length.
    */
   slen: number;
+
+  /**
+   * [Gear joint only] Gear ratio.
+   */
+  r: number;
 }
 
 /**

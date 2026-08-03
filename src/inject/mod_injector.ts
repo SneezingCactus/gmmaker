@@ -225,6 +225,7 @@ function inject(src: string): string {
 
           `  return new ${mod}.objectHooks.derived${objectTarget.name}(...arguments);`,
           '};',
+          `Object.assign(${bonkObjectName}, ${mod}.objectHooks.${objectTarget.name});`,
         ].join('');
         break;
 
