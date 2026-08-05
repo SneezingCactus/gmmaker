@@ -3,7 +3,7 @@
  *
  * Vectors are represented by arrays of numbers. Example: [5, 2] is a 2d vector pointing at x: 5, y: 2.
  */
-interface Vector {
+interface APIVector {
   /**
    * Adds the components of vector B to the respective components of vector A.
    *

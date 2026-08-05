@@ -1,4 +1,4 @@
-export interface GMWorldPlatform {
+export interface APIWorldPlatform {
   type: 'stationary' | 'freeMoving' | 'kinematic';
 
   position: vector2d;
@@ -32,6 +32,8 @@ export interface GMWorldPlatform {
     withGroupC: boolean;
     withGroupD: boolean;
   };
+
+  shapeIds: number[];
 
   visible: boolean;
 }

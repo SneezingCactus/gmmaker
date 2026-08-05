@@ -1,6 +1,4 @@
-export interface GMWorldDisc {
-
-export interface GMWorldDisc {
+export interface APIWorldDisc {
   position: vector2d;
   angle: number;
 

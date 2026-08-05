@@ -1,4 +1,4 @@
-interface GMWorldShapePolygon {
+interface APIWorldShapePolygon {
   type: 'polygon';
 
   vertices: vector2d[];
@@ -7,7 +7,7 @@ interface GMWorldShapePolygon {
   appliedScale: number;
 }
 
-interface GMWorldShapeCircle {
+interface APIWorldShapeCircle {
   type: 'circle';
 
   position: vector2d;
@@ -16,7 +16,7 @@ interface GMWorldShapeCircle {
   shrink: boolean;
 }
 
-interface GMWorldShapeBox {
+interface APIWorldShapeBox {
   type: 'box';
 
   position: vector2d;
@@ -44,4 +44,4 @@ interface GMWorldShapeBase {
   innerGrapple: boolean;
 }
 
-export type GMWorldShape = GMWorldShapeBox | GMWorldShapeCircle | GMWorldShapePolygon;
+export type APIWorldShape = APIWorldShapeBox | APIWorldShapeCircle | APIWorldShapePolygon;

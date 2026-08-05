@@ -1,4 +1,4 @@
-declare interface GMWorldJointRotating extends GMWorldJointBase {
+declare interface APIWorldJointRotating extends APIWorldJointBase {
   type: 'rotating';
 
   /**
@@ -24,7 +24,7 @@ declare interface GMWorldJointRotating extends GMWorldJointBase {
   };
 }
 
-declare interface GMWorldJointSoftRod extends GMWorldJointBase {
+declare interface APIWorldJointSoftRod extends APIWorldJointBase {
   type: 'softRod';
 
   /**
@@ -43,7 +43,7 @@ declare interface GMWorldJointSoftRod extends GMWorldJointBase {
   damping: number;
 }
 
-declare interface GMWorldJointFollowPath extends GMWorldJointBase {
+declare interface APIWorldJointFollowPath extends APIWorldJointBase {
   type: 'followPath';
 
   pathOffset: vector2d;
@@ -54,14 +54,14 @@ declare interface GMWorldJointFollowPath extends GMWorldJointBase {
   moveSpeed: number;
 }
 
-declare interface GMWorldJointSpringy extends GMWorldJointBase {
+declare interface APIWorldJointSpringy extends APIWorldJointBase {
   type: 'springy';
 
   springForce: number;
   springLength: number;
 }
 
-declare interface GMWorldJointGear extends GMWorldJointBase {
+declare interface APIWorldJointGear extends APIWorldJointBase {
   type: 'gear';
 
   gearRatio: number;
@@ -70,7 +70,7 @@ declare interface GMWorldJointGear extends GMWorldJointBase {
 /**
  * Definition of a joint.
  */
-declare interface GMWorldJointBase {
+declare interface APIWorldJointBase {
   /**
    * Joint type.
    *
@@ -109,5 +109,5 @@ declare interface GMWorldJointBase {
   drawLine: boolean;
 }
 
-declare type GMWorldJoint = GMWorldJointRotating | GMWorldJointSoftRod
-  | GMWorldJointFollowPath | GMWorldJointSpringy | GMWorldJointGear;
+export type APIWorldJoint = APIWorldJointRotating | APIWorldJointSoftRod
+  | APIWorldJointFollowPath | APIWorldJointSpringy | APIWorldJointGear;

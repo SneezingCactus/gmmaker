@@ -54,7 +54,7 @@ const trigFunctionNames = [
 
 const safetyTruncFactor = 1000000;
 
-export default function defineApiMath(): GMMath {
+export default function defineApiMath(): APIMath {
   const degToRad = Math.PI / 180;
   const radToDeg = 180 / Math.PI;
 

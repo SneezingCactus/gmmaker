@@ -1,4 +1,4 @@
-interface GMMath extends Math {
+interface APIMath extends Math {
   readonly radToDeg: number;
   readonly degToRad: number;
 
@@ -9,5 +9,6 @@ interface GMMath extends Math {
   acosDeg: (x: number) => number;
   atanDeg: (x: number) => number;
 
+  lerpNumber: (a: number, b: number, t: number) => number;
   lerpAngle: (a: number, b: number, t: number) => number;
 }

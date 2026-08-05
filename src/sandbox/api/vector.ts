@@ -1,8 +1,8 @@
-export default function defineApiVector(gmMath: GMMath): Vector {
+export default function defineApiVector(gmMath: APIMath): APIVector {
   // declared before the main object as they're used by other functions
   // yeah it's ugly... but what can you do
 
-  const divide: Vector['divide'] = (a, b) => {
+  const divide: APIVector['divide'] = (a, b) => {
     const result = [...a];
 
     if (typeof b === 'number') {
@@ -18,7 +18,7 @@ export default function defineApiVector(gmMath: GMMath): Vector {
 
     return result;
   };
-  const length: Vector['length'] = (v) => {
+  const length: APIVector['length'] = (v) => {
     let result = 0;
 
     for (let a = 0; a < v.length; a++) {
@@ -27,10 +27,10 @@ export default function defineApiVector(gmMath: GMMath): Vector {
 
     return gmMath.sqrt(result);
   };
-  const normalize: Vector['normalize'] = (v) => {
+  const normalize: APIVector['normalize'] = (v) => {
     return divide(v, length(v));
   };
-  const dot: Vector['dot'] = (a, b) => {
+  const dot: APIVector['dot'] = (a, b) => {
     let result = 0;
 
     for (let i = 0; i < a.length; i++) {
