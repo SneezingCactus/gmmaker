@@ -5,6 +5,7 @@ import GMSandboxExternal from './sandbox/GMSandboxExternal';
 import type { BonkSimulation } from './declarations/simulation/BonkSimulation';
 import GMSimulation from './simulation/GMSimulation';
 import { log } from './utils/logging';
+import GMEditor from './editor/GMEditor';
 
 interface Mod {
   objectHooks: {
@@ -28,6 +29,7 @@ interface Mod {
 
   sandbox: GMSandboxExternal;
   simulation: GMSimulation;
+  editor: GMEditor;
 
   init: () => void;
 }
@@ -41,6 +43,7 @@ function init() {
 
   mod.simulation = new GMSimulation();
   mod.sandbox = new GMSandboxExternal();
+  mod.editor = new GMEditor();
 }
 
 mod.init = init;

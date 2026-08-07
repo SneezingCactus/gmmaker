@@ -26,7 +26,7 @@
   },
   "include": [
     "vite.config.ts",
-    "vite.sandbox.config.ts",
+    "vite.*.config.ts",
     "dev/**/*.ts",
     "dev/export_extension.js"
   ]

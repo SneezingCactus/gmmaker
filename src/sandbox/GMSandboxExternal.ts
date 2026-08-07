@@ -1,4 +1,4 @@
-import initSandboxString from '../../dist-sandbox/init_sandbox.js?raw';
+import initSandboxString from '../../dist/init_sandbox.js?raw';
 import type GMSandboxInternal from './GMSandboxInternal';
 
 export default class GMSandboxExternal {

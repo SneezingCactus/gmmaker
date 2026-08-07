@@ -3,6 +3,7 @@ import antfu from '@antfu/eslint-config';
 export default antfu({
   rules: {
     'antfu/consistent-chaining': 'off',
+    'antfu/no-import-dist': 'off',
     'node/prefer-global/process': 'off',
     'perfectionist/sort-imports': 'off',
     'unicorn/prefer-node-protocol': 'off',

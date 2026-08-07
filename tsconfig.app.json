@@ -10,6 +10,7 @@
     /* Bundler mode */
     "moduleResolution": "bundler",
     "types": [
+      "svelte",
       "vite/client",
       "chrome",
       "firefox-webext-browser"
@@ -28,6 +29,7 @@
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.js"
+    "src/**/*.js",
+    "src/**/*.svelte"
   ]
 }

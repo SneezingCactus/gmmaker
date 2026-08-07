@@ -1,0 +1,20 @@
+diff --git a/esm/vs/index.js b/esm/vs/index.js
+index badb7d833f2c8b90bde9164df13848397b09d887..1d987967f2d2fe535b93d109c5e2133151048bc4 100644
+--- a/esm/vs/index.js
++++ b/esm/vs/index.js
+@@ -1,5 +1,6 @@
+ import * as index from '../external/monaco-lsp-client/out/index.js';
+ export { index as lsp };
++/*
+ import './languages/definitions/abap/register.js';
+ import './languages/definitions/apex/register.js';
+ import './languages/definitions/azcli/register.js';
+@@ -88,7 +89,7 @@ export { __src_languages_features_html_register_ts as html };
+ import * as __src_languages_features_json_register_ts from './languages/features/json/register.js';
+ export { __src_languages_features_json_register_ts as json };
+ import * as __src_languages_features_typescript_register_ts from './languages/features/typescript/register.js';
+-export { __src_languages_features_typescript_register_ts as typescript };
++export { __src_languages_features_typescript_register_ts as typescript };*/
+ import './editor/contrib/anchorSelect/browser/anchorSelect.js';
+ import './editor/contrib/bracketMatching/browser/bracketMatching.js';
+ import './editor/contrib/caretOperations/browser/transpose.js';
