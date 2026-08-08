@@ -11,7 +11,6 @@ export default class GMSimulation {
     mod.objectHooks.BonkSimulation.createNewState = hookMethod(
       mod.objectHooks.BonkSimulation.createNewState,
       (original, ...rest) => {
-        console.log('Of Course!');
         return original(...rest);
       },
     );
@@ -22,7 +21,7 @@ export default class GMSimulation {
     );
   }
 
-  step(
+  protected step(
     original: BonkSimulation['step'],
     lastState: BonkGameState,
     inputs: PlayerInput[],

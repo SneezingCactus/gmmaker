@@ -24,6 +24,8 @@
 
     font-family: futurept_book;
     color: white;
+
+    pointer-events: none;
   }
 
   .window {
@@ -41,6 +43,8 @@
 
     border: solid 1px transparent;
     border-radius: 3px;
+
+    pointer-events: auto;
   }
 
   #gm-editor-workspace {
