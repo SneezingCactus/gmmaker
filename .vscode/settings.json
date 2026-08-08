@@ -3,6 +3,9 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+  "files.associations": {
+    "*.json": "jsonc"
+  },
   "editor.tabSize": 2,
   "editor.detectIndentation": false
 }

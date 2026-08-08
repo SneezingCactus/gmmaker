@@ -29,4 +29,9 @@ export default antfu({
   rules: {
     'style/max-len': 'off',
   },
+}, {
+  files: ['**/*.d.ts'],
+  rules: {
+    'ts/method-signature-style': 'off',
+  },
 });

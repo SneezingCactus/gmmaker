@@ -1,3 +1,5 @@
+import type { vector2d } from '../../vector';
+
 declare interface APIWorldJointRotating extends APIWorldJointBase {
   type: 'rotating';
 

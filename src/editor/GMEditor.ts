@@ -5,6 +5,7 @@ import * as monaco from 'monaco-editor';
 import EditorWorker from 'monaco-editor/editor/editor.worker.js?worker&inline';
 import TSWorker from 'monaco-editor/language/typescript/ts.worker.js?worker&inline';
 import 'monaco-editor/languages/features/typescript/register';
+import asd from '../declarations/sandbox/index.d.ts?string';
 
 globalThis.MonacoEnvironment = {
   getWorker: (_, label) => {
@@ -27,6 +28,8 @@ export default class GMEditor {
       allowNonTsExtensions: true,
       lib: ['es2015'],
     });
+
+    monaco.typescript.typescriptDefaults.addExtraLib(asd, 'ts:filename/gmm.d.ts');
 
     const editor = monaco.editor.create(document.getElementById('gm-editor-workspace') as HTMLElement, {
       value: 'function hello() {\n\talert(\'Hello world!\');\n}',

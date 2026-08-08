@@ -15,7 +15,7 @@
     "export": "node util/export_extension.js"
   },
   "dependencies": {
-    "monaco-editor": "patch:monaco-editor@npm%3A0.56.0#~/.yarn/patches/monaco-editor-npm-0.56.0-b1e34441ef.patch",
+    "monaco-editor": "^0.56.0",
     "ses": "^2.2.0"
   },
   "devDependencies": {

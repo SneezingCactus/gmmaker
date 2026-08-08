@@ -1,3 +1,5 @@
+import type { vector2d } from '../../vector';
+
 interface APIEventsStepOptions {
   /**
    * Indicates whether the listener will be called once, or if it will be called once for every player in the game.
@@ -82,9 +84,9 @@ export interface APIEvents {
    * @param options - Unique options to change when and how the listener will be called.
    * @param listener - The function to attach.
    */
-  addEventListener: <T extends keyof APIEventOptions, O extends APIEventOptions[T]>(
+  addEventListener<T extends keyof APIEventOptions, O extends APIEventOptions[T]>(
     eventType: T,
     options: O,
     listener: (...args: APIEventListenerArgs<T, O>) => void,
-  ) => any;
+  ): any;
 }

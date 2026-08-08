@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import { deliverStrippedMonaco } from './dev/vite-plugins/deliver_stripped_monaco';
+import { deliverStrippedMonacoTsLib } from './dev/vite-plugins/deliver_stripped_monaco';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { deliverStringifiedDeclarations } from './dev/vite-plugins/deliver_stringified_declarations';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -27,13 +28,14 @@ export default defineConfig({
     },
   },
   worker: {
-    plugins: () => [deliverStrippedMonaco()],
+    plugins: () => [deliverStrippedMonacoTsLib()],
   },
   plugins: [
     cssInjectedByJsPlugin({
       jsAssetsFilterFunction: chunk => chunk.fileName !== 'content_script.ts',
     }),
     svelte(),
+    deliverStringifiedDeclarations(),
     visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true }),
   ],
 });

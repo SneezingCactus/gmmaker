@@ -1,9 +1,12 @@
 import type { Plugin } from 'vite';
 import pkg from '../../package.json';
 
-export function emitManifest(): Plugin {
+/**
+ * Emits web extension JSON files (manifest.json and rules.json) to dist
+ */
+export function emitExtensionManifest(): Plugin {
   return {
-    name: 'emit_manifest',
+    name: 'emit_extension_manifest',
     async buildStart() {
       const manifest = JSON.parse(String(await this.fs.readFile('src/manifest.json')));
       const rules = String(await this.fs.readFile('src/rules.json'));

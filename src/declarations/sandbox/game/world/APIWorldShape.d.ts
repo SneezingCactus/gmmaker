@@ -1,3 +1,5 @@
+import type { vector2d } from '../../vector';
+
 interface APIWorldShapePolygon {
   type: 'polygon';
 

@@ -2,8 +2,10 @@
  * An intrinsic object that provides vector mathematics functionality.
  *
  * Vectors are represented by arrays of numbers. Example: [5, 2] is a 2d vector pointing at x: 5, y: 2.
+ *
+ * @gmDeclareVar Vector: APIVector
  */
-interface APIVector {
+export interface APIVector {
   /**
    * Adds the components of vector B to the respective components of vector A.
    *
@@ -11,7 +13,7 @@ interface APIVector {
    *
    * @memberof Vector
    */
-  add: (a: number[], b: number | number[]) => number[];
+  add(a: number[], b: number | number[]): number[];
   /**
    * Subtracts the components of vector B from the respective components of vector A.
    *
@@ -19,7 +21,7 @@ interface APIVector {
    *
    * @memberof Vector
    */
-  subtract: (a: number[], b: number | number[]) => number[];
+  subtract(a: number[], b: number | number[]): number[];
   /**
    * Multiplies the components of vector A by the respective components of vector B.
    *
@@ -27,7 +29,7 @@ interface APIVector {
    *
    * @memberof Vector
    */
-  multiply: (a: number[], b: number | number[]) => number[];
+  multiply(a: number[], b: number | number[]): number[];
   /**
    * Divides the components of vector A by the respective components of vector B.
    *
@@ -35,25 +37,25 @@ interface APIVector {
    *
    * @memberof Vector
    */
-  divide: (a: number[], b: number | number[]) => number[];
+  divide(a: number[], b: number | number[]): number[];
   /**
    * Returns the length (also called magnitude) of the vector.
    *
    * @memberof Vector
    */
-  length: (vector: number[]) => number;
+  length(vector: number[]): number;
   /**
    * Returns the distance between vector A and vector B.
    *
    * @memberof Vector
    */
-  distance: (a: number[], b: number[]) => number;
+  distance(a: number[], b: number[]): number;
   /**
    * Returns the vector scaled to have a length of 1.
    *
    * @memberof Vector
    */
-  normalize: (vector: number[]) => number[];
+  normalize(vector: number[]): number[];
   /**
    * Returns the dot product of vector A and vector B.
    *
@@ -62,7 +64,7 @@ interface APIVector {
    *
    * @memberof Vector
    */
-  dot: (a: number[], b: number[]) => number;
+  dot(a: number[], b: number[]): number;
   /**
    * Reflects a vector (dir) off the plane defined by a normal.
    *
@@ -72,7 +74,7 @@ interface APIVector {
    *
    * @memberof Vector
    */
-  reflect: (dir: number[], normal: number[]) => number[];
+  reflect(dir: number[], normal: number[]): number[];
   /**
    * Returns a vector linearly interpolated between vectors A and B by the interpolant t.
    *
@@ -84,13 +86,13 @@ interface APIVector {
    *
    * @memberof Vector
    */
-  lerp: (a: number[], b: number[], t: number) => number[];
+  lerp(a: number[], b: number[], t: number): number[];
   /**
    * Rotate a 2d vector by a given angle, taking the point zero (0, 0) as the rotation center.
    *
    * @memberof Vector
    */
-  rotate2d: (v: vector2d, a: number) => vector2d;
+  rotate2d(v: vector2d, a: number): vector2d;
   /**
    * Get the angle between the 2d vector and (1, 0), taking the point zero (0, 0) as the rotation center.
    *
@@ -98,7 +100,7 @@ interface APIVector {
    *
    * @memberof Vector
    */
-  getAngle2d: (v: vector2d) => number;
+  getAngle2d(v: vector2d): number;
 }
 
-declare type vector2d = [number, number];
+export type vector2d = [number, number];

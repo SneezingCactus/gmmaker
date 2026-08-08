@@ -60,9 +60,10 @@ declare interface GMStateMapMetadata {
   originalDbVersion: number | null;
 }
 
+/**
+ * @gmDeclareVar game: Game
+ */
 export interface Game {
   events: APIEvents;
   world: APIWorld;
 }
-
-declare let game: Game;

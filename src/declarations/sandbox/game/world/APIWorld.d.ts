@@ -6,6 +6,7 @@ import type { APIWorldSettings } from './APIWorldSettings';
 import type { APIWorldCapZone } from './APIWorldCapZone';
 import type { APIWorldProjectile } from './APIWorldProjectile';
 import type { APIWorldShape } from './APIWorldShape';
+import type { vector2d } from '../../vector';
 
 declare interface APIWorldRayCastResultPlatform {
   type: 'platform';
@@ -66,7 +67,7 @@ export interface APIWorld {
    *
    * @param id - The ID of the disc.
    */
-  getDiscRadius: (id: number) => number;
+  getDiscRadius(id: number): number;
   /**
    * Kill a disc.
    *
@@ -79,7 +80,7 @@ export interface APIWorld {
    *                       When set to false, the disc can't respawn even if "respawn on death" is activated, like
    *                       when someone claims a capzone. True by default.
    */
-  killDisc: (id: number, allowRespawn: boolean) => any;
+  killDisc(id: number, allowRespawn: boolean): any;
   /**
    * Create a platform.
    *
@@ -95,7 +96,7 @@ export interface APIWorld {
    *                      creating one.
    * @returns {number} The ID of the newly created platform
    */
-  createPlatform: (renderOrder: number, platformDef: Partial<APIWorldPlatform>) => number;
+  createPlatform(renderOrder: number, platformDef: Partial<APIWorldPlatform>): number;
   /**
    * Clone a platform.
    *
@@ -103,7 +104,7 @@ export interface APIWorld {
    * @param cloneJoints - `true` if joints attached to this platform should be cloned as well, `false` otherwise.
    * @returns {number} The ID of the newly created platform clone
    */
-  clonePlatform: (id: number, cloneJoints: boolean) => number;
+  clonePlatform(id: number, cloneJoints: boolean): number;
   /**
    * Add a shape to a platform.
    *
@@ -114,7 +115,7 @@ export interface APIWorld {
    *                   inner grapple are not used in a no-physics shape, so you can remove those when defining one.
    * @returns {number} The index at which the shape is located in the platform's `shapes` array.
    */
-  // addShapeToPlat: (platId: number, shapeDef: Partial<APIWorldShape>) => number;
+  // addShapeToPlat(platId: number, shapeDef: Partial<APIWorldShape>): number;
   /**
    * Move a platform shape from an index to another.
    *
@@ -122,35 +123,35 @@ export interface APIWorld {
    * @param fromIndex - The index of the shape to be moved
    * @param toIndex - The shape's new index
    */
-  // movePlatShape: (platId: number, fromIndex: number, toIndex: number) => void;
+  // movePlatShape(platId: number, fromIndex: number, toIndex: number): void;
   /**
    * Remove a shape from a platform.
    *
    * @param platId - The ID of the platform
    * @param shapeId - The ID of the shape to be removed
    */
-  // removeShapeFromPlat: (platId: number, shapeId: number) => void;
+  // removeShapeFromPlat(platId: number, shapeId: number): void;
   /**
    * Delete the specified platform, and everything related to it, such as shapes, joints and capzone definitions.
    * Drawings attached to the platform aren't deleted.
    *
    * @param id - The ID of the platform to delete.
    */
-  deletePlatform: (id: number) => void;
+  deletePlatform(id: number): void;
   /**
    * Find the ID of a platform by its name. Note that if there are multiple platforms with the same name,
    * the one with the lowest ID will be chosen.
    * @param name - Name of the platform to search for
    * @returns {number} The ID of the platform
    */
-  getPlatIdByName: (name: string) => number;
+  getPlatIdByName(name: string): number;
   /**
    * Create an arrow with the definition given. In your definition, you can exclude properties that you don't need to
    * define at the moment as they will be filled in with default values.
    *
    * @returns {number} The ID of the newly created arrow
    */
-  createArrow: (def: Partial<APIWorldProjectile>) => number;
+  createArrow(def: Partial<APIWorldProjectile>): number;
   /**
    * End the round.
    *
@@ -166,11 +167,11 @@ export interface APIWorld {
    *
    * If not specified, the round will end with a draw.
    */
-  triggerWin: (winner?: number) => void;
+  triggerWin(winner?: number): void;
   /**
    * End the round immediately, without showing the win screen.
    */
-  endRound: () => any;
+  endRound(): any;
   /**
    * Cast a ray from an `origin` point in the world to an `end` point.
    *
@@ -190,8 +191,8 @@ export interface APIWorld {
    * @param end -  The end point of the ray, as a 2d vector, represented by a number array `[x,y]`
    * @param filter - Filter function that dictates at which point the ray should stop.
    */
-  rayCast: (origin: vector2d, end: vector2d, filter: (hit: APIWorldRaycastResult) => boolean) =>
-    APIWorldRaycastResult | null;
+  rayCast(origin: vector2d, end: vector2d, filter: (hit: APIWorldRaycastResult) => boolean):
+  APIWorldRaycastResult | null;
   /**
    * It's like a raycast, but it allows you to find multiple objects in the line.
    *
@@ -202,6 +203,6 @@ export interface APIWorld {
    * @param end -  The end point of the ray, as a 2d vector, represented by a number array `[x,y]`
    * @param filter - Filter function that dictates what hits should be ignored and which shouldn't.
    */
-  rayCastAll: (origin: vector2d, end: vector2d, filter: (hit: APIWorldRaycastResult) => boolean) =>
+  rayCastAll(origin: vector2d, end: vector2d, filter: (hit: APIWorldRaycastResult) => boolean):
   APIWorldRaycastResult[];
 }

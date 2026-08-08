@@ -1,3 +1,5 @@
+import type { vector2d } from '../../vector';
+
 export interface APIWorldDisc {
   position: vector2d;
   angle: number;

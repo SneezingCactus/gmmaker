@@ -1,6 +1,10 @@
 import fs from 'node:fs';
 
-const WHITELISTED_PATTERNS = ['lib.d.ts', 'lib.decorators', 'lib.es2015', 'lib.es5', 'lib.es6', 'lib.esnext'];
+// definition lib files to keep
+const WHITELISTED_DEFS = ['lib.d.ts', 'lib.decorators', 'lib.es2015', 'lib.es5', 'lib.es6', 'lib.esnext'];
+
+// remove Math to be declared later
+const REMOVE_PATTERNS = ['declare var Math: Math;'];
 
 const tsDefs
   = fs.readFileSync('./node_modules/monaco-editor/esm/vs/languages/features/typescript/lib/lib.js').toString();
@@ -22,10 +26,14 @@ for (let i = 0; i < tsDefsSplit.length; i++) {
   }
 
   // start of (whitelisted) definition file
-  if (WHITELISTED_PATTERNS.some(x => line.includes(x)))
+  if (WHITELISTED_DEFS.some(x => line.includes(x)))
     selectionStartIdx = i;
 }
 
 finalTsDefs += 'export { libFileMap };';
+
+for (const patternToRemove of REMOVE_PATTERNS) {
+  finalTsDefs = finalTsDefs.replace(patternToRemove, '');
+}
 
 fs.writeFileSync('./dev/dist/ts_lib_stripped.js', finalTsDefs);
