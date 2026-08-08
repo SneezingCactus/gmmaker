@@ -37,8 +37,14 @@ export function deliverStringifiedDeclarations(): Plugin {
         Extractor.invoke(extractorConfig);
 
         let result = (await this.fs.readFile(path.resolve(__dirname, '../dist/api-extractor-out.d.ts'))).toString();
+
+        // remove all export keywords so that everything is globally declared
         result = result.replaceAll('export ', '');
 
+        // look for any @gmDeclareVar flags on JSDoc blocks and replace them with actual var declarations
+        //
+        // this is done this way as to only have these declared within the monaco workspace, and to circumvent
+        // api-extractor seeing the Math declaration as a re-declaration and renaming it
         for (const match of result.match(/@gmDeclareVar [^\n]+/g) ?? []) {
           result += `\ndeclare var ${match.replace('@gmDeclareVar ', '')};`;
         }
