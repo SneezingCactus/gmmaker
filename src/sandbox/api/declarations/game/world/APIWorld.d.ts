@@ -6,7 +6,7 @@ import type { APIWorldSettings } from './APIWorldSettings';
 import type { APIWorldCapZone } from './APIWorldCapZone';
 import type { APIWorldProjectile } from './APIWorldProjectile';
 import type { APIWorldShape } from './APIWorldShape';
-import type { vector2d } from '../../vector';
+import type { vector2d } from '../../APIVector';
 
 declare interface APIWorldRayCastResultPlatform {
   type: 'platform';

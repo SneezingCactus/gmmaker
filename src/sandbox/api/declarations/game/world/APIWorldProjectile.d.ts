@@ -1,4 +1,4 @@
-import type { vector2d } from '../../vector';
+import type { vector2d } from '../../APIVector';
 
 export interface APIWorldProjectile {
   /**

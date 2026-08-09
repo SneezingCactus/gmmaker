@@ -1,3 +1,6 @@
+import type { APIMath } from './declarations/APIMath';
+import type { APIVector } from './declarations/APIVector';
+
 export default function defineApiVector(gmMath: APIMath): APIVector {
   // declared before the main object as they're used by other functions
   // yeah it's ugly... but what can you do

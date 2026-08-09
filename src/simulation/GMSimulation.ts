@@ -1,8 +1,8 @@
 import { mod } from '../init';
-import type { PlayerInput } from '../declarations/network/PlayerInput';
-import type { GameSettings } from '../declarations/network/GameSettings';
+import type { PlayerInput } from '../network/declarations/PlayerInput';
+import type { GameSettings } from '../network/declarations/GameSettings';
 import { hookMethod } from '../utils/hooking';
-import type { BonkSimulation } from '../declarations/simulation/BonkSimulation';
+import type { BonkSimulation } from './declarations/BonkSimulation';
 
 export default class GMSimulation {
   public state?: BonkGameState;

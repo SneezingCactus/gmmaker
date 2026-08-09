@@ -1,3 +1,5 @@
+import type { APIMath } from './declarations/APIMath';
+
 const allPropertyNames = [
   'abs',
   'acos',
@@ -92,6 +94,9 @@ export default function defineApiMath(): APIMath {
     acosDeg: (x: number) => safeTrigFunctions.acos(x) * radToDeg,
     atanDeg: (x: number) => safeTrigFunctions.atan(x) * radToDeg,
 
+    lerpNumber(a, b, t) {
+      return a + (b - a) * t;
+    },
     lerpAngle(a, b, t) {
       const anglePointA = [safeTrigFunctions.sin(a), safeTrigFunctions.cos(a)];
       const anglePointB = [safeTrigFunctions.sin(b), safeTrigFunctions.cos(b)];

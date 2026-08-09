@@ -2,8 +2,8 @@ import initSandboxString from '../../dist/init_sandbox.js?raw';
 import type GMSandboxInternal from './GMSandboxInternal';
 
 export default class GMSandboxExternal {
-  frame: HTMLIFrameElement;
-  internal: GMSandboxInternal;
+  protected frame: HTMLIFrameElement;
+  protected internal: GMSandboxInternal;
 
   constructor() {
     this.frame = document.createElement('iframe');

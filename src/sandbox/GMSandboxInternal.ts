@@ -3,7 +3,7 @@ import defineApiVector from './api/vector';
 import type GMSandboxExternal from './GMSandboxExternal';
 
 export default class GMSandboxInternal {
-  public compartment: Compartment;
+  protected compartment: Compartment;
 
   constructor(_external: GMSandboxExternal) {
     const gmMath = defineApiMath();

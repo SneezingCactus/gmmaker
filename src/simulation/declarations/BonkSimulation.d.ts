@@ -1,5 +1,5 @@
-import type { PlayerInput } from '../../declarations/network/PlayerInput';
-import type { GameSettings } from '../../declarations/network/GameSettings';
+import type { PlayerInput } from '../../network/declarations/PlayerInput';
+import type { GameSettings } from '../../network/declarations/GameSettings';
 
 export declare class BonkSimulation {
   static createNewState: () => BonkGameState;
