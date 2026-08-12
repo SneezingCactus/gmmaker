@@ -1,4 +1,5 @@
 import initSandboxString from '../../dist/init_sandbox.js?raw';
+import type Game from './api/Game';
 import type GMSandboxInternal from './GMSandboxInternal';
 
 export default class GMSandboxExternal {
@@ -12,5 +13,9 @@ export default class GMSandboxExternal {
 
     (this.frame.contentWindow as any).eval(initSandboxString);
     this.internal = (this.frame.contentWindow as any).initSandbox();
+  }
+
+  getGame(): Game {
+    return this.internal.getGame();
   }
 }

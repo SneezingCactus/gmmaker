@@ -63,7 +63,7 @@ declare interface GMStateMapMetadata {
 /**
  * @gmDeclareVar game: Game
  */
-export interface APIGame {
+export class APIGame {
   events: APIEvents;
   world: APIWorld;
 }

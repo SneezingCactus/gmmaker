@@ -4,6 +4,7 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { deliverStrippedMonacoTsLib } from './dev/vite-plugins/deliver_stripped_monaco';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { deliverStringifiedDeclarations } from './dev/vite-plugins/deliver_stringified_declarations';
+import { addMissingMonacoTriggers } from './dev/vite-plugins/add_missing_monaco_triggers';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -36,6 +37,7 @@ export default defineConfig({
     }),
     svelte(),
     deliverStringifiedDeclarations(),
+    addMissingMonacoTriggers(),
     visualizer({ open: false, filename: 'dist/stats.html', gzipSize: true }),
   ],
 });

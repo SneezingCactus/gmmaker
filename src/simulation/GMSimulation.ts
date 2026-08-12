@@ -3,6 +3,7 @@ import type { PlayerInput } from '../network/declarations/PlayerInput';
 import type { GameSettings } from '../network/declarations/GameSettings';
 import { hookMethod } from '../utils/hooking';
 import type { BonkSimulation } from './declarations/BonkSimulation';
+import type { BonkGameState } from './declarations/BonkGameState';
 
 export default class GMSimulation {
   public state?: BonkGameState;
@@ -44,6 +45,9 @@ export default class GMSimulation {
     );
 
     this.state = newState;
+
+    mod.sandbox.getGame().world.deserialize(this.state);
+    mod.sandbox.getGame().world.serialize(this.state);
 
     mod.replaceHooks.endStep();
 

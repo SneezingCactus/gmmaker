@@ -31,5 +31,8 @@
     "src/**/*.ts",
     "src/**/*.js",
     "src/**/*.svelte"
+  ],
+  "exclude": [
+    "src/sandbox/api/index.ts",
   ]
 }

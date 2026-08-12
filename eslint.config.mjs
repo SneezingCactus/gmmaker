@@ -8,6 +8,8 @@ export default antfu({
     'perfectionist/sort-imports': 'off',
     'unicorn/prefer-node-protocol': 'off',
     'ts/switch-exhaustiveness-check': 'off',
+    'ts/no-namespace': 'off',
+    'ts/no-redeclare': 'off',
     'ts/no-unsafe-assignment': 'off',
     'ts/no-unsafe-argument': 'off',
     'ts/no-unsafe-member-access': 'off',

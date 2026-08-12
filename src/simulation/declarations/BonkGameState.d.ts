@@ -1,3 +1,5 @@
+import type { Vector2d } from '../../sandbox/api/vector';
+
 /**
  * Disc swing (grapple rod) information.
  */
@@ -9,7 +11,7 @@ declare interface BonkStateDiscSwing {
   /**
    * Grappling point relative to the attached body's position.
    */
-  p: vector2d;
+  p: Vector2d;
   /**
    * Grapple rod length.
    */
@@ -21,15 +23,23 @@ declare interface BonkStateDiscSwing {
  */
 declare interface BonkStateDisc {
   /**
-   * Position of the disc, as a 2d vector.
+   * X position of the disc.
    */
-  p: vector2d;
+  x: number;
   /**
-   * Linear velocity of the disc, as a 2d vector.
+   * Y position of the disc.
    */
-  lv: vector2d;
+  y: number;
   /**
-   * Angle in degrees of the disc.
+   * X velocity of the disc.
+   */
+  xv: number;
+  /**
+   * Y velocity of the disc.
+   */
+  yv: number;
+  /**
+   * Angle in radians of the disc.
    */
   a: number;
   /**
@@ -53,25 +63,33 @@ declare interface BonkStateDisc {
    */
   ni: boolean;
   /**
-   * Spawn position of the disc, as a 2d vector.
+   * Spawn X position of the disc.
    */
-  sp: vector2d;
+  sx: number;
   /**
-   * Spawn linear velocity of the disc, as a 2d vector.
+   * Spawn Y position of the disc.
    */
-  slv: vector2d;
+  sy: number;
+  /**
+   * Spawn X velocity of the disc.
+   */
+  sxv: number;
+  /**
+   * Spawn Y velocity of the disc.
+   */
+  syv: number;
   /**
    * Arrow aim speed (controls how fast an arrow will launch).
    */
   ds: number;
   /**
-   * Arrow aim angle, in degrees.
+   * Arrow aim angle, in radians.
    */
   da: number;
   /**
    * Grapple joint information. Becomes null when the player isn't grappling anything.
    */
-  swing: BonkStateDiscSwing;
+  swing: BonkStateDiscSwing | null;
   /**
    * Determines whether the disc is visible or not.
    */
@@ -101,11 +119,11 @@ declare interface BonkStateDiscDeath {
   /**
    * Position that the disc had when it died, as a 2d vector.
    */
-  p: vector2d;
+  p: Vector2d;
   /**
    * Linear velocity that the disc had when it died, as a 2d vector.
    */
-  lv: vector2d;
+  lv: Vector2d;
 }
 
 /**
@@ -113,15 +131,23 @@ declare interface BonkStateDiscDeath {
  */
 declare interface BonkStateProjectile {
   /**
-   * Position of the arrow, as a 2d vector.
+   * X position of the arrow.
    */
-  p: vector2d;
+  x: number;
   /**
-   * Linear velocity of the arrow, as a 2d vector.
+   * Y position of the arrow.
    */
-  lv: vector2d;
+  y: number;
   /**
-   * Angle in degrees of the arrow.
+   * X velocity of the arrow.
+   */
+  xv: number;
+  /**
+   * Y velocity of the arrow.
+   */
+  yv: number;
+  /**
+   * Angle in radians of the arrow.
    */
   a: number;
   /**
@@ -139,16 +165,16 @@ declare interface BonkStateProjectile {
    */
   did: number;
   /**
+   * Team of the arrow's owner.
+   */
+  team: number;
+  /**
    * Stands for "no interpolation", and works just like the noLerp variables in the camera and in drawings.
    *
    * Setting this value to true will make the game not interpolate the arrow's movement until the next step.
    * Useful for teleporting arrows without visible middle frames.
    */
   ni: boolean;
-  /**
-   * Determines whether the arrow is visible or not.
-   */
-  visible: boolean;
 }
 
 /**
@@ -166,7 +192,7 @@ declare interface BonkStateCapZone {
    */
   ty: number;
   /**
-   * Capture completion/process.
+   * Capture completion/progress.
    *
    * It increases when only the owner/s are inside the capture zone,
    * decreases when an opponent is inside, and stays still if none or both
@@ -199,9 +225,54 @@ declare interface BonkStateCapZone {
 }
 
 /**
- * Body apply force parameters.
+ * Body Force Zone parameters.
  */
-declare interface BonkStateBodyForces {
+declare interface BonkStateBodyForceZone {
+  /**
+   * Indicates if the body is a force zone.
+   */
+  on: boolean;
+  /**
+   * Force zone type. Can be:
+   *
+   * - 0: Absolute
+   * - 1: Relative
+   * - 2: Center Push
+   * - 3: Center Pull
+   */
+  t: number;
+
+  /**
+   * X linear force. Used only for Absolute and Relative force zones.
+   */
+  x: number;
+  /**
+   * Y linear force. Used only for Absolute and Relative force zones.
+   */
+  y: number;
+  /**
+   * Center force. Used only for Center Push and Pull force zones.
+   */
+  cf: number;
+
+  /**
+   * Indicates if discs should be pushed.
+   */
+  d: boolean;
+  /**
+   * Indicates if arrows should be pushed.
+   */
+  a: boolean;
+  /**
+   * Indicates if bodies should be pushed.
+   */
+  p: boolean;
+}
+
+/**
+ * Body Apply Force parameters.
+ */
+declare interface BonkStateBodyAppliedForces {
   /**
    * Amount of force applied in the X axis.
    */
@@ -233,38 +304,43 @@ declare interface BonkStateBody {
    * - "d": Dynamic (Free Moving).
    */
   type: 's' | 'k' | 'd';
+
   /**
    * Position of the body, as a 2d vector.
    */
-  p: vector2d;
+  p: Vector2d;
+  /**
+   * Angle in radians of the body.
+   */
+  a: number;
+
   /**
    * Linear velocity of the body, as a 2d vector.
    */
-  lv: vector2d;
-  /**
-   * Angle in degrees of the body.
-   */
-  a: number;
+  lv: Vector2d;
   /**
    * Angular velocity of the body.
    */
   av: number;
+
   /**
-   * `true` if this body can apply friction on players (Fric players), `false` otherwise.
+   * Restitution (bounciness) of the body.
    */
-  fricp: boolean;
-  /**
-   * Friction of the body surface.
-   */
-  fric: number;
+  re: number;
   /**
    * Density of the body.
    */
   de: number;
   /**
-   * Restitution (bounciness) of the body.
+   * Friction of the body surface.
    */
-  re: number;
+  fric: number;
+
+  /**
+   * `true` if this body can apply friction on players (Fric players), `false` otherwise.
+   */
+  fricp: boolean;
+
   /**
    * The amount of linear drag on the body.
    */
@@ -273,6 +349,7 @@ declare interface BonkStateBody {
    * The amount of angular drag on the body.
    */
   ad: number;
+
   /**
    * `true` if this body has a fixed rotation, `false` otherwise.
    */
@@ -281,22 +358,24 @@ declare interface BonkStateBody {
    * `true` if this body has bullet physics (Anti Tunnel), `false` otherwise.
    */
   bu: boolean;
+
   /**
-   * Object that contains the values of the three forces that get constantly applied to the body:
-   * Apply Force X (`cf.x`), Apply Force Y (`cf.y`) and Apply Torque (`cf.ct`).
+   * Object containing this body's "Apply Force" properties.
    */
-  cf: BonkStateBodyForces;
+  cf: BonkStateBodyAppliedForces;
+
   /**
-   * Array that contains the IDs of each fixture that makes up this body.
+   * Object containing this body's "Force Zone" properties.
    */
-  fx: vector2d;
+  fz: BonkStateBodyForceZone;
+
   /**
    * The collision group of the body.
    *
    * Instead of being represented by a letter, here it's represented by a number.
    * That way, collision groups A-D are represented by numbers 1-4.
    */
-  f_c: 1 | 2 | 3 | 4;
+  f_c: number;
   /**
    * `true` if this body can collide with players, `false` otherwise.
    */
@@ -317,6 +396,11 @@ declare interface BonkStateBody {
    * `true` if this body can collide with group D, `false` otherwise.
    */
   f_4: boolean;
+
+  /**
+   * Array that contains the IDs of each fixture that makes up this body.
+   */
+  fx: number[];
 }
 
 /**
@@ -371,10 +455,60 @@ declare interface BonkStateFixture {
   ig: boolean;
 }
 
-/**
- * Definition of a (fixture) shape.
- */
-declare interface BonkStateShape {
+declare interface BonkStateShapeRectangle extends BonkStateShapeBase {
+  type: 'bx';
+
+  /**
+   * Shape offset.
+   */
+  c: Vector2d;
+  /**
+   * Angle in radians.
+   */
+  a: number;
+  /**
+   * Width of the rectangle.
+   */
+  w: number;
+  /**
+   * Height of the rectangle.
+   */
+  h: number;
+
+  /**
+   * Dictates whether the shape will shrink or not.
+   */
+  sk: boolean;
+}
+
+declare interface BonkStateShapeCircle extends BonkStateShapeBase {
+  type: 'ci';
+
+  /**
+   * Shape offset.
+   */
+  c: Vector2d;
+  /**
+   * Radius of the circle.
+   */
+  r: number;
+
+  /**
+   * Dictates whether the shape will shrink or not.
+   */
+  sk: boolean;
+}
+
+declare interface BonkStateShapePolygon extends BonkStateShapeBase {
+  type: 'po';
+
+  /**
+   * Vertices of the polygon.
+   */
+  v: Vector2d[];
+}
+
+declare interface BonkStateShapeBase {
   /**
    * Shape type.
    *
@@ -384,41 +518,9 @@ declare interface BonkStateShape {
    * - "po": A polygon.
    */
   type: 'bx' | 'ci' | 'po';
-  /**
-   * Shape offset. Changing this coordinate will have no effect on polygons, only on circles and boxes.
-   */
-  c: number[];
-  /**
-   * [Box only] Width of the box.
-   */
-  w: number;
-  /**
-   * [Box only] Height of the box.
-   */
-  h: number;
-  /**
-   * [Box and polygon only] Angle in degrees. Changing it does not affect polygons,
-   * as their vertices have already been affected by it beforehand.
-   */
-  a: number;
-  /**
-   * [Polygon only] The vertices that make up the polygon.
-   */
-  v: vector2d[];
-  /**
-   * [Polygon only] The scale of the polygon defined in the map editor.
-   * Changing this value will have no effect on the polygon.
-   */
-  s: number;
-  /**
-   * [Circle only] Radius of the circle.
-   */
-  r: number;
-  /**
-   * [Box and circle only] Whether the shape will shrink or not.
-   */
-  sk: boolean;
 }
+
+declare type BonkStateShape = BonkStateShapeRectangle | BonkStateShapeCircle | BonkStateShapePolygon;
 
 /**
  * A collection of diverse joint parameters.
@@ -427,11 +529,11 @@ declare interface BonkStateShape {
  */
 declare interface BonkStateJointSubD {
   /**
-   * [Rotating joint only] Limit from angle in degrees.
+   * [Rotating joint only] Limit from angle in radians.
    */
   la: number;
   /**
-   * [Rotating joint only] Limit to angle in degrees.
+   * [Rotating joint only] Limit to angle in radians.
    */
   ua: number;
   /**
@@ -509,27 +611,27 @@ declare interface BonkStateJoint {
   /**
    * [Rotating and soft rod only] First attachment offset, as a 2d vector. Relative to the first attachment's body.
    */
-  aa: vector2d;
+  aa: Vector2d;
   /**
    * [Rotating and soft rod only] Second attachment offset, as a 2d vector. Relative to the second attachment's body.
    * If there's no specified second body (bb == -1), it's absolute (relative to world) instead.
    */
-  ab: vector2d;
+  ab: Vector2d;
   /**
    * [Rotating and soft rod only] Max length of the joint.
    */
   len: number;
 
   /**
-   * [Follow path joint only] X offset of the joint.
+   * [Follow path joint only] X anchor position of the joint.
    */
   pax: number;
   /**
-   * [Follow path joint only] Y offset of the joint.
+   * [Follow path joint only] Y anchor position of the joint.
    */
   pay: number;
   /**
-   * [Follow path joint only] Path angle in degrees.
+   * [Follow path joint only] Path angle in radians.
    */
   pa: number;
   /**
@@ -658,25 +760,25 @@ declare interface BonkStatePhysics {
    *
    * Ordered by ID (bodies[0] is body with ID 0, bodies[2] is body with ID 2, etc.)
    */
-  bodies: BonkStateBody[];
+  bodies: Partial<BonkStateBody[]>;
   /**
    * Array that contains the definitions of every fixture in the world. Bodies are made of fixtures.
    *
    * Ordered by ID (fixtures[0] is fixture with ID 0, fixtures[2] is fixture with ID 2, etc.)
    */
-  fixtures: BonkStateFixture[];
+  fixtures: Partial<BonkStateFixture[]>;
   /**
    * Array that contains the definitions of every shape in the world. Shapes define the geometry of each fixture.
    *
    * Ordered by ID (shapes[0] is shape with ID 0, shapes[2] is shape with ID 2, etc.)
    */
-  shapes: BonkStateShape[];
+  shapes: Partial<BonkStateShape[]>;
   /**
    * Array that contains the definitions of every joint in the world.
    *
    * Ordered by ID (joints[0] is joint with ID 0, joints[2] is joint with ID 2, etc.)
    */
-  joints: BonkStateJoint[];
+  joints: Partial<BonkStateJoint[]>;
   /**
    * Likely stands for "body render order".
    *
@@ -695,6 +797,13 @@ declare interface BonkStatePhysics {
    * "scale ratio" that assures an optimal resolution according to the client's display size.
    */
   ppm: number;
+  /**
+   * Array that contains the active shrink scale for all shrinking shapes.
+   *
+   * This information is contained as a tuple, where the first number
+   * is the shape ID and the second number is the scale.
+   */
+  ss: [number, number][];
 }
 
 /**
@@ -721,14 +830,14 @@ declare interface BonkGameState {
    *
    * Ordered by disc/player ID (discs[0] is disc with ID 0, discs[2] is disc with ID 2, etc.)
    */
-  discs: BonkStateDisc[];
+  discs: Partial<BonkStateDisc[]>;
   /**
    * Array that contains varied info about every recent death of a disc.
    *
    * In GMMaker, the term "disc" refers to the physical manifestation of a player,
    * in other words, the ball you control during the game.
    */
-  discDeaths: BonkStateDiscDeath[];
+  discDeaths: Partial<BonkStateDiscDeath[]>;
   /**
    * Array that contains varied attributes for every arrow, such as their owner and position.
    *
@@ -737,14 +846,14 @@ declare interface BonkGameState {
    * It's unknown why Chaz named this array `projectiles`. Perhaps he wanted to add different kinds
    * of projectiles at some point.
    */
-  projectiles: BonkStateProjectile[];
+  projectiles: Partial<BonkStateProjectile[]>;
   /**
    * Array that contains varied attributes for every capture zone, such as the type of capzone
    * and the fixture they possess.
    *
    * Ordered by capture zone ID (capZones[0] is capzone with ID 0, capZones[2] is capzone with ID 2, etc.)
    */
-  capZones: BonkStateCapZone[];
+  capZones: Partial<BonkStateCapZone[]>;
   /**
    * This is where map objects (called bodies), as well as their fixtures, shapes and joints, are stored.
    */

@@ -11,11 +11,16 @@
   },
   "homepage": "https://github.com/SneezingCactus/gmmaker",
   "scripts": {
-    "build": "tsc && vite build --config vite.extension.config.ts && vite build --config vite.sandbox.config.ts && vite build",
+    "build": "tsc && yarn build:extension && yarn build:sandbox && yarn build:api && yarn build:main",
+    "build:extension": "vite build --config vite.extension.config.ts",
+    "build:sandbox": "vite build --config vite.sandbox.config.ts",
+    "build:api": "vite build --config vite.api.config.ts",
+    "build:main": "vite build",
     "export": "node util/export_extension.js"
   },
   "dependencies": {
-    "monaco-editor": "^0.56.0",
+    "@microsoft/api-extractor": "^7.58.12",
+    "monaco-editor": "patch:monaco-editor@npm%3A0.56.0#~/.yarn/patches/monaco-editor-npm-0.56.0-b1e34441ef.patch",
     "ses": "^2.2.0"
   },
   "devDependencies": {
@@ -34,6 +39,7 @@
     "svelte-check": "^4.7.4",
     "svelte-preprocess": "^6.0.5",
     "typescript": "~6.0.2",
+    "unplugin-dts": "^1.0.3",
     "vite": "^8.1.1",
     "vite-plugin-css-injected-by-js": "^5.0.2"
   }
