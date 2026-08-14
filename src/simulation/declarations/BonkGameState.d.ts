@@ -1,4 +1,5 @@
 import type { Vector2d } from '../../sandbox/api/vector';
+import type { BonkStateGMExtra } from '../state_gm_extra/BonkStateGMExtra';
 
 /**
  * Disc swing (grapple rod) information.
@@ -910,4 +911,11 @@ declare interface BonkGameState {
    *   For example: scores[2] would be Team Green's amount of wins.
    */
   scores: number[];
+
+  /**
+   * Contains dynamic GMMaker properties that must sync with the game state.
+   *
+   * @internal
+   */
+  gmExtra: BonkStateGMExtra;
 }

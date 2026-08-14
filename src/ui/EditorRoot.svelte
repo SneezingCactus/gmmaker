@@ -2,7 +2,7 @@
   import EditorTopBar from "./EditorTopBar.svelte";
 </script>
 
-<div class="editor-root">
+<div class="editor-root" style="display: none;">
   <div class="window">
     <EditorTopBar />
     <div id="gm-editor-workspace"></div>

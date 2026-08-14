@@ -1,15 +1,27 @@
 import type { PlayerInput } from '../../network/declarations/PlayerInput';
-import type { GameSettings } from '../../network/declarations/GameSettings';
+import type { BonkGameSettings } from '../../network/declarations/GameSettings';
 import type { BonkGameState } from './BonkGameState';
 
 export declare class BonkSimulation {
-  static createNewState: () => BonkGameState;
+  static createNewState: (
+    players: {
+      id: number;
+      team: number;
+    }[],
+    map: any,
+    seed: number,
+    makeFteMuchSmaller: boolean,
+    ignorePlayers: boolean[],
+    gameSettings: BonkGameSettings,
+    makeFteSlightlySmaller: boolean,
+  ) => BonkGameState;
+
   step: (
     lastState: BonkGameState,
     inputs: PlayerInput[],
     adminInputs: unknown,
     physicsTimeStep: number,
-    gameSettings: GameSettings,
+    gameSettings: BonkGameSettings,
     numPhysicsSteps: number,
     isTutorial: boolean,
     quickPlayLobby: unknown,

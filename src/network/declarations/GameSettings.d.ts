@@ -1,7 +1,7 @@
 /**
  * Game settings set by the host of the game, such as the non-GMM mode and the amount of rounds needed to win.
  */
-export interface GameSettings {
+export interface BonkGameSettings {
   /**
    * Amount of rounds to win.
    */
