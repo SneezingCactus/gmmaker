@@ -14,6 +14,7 @@ export default antfu({
     'ts/no-unsafe-argument': 'off',
     'ts/no-unsafe-member-access': 'off',
     'ts/no-unsafe-call': 'off',
+    'ts/unbound-method': 'off',
     'no-console': 'off',
     'no-alert': 'off',
   },

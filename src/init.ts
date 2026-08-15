@@ -3,16 +3,20 @@ import type { BonkGraphics } from './graphics/declarations/BonkGraphics';
 import { initGraphics } from './graphics/GMGraphics';
 import GMSandboxExternal from './sandbox/GMSandboxExternal';
 import type { BonkSimulation } from './simulation/declarations/BonkSimulation';
-import GMSimulation from './simulation/GMSimulation';
+import { initSimulation } from './simulation/GMSimulation';
 import { log } from './utils/logging';
 import GMEditor from './editor/GMEditor';
+import type { Box2D } from './simulation/declarations/Box2D';
 
 interface Mod {
   objectHooks: {
+    Box2D: Box2D;
+
     BonkSimulation: typeof BonkSimulation;
     BonkGraphics: typeof BonkGraphics;
 
-    derivedBonkGraphics?: typeof BonkGraphics;
+    hookBonkGraphics: (derived: typeof BonkGraphics) => void;
+    hookBonkSimulation: (derived: typeof BonkSimulation) => void;
   };
   replaceHooks: {
     readonly gameLength: number;
@@ -28,7 +32,7 @@ interface Mod {
   };
 
   sandbox: GMSandboxExternal;
-  simulation: GMSimulation;
+  // simulation: GMSimulation;
   editor: GMEditor;
 
   init: () => void;
@@ -40,8 +44,9 @@ function init() {
   log('Hello from init!');
 
   initGraphics();
+  initSimulation();
 
-  mod.simulation = new GMSimulation();
+  // mod.simulation = new GMSimulation();
   mod.sandbox = new GMSandboxExternal();
   mod.editor = new GMEditor();
 }

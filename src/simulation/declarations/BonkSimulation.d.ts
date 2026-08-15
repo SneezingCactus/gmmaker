@@ -3,7 +3,7 @@ import type { BonkGameSettings } from '../../network/declarations/GameSettings';
 import type { BonkGameState } from './BonkGameState';
 
 export declare class BonkSimulation {
-  static createNewState: (
+  static createNewState(
     players: {
       id: number;
       team: number;
@@ -14,9 +14,9 @@ export declare class BonkSimulation {
     ignorePlayers: boolean[],
     gameSettings: BonkGameSettings,
     makeFteSlightlySmaller: boolean,
-  ) => BonkGameState;
+  ): BonkGameState;
 
-  step: (
+  step(
     lastState: BonkGameState,
     inputs: PlayerInput[],
     adminInputs: unknown,
@@ -25,5 +25,5 @@ export declare class BonkSimulation {
     numPhysicsSteps: number,
     isTutorial: boolean,
     quickPlayLobby: unknown,
-  ) => BonkGameState;
+  ): BonkGameState;
 }

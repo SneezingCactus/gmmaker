@@ -1,4 +1,5 @@
 import { mod } from '../init';
+import type { BonkGameState } from '../simulation/declarations/BonkGameState';
 
 export function initGraphics() {
   class GMGraphics extends mod.objectHooks.BonkGraphics {
@@ -13,5 +14,5 @@ export function initGraphics() {
     }
   }
 
-  mod.objectHooks.derivedBonkGraphics = GMGraphics;
+  mod.objectHooks.hookBonkGraphics(GMGraphics);
 }
