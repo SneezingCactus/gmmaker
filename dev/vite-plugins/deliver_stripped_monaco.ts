@@ -12,7 +12,7 @@ export function deliverStrippedMonacoTsLib(): Plugin {
     resolveId: {
       filter: { id: /lib\/lib.js/ },
       handler(_importer) {
-        return path.resolve(__dirname, '../dist/ts_lib_stripped.js');
+        return path.resolve(import.meta.dirname, '../dist/ts_lib_stripped.js');
       },
     },
   };

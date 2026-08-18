@@ -26,17 +26,18 @@ export function deliverStringifiedDeclarations(): Plugin {
             },
             dtsRollup: {
               enabled: true,
-              untrimmedFilePath: path.resolve(__dirname, '../dist/api-extractor-out.d.ts'),
+              untrimmedFilePath: path.resolve(import.meta.dirname, '../dist/api-extractor-out.d.ts'),
             },
-            projectFolder: path.resolve(__dirname, '../../'),
+            projectFolder: path.resolve(import.meta.dirname, '../../'),
           },
           configObjectFullPath: '',
-          packageJsonFullPath: path.resolve(__dirname, '../../package.json'),
+          packageJsonFullPath: path.resolve(import.meta.dirname, '../../package.json'),
         });
 
         Extractor.invoke(extractorConfig);
 
-        let result = (await this.fs.readFile(path.resolve(__dirname, '../dist/api-extractor-out.d.ts'))).toString();
+        let result = (await this.fs.readFile(path.resolve(import.meta.dirname, '../dist/api-extractor-out.d.ts')))
+          .toString();
 
         // remove all export keywords so that everything is globally declared
         result = result.replaceAll('export ', '');

@@ -172,31 +172,6 @@ function inject(src: string): string {
       `  ${bonkObjectName} = derived;`,
       '};',
     ].join('');
-
-    /*
-    classHooks += [
-      `window.${pkg.name}.functionHooks.${functionTarget.name} = ${bonkFunction};`,
-      `window.${pkg.name}.functionHooks.${functionTarget.name}OLD = ${bonkFunction};`,
-      `${bonkFunction} =`,
-    ].join(''); */
-
-    /*
-    if (functionTarget.isClass) {
-      functionHooks += [
-        `new Proxy(${bonkFunction}, {`,
-        '  construct(target, args) {',
-        `    return new ${mod}.functionHooks.${functionTarget.name}(...args);`,
-        '  }',
-        '});',
-      ].join('\n');
-    }
-    else {
-      functionHooks += [
-        'function() {',
-        `  return ${mod}.functionHooks.${functionTarget.name}(...arguments);`,
-        '};',
-      ].join('\n');
-    } */
   }
 
   src = src.replace(functionHookRegex, [

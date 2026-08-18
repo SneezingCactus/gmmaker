@@ -917,5 +917,5 @@ declare interface BonkGameState {
    *
    * @internal
    */
-  gmExtra: BonkStateGMExtra;
+  gmExtra?: BonkStateGMExtra;
 }

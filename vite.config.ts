@@ -1,10 +1,10 @@
 import { defineConfig } from 'vite';
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import { deliverStrippedMonacoTsLib } from './dev/vite-plugins/deliver_stripped_monaco';
+import { deliverStrippedMonacoTsLib } from './dev/vite-plugins/deliver_stripped_monaco.ts';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { deliverStringifiedDeclarations } from './dev/vite-plugins/deliver_stringified_declarations';
-import { addMissingMonacoTriggers } from './dev/vite-plugins/add_missing_monaco_triggers';
+import { deliverStringifiedDeclarations } from './dev/vite-plugins/deliver_stringified_declarations.ts';
+import { addMissingMonacoTriggers } from './dev/vite-plugins/add_missing_monaco_triggers.ts';
 
 // https://vitejs.dev/config/
 export default defineConfig({

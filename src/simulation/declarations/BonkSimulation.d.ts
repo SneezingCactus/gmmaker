@@ -3,6 +3,11 @@ import type { BonkGameSettings } from '../../network/declarations/GameSettings';
 import type { BonkGameState } from './BonkGameState';
 
 export declare class BonkSimulation {
+  static globalStepVars: {
+    gameSettings: BonkGameSettings;
+    inputState: BonkGameState;
+  };
+
   static createNewState(
     players: {
       id: number;

@@ -29,4 +29,8 @@ for (let i = 0; i < tsDefsSplit.length; i++) {
 
 finalTsDefs += 'export { libFileMap };';
 
+if (!fs.existsSync('./dev/dist')) {
+  fs.mkdirSync('./dev/dist');
+}
+
 fs.writeFileSync('./dev/dist/ts_lib_stripped.js', finalTsDefs);

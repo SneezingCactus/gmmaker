@@ -1,19 +1,46 @@
 import { mod } from '../init';
 import type { PlayerInput } from '../network/declarations/PlayerInput';
 import type { BonkGameSettings } from '../network/declarations/GameSettings';
-import { hookFunction } from '../utils/hooking';
-import type { BonkSimulation } from './declarations/BonkSimulation';
 import type { BonkGameState } from './declarations/BonkGameState';
 import { BonkStateGMExtra } from './state_gm_extra/BonkStateGMExtra';
+import { hookFunction } from '../utils/hooking';
 import type { b2World } from './declarations/Box2D';
 
 export function initSimulation() {
+  const Box2D = mod.objectHooks.Box2D;
+
+  Box2D.Dynamics.b2World.prototype.Step = hookFunction(Box2D.Dynamics.b2World.prototype.Step, function (
+    this: b2World,
+    original: b2World['Step'],
+    dt: number,
+    velocityIterations: number,
+    positionIterations: number,
+  ) {
+    const state = GMSimulation.globalStepVars.inputState;
+
+    if (!state.gmExtra) {
+      original(dt, velocityIterations, positionIterations);
+      return;
+    }
+
+    this.m_gravity.x = state.gmExtra.settings.gravity[0];
+    this.m_gravity.y = state.gmExtra.settings.gravity[1];
+
+    Box2D.Common.b2Settings.b2_maxTranslation = state.gmExtra.settings.linearSpeedCap;
+    Box2D.Common.b2Settings.b2_maxTranslationSquared = state.gmExtra.settings.linearSpeedCap ** 2;
+    Box2D.Common.b2Settings.b2_maxRotation = state.gmExtra.settings.angularSpeedCap;
+    Box2D.Common.b2Settings.b2_maxRotationSquared = state.gmExtra.settings.angularSpeedCap ** 2;
+
+    original(dt, velocityIterations, positionIterations);
+  });
+
   class GMSimulation extends mod.objectHooks.BonkSimulation {
     public state?: BonkGameState;
 
     constructor() {
       super();
-      console.log('Hi');
+
+      (window as any).simulation = this;
     }
 
     static createNewState(
@@ -53,6 +80,19 @@ export function initSimulation() {
       isTutorial: boolean,
       quickPlayLobby: unknown,
     ) {
+      if (!lastState.gmExtra) {
+        return super.step(
+          lastState,
+          inputs,
+          adminInputs,
+          physicsTimeStep,
+          gameSettings,
+          numPhysicsSteps,
+          isTutorial,
+          quickPlayLobby,
+        );
+      }
+
       const newState = super.step(
         lastState,
         inputs,

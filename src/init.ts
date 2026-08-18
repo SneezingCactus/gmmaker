@@ -32,7 +32,6 @@ interface Mod {
   };
 
   sandbox: GMSandboxExternal;
-  // simulation: GMSimulation;
   editor: GMEditor;
 
   init: () => void;

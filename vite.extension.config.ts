@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite';
-import { emitExtensionManifest } from './dev/vite-plugins/emit_extension_manifest';
+import { emitExtensionManifest } from './dev/vite-plugins/emit_extension_manifest.ts';
 
 export default defineConfig({
   build: {
