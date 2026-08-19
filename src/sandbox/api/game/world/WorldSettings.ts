@@ -1,5 +1,7 @@
 import type { BonkGameState } from '../../../../simulation/declarations/BonkGameState';
 import type Game from '../../Game';
+import type { Vector2d } from '../../vector';
+import { DEG_TO_RAD, RAD_TO_DEG } from '../../math';
 
 interface WorldSettings {
   /**
@@ -7,13 +9,17 @@ interface WorldSettings {
    */
   disableDeathBarrier: boolean;
   /**
-   * The maximum linear speed that all objects can reach. It's set to 60 by default.
+   * The maximum linear velocity that all objects can reach. It's set to 2 by default.
    */
   linearSpeedCap: number;
   /**
-   * The maximum angular speed that all objects can reach. It's set to 2700 by default.
+   * The maximum angular velocity that all objects can reach. It's set to 90 by default.
    */
   angularSpeedCap: number;
+  /**
+   * The world's gravity, as a 2d vector. It's set to [0, 20] by default.
+   */
+  gravity: Vector2d;
 
   /**
    * Specifies whether discs can respawn on death or not.
@@ -59,8 +65,9 @@ namespace WorldSettings {
   export function getDefault(): WorldSettings {
     return {
       disableDeathBarrier: false,
-      linearSpeedCap: 60,
-      angularSpeedCap: 2700,
+      linearSpeedCap: 2,
+      angularSpeedCap: 90,
+      gravity: [0, 20],
 
       respawnOnDeath: false,
       noPlayerCollision: false,
@@ -79,6 +86,12 @@ namespace WorldSettings {
    */
   export function serialize(game: Game, bonkState: BonkGameState) {
     const gmSettings = game.world.settings;
+    const gmExtra = bonkState.gmExtra!;
+
+    gmExtra.settings.linearSpeedCap = gmSettings.linearSpeedCap;
+    gmExtra.settings.angularSpeedCap = gmSettings.angularSpeedCap * DEG_TO_RAD;
+    gmExtra.settings.disableDeathBarrier = gmSettings.disableDeathBarrier;
+    gmExtra.settings.gravity = [gmSettings.gravity[0], gmSettings.gravity[1]];
 
     bonkState.ms.re = gmSettings.respawnOnDeath;
     bonkState.ms.nc = gmSettings.noPlayerCollision;
@@ -96,6 +109,12 @@ namespace WorldSettings {
    */
   export function deserialize(bonkState: BonkGameState, game: Game) {
     const gmSettings = game.world.settings;
+    const gmExtra = bonkState.gmExtra!;
+
+    gmSettings.linearSpeedCap = gmExtra.settings.linearSpeedCap;
+    gmSettings.angularSpeedCap = gmExtra.settings.angularSpeedCap * RAD_TO_DEG;
+    gmSettings.disableDeathBarrier = gmExtra.settings.disableDeathBarrier;
+    gmSettings.gravity = [gmExtra.settings.gravity[0], gmExtra.settings.gravity[1]];
 
     gmSettings.respawnOnDeath = bonkState.ms.re;
     gmSettings.noPlayerCollision = bonkState.ms.nc;

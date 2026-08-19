@@ -6,6 +6,13 @@ import { BonkStateGMExtra } from './state_gm_extra/BonkStateGMExtra';
 import { hookFunction } from '../utils/hooking';
 import type { b2World } from './declarations/Box2D';
 
+export const SIMULATION_TPS = 30;
+
+const B2_DEFAULT_MAX_TRANSLATION = 2;
+const B2_DEFAULT_MAX_TRANSLATION_SQUARED = 4;
+const B2_DEFAULT_MAX_ROTATION = 1.5707963267948966;
+const B2_DEFAULT_MAX_ROTATION_SQUARED = 2.4674011002723395;
+
 export function initSimulation() {
   const Box2D = mod.objectHooks.Box2D;
 
@@ -17,19 +24,29 @@ export function initSimulation() {
     positionIterations: number,
   ) {
     const state = GMSimulation.globalStepVars.inputState;
+    const gmExtra = state.gmExtra;
 
-    if (!state.gmExtra) {
+    if (!gmExtra) {
+      Box2D.Common.b2Settings.b2_maxTranslation = B2_DEFAULT_MAX_TRANSLATION;
+      Box2D.Common.b2Settings.b2_maxTranslationSquared = B2_DEFAULT_MAX_TRANSLATION_SQUARED;
+      Box2D.Common.b2Settings.b2_maxRotation = B2_DEFAULT_MAX_ROTATION;
+      Box2D.Common.b2Settings.b2_maxRotationSquared = B2_DEFAULT_MAX_ROTATION_SQUARED;
+
+      mod.replaceHooks.disableDeathBarrier = false;
+
       original(dt, velocityIterations, positionIterations);
       return;
     }
 
-    this.m_gravity.x = state.gmExtra.settings.gravity[0];
-    this.m_gravity.y = state.gmExtra.settings.gravity[1];
+    this.m_gravity.x = gmExtra.settings.gravity[0];
+    this.m_gravity.y = gmExtra.settings.gravity[1];
 
-    Box2D.Common.b2Settings.b2_maxTranslation = state.gmExtra.settings.linearSpeedCap;
-    Box2D.Common.b2Settings.b2_maxTranslationSquared = state.gmExtra.settings.linearSpeedCap ** 2;
-    Box2D.Common.b2Settings.b2_maxRotation = state.gmExtra.settings.angularSpeedCap;
-    Box2D.Common.b2Settings.b2_maxRotationSquared = state.gmExtra.settings.angularSpeedCap ** 2;
+    Box2D.Common.b2Settings.b2_maxTranslation = gmExtra.settings.linearSpeedCap;
+    Box2D.Common.b2Settings.b2_maxTranslationSquared = gmExtra.settings.linearSpeedCap ** 2;
+    Box2D.Common.b2Settings.b2_maxRotation = gmExtra.settings.angularSpeedCap;
+    Box2D.Common.b2Settings.b2_maxRotationSquared = gmExtra.settings.angularSpeedCap ** 2;
+
+    mod.replaceHooks.disableDeathBarrier = gmExtra.settings.disableDeathBarrier;
 
     original(dt, velocityIterations, positionIterations);
   });
@@ -119,98 +136,3 @@ export function initSimulation() {
 
   mod.objectHooks.hookBonkSimulation(GMSimulation);
 }
-
-/*
-export default class GMSimulation {
-  public bonkSimulation?: BonkSimulation;
-  public state?: BonkGameState;
-
-  constructor() {
-    mod.objectHooks.Box2D.Dynamics.b2World.prototype.Step = hookFunction(
-      mod.objectHooks.Box2D.Dynamics.b2World.prototype.Step,
-      this._b2WorldStep.bind(this),
-    );
-
-    mod.objectHooks.BonkSimulation.createNewState = hookFunction(
-      mod.objectHooks.BonkSimulation.createNewState,
-      this._createNewState.bind(this),
-    );
-
-    mod.objectHooks.BonkSimulation.prototype.step = hookFunction(
-      mod.objectHooks.BonkSimulation.prototype.step,
-      this._step.bind(this),
-    );
-  }
-
-  protected _b2WorldStep(
-    original: b2World['Step'],
-    dt: number,
-    positionIterations: number,
-    velocityIterations: number,
-  ) {
-    original(dt, positionIterations, velocityIterations);
-  }
-
-  protected _createNewState(
-    original: (typeof BonkSimulation)['createNewState'],
-    players: {
-      id: number;
-      team: number;
-    }[],
-    map: any,
-    seed: number,
-    makeFteMuchSmaller: boolean,
-    ignorePlayers: boolean[],
-    gameSettings: BonkGameSettings,
-    makeFteSlightlySmaller: boolean,
-  ): BonkGameState {
-    const newState = original(
-      players,
-      map,
-      seed,
-      makeFteMuchSmaller,
-      ignorePlayers,
-      gameSettings,
-      makeFteSlightlySmaller,
-    );
-
-    newState.gmExtra = BonkStateGMExtra.getDefault();
-
-    return newState;
-  }
-
-  protected _step(
-    original: BonkSimulation['step'],
-    lastState: BonkGameState,
-    inputs: PlayerInput[],
-    adminInputs: unknown,
-    physicsTimeStep: number,
-    gameSettings: BonkGameSettings,
-    numPhysicsSteps: number,
-    isTutorial: boolean,
-    quickPlayLobby: unknown,
-  ) {
-    const newState = original(
-      lastState,
-      inputs,
-      adminInputs,
-      physicsTimeStep,
-      gameSettings,
-      numPhysicsSteps,
-      isTutorial,
-      quickPlayLobby,
-    );
-
-    newState.gmExtra = BonkStateGMExtra.clone(lastState.gmExtra);
-
-    this.state = newState;
-
-    mod.sandbox.getGame().world.deserialize(this.state);
-    mod.sandbox.getGame().world.serialize(this.state);
-
-    mod.replaceHooks.endStep();
-
-    return newState;
-  }
-}
-*/

@@ -1,12 +1,13 @@
 type HookedFunctionCallback<T extends (...args: any[]) => any> = (original: T, ...args: Parameters<T>) => ReturnType<T>;
 
 /**
- * Hook a function not belonging to a class instance, be it static or independent
+ * Hook any function. The hook callback is passed the same `this` as the original method would have been passed,
+ * meaning hookFunction can be used in prototype methods.
  */
 export function hookFunction<T extends (...args: any[]) => any>(method: T, callback: HookedFunctionCallback<T>): T {
   return function (this: any, ...args: Parameters<T>) {
-    console.log(this);
-    return callback.apply(this, [method, ...args]);
+    // eslint-disable-next-line ts/no-unsafe-return
+    return callback.apply(this, [((...args: any[]) => method.apply(this, args)) as T, ...args]);
   } as T;
 }
 

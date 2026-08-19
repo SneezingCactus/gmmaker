@@ -1,3 +1,6 @@
+export const RAD_TO_DEG = 180 / Math.PI;
+export const DEG_TO_RAD = Math.PI / 180;
+
 export interface ExtraMath {
   readonly radToDeg: number;
   readonly degToRad: number;
@@ -86,18 +89,15 @@ export function safeATan(a: number): number {
 }
 
 export function safeAtan2(y: number, x: number) {
-  return Math.round(Math.atan2(y, x) * (180 / Math.PI) * safetyTruncFactor) / safetyTruncFactor;
+  return Math.round(Math.atan2(y, x) * safetyTruncFactor) / safetyTruncFactor;
 }
 
 export default function defineApiMath(): Math & ExtraMath {
-  const degToRad = Math.PI / 180;
-  const radToDeg = 180 / Math.PI;
-
   const allProperties = Object.fromEntries(allPropertyNames.map(propertyName => [
     propertyName,
 
     // we don't care about `this` scoping for Math
-    // eslint-disable-next-line ts/unbound-method
+
     Math[propertyName],
   ]));
 
@@ -114,15 +114,15 @@ export default function defineApiMath(): Math & ExtraMath {
     atan: safeATan,
     atan2: safeAtan2,
 
-    degToRad,
-    radToDeg,
+    degToRad: DEG_TO_RAD,
+    radToDeg: RAD_TO_DEG,
 
-    sinDeg: (x: number) => safeSin(x * degToRad),
-    cosDeg: (x: number) => safeCos(x * degToRad),
-    tanDeg: (x: number) => safeTan(x * degToRad),
-    asinDeg: (x: number) => safeASin(x) * radToDeg,
-    acosDeg: (x: number) => safeACos(x) * radToDeg,
-    atanDeg: (x: number) => safeATan(x) * radToDeg,
+    sinDeg: (x: number) => safeSin(x * DEG_TO_RAD),
+    cosDeg: (x: number) => safeCos(x * DEG_TO_RAD),
+    tanDeg: (x: number) => safeTan(x * DEG_TO_RAD),
+    asinDeg: (x: number) => safeASin(x) * RAD_TO_DEG,
+    acosDeg: (x: number) => safeACos(x) * RAD_TO_DEG,
+    atanDeg: (x: number) => safeATan(x) * RAD_TO_DEG,
 
     lerpNumber(a, b, t) {
       return a + (b - a) * t;
