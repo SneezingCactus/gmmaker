@@ -20,7 +20,9 @@
   },
   "dependencies": {
     "@microsoft/api-extractor": "^7.58.12",
+    "buffer": "^6.0.3",
     "monaco-editor": "patch:monaco-editor@npm%3A0.56.0#~/.yarn/patches/monaco-editor-npm-0.56.0-b1e34441ef.patch",
+    "semver": "^7.8.5",
     "ses": "^2.2.0"
   },
   "devDependencies": {
@@ -30,6 +32,7 @@
     "@types/chrome": "^0.2.2",
     "@types/firefox-webext-browser": "^143.0.0",
     "@types/node": "^26.1.1",
+    "@types/semver": "^7",
     "archiver": "^8.0.0",
     "eslint": "^10.8.0",
     "pixi.js": "5.2.5",

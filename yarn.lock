@@ -1409,6 +1409,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/semver@npm:^7":
+  version: 7.8.0
+  resolution: "@types/semver@npm:7.8.0"
+  checksum: 10c0/46a1f38e36013448b279798e8b134e7e8de3b3630b1f40683903b9d57d36dd1d70838515570ed9a149fa09e9c381b9e39319b58d7b9f3b929b42ae2becff7aa3
+  languageName: node
+  linkType: hard
+
 "@types/trusted-types@npm:^2.0.7":
   version: 2.0.7
   resolution: "@types/trusted-types@npm:2.0.7"
@@ -3212,12 +3219,15 @@ __metadata:
     "@types/chrome": "npm:^0.2.2"
     "@types/firefox-webext-browser": "npm:^143.0.0"
     "@types/node": "npm:^26.1.1"
+    "@types/semver": "npm:^7"
     archiver: "npm:^8.0.0"
+    buffer: "npm:^6.0.3"
     eslint: "npm:^10.8.0"
     monaco-editor: "patch:monaco-editor@npm%3A0.56.0#~/.yarn/patches/monaco-editor-npm-0.56.0-b1e34441ef.patch"
     pixi.js: "npm:5.2.5"
     rollup-plugin-visualizer: "npm:^7.0.1"
     sass: "npm:^1.102.0"
+    semver: "npm:^7.8.5"
     ses: "npm:^2.2.0"
     svelte: "npm:^5.56.8"
     svelte-check: "npm:^4.7.4"
@@ -4404,7 +4414,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@patch:monaco-editor@npm%3A0.56.0#~/.yarn/patches/monaco-editor-npm-0.56.0-b1e34441ef.patch":
+"monaco-editor@npm:0.56.0, monaco-editor@patch:monaco-editor@npm%3A0.56.0#~/.yarn/patches/monaco-editor-npm-0.56.0-b1e34441ef.patch":
   version: 0.56.0
   resolution: "monaco-editor@npm:0.56.0"
   dependencies:

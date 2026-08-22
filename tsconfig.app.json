@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es2023",
+    "target": "es2025",
     "lib": [
-      "ES2023",
+      "ES2025",
       "DOM"
     ],
     "moduleDetection": "force",
