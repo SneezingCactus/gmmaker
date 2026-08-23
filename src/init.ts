@@ -7,16 +7,23 @@ import { initSimulation } from './simulation/GMSimulation';
 import { log } from './utils/logging';
 import GMEditor from './editor/GMEditor';
 import type { Box2D } from './simulation/declarations/Box2D';
+import type { BonkNetworkEngine } from './network/declarations/BonkNetworkEngine';
+import type io from 'socket.io-client';
+import GMNetwork from './network/GMNetwork';
 
 interface Mod {
   objectHooks: {
     Box2D: Box2D;
 
+    SocketIO: typeof io;
+    BonkNetworkEngine: typeof BonkNetworkEngine;
     BonkSimulation: typeof BonkSimulation;
     BonkGraphics: typeof BonkGraphics;
 
-    hookBonkGraphics: (derived: typeof BonkGraphics) => void;
+    hookSocketIO: (derived: typeof io) => void;
+    hookBonkNetworkEngine: (derived: typeof BonkNetworkEngine) => void;
     hookBonkSimulation: (derived: typeof BonkSimulation) => void;
+    hookBonkGraphics: (derived: typeof BonkGraphics) => void;
   };
   replaceHooks: {
     readonly gameLength: number;
@@ -32,6 +39,7 @@ interface Mod {
   };
 
   sandbox: GMSandboxExternal;
+  network: GMNetwork;
   editor: GMEditor;
 
   init: () => void;
@@ -47,6 +55,7 @@ function init() {
 
   // mod.simulation = new GMSimulation();
   mod.sandbox = new GMSandboxExternal();
+  mod.network = new GMNetwork();
   mod.editor = new GMEditor();
 }
 

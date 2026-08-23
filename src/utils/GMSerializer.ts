@@ -14,6 +14,10 @@ export default class GMSerializer {
       this.growBuffer();
   }
 
+  getBuffer(): ArrayBuffer {
+    return this.buffer;
+  }
+
   setCursor(offset: number) {
     this.cursor = offset;
   }

@@ -25,15 +25,17 @@ export default class GMDeltaMode {
     this.code = code;
   }
 
-  static createFromModes(oldMode: GMMode, newMode: GMMode): GMDeltaMode {
+  static createFromModes(oldMode: GMMode | null, newMode: GMMode): GMDeltaMode {
     const resources: Map<string, GMModeResource | null> = new Map(newMode.resources);
 
-    // add null values to resource ids that exist in old mode but not in new mode
-    for (const resourceId of oldMode.resources.keys()) {
-      if (newMode.resources.has(resourceId))
-        continue;
+    if (oldMode) {
+      // add null values to resource ids that exist in old mode but not in new mode
+      for (const resourceId of oldMode.resources.keys()) {
+        if (newMode.resources.has(resourceId))
+          continue;
 
-      resources.set(resourceId, null);
+        resources.set(resourceId, null);
+      }
     }
 
     return new GMDeltaMode(newMode.metadata, resources, newMode.code);

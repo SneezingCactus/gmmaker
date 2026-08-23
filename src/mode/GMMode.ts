@@ -7,6 +7,7 @@ import type { GMModeCode } from './GMModeCode';
 import GMModeMetadata from './GMModeMetadata';
 import { deserializeModeResource } from './GMModeResource';
 import type { GMModeResource } from './GMModeResource';
+import protobuf from 'protobufjs';
 
 const MODE_MAGIC_HEADER = 'GMMODE';
 
@@ -16,7 +17,8 @@ export default class GMMode {
   code: GMModeCode = new GMModeJavaScriptCode();
 
   async serialize(serializer: GMSerializer) {
-    serializer.writeString(MODE_MAGIC_HEADER, false);
+    protobuf
+      .serializer.writeString(MODE_MAGIC_HEADER, false);
     serializer.writeString(pkg.version);
 
     this.metadata.serialize(serializer);

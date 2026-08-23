@@ -18,8 +18,8 @@ const mod = `window.${pkg.name}`;
 const targets: InjectorTargets = {
   objects: [
     {
-      // SocketIO library, used by Bonk to communicate with the room server.
-      name: 'SocketIo',
+      // Socket.io client library, used by Bonk to establish communication with its servers.
+      name: 'SocketIO',
       regex: /=\(1,(...[^)]+)\).{0,100}reconnection/,
     },
     {
@@ -38,12 +38,12 @@ const targets: InjectorTargets = {
       regex: /;([^=};]+)=class.{0,500}docu.{0,3000}TWEEN.{0,100}x:0,y/,
     },
     {
-      // This class takes care of communicating with the room's server.
-      name: 'BonkNetwork',
+      // Class in charge of abstracting communication between client and server.
+      name: 'BonkNetworkEngine',
       regex: /function ([^)]*)\([^)]{11}\).{0,8000}reconnection:false/,
     },
     {
-      // Class in charge of updating the lobby and reacting to the player's interactions with the lobby.
+      // Class in charge of the Custom Game lobby UI.
       name: 'BonkLobby',
       regex: /function (..)\(.{15}\).{0,20000}newbonklobby/,
     },
@@ -55,22 +55,22 @@ const targets: InjectorTargets = {
     },
     {
       // Unnamed general purpose class containing, among other things, the functions that begin a game session.
-      name: 'GameSessionHandler',
+      name: 'BonkGameSessionHandler',
       regex: /new (..)\(null\)/,
     },
     {
       // Class used by Bonk to compress/decompress maps.
-      name: 'MapEncoder',
+      name: 'BonkMapEncoder',
       regex: /\{try\{.{3,6}=(.{1,2})\[/,
     },
     {
       // Class in charge of handling ingoing and outgoing player input.
-      name: 'InputHandler',
+      name: 'BonkInputHandler',
       regex: /Date.{0,100}new ([^(]+).{0,100}\$\(document/,
     },
     {
       // Class containing a list of all the available modes.
-      name: 'ModeList',
+      name: 'BonkModeList',
       regex: /[}{;]([\w$]{3}\[\d{0,10}\])=class.{0,1000}=\{lobbyName/,
     },
   ],
